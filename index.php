@@ -10,7 +10,7 @@ $translations = [
         'meta_desc'  => 'Birlikdə — kuryer platformaları, süni intellekt botları və artırılmış reallıq layihələrini birləşdirən innovasiya ekosistemi.',
         'nav' => ['home' => 'Ana səhifə', 'projects' => 'Layihələr', 'info' => 'Haqqımızda', 'contact' => 'Əlaqə', 'cta' => 'Bizimlə ol'],
         'hero' => [
-            'eyebrow'  => 'PROHIVE İNNOVASİYA EKOSİSTEMİ',
+            'eyebrow'  => 'BİRLİKDƏ İNNOVASİYA EKOSİSTEMİ',
             'title_1'  => 'Birlikdə',
             'title_2'  => 'qururuq',
             'subtitle' => 'Kuryer xidmətlərindən süni intellektə, artırılmış reallıqdan sabahın texnologiyalarına qədər — hər şeyi eyni ekosistem daxilində, birlikdə yaradırıq.',
@@ -56,8 +56,8 @@ $translations = [
         'info' => [
             'eyebrow' => 'ETİBAR VƏ ŞƏFFAFLIQ',
             'legal'   => ['title' => 'Hüquqi', 'text' => 'Bütün fəaliyyətimiz qanunvericiliyə tam uyğun şəkildə həyata keçirilir. İstifadəçi məlumatlarının məxfiliyi və təhlükəsizliyi bizim üçün prioritetdir.', 'link1' => 'Məxfilik Siyasəti', 'link2' => 'İstifadə Şərtləri'],
-            'leadership' => ['title' => 'Rəhbərlik', 'text' => 'Təcrübəli və vizioner komanda tərəfindən idarə olunan Prohive, hər layihəyə strateji baxış və peşəkarlıqla yanaşır.'],
-            'contact' => ['title' => 'Əlaqə', 'text' => 'Sualınız var? Əməkdaşlıq təklifi ilə maraqlanırsınız? Bizimlə əlaqə saxlamaqdan çəkinməyin.', 'email_label' => 'E-poçt', 'follow' => 'Bizi izləyin'],
+            'leadership' => ['title' => 'Rəhbərlik', 'name' => 'Elnur Nuriyev', 'text' => 'Birlikdə, təcrübəli və vizioner rəhbərliyin nəzarəti altında hər layihəyə strateji baxış və peşəkarlıqla yanaşır.'],
+            'contact' => ['title' => 'Əlaqə', 'text' => 'Sualınız var? Əməkdaşlıq təklifi ilə maraqlanırsınız? Bizimlə WhatsApp və ya zəng vasitəsilə əlaqə saxlamaqdan çəkinməyin.', 'phone_label' => 'Telefon', 'whatsapp_label' => 'WhatsApp', 'follow' => 'Bizi izləyin'],
         ],
         'footer' => ['rights' => 'Bütün hüquqlar qorunur.', 'tag' => 'Gələcək birlikdə qurulur.'],
     ],
@@ -66,7 +66,7 @@ $translations = [
         'meta_desc'  => 'Birlikdə — экосистема инноваций, объединяющая курьерские платформы, ИИ-ботов и проекты дополненной реальности.',
         'nav' => ['home' => 'Главная', 'projects' => 'Проекты', 'info' => 'О нас', 'contact' => 'Контакты', 'cta' => 'Будь с нами'],
         'hero' => [
-            'eyebrow'  => 'ЭКОСИСТЕМА ИННОВАЦИЙ PROHIVE',
+            'eyebrow'  => 'ЭКОСИСТЕМА ИННОВАЦИЙ BİRLİKDƏ',
             'title_1'  => 'Birlikdə',
             'title_2'  => 'вместе',
             'subtitle' => 'От курьерских сервисов до искусственного интеллекта, от дополненной реальности до технологий будущего — мы создаём всё в единой экосистеме, вместе.',
@@ -112,8 +112,8 @@ $translations = [
         'info' => [
             'eyebrow' => 'ДОВЕРИЕ И ПРОЗРАЧНОСТЬ',
             'legal'   => ['title' => 'Юридическая информация', 'text' => 'Вся наша деятельность полностью соответствует законодательству. Конфиденциальность и безопасность данных пользователей — наш приоритет.', 'link1' => 'Политика конфиденциальности', 'link2' => 'Условия использования'],
-            'leadership' => ['title' => 'Руководство', 'text' => 'Prohive управляется опытной и дальновидной командой, подходящей к каждому проекту со стратегическим видением и профессионализмом.'],
-            'contact' => ['title' => 'Контакты', 'text' => 'Есть вопрос? Хотите сотрудничать? Не стесняйтесь связаться с нами.', 'email_label' => 'Эл. почта', 'follow' => 'Подписывайтесь'],
+            'leadership' => ['title' => 'Руководство', 'name' => 'Эльнур Нуриев', 'text' => 'Birlikdə управляется опытным и дальновидным руководством, подходящим к каждому проекту со стратегическим видением и профессионализмом.'],
+            'contact' => ['title' => 'Контакты', 'text' => 'Есть вопрос? Хотите сотрудничать? Свяжитесь с нами через WhatsApp или по телефону.', 'phone_label' => 'Телефон', 'whatsapp_label' => 'WhatsApp', 'follow' => 'Подписывайтесь'],
         ],
         'footer' => ['rights' => 'Все права защищены.', 'tag' => 'Будущее строится вместе.'],
     ],
@@ -122,7 +122,7 @@ $translations = [
         'meta_desc'  => 'Birlikdə — an innovation ecosystem uniting courier platforms, AI bots, and augmented reality projects.',
         'nav' => ['home' => 'Home', 'projects' => 'Projects', 'info' => 'About', 'contact' => 'Contact', 'cta' => 'Join Us'],
         'hero' => [
-            'eyebrow'  => 'THE PROHIVE INNOVATION ECOSYSTEM',
+            'eyebrow'  => 'THE BİRLİKDƏ INNOVATION ECOSYSTEM',
             'title_1'  => 'Birlikdə',
             'title_2'  => 'together',
             'subtitle' => 'From courier services to artificial intelligence, from augmented reality to the technologies of tomorrow — we build it all within one ecosystem, together.',
@@ -168,8 +168,8 @@ $translations = [
         'info' => [
             'eyebrow' => 'TRUST & TRANSPARENCY',
             'legal'   => ['title' => 'Legal', 'text' => 'All our operations are fully compliant with applicable law. User data privacy and security are our top priority.', 'link1' => 'Privacy Policy', 'link2' => 'Terms of Use'],
-            'leadership' => ['title' => 'Leadership', 'text' => 'Prohive is guided by an experienced, visionary team that approaches every project with strategy and professionalism.'],
-            'contact' => ['title' => 'Contact', 'text' => 'Have a question? Interested in partnering with us? Don\'t hesitate to reach out.', 'email_label' => 'Email', 'follow' => 'Follow us'],
+            'leadership' => ['title' => 'Leadership', 'name' => 'Elnur Nuriyev', 'text' => 'Birlikdə is guided by experienced, visionary leadership that approaches every project with strategy and professionalism.'],
+            'contact' => ['title' => 'Contact', 'text' => 'Have a question? Interested in partnering with us? Reach out via WhatsApp or by phone.', 'phone_label' => 'Phone', 'whatsapp_label' => 'WhatsApp', 'follow' => 'Follow us'],
         ],
         'footer' => ['rights' => 'All rights reserved.', 'tag' => 'The future is built together.'],
     ],
@@ -429,10 +429,13 @@ section{position:relative;z-index:1;}
 .info-links a{font-size:.88rem;font-weight:600;color:var(--text-1);display:inline-flex;align-items:center;gap:6px;}
 .info-links a i{width:14px;height:14px;}
 .info-links a:hover{color:var(--accent-cyan);}
+.contact-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;}
 .contact-email{
-  margin-top:20px;display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:1rem;
+  display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:1rem;
   padding:12px 20px;border-radius:100px;background:var(--glass-bg-strong);border:1px solid var(--glass-border);
+  transition:transform .3s var(--ease),background .3s;
 }
+.contact-email:hover{transform:translateY(-3px);background:rgba(255,255,255,.14);}
 .contact-email i{width:16px;height:16px;color:var(--accent-cyan);}
 .social-row{display:flex;gap:10px;margin-top:18px;}
 .social-row a{
@@ -441,13 +444,21 @@ section{position:relative;z-index:1;}
 }
 .social-row a:hover{transform:translateY(-3px);background:rgba(255,255,255,.14);}
 .social-row a i{width:17px;height:17px;}
-.leader-avatars{display:flex;margin-top:22px;}
-.leader-avatars .av{
-  width:42px;height:42px;border-radius:50%;margin-left:-10px;border:2px solid #000;
-  background:linear-gradient(135deg,var(--accent-blue),var(--accent-violet));display:flex;align-items:center;justify-content:center;
-  font-size:.75rem;font-weight:700;color:#fff;
+.leader-row{display:flex;align-items:center;gap:12px;margin-top:22px;}
+.leader-mark{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  background:conic-gradient(from 180deg,var(--accent-blue),var(--accent-violet),var(--accent-cyan),var(--accent-blue));
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#000;
+  box-shadow:0 0 20px rgba(79,124,255,.4);
 }
-.leader-avatars .av:first-child{margin-left:0;}
+.leader-name{font-weight:700;font-size:1rem;color:var(--text-1);}
+.whatsapp-btn{
+  display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:1rem;
+  padding:12px 20px;border-radius:100px;background:linear-gradient(120deg,#25D366,#128C7E);color:#fff;
+  box-shadow:0 8px 24px rgba(37,211,102,.35);transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+}
+.whatsapp-btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(37,211,102,.5);}
+.whatsapp-btn i{width:16px;height:16px;}
 
 /* ============ 7. FOOTER ============ */
 footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);margin-top:40px;}
@@ -496,6 +507,18 @@ footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);margin-top:4
 .modal-progress{width:100%;height:6px;border-radius:100px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:8px;}
 .modal-progress-bar{height:100%;border-radius:100px;width:0%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan));transition:width 1.2s var(--ease);}
 .modal-note{font-size:.82rem;color:var(--text-3);margin-top:18px;line-height:1.6;}
+
+.legal-box{
+  width:min(680px,100%);max-height:82vh;overflow-y:auto;text-align:left;padding:48px 44px;
+}
+.legal-content h2{font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;}
+.legal-content .legal-updated{font-size:.8rem;color:var(--text-3);margin-bottom:28px;}
+.legal-content h4{font-size:1rem;font-weight:700;color:var(--text-1);margin:26px 0 10px;}
+.legal-content h4:first-of-type{margin-top:0;}
+.legal-content p{font-size:.92rem;color:var(--text-2);line-height:1.75;}
+.legal-content ul{margin:10px 0 0 18px;}
+.legal-content li{font-size:.92rem;color:var(--text-2);line-height:1.75;list-style:disc;margin-bottom:6px;}
+@media(max-width:640px){.legal-box{padding:34px 24px;}}
 
 /* ============ 9. REVEAL / RESPONSIVE ============ */
 .reveal{opacity:0;transform:translateY(40px);}
@@ -618,8 +641,8 @@ footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);margin-top:4
         <h3 data-i18n="info.legal.title"><?php echo $t['info']['legal']['title']; ?></h3>
         <p data-i18n="info.legal.text"><?php echo $t['info']['legal']['text']; ?></p>
         <div class="info-links">
-          <a href="#"><i data-lucide="file-text"></i><span data-i18n="info.legal.link1"><?php echo $t['info']['legal']['link1']; ?></span></a>
-          <a href="#"><i data-lucide="file-text"></i><span data-i18n="info.legal.link2"><?php echo $t['info']['legal']['link2']; ?></span></a>
+          <a href="#" data-legal="privacy"><i data-lucide="file-text"></i><span data-i18n="info.legal.link1"><?php echo $t['info']['legal']['link1']; ?></span></a>
+          <a href="#" data-legal="terms"><i data-lucide="file-text"></i><span data-i18n="info.legal.link2"><?php echo $t['info']['legal']['link2']; ?></span></a>
         </div>
       </div>
 
@@ -627,16 +650,20 @@ footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);margin-top:4
         <div class="icon-wrap"><i data-lucide="users"></i></div>
         <h3 data-i18n="info.leadership.title"><?php echo $t['info']['leadership']['title']; ?></h3>
         <p data-i18n="info.leadership.text"><?php echo $t['info']['leadership']['text']; ?></p>
-        <div class="leader-avatars">
-          <div class="av">A</div><div class="av">R</div><div class="av">N</div>
+        <div class="leader-row">
+          <span class="leader-mark">EN</span>
+          <span class="leader-name" data-i18n="info.leadership.name"><?php echo $t['info']['leadership']['name']; ?></span>
         </div>
       </div>
 
       <div class="info-card glass reveal" id="contact">
-        <div class="icon-wrap"><i data-lucide="mail"></i></div>
+        <div class="icon-wrap"><i data-lucide="phone"></i></div>
         <h3 data-i18n="info.contact.title"><?php echo $t['info']['contact']['title']; ?></h3>
         <p data-i18n="info.contact.text"><?php echo $t['info']['contact']['text']; ?></p>
-        <a href="mailto:info@birlikde.biz" class="contact-email"><i data-lucide="at-sign"></i>info@birlikde.biz</a>
+        <div class="contact-actions">
+          <a href="tel:+994555949444" class="contact-email"><i data-lucide="phone"></i>055 594 94 44</a>
+          <a href="https://wa.me/994555949444" target="_blank" rel="noopener" class="whatsapp-btn"><i data-lucide="message-circle"></i><span>WhatsApp</span></a>
+        </div>
         <div class="social-row">
           <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
           <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin"></i></a>
@@ -653,7 +680,7 @@ footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);margin-top:4
   <div class="container footer-row">
     <div class="footer-brand"><span class="mark"></span><span>Birlikdə</span></div>
     <span class="footer-tag" data-i18n="footer.tag"><?php echo $t['footer']['tag']; ?></span>
-    <span class="footer-tag">© <?php echo date('Y'); ?> Prohive. <span data-i18n="footer.rights"><?php echo $t['footer']['rights']; ?></span></span>
+    <span class="footer-tag">© <?php echo date('Y'); ?> Birlikdə. <span data-i18n="footer.rights"><?php echo $t['footer']['rights']; ?></span></span>
   </div>
 </footer>
 
@@ -683,6 +710,96 @@ footer{padding:60px 0 40px;border-top:1px solid var(--glass-border);margin-top:4
     <p class="modal-note" id="modalNote">—</p>
   </div>
 </div>
+
+<!-- ============ LEGAL MODAL ============ -->
+<div class="modal-overlay legal-overlay" id="legalOverlay">
+  <div class="modal-box legal-box" id="legalBox">
+    <button class="modal-close" id="legalClose"><i data-lucide="x"></i></button>
+    <div class="legal-content" id="legalContent"></div>
+  </div>
+</div>
+
+<template id="legal-privacy-tpl">
+  <h2>Məxfilik Siyasəti</h2>
+  <p class="legal-updated">Son yenilənmə: 8 iyul 2026</p>
+
+  <h4>1. Məqsəd</h4>
+  <p>Bu Məxfilik Siyasəti ("Siyasət") "Birlikdə" platforması (birlikde.biz, bundan sonra "Platforma" və ya "Biz") tərəfindən istifadəçilərdən toplanan məlumatların hansı məqsədlərlə toplandığını, necə istifadə olunduğunu, saxlanıldığını və qorunduğunu izah edir. Platformadan istifadə etməklə siz bu Siyasətin şərtlərini qəbul etmiş sayılırsınız.</p>
+
+  <h4>2. Toplanan Məlumatlar</h4>
+  <p>Xidmətdən istifadə zamanı aşağıdakı məlumatlar toplana bilər:</p>
+  <ul>
+    <li>Qeydiyyat məlumatları: ad, soyad, telefon nömrəsi, e-poçt ünvanı;</li>
+    <li>Sifariş məlumatları: göndəriş və çatdırılma ünvanları, sifariş tarixçəsi;</li>
+    <li>Texniki məlumatlar: IP ünvanı, cihaz identifikatoru, brauzer növü, giriş/çıxış vaxtları;</li>
+    <li>Yazışma və dəstək müraciətləri zamanı ötürülən məlumatlar.</li>
+  </ul>
+
+  <h4>3. Hüquqi Loqlar (Legal Logs)</h4>
+  <p>İstifadəçi təhlükəsizliyinin və xidmətin bütövlüyünün təmin olunması məqsədilə, hər bir sifarişin götürüldüyü an istifadəçinin IP ünvanı və istifadə etdiyi cihaza dair texniki məlumatlar ("hüquqi loqlar") avtomatik qeydiyyata alınır. Bu qeydiyyat yalnız istifadəçinin Platformadan istifadə etməklə verdiyi razılıq əsasında həyata keçirilir və mübahisəli hallarda, hüquq-mühafizə orqanlarının qanuni tələbi əsasında və ya Platformanın hüquqi maraqlarının qorunması üçün istifadə oluna bilər.</p>
+
+  <h4>4. Məlumatların İstifadəsi</h4>
+  <p>Toplanan məlumatlar yalnız aşağıdakı məqsədlər üçün istifadə olunur:</p>
+  <ul>
+    <li>Sifarişin icrası və kuryer-müştəri əlaqələndirilməsi;</li>
+    <li>Hesab təhlükəsizliyinin təmin edilməsi və fırıldaqçılığın qarşısının alınması;</li>
+    <li>Hüquqi öhdəliklərin yerinə yetirilməsi (hüquqi loqlar daxil olmaqla);</li>
+    <li>Xidmət keyfiyyətinin artırılması və texniki dəstək.</li>
+  </ul>
+
+  <h4>5. Məlumatların Ötürülməsi</h4>
+  <p>Platforma istifadəçi məlumatlarını heç bir halda üçüncü tərəflərə satmır, kirayə vermir və ya marketinq məqsədilə ötürmür. Məlumatlar yalnız qanunun tələb etdiyi hallarda səlahiyyətli dövlət orqanlarına təqdim oluna bilər.</p>
+
+  <h4>6. İstifadəçi Hüquqları</h4>
+  <p>İstifadəçi istənilən vaxt öz məlumatlarına giriş əldə etmək, onların düzəldilməsini və ya qanunla nəzərdə tutulan hallar istisna olmaqla silinməsini tələb etmək hüququna malikdir. Bu tələblər Platformanın əlaqə kanalları vasitəsilə göndərilə bilər.</p>
+
+  <h4>7. Məlumatların Saxlanılması</h4>
+  <p>Şəxsi məlumatlar yalnız xidmətin göstərilməsi və qanuni öhdəliklərin yerinə yetirilməsi üçün zəruri olan müddət ərzində saxlanılır, bundan sonra təhlükəsiz şəkildə silinir və ya anonimləşdirilir.</p>
+
+  <h4>8. Dəyişikliklər</h4>
+  <p>Platforma bu Siyasəti istənilən vaxt yeniləmək hüququnu özündə saxlayır. Dəyişikliklər saytda dərc olunduğu andan qüvvəyə minir.</p>
+
+  <h4>9. Əlaqə</h4>
+  <p>Məxfilik Siyasəti ilə bağlı suallarınız üçün 055 594 94 44 nömrəsi vasitəsilə bizimlə əlaqə saxlaya bilərsiniz.</p>
+</template>
+
+<template id="legal-terms-tpl">
+  <h2>İstifadəçi Şərtləri</h2>
+  <p class="legal-updated">Son yenilənmə: 8 iyul 2026</p>
+
+  <h4>1. Məqsəd</h4>
+  <p>Bu İstifadəçi Şərtləri ("Şərtlər") "Birlikdə" platformasından (birlikde.biz, bundan sonra "Platforma") istifadə qaydalarını, tərəflərin hüquq və vəzifələrini müəyyən edir. Platformadan istifadə etməklə siz bu Şərtləri qəbul etmiş sayılırsınız.</p>
+
+  <h4>2. Xidmətin Təsviri və Vasitəçilik Statusu</h4>
+  <p>Platforma müştərilər və müstəqil kuryerlər arasında əlaqə yaradan rəqəmsal vasitəçi (elan lövhəsi) rolunu oynayır. Platforma daşınma, çatdırılma və ya digər logistika xidmətlərini bilavasitə göstərmir, bu xidmətlər müstəqil kuryerlər tərəfindən həyata keçirilir. Nəticə etibarilə, Platforma göndərişin keyfiyyəti, vaxtında çatdırılması, malın zədələnməsi və ya itirilməsi kimi hallara görə birbaşa məsuliyyət daşımır.</p>
+
+  <h4>3. İstifadəçi Öhdəlikləri</h4>
+  <p>Platformadan istifadə edən hər bir şəxs aşağıdakıları öhdəsinə götürür:</p>
+  <ul>
+    <li>Qeydiyyat zamanı doğru və aktual məlumat təqdim etmək;</li>
+    <li>Platformanı qanunsuz, aldadıcı və ya üçüncü şəxslərin hüquqlarını pozan məqsədlərlə istifadə etməmək;</li>
+    <li>Sifariş zamanı IP ünvanı və cihaz məlumatlarının hüquqi loq kimi qeydiyyata alınmasına razılıq vermək;</li>
+    <li>Digər istifadəçilərə (kuryer və ya müştəriyə) hörmətli davranmaq.</li>
+  </ul>
+
+  <h4>4. Ödənişlər və Abunəliklər</h4>
+  <p>Platformanın müəyyən funksiyalarından istifadə abunə haqqı ilə həyata keçirilir. Aktiv abunəlik dövründə göstərilən xidmətə görə ödənilmiş məbləğlər geri qaytarılmır. İstifadəçi abunəliyi istənilən vaxt ləğv edə bilər, lakin artıq ödənilmiş və aktiv olan dövr üçün heç bir geri ödəmə edilmir.</p>
+
+  <h4>5. Məsuliyyətdən İmtina</h4>
+  <p>Platforma müştəri və kuryer arasında yaranan hər hansı mübahisəyə, o cümlədən göndərişin gecikməsi, zədələnməsi, itirilməsi və ya tərəflər arasındakı razılaşmaların pozulmasına münasibətdə tərəf deyil və bu cür hallara görə məsuliyyət daşımır. Tərəflər arasındakı mübahisələr birbaşa özləri arasında və ya qanunla müəyyən edilmiş qaydada həll olunmalıdır.</p>
+
+  <h4>6. Hüquqi Loqlar</h4>
+  <p>Təhlükəsizliyin təmin olunması məqsədilə hər bir sifarişin qəbulu zamanı istifadəçinin razılığı ilə IP ünvanı və cihaz məlumatları qeydiyyata alınır. Ətraflı məlumat üçün Məxfilik Siyasətinə istinad edin.</p>
+
+  <h4>7. Hesabın Dayandırılması</h4>
+  <p>Platforma bu Şərtləri pozan istifadəçilərin hesabını xəbərdarlıq etmədən müvəqqəti və ya daimi olaraq bloklamaq hüququnu özündə saxlayır.</p>
+
+  <h4>8. Şərtlərin Dəyişdirilməsi</h4>
+  <p>Platforma bu Şərtləri istənilən vaxt dəyişdirmək hüququnu özündə saxlayır. Yenilənmiş şərtlər saytda dərc olunduğu andan qüvvəyə minir.</p>
+
+  <h4>9. Əlaqə</h4>
+  <p>Bu Şərtlərlə bağlı suallarınız üçün 055 594 94 44 nömrəsi vasitəsilə bizimlə əlaqə saxlaya bilərsiniz.</p>
+</template>
 
 <script>
 const TRANSLATIONS = <?php echo $translationsJson; ?>;
@@ -789,6 +906,43 @@ document.querySelectorAll('[data-modal]').forEach(card=>{
 document.getElementById('modalClose').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e=>{ if(e.target === modalOverlay) closeModal(); });
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal(); });
+
+/* ---------- legal modal (privacy / terms) ---------- */
+const legalOverlay = document.getElementById('legalOverlay');
+const legalBox = document.getElementById('legalBox');
+const legalContent = document.getElementById('legalContent');
+
+function openLegal(key){
+  const tpl = document.getElementById('legal-' + key + '-tpl');
+  if(!tpl) return;
+  legalContent.innerHTML = tpl.innerHTML;
+  legalContent.scrollTop = 0;
+  legalOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if(window.gsap){
+    gsap.fromTo(legalBox, {scale:.92, opacity:0, y:20}, {scale:1, opacity:1, y:0, duration:.5, ease:'expo.out'});
+  }
+}
+
+function closeLegal(){
+  const done = ()=>{
+    legalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+  if(window.gsap){
+    gsap.to(legalBox, {scale:.94, opacity:0, y:10, duration:.25, ease:'power2.in', onComplete:done});
+  } else { done(); }
+}
+
+document.querySelectorAll('[data-legal]').forEach(link=>{
+  link.addEventListener('click', e=>{
+    e.preventDefault();
+    openLegal(link.getAttribute('data-legal'));
+  });
+});
+document.getElementById('legalClose').addEventListener('click', closeLegal);
+legalOverlay.addEventListener('click', e=>{ if(e.target === legalOverlay) closeLegal(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && legalOverlay.classList.contains('active')) closeLegal(); });
 
 /* ---------- card spotlight + tilt ---------- */
 document.querySelectorAll('.project-card').forEach(card=>{
