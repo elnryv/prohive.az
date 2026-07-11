@@ -60,4 +60,23 @@ final class LegalLog
 
         return $stmt->fetchAll();
     }
+
+    /**
+     * Bu gün artıq verilmiş `hadise` tipli xəbərdarlıqların kurye_id-ləri —
+     * cron/abunelik_yoxla.php-də təkrar xəbərdarlığın qarşısını almaq üçün
+     * (bax bölmə 9.1.2).
+     *
+     * @return int[]
+     */
+    public function buGunXeberdarEdilenKuryeIdler(string $hadise): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT DISTINCT JSON_UNQUOTE(JSON_EXTRACT(detal_json, '$.kurye_id')) AS kurye_id
+             FROM legal_logs
+             WHERE hadise = :hadise AND DATE(created_at) = CURDATE()"
+        );
+        $stmt->execute(['hadise' => $hadise]);
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
 }

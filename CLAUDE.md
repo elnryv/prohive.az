@@ -188,8 +188,15 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   (Ərazi İdarəsi: şəhər/rayon yarat/aktivlik-dəyiş/sil, referential-integrity
   qorumalı) əlavə tapşırıqla sonradan əlavə olundu. Real MySQL+HTTP ilə test
   edildi. Ətraflı: `PROGRESS.md`.
-- **Faza 5 — Abunə və Ödəniş:** abunə məntiqi/xəbərdarlıq/cron, payment adapter
-  (Birbank/Payriff), webhook doğrulama (idempotent).
+- **Faza 5 — Abunə və Ödəniş ✅ (tamamlandı 2026-07-11):** `PaymentProvider`
+  interfeysi + `BirbankProvider`/`PayriffProvider` (imzalı redirect + HMAC-SHA256
+  webhook doğrulama, sahə adları/URL YER TUTUCUDUR — real API sənədləşməsi
+  gələndə yenilənməlidir), `POST /odenis/basla` + `POST /webhook/odenis`
+  (tam idempotent), `cron/abunelik_yoxla.php` (bağlama+xəbərdarlıq, dublikatsız).
+  Faza 3-ün SSE/götürmə axınına "aktiv abunə tələb olunur" yoxlaması geriyə
+  doldurularaq əlavə edildi (bölmə 7.2.1). Real MySQL+HTTP ilə test edildi
+  (əsl bank credential-ı olmadan, imza yoxlaması yerli/pure əməliyyat olduğu
+  üçün tam test edilə bildi). Ətraflı: `PROGRESS.md`.
 - **Faza 6 — PWA və Cilalama:** manifest, Service Worker, ana ekrana əlavə (Android+iOS),
   çoxdilli (AZ/RU/EN), dizayn cilası (glassmorphism), test, təhlükəsizlik yoxlaması, canlıya keçid.
 - **Faza 7 — Hüquqi (sonra):** İstifadəçi Müqaviləsi + Məxfilik Siyasəti mətnləri

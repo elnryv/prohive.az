@@ -12,9 +12,9 @@ use App\Models\LegalLog;
 use App\Models\User;
 
 /**
- * Abunə idarəsi — fərdi (bax bölmə 8.5) və qlobal (bax bölmə 8.5.1) səviyyələr.
- * Qeyd: bu, ADMİN-in əl ilə idarəetməsidir. Kuryerin özünün "Ödə" düyməsi ilə
- * ödəniş axını (odenisler, PaymentProvider) Faza 5-də gələcək.
+ * Abunə idarəsi — fərdi (bax bölmə 8.5) və qlobal (bax bölmə 8.5.1) səviyyələr,
+ * həmçinin uğurlu ödənişdən sonra sistem tərəfindən avtomatik uzatma (bax bölmə
+ * 9.1.1: "Uğurlu: ... abunə +1 ay uzanır").
  */
 final class AbunelikService
 {
@@ -101,6 +101,41 @@ final class AbunelikService
             throw new ValidationException('Gün sayı 1-365 arasında olmalıdır.');
         }
 
+        $this->uzatMuddet($kuryeId, $gun);
+
+        $this->legalLogs->yaz($adminId, null, 'abunelik_uzadildi', [
+            'kurye_id' => $kuryeId, 'gun' => $gun, 'sebeb' => $sebeb,
+        ], $ip);
+
+        return $this->status($kuryeId);
+    }
+
+    /**
+     * Uğurlu ödənişdən sonra sistem tərəfindən avtomatik uzatma — bax bölmə 9.1.1.
+     * Admin idarəsindən fərqli olaraq səbəb/admin ID tələb etmir (özünə-xidmət,
+     * aktor kimi kuryerin öz istifadəçi ID-si yazılır).
+     *
+     * @throws ValidationException
+     */
+    public function odenisIleUzat(int $kuryeId, int $gun, int $odenisId, string $ip): array
+    {
+        $kurye = $this->kuryeler->findById($kuryeId);
+        if ($kurye === null) {
+            throw new ValidationException('Kuryer tapılmadı.');
+        }
+
+        $this->uzatMuddet($kuryeId, $gun);
+        $this->abunelikler->setTip((int) $this->abunelikler->sonuncu($kuryeId)['id'], 'pullu');
+
+        $this->legalLogs->yaz((int) $kurye['user_id'], null, 'abunelik_odenisle_uzadildi', [
+            'kurye_id' => $kuryeId, 'gun' => $gun, 'odenis_id' => $odenisId,
+        ], $ip);
+
+        return $this->status($kuryeId);
+    }
+
+    private function uzatMuddet(int $kuryeId, int $gun): void
+    {
         $bugun = new \DateTimeImmutable('today');
         $mevcud = $this->abunelikler->sonuncu($kuryeId);
 
@@ -113,12 +148,6 @@ final class AbunelikService
             $yeniBitme = $baza->modify("+{$gun} days")->format('Y-m-d');
             $this->abunelikler->uzatBitme((int) $mevcud['id'], $yeniBitme);
         }
-
-        $this->legalLogs->yaz($adminId, null, 'abunelik_uzadildi', [
-            'kurye_id' => $kuryeId, 'gun' => $gun, 'sebeb' => $sebeb,
-        ], $ip);
-
-        return $this->status($kuryeId);
     }
 
     /**

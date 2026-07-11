@@ -60,4 +60,39 @@ final class Abunelik
         $stmt = $this->db->prepare('UPDATE abunelikler SET aktiv = :aktiv WHERE id = :id');
         $stmt->execute(['aktiv' => $aktiv ? 1 : 0, 'id' => $id]);
     }
+
+    /**
+     * cron/abunelik_yoxla.php — bitmiş amma hələ aktiv işarələnmiş dövrlər
+     * (bax bölmə 9.1.2: "Ödəniş vaxtında edilməsə → profil bağlanır").
+     * Hər kuryerin YALNIZ ən son dövrü nəzərə alınır (window function).
+     */
+    public function bitmisAmmaAktivOlanlar(): array
+    {
+        $sql = "SELECT * FROM (
+                    SELECT a.*, ROW_NUMBER() OVER (PARTITION BY a.kurye_id ORDER BY a.bitme DESC, a.id DESC) AS rn
+                    FROM abunelikler a
+                ) t
+                WHERE t.rn = 1 AND t.aktiv = 1 AND t.bitme < CURDATE()";
+
+        return $this->db->query($sql)->fetchAll();
+    }
+
+    /**
+     * cron/abunelik_yoxla.php — tezliklə (gunIci gün ərzində) bitəcək aktiv dövrlər.
+     */
+    public function tezliklaBitecekler(int $gunIci): array
+    {
+        $sql = "SELECT * FROM (
+                    SELECT a.*, ROW_NUMBER() OVER (PARTITION BY a.kurye_id ORDER BY a.bitme DESC, a.id DESC) AS rn
+                    FROM abunelikler a
+                ) t
+                WHERE t.rn = 1 AND t.aktiv = 1
+                  AND t.bitme BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL :gun DAY)";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue('gun', $gunIci, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

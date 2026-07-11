@@ -4,8 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 4 tamamlandı (bölmə 8.1 Dashboard + 8.7 Ərazi İdarəsi əlavə
-  olunmaqla) — "Növbəti fazaya keç" əmri gözlənilir (Faza 5 üçün)
+- **Cari faza:** Faza 5 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 6 üçün)
 
 ## Faza Cədvəli
 
@@ -17,7 +16,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 | 2 | Autentifikasiya (qeydiyyat/giriş/sözləşmə/middleware) | ✅ Tamamlandı | 2026-07-11 |
 | 3 | Sifariş və SSE (race qoruması, WhatsApp) | ✅ Tamamlandı | 2026-07-11 |
 | 4 | Admin Paneli | ✅ Tamamlandı | 2026-07-11 |
-| 5 | Abunə və Ödəniş (adapter, webhook) | ⏳ Gözləyir | — |
+| 5 | Abunə və Ödəniş (adapter, webhook) | ✅ Tamamlandı | 2026-07-11 |
 | 6 | PWA və Cilalama | ⏳ Gözləyir | — |
 | 7 | Hüquqi (sonra) | ⏳ Gözləyir | — |
 
@@ -302,6 +301,69 @@ admin bölməsi əlavə olundu.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 5 (Abunə və
   Ödəniş) başlanacaq.
 
+### 2026-07-11 — Faza 5 tamamlandı (Abunə və Ödəniş)
+- **Mühüm əlaqələndirmə (Faza 3-ün geriyə doldurulması):** Faza 3 SSE lövhə/götürmə
+  yazılanda abunə sistemi hələ mövcud deyildi, ona görə "aktiv abunə olmalı, abunə
+  bitibsə lövhə bağlıdır" (bölmə 7.2.1) tətbiq edilməmişdi. İndi `SifarisService`-ə
+  `AbunelikService` inject edildi və `kuryeAbunesiAktivdirmi()` yoxlaması həm
+  `lovheYenileri()` (boş lövhə), həm də `gotur()`-a (409 rədd) əlavə olundu —
+  test edilib: abunəsiz kuryerin lövhəsi boş idi, ödənişdən sonra dərhal açıldı.
+- **Providers (`app/Providers/`):** `PaymentProvider` interfeysi (`baslat`,
+  `callbackDogrula` — bax Əlavə B "9.1 Payment adapterini Birbank üçün tətbiq et"),
+  `PaymentSession`/`PaymentResult` DTO-ları, `BirbankProvider`/`PayriffProvider`
+  (strukturca eyni: imzalanmış yönləndirmə linki + HMAC-SHA256 webhook doğrulama),
+  `PaymentProviderFactory` (config-ə görə seçim).
+  **QEYD:** Birbank/Payriff-in real API sənədləşməsi mövcud deyil (roadmap:
+  "sonra qoşulur") — sahə adları/URL YER TUTUCUDUR, amma strukturu real hosted-
+  checkout provayderlərinin ümumi nümunəsinə (imzalı redirect + imzalı webhook)
+  uyğundur və `baslat()`/`callbackDogrula()` şəbəkəyə çıxmadan (pure) işləyir —
+  ona görə sandboxda tam test edilə bildi (əsl bank credential-ı lazım deyil).
+- **Model/Servis:** `Odenis` (create/findByOrderId/findPendingByKurye/updateStatus),
+  `AbunelikService::odenisIleUzat()` (sistem-tərəfli, admin ID/səbəb tələb etmir,
+  aktoru ödəyən kuryerin öz istifadəçi ID-si), `OdenisService` (`basla()` — eyni anda
+  yalnız bir gözləyən ödəniş, qiymət `ayarlar.abune_qiymeti`-dən; `webhookIsle()` —
+  imza etibarsızdırsa DB-yə TOXUNMUR, order_id tapılmırsa rədd, artıq emal
+  olunubsa (idempotent) sakitcə çıxır).
+  `Abunelik`-ə `bitmisAmmaAktivOlanlar()`/`tezliklaBitecekler()` (window function
+  ilə hər kuryerin YALNIZ son dövrü), `LegalLog`-a `buGunXeberdarEdilenKuryeIdler()`
+  (cron təkrar-xəbərdarlıq qarşısı).
+- **Controller/Marşrut:** `OdenisController` — `POST /odenis/basla` (Auth+KuryeGuard+
+  CsrfGuard+RateLimit), `POST /webhook/odenis` (yalnız RateLimit — xarici çağırış,
+  Auth/CSRF tətbiq edilmir, imza doğrulaması bunun əvəzinə işləyir).
+- `cron/abunelik_yoxla.php` — bitmiş-amma-aktiv dövrləri bağlayır (`aktiv=0`),
+  3 gün qalan dövrlərə `abunelik_xeberdarlig` yazır (gündə bir kuryerə bir dəfə).
+  QEYD: faktiki Web Push göndərilməsi Faza 6-da (VAPID/push_abuneler) əlavə
+  olunacaq — bu cron indi yalnız audit jurnalına yazır, mənbə hazırdır.
+- `database/seed/005_ayarlar_abune_qiymeti.sql` — yeni seed faylı (mövcud
+  `004_ayarlar.sql`-ı DƏYİŞMƏDƏN, çünki artıq tətbiq olunmuş seed faylları
+  təkrar işə düşmür — yeni sətir üçün yeni fayl lazımdır).
+- `.env.example`-ə `BIRBANK_PAYMENT_URL`/`PAYRIFF_PAYMENT_URL` əlavə olundu.
+- **Yoxlama (real MySQL + real HTTP server-ə qarşı):**
+  - `php -l` bütün fayllarda təmiz; yeni seed real DB-yə tətbiq edildi, idempotentlik
+    yoxlanıldı (təkrar işə salındıqda bütün fayllar, 005 daxil, SKIP oldu).
+  - **Tam ödəniş axını:** abunəsiz kuryerin lövhəsi boş; `/odenis/basla` düzgün
+    struktur + HMAC imza ilə redirect URL qaytardı (imza müstəqil hesablanıb
+    təsdiqləndi); yanlış imzalı webhook 400 ilə rədd edildi VƏ DB dəyişmədi;
+    düzgün imzalı webhook uğurla emal olundu, `abunelikler` sətri yaradıldı
+    (30 gün, tip=pullu); EYNİ webhook TEKRAR göndərildi — status və abunə
+    dəyişmədi (tam idempotent); ödənişdən sonra kuryerin lövhəsi dərhal açıldı
+    və uyğun sifarişi göstərdi.
+  - Naməlum `order_id` ilə (düzgün formatlı, lakin mövcud olmayan) webhook 400
+    ilə rədd edildi; uğursuz ödəniş ssenarisi (`status=ugursuz`) düzgün emal
+    olundu (`odenisler.status='ugursuz'`).
+  - **Eyni-anda tək gözləyən ödəniş:** ikinci `/odenis/basla` cəhdi aktiv
+    gözləyən ödəniş varkən 422 ilə rədd edildi.
+  - **Cron:** süni aşağı salınmış (`bitme` keçmişdə) abunə bağlandı
+    (`aktiv=0`, audit yazıldı); 2 gün qalan abunəyə xəbərdarlıq yazıldı; EYNİ
+    GÜN ikinci dəfə işə salınanda 0 bağlama/0 xəbərdarlıq (dublikat qarşısı
+    alındı, `legal_logs`-da cəmi 1 xəbərdarlıq qaldı).
+  - `legal_logs` audit yazıları (`odenis_ugurlu`, `abunelik_odenisle_uzadildi`,
+    `abunelik_bagladi`, `abunelik_xeberdarlig`) düzgün, dublikatsız yazıldı.
+  - Test DB/istifadəçi, `.env` və rate-limit keşi təmizləndi, repoya heç bir
+    sirr commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 6 (PWA və
+  Cilalama) başlanacaq.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur
@@ -309,3 +371,13 @@ admin bölməsi əlavə olundu.
 - Sumqayıt ərazi siyahısı seed məlumatı canlıya keçmədən əvvəl rəsmi mənbədən təsdiqlənməlidir.
 - Ödəniş provayderi (Birbank/Payriff) seçimi Faza 5-də konkretləşdiriləcək — kod
   provayder-neytral interfeyslə yazılır.
+- Faza 5 tamamlandı: `PaymentProvider` interfeysi + Birbank/Payriff adapterləri
+  hazırdır, lakin sahə adları/URL YER TUTUCUDUR (real API sənədləşməsi
+  gələndə `app/Providers/BirbankProvider.php` və `PayriffProvider.php`
+  yenilənməlidir — imza sxemi/sahə adları bankın həqiqi tələblərinə uyğunlaşdırılmalıdır).
+- Abunə qiyməti `ayarlar.abune_qiymeti`-də saxlanır (seed default 15.00 AZN) —
+  admin panelindən qiymət DƏYİŞMƏ endpoint-i YOXDUR (yalnız DB-dən dəyişdirilə
+  bilər), bölmə 8.5-də açıq tələb olunmadığı üçün əlavə edilmədi.
+- Faza 5 cron-u (`abunelik_xeberdarlig`) yalnız audit jurnalına yazır — faktiki
+  Web Push bildirişi göndərmə Faza 6-da (VAPID açarları, `push_abuneler`
+  cədvəli, Service Worker) qurulacaq.

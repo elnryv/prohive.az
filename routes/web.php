@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\BannerImageController;
 use App\Controllers\KuryeController;
+use App\Controllers\OdenisController;
 use App\Controllers\SifarisController;
 use App\Controllers\SseController;
 use App\Core\Csrf;
@@ -53,5 +54,9 @@ $router->post('/kurye/bolgeler', [KuryeController::class, 'bolgeler'], [Auth::cl
 
 // Banner şəkli göstərmə (bax bölmə 8.4, admin panelində yüklənir, burada yayımlanır)
 $router->get('/banner-sekil/{fayl}', [BannerImageController::class, 'goster']);
+
+// Abunə ödənişi (bax bölmə 9.1)
+$router->post('/odenis/basla', [OdenisController::class, 'basla'], [Auth::class, KuryeGuard::class, CsrfGuard::class, RateLimit::class]);
+$router->post('/webhook/odenis', [OdenisController::class, 'webhook'], [RateLimit::class]);
 
 return $router;

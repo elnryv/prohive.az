@@ -39,6 +39,16 @@ return [
     ],
     'payment' => [
         'provider' => Env::get('PAYMENT_PROVIDER', 'birbank'),
+        'birbank' => [
+            'merchant_id' => Env::get('BIRBANK_MERCHANT_ID', ''),
+            'secret_key' => Env::get('BIRBANK_SECRET_KEY', ''),
+            'payment_url' => Env::get('BIRBANK_PAYMENT_URL', ''),
+        ],
+        'payriff' => [
+            'merchant_id' => Env::get('PAYRIFF_MERCHANT_ID', ''),
+            'secret_key' => Env::get('PAYRIFF_SECRET_KEY', ''),
+            'payment_url' => Env::get('PAYRIFF_PAYMENT_URL', ''),
+        ],
     ],
     'push' => [
         'vapid_public_key' => Env::get('VAPID_PUBLIC_KEY', ''),

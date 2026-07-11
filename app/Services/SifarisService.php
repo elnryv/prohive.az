@@ -22,6 +22,7 @@ use App\Models\YukdasimaOlcusu;
 final class SifarisService
 {
     private const TIPLER = ['kurye', 'yukdasima'];
+    private const ABUNE_AKTIV_ETIKETLERI = ['aktiv', 'pulsuz', 'pulsuz_qlobal'];
 
     private Sifaris $sifarisler;
     private Rayon $rayonlar;
@@ -31,6 +32,7 @@ final class SifarisService
     private Kurye $kuryeler;
     private User $users;
     private LegalLog $legalLogs;
+    private AbunelikService $abunelikService;
 
     public function __construct()
     {
@@ -42,6 +44,7 @@ final class SifarisService
         $this->kuryeler = new Kurye();
         $this->users = new User();
         $this->legalLogs = new LegalLog();
+        $this->abunelikService = new AbunelikService();
     }
 
     /**
@@ -123,12 +126,17 @@ final class SifarisService
     }
 
     /**
-     * SSE lövhə üçün yeni sifarişlər — bax bölmə 5.3 (rayon filtri) və 7.1.1 (tip/ölçü filtri).
+     * SSE lövhə üçün yeni sifarişlər — bax bölmə 5.3 (rayon filtri), 7.1.1 (tip/ölçü
+     * filtri) və 7.2.1 ("Aktiv abunə olmalı; abunə bitibsə lövhə bağlıdır").
      */
     public function lovheYenileri(int $kuryeId, string $rol, int $lastId): array
     {
         $kurye = $this->kuryeler->findById($kuryeId);
         if ($kurye === null || !(bool) $kurye['onlayn']) {
+            return [];
+        }
+
+        if (!$this->kuryeAbunesiAktivdirmi($kuryeId)) {
             return [];
         }
 
@@ -162,6 +170,10 @@ final class SifarisService
         $sifaris = $this->sifarisler->findById($sifarisId);
         if ($sifaris === null) {
             throw new ValidationException('Sifariş tapılmadı.');
+        }
+
+        if (!$this->kuryeAbunesiAktivdirmi($kuryeId)) {
+            throw new ValidationException('Abunəniz aktiv deyil — sifariş götürə bilməzsiniz.');
         }
 
         if ($sifaris['tip'] !== $rol) {
@@ -238,5 +250,20 @@ final class SifarisService
     public function passivlesdirKohneleri(): int
     {
         return $this->sifarisler->passivlesdirKohneleri();
+    }
+
+    /**
+     * Bax bölmə 7.2.1: "Aktiv abunə (pulsuz və ya pullu) olmalı; abunə bitibsə
+     * lövhə bağlıdır." Qlobal abunə rejimi dayandırılıbsa da kuryer işləyə bilir.
+     */
+    private function kuryeAbunesiAktivdirmi(int $kuryeId): bool
+    {
+        try {
+            $status = $this->abunelikService->status($kuryeId);
+        } catch (ValidationException) {
+            return false;
+        }
+
+        return in_array($status['label'], self::ABUNE_AKTIV_ETIKETLERI, true);
     }
 }
