@@ -107,5 +107,12 @@
   "admin.sebeb": "Səbəb",
   "admin.axtar": "Axtar (ad, soyad, telefon)",
   "admin.status_filtri": "Status",
-  "admin.yarat": "Yarat"
+  "admin.yarat": "Yarat",
+
+  "huquqi.basliq": "Hüquqi Sənədlər",
+  "huquqi.qaralama_basliq": "Vacib xəbərdarlıq — QARALAMA",
+  "huquqi.qaralama_metn": "Bu sənədlər hüquqşünas tərəfindən hazırlanmayıb, ilkin qaralamadır və rəsmi hüquqi məsləhət sayılmır. Rəsmi istifadədən əvvəl lisenziyalı hüquqşünas tərəfindən yoxlanılıb təsdiqlənməlidir.",
+  "huquqi.geri": "Siyahıya qayıt",
+  "huquqi.tam_metni_oxu": "Tam mətni oxu",
+  "huquqi.dil_qeyd": "Bu sənədlərin rəsmi mətni yalnız Azərbaycan dilindədir."
 }

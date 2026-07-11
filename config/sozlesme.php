@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * İstifadəçi Sözləşməsi mətni (bax CLAUDE.md bölmə 1 "Hüquqi hissə" qeydi və REG-2.2).
- * Hüquqi mətn hüquqşünasla dəqiqləşdirilənə qədər (Faza 7) bu, YER TUTUCUdur.
- * Qəbul faktı və tarixi `users.sozlesme_qebul` / `users.sozlesme_tarix`-də saxlanılır;
- * mətnin özü yalnız burada — dəyişdirilməsi asan olsun deyə ayrıca fayldadır.
+ * Qeydiyyat formundakı QISA sözləşmə xülasəsi (bax CLAUDE.md bölmə 1 "Hüquqi qeyd" və REG-2.2).
+ * Tam hüquqi mətn (10 sənəd, QARALAMA statusunda, Faza 7) `config/legal/` altındadır və
+ * /huquqi marşrutu ilə görünür — bu fayl yalnız checkbox yanındakı qısa xülasədir.
+ * Qəbul faktı və tarixi `users.sozlesme_qebul` / `users.sozlesme_tarix`-də saxlanılır.
  */
 
 return [

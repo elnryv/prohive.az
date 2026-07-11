@@ -65,6 +65,10 @@ require __DIR__ . '/../partials/head.php';
 
     <div class="field glass" style="padding:12px; max-height:120px; overflow-y:auto; font-size:12px; color:var(--text-dim);">
       <?= htmlspecialchars($sozlesmeMetni) ?>
+      <div style="margin-top:8px;">
+        <a href="/huquqi/istifadeci-muqavilesi" target="_blank" rel="noopener"><?= htmlspecialchars($t('huquqi.tam_metni_oxu')) ?> — <?= htmlspecialchars($t('qeydiyyat.sozlesme_qebul')) ?></a><br>
+        <a href="/huquqi/mexfilik-siyaseti" target="_blank" rel="noopener"><?= htmlspecialchars($t('huquqi.basliq')) ?>: Məxfilik Siyasəti</a>
+      </div>
     </div>
     <div class="field field-check">
       <input type="checkbox" id="sozlesme" name="sozlesme_qebul" value="1" required>

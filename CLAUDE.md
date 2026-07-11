@@ -18,9 +18,11 @@
 - **Əsas prinsiplər:** PWA (iOS+Android), SSE ilə real-time, Native PHP 8.3 (framework yox),
   MySQL 8.0, Hostinger VPS, çoxdilli (AZ/RU/EN), OLED qara (#000000) + glassmorphism dizayn,
   bütün əlaqə WhatsApp Click-to-Chat üzərindən.
-- **Hüquqi qeyd:** İstifadəçi Müqaviləsi / Məxfilik Siyasəti mətnləri HƏLƏ yoxdur (Faza 7-yə
-  saxlanılıb, hüquqşünas gözlənilir). Amma checkbox + `sozlesme_qebul`/`sozlesme_tarix` + audit
-  (legal_logs) infrastrukturu kodda BAŞDAN hazır olmalıdır.
+- **Hüquqi qeyd:** 10 hüquqi sənəd (Faza 7, `config/legal/`, `GET /huquqi`) QARALAMA
+  statusundadır — süni intellekt hazırlayıb, lisenziyalı hüquqşünas HƏLƏ təsdiqləməyib,
+  bracket-lə (`[VÖEN]`, `[məbləğ]` və s.) işarələnmiş yer tutucular doldurulmayıb.
+  Checkbox + `sozlesme_qebul`/`sozlesme_tarix` + audit (legal_logs) infrastrukturu
+  Faza 2-dən bəri hazırdır.
 
 ## 2. Texnologiya Yığını
 
@@ -206,8 +208,21 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   yoxlaması geriyə doldurularaq bağlandı. Real MySQL+HTTP+Playwright/Chromium
   (həqiqi brauzer) ilə test edildi — 2 real bug (skript yükləmə sırası, Service
   Worker credentials itirilməsi) tapılıb düzəldildi. Ətraflı: `PROGRESS.md`.
-- **Faza 7 — Hüquqi (sonra):** İstifadəçi Müqaviləsi + Məxfilik Siyasəti mətnləri
-  (hüquqşünasdan sonra) aktivləşdirilir; infrastruktur artıq Faza 2-də hazırdır.
+- **Faza 7 — Hüquqi ✅ (tamamlandı 2026-07-11):** istifadəçinin yüklədiyi
+  `Birlikde_Huquqi_Paket.docx`-dan (10 sənəd: İstifadəçi Müqaviləsi, Məxfilik
+  Siyasəti, Cookie Siyasəti, Abunə/Ödəniş Şərtləri, Məsuliyyətdən İmtina, Kuryer/
+  Yükdaşıma Qaydaları, Müştəri Qaydaları, Qadağan Yüklər, Şikayət/Mübahisə,
+  Fərdi Məlumat Razılığı) məzmun `config/legal/sujetler.php` + `config/legal/
+  content/{slug}.php`-ə köçürüldü, `LegalController` + `Views/legal/*` +
+  `GET /huquqi`, `GET /huquqi/{slug}` marşrutları ilə canlı tətbiqə bağlandı,
+  qeydiyyat sözləşmə qutusuna "tam mətni oxu" linkləri əlavə olundu. **⚠ QARALAMA
+  STATUSU:** mənbə sənəd özü açıq bildirir ki, bu mətn süni intellekt tərəfindən
+  hazırlanıb, lisenziyalı hüquqşünas TƏSDİQLƏMƏYİB və bracket-lə (`[VÖEN]`,
+  `[məbləğ]`, `[müddət]` və s.) işarələnmiş yer tutucular hələ doldurulmayıb —
+  canlıya keçmədən əvvəl hüquqşünas yoxlaması MƏCBURİDİR (bax PROGRESS.md).
+  Yalnız AZ dilində; RU/EN səhifələrində "rəsmi mətn AZ dilindədir" qeydi var
+  (uydurma tərcümə edilmədi). Real MySQL+HTTP ilə test edildi. Ətraflı: PROGRESS.md.
+  **Bütün fazalar (0-7) tamamlandı.**
 
 ## 9. İş Qaydaları (Claude üçün məcburi davranış)
 

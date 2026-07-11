@@ -7,6 +7,7 @@ use App\Controllers\AuthController;
 use App\Controllers\BannerImageController;
 use App\Controllers\EraziController;
 use App\Controllers\KuryeController;
+use App\Controllers\LegalController;
 use App\Controllers\OdenisController;
 use App\Controllers\PushController;
 use App\Controllers\SifarisController;
@@ -77,5 +78,9 @@ $router->get('/qeydiyyat', [AppPageController::class, 'qeydiyyat']);
 $router->get('/panel', [AppPageController::class, 'panel']);
 $router->get('/lovhe', [AppPageController::class, 'lovhe']);
 $router->get('/profil', [AppPageController::class, 'profil']);
+
+// Hüquqi sənədlər (bax bölmə 1 "Hüquqi qeyd", Faza 7) — ictimai, giriş tələb olunmur
+$router->get('/huquqi', [LegalController::class, 'index']);
+$router->get('/huquqi/{slug}', [LegalController::class, 'goster']);
 
 return $router;

@@ -4,7 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 6 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 7 üçün)
+- **Cari faza:** Faza 7 tamamlandı — bütün fazalar (0-7) bitdi
 
 ## Faza Cədvəli
 
@@ -18,7 +18,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 | 4 | Admin Paneli | ✅ Tamamlandı | 2026-07-11 |
 | 5 | Abunə və Ödəniş (adapter, webhook) | ✅ Tamamlandı | 2026-07-11 |
 | 6 | PWA və Cilalama (tam frontend daxil) | ✅ Tamamlandı | 2026-07-11 |
-| 7 | Hüquqi (sonra) | ⏳ Gözləyir | — |
+| 7 | Hüquqi (10 sənəd, QARALAMA statusu) | ✅ Tamamlandı | 2026-07-11 |
 
 ## Jurnalı
 
@@ -455,6 +455,47 @@ admin bölməsi əlavə olundu.
   — bu, sonuncu fazadır (bax CLAUDE.md bölmə 9 "İş Qaydaları": bütün fazalar
   bitdikdən sonra final directory tree və birləşdirilmiş kod təqdim edilməlidir).
 
+### 2026-07-11 — Faza 7 tamamlandı (Hüquqi)
+- İstifadəçi `Birlikde_Huquqi_Paket.docx` yüklədi (10 hüquqi sənəd: İstifadəçi
+  Müqaviləsi, Məxfilik Siyasəti, Cookie Siyasəti, Abunə və Ödəniş Şərtləri,
+  Məsuliyyətdən İmtina, Kuryer və Yükdaşıma Qaydaları, Müştəri Qaydaları,
+  Qadağan Olunmuş Yüklərin Siyahısı, Şikayət və Mübahisələrin Həlli, Fərdi
+  Məlumatların Emalına Razılıq) və "hələlik lazım olan hər şeyi buradan götür,
+  sonra elə et ki dəyişə bilim" tapşırığı verdi.
+- **⚠ Vacib status:** sənəd mənbəyində açıq şəkildə qeyd olunur ki, bu QARALAMADIR
+  — süni intellekt tərəfindən hazırlanıb, lisenziyalı hüquqşünas TƏSDİQLƏMƏYİB.
+  Mətndə VÖEN, əlaqə nömrəsi, abunə məbləği, saxlanma müddəti kimi sahələr
+  bracket-lə (`[...]`) işarələnmiş yer tutucu olaraq qalır — dəyişdirmək asan
+  olsun deyə mətn birbaşa PHP faylında saxlanılır (DB-də yox).
+- Struktur: `config/legal/sujetler.php` (10 sənədin sıra/başlıq siyahısı) +
+  `config/legal/content/{slug}.php` (hər sənədin HTML məzmunu, mənbə mətnin
+  bölmə nömrələri, bullet-lər, "⚖ Qanuni istinad" və "⚠" xəbərdarlıq callout-ları
+  eynilə saxlanılıb). Yalnız Azərbaycan dilində — RU/EN səhifələrində "rəsmi
+  mətn yalnız AZ dilindədir" qeydi göstərilir (uydurma tərcümə edilmədi).
+- `LegalController` (`index()` — siyahı, `goster($slug)` — tək sənəd, naməlum
+  slug `/huquqi`-yə redirect edir) + `Views/legal/{index,goster}.php` (mövcud
+  `partials/head.php`/`foot.php` shell-i istifadə edir, hər səhifədə QARALAMA
+  xəbərdarlığı görünür). Marşrutlar: `GET /huquqi`, `GET /huquqi/{slug}` —
+  ictimai, giriş tələb olunmur (`routes/web.php`).
+- `app.css`-ə `.legal-doc`, `.legal-callout-law`, `.legal-callout-warn`,
+  `.legal-list` sinifləri əlavə olundu (mövcud OLED/glass dizaynına uyğun).
+- i18n: `huquqi.*` açarları (6 ədəd) az/ru/en JSON-a paritetlə əlavə olundu
+  (106 açar/dil, yoxlanıldı).
+- `Views/auth/qeydiyyat.php`-dakı sözləşmə qutusuna Tam Mətni Oxu linkləri
+  əlavə olundu (`/huquqi/istifadeci-muqavilesi`, `/huquqi/mexfilik-siyaseti`,
+  yeni tab-da açılır). `config/sozlesme.php` şərhi yeni yerə istinad edəcək
+  şəkildə yeniləndi (mətnin özü dəyişmədi — qısa xülasə olaraq qalır).
+- **Test:** bütün yeni/dəyişdirilmiş fayllar `php -l` ilə yoxlanıldı, JSON
+  dil faylları paritetli (106/106/106) təsdiqləndi. Real MariaDB (fresh
+  migrate+seed) + real HTTP server (`php -S`, 4 worker) ilə: `/huquqi` (200),
+  `/qeydiyyat` (200, yeni linklər HTML-də mövcud), bütün 10 sənəd slug-u (200,
+  hər birində gözlənilən callout sayı təsdiqləndi), naməlum slug (302 redirect
+  `/huquqi`-yə), `?dil=ru` ilə sənəd səhifəsində "yalnız AZ dilindədir" qeydi
+  göründü. Test DB/istifadəçi, `.env`, rate-limit keşi təmizləndi.
+- **Bütün fazalar (0-7) tamamlandı.** Növbəti addım: istifadəçinin tələbinə
+  görə (bax CLAUDE.md bölmə 9.7) final directory tree və birləşdirilmiş kod
+  təqdimatı — istifadəçi bunu ayrıca tələb etdikdə hazırlanacaq.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur
@@ -482,3 +523,8 @@ admin bölməsi əlavə olundu.
   ilə yaradılıb `.env`-ə yazılmalıdır (hazırkı `.env.example` yer tutucudur);
   PWA ikonları (`public/assets/icons/icon-*.png`) hazırkı GD-generasiya
   placeholder-dir — real marka dizaynı ilə əvəzlənməlidir.
+- **Canlıya keçmədən əvvəl (Faza 7, MÜTLƏQ):** `config/legal/content/*.php`
+  içindəki hüquqi mətnlər lisenziyalı hüquqşünas tərəfindən yoxlanılıb
+  təsdiqlənməlidir; bracket-lə (`[...]`) işarələnmiş yer tutucular (VÖEN,
+  operator adı, əlaqə nömrəsi, abunə məbləği, saxlanma müddəti, geri qaytarılma
+  siyasəti) doldurulmalıdır. Bu, hazırkı halında hüquqi məsləhət DEYİL.

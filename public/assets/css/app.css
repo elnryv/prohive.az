@@ -276,3 +276,70 @@ a {
 .push-warning.visible {
   display: block;
 }
+
+/* Hüquqi sənədlər (Faza 7, bax config/legal/) */
+.legal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legal-list li {
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.legal-list li:last-child {
+  border-bottom: none;
+}
+
+.legal-list a {
+  display: block;
+  padding: 14px 4px;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.legal-doc h2 {
+  font-size: 16px;
+  margin: 24px 0 10px;
+}
+
+.legal-doc h2:first-child {
+  margin-top: 8px;
+}
+
+.legal-doc p,
+.legal-doc li {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.legal-doc ul {
+  padding-left: 20px;
+  margin: 8px 0 16px;
+}
+
+.legal-doc strong {
+  color: var(--text);
+}
+
+.legal-callout {
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.legal-callout-law {
+  background: rgba(10, 132, 255, 0.12);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  color: #9cc9ff;
+}
+
+.legal-callout-warn {
+  background: rgba(255, 214, 10, 0.12);
+  border: 1px solid rgba(255, 214, 10, 0.35);
+  color: var(--warning);
+}
