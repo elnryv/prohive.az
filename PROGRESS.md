@@ -4,7 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 0 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 1 üçün)
+- **Cari faza:** Faza 1 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 2 üçün)
 
 ## Faza Cədvəli
 
@@ -12,7 +12,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 |---|---|---|---|
 | — | Yaddaş sistemi (CLAUDE.md/PROGRESS.md) qurulması | ✅ Tamamlandı | 2026-07-11 |
 | 0 | Təməl (VPS, qovluq, Core, config, error handler) | ✅ Tamamlandı | 2026-07-11 |
-| 1 | Verilənlər Bazası (migrations, seed) | ⏳ Gözləyir | — |
+| 1 | Verilənlər Bazası (migrations, seed) | ✅ Tamamlandı | 2026-07-11 |
 | 2 | Autentifikasiya (qeydiyyat/giriş/sözləşmə/middleware) | ⏳ Gözləyir | — |
 | 3 | Sifariş və SSE (race qoruması, WhatsApp) | ⏳ Gözləyir | — |
 | 4 | Admin Paneli | ⏳ Gözləyir | — |
@@ -56,6 +56,33 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
   PHP built-in server ilə hər iki front controller (`index.php`, `admin.php`)
   funksional test edildi — `/` və `/healthz` marşrutları düzgün JSON qaytardı.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 1 (Verilənlər Bazası)
+  başlanacaq.
+
+### 2026-07-11 — Faza 1 tamamlandı (Verilənlər Bazası)
+- 14 migration faylı yaradıldı (`database/migrations/001-014`) — FK asılılıq sırası ilə:
+  sehirler → rayonlar → users → sessiyalar → kuryeler → yukdasima_olculeri →
+  dasiyici_olculeri → kurye_bolgeler → sifarisler → abunelikler → odenisler →
+  bannerler → ayarlar → legal_logs. Bütün cədvəllər orijinal sənədin DDL-lərinə
+  (bölmə 4.2-4.9) sadiq qalaraq yazıldı; InnoDB + utf8mb4_unicode_ci.
+  Qeyd: `odenisler` cədvəlinə orijinal DDL-də olmayan, lakin 4.1 əlaqələr cədvəlində
+  bəyan edilmiş `fk_od_abunelik`/`fk_od_kurye` FK-ları əlavə edildi (referential
+  integrity üçün, sxemin qalan hissəsi ilə tutarlı).
+- 4 seed faylı: `sehirler` (Bakı+Sumqayıt), `rayonlar` (Bakı 12 rayon + Sumqayıt 18
+  mikrorayon + 4 qəsəbə + 2 massiv = 24 ərazi), `yukdasima_olculeri` (XS-Mega, 7
+  kateqoriya), `ayarlar` (`abune_rejimi=aktiv` default).
+- `database/migrate.php` və `database/seed.php` — CLI runner-lər, `schema_migrations`/
+  `schema_seeds` tracking cədvəlləri ilə idempotent (təkrar işə salmaq təhlükəsizdir).
+- **Yoxlama (real MySQL-ə qarşı, sadəcə sintaksis yox):** sandbox-da MariaDB 10.11
+  quraşdırılıb işə salındı, `birlikde_test` DB yaradıldı, `php database/migrate.php`
+  və `php database/seed.php` UĞURLA icra edildi. Təsdiqləndi:
+  - 14 cədvəl də InnoDB + utf8mb4_unicode_ci yaradıldı, 12 FK constraint aktivdir.
+  - Runner-lərin idempotentliyi: təkrar işə salınanda bütün fayllar `SKIP` edildi.
+  - Seed data düzgündür (Bakı 12 + Sumqayıt 24 ərazi, 7 yükdaşıma ölçüsü, ayarlar).
+  - **Race qoruması (bölmə 6.3) real DB-də sınandı:** iki kuryer eyni sifarişi
+    götürməyə çalışanda atomic UPDATE ilə yalnız BİRİNCİSİ uğur qazandı
+    (`rowCount()=1`), ikincisi `rowCount()=0` aldı — spesifikasiyaya tam uyğun.
+  - Test DB/istifadəçi və `.env` təmizləndi, repoya heç bir sirr commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 2 (Autentifikasiya)
   başlanacaq.
 
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)

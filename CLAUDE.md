@@ -158,8 +158,12 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   MySQL 8.0, TLS — bax `deploy/`), qovluq strukturu, Core (Router, PDO DB, Session,
   Request/Response, ErrorHandler, Logger), `bootstrap.php` avtoloader, config/.env sistemi.
   Ətraflı: `PROGRESS.md`.
-- **Faza 1 — Verilənlər Bazası:** bütün cədvəllərin migration-ları (bölmə 4), seed
-  (şəhərlər Bakı+Sumqayıt, rayonlar, yukdasima_olculeri), legal_logs və ayarlar.
+- **Faza 1 — Verilənlər Bazası ✅ (tamamlandı 2026-07-11):** bütün cədvəllərin
+  migration-ları (bölmə 4) `database/migrations/001-014` — real MySQL-ə qarşı
+  test edilib. Seed (`database/seed/001-004`): şəhərlər (Bakı+Sumqayıt), rayonlar
+  (36 ərazi), yukdasima_olculeri (XS-Mega), ayarlar (abune_rejimi). Runner-lər:
+  `database/migrate.php`, `database/seed.php` (idempotent, tracking cədvəlli).
+  Ətraflı: `PROGRESS.md`.
 - **Faza 2 — Autentifikasiya:** qeydiyyat/giriş (müştəri+kuryer+yükdaşıma), rol yönləndirmə,
   nömrə+parol, sözləşmə qəbulu checkbox+tarix, sessiya/CSRF/rate-limit middleware.
 - **Faza 3 — Sifariş və SSE:** müştəri sifariş yaratma/ləğv/tarixçə, SSE lövhə + rayon filtri,
