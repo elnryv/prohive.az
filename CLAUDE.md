@@ -164,8 +164,13 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   (36 ərazi), yukdasima_olculeri (XS-Mega), ayarlar (abune_rejimi). Runner-lər:
   `database/migrate.php`, `database/seed.php` (idempotent, tracking cədvəlli).
   Ətraflı: `PROGRESS.md`.
-- **Faza 2 — Autentifikasiya:** qeydiyyat/giriş (müştəri+kuryer+yükdaşıma), rol yönləndirmə,
-  nömrə+parol, sözləşmə qəbulu checkbox+tarix, sessiya/CSRF/rate-limit middleware.
+- **Faza 2 — Autentifikasiya ✅ (tamamlandı 2026-07-11):** `AuthController` +
+  `AuthService` — qeydiyyat (3 rol: musteri/kurye/yukdasima), giriş, çıxış;
+  `password_hash`/`password_verify`; sözləşmə checkbox+tarix (`config/sozlesme.php`
+  YER TUTUCU mətn); `CsrfGuard`/`RateLimit`/`Auth`/`RoleGuard` middleware; remember-me
+  (7.3.1) `Sessiya` modeli ilə. Real MySQL+HTTP ilə test edildi. Ətraflı: `PROGRESS.md`.
+  Qeyd: rol-əsaslı panel YÖNLƏNDIRMƏSI (HTML redirect) Faza 6-da Views qatı ilə
+  gələcək — hazırda giriş JSON `{rol: ...}` qaytarır.
 - **Faza 3 — Sifariş və SSE:** müştəri sifariş yaratma/ləğv/tarixçə, SSE lövhə + rayon filtri,
   atomic götürmə (race qoruması) + WhatsApp link generasiyası, onlayn/offline, tamamlama,
   cron (1 saat passivləşmə).

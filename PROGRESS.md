@@ -4,7 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 1 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 2 üçün)
+- **Cari faza:** Faza 2 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 3 üçün)
 
 ## Faza Cədvəli
 
@@ -13,7 +13,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 | — | Yaddaş sistemi (CLAUDE.md/PROGRESS.md) qurulması | ✅ Tamamlandı | 2026-07-11 |
 | 0 | Təməl (VPS, qovluq, Core, config, error handler) | ✅ Tamamlandı | 2026-07-11 |
 | 1 | Verilənlər Bazası (migrations, seed) | ✅ Tamamlandı | 2026-07-11 |
-| 2 | Autentifikasiya (qeydiyyat/giriş/sözləşmə/middleware) | ⏳ Gözləyir | — |
+| 2 | Autentifikasiya (qeydiyyat/giriş/sözləşmə/middleware) | ✅ Tamamlandı | 2026-07-11 |
 | 3 | Sifariş və SSE (race qoruması, WhatsApp) | ⏳ Gözləyir | — |
 | 4 | Admin Paneli | ⏳ Gözləyir | — |
 | 5 | Abunə və Ödəniş (adapter, webhook) | ⏳ Gözləyir | — |
@@ -83,6 +83,43 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
     (`rowCount()=1`), ikincisi `rowCount()=0` aldı — spesifikasiyaya tam uyğun.
   - Test DB/istifadəçi və `.env` təmizləndi, repoya heç bir sirr commit edilmədi.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 2 (Autentifikasiya)
+  başlanacaq.
+
+### 2026-07-11 — Faza 2 tamamlandı (Autentifikasiya)
+- **Core:** `Csrf` (sessiya-bağlı token, `hash_equals`), `RateLimiter` (fayl-əsaslı,
+  `storage/cache/ratelimit/`), `ValidationException`.
+- **Middleware:** `CsrfGuard` (POST/PUT/DELETE-də token yoxlanışı, uğursuzda 419),
+  `RateLimit` (5 cəhd/15 dəq, IP+yol əsaslı, 429), `Auth` (sessiya yoxdursa
+  remember-me cookie ilə avtomatik bərpa cəhdi, uğursuzda 401), `RoleGuard`
+  (abstract) + `MusteriGuard`/`KuryeGuard` (Faza 3-də sifariş marşrutlarında
+  istifadə olunacaq).
+- **Models:** `User`, `Kurye`, `DasiyiciOlcusu` (yükdaşıma ölçü N—N əlaqəsi),
+  `Sessiya` (remember-me token CRUD), `LegalLog` (append-only audit yazma).
+- **Service:** `AuthService::qeydiyyat()` (3 rol: musteri/kurye/yukdasima, rola görə
+  şərti validasiya — kuryedə nəqliyyat növü, yükdaşımada ölçü seçimi mütləqdir;
+  sözləşmə checkbox MƏCBURİ; unikal telefon yoxlanışı; `password_hash`),
+  `AuthService::giris()` (`password_verify`, `session_regenerate_id`, bloklu
+  hesab rədd edilir, "məni xatırla" seçilibsə remember-me tokeni yaradılır),
+  `AuthService::cixis()` (sessiya destroy + remember-me tokeninin DB-dən silinməsi).
+- **Controller:** `AuthController` — `POST /qeydiyyat`, `POST /giris`, `POST /cixis`;
+  `GET /csrf-token` (frontend üçün token təchizatı) `routes/web.php`-ə əlavə olundu.
+- `config/sozlesme.php` — İstifadəçi Sözləşməsi YER TUTUCU mətni (AZ/RU/EN); hüquqi
+  mətn hazır olanda (Faza 7) yalnız bu fayl yenilənəcək, DB strukturu dəyişmir.
+- **Yoxlama (real MySQL + real HTTP server-ə qarşı, sadəcə sintaksis yox):**
+  - Bütün `.php` faylları `php -l` ilə xətasız.
+  - PHP built-in server (`public/index.php`) + MariaDB test DB ilə tam axın sınandı:
+    3 rolun qeydiyyatı (musteri/kurye/yukdasima — ölçü seçimi ilə), sözləşmə
+    checkbox olmadan rədd, dublikat telefon rədd, CSRF-siz sorğu 419, yanlış
+    parolla giriş 401, düzgün giriş + "məni xatırla" ilə remember-me cookie
+    yaradıldı, sessiya cookie-si silinərkən YALNIZ remember-me cookie ilə
+    `Auth` middleware sessiyanı avtomatik bərpa etdi (7.3.1-ə tam uyğun),
+    çıxışda remember-me cookie və DB tokeni silindi, rate-limit 5 cəhddən sonra
+    429 qaytardı.
+  - DB-də son vəziyyət yoxlanıldı: `users`/`kuryeler`/`dasiyici_olculeri` düzgün
+    əlaqələndirilib, `legal_logs`-da qeydiyyat+giriş hadisələri düzgün yazılıb,
+    çıxışdan sonra `sessiyalar` cədvəli təmizlənib.
+  - Test DB/istifadəçi və `.env` təmizləndi, repoya heç bir sirr commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 3 (Sifariş və SSE)
   başlanacaq.
 
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
