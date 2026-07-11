@@ -29,18 +29,12 @@ final class DasiyiciOlcusu
     }
 
     /**
-     * @param int[] $olcuIds
-     * @return int[] Verilən ID-lərdən DB-də həqiqətən mövcud olanlar
+     * @return int[] Kuryerin seçdiyi yükdaşıma ölçü ID-ləri
      */
-    public function existingIds(array $olcuIds): array
+    public function olcuIdsByKurye(int $kuryeId): array
     {
-        if ($olcuIds === []) {
-            return [];
-        }
-
-        $placeholders = implode(',', array_fill(0, count($olcuIds), '?'));
-        $stmt = $this->db->prepare("SELECT id FROM yukdasima_olculeri WHERE id IN ({$placeholders})");
-        $stmt->execute(array_values($olcuIds));
+        $stmt = $this->db->prepare('SELECT olcu_id FROM dasiyici_olculeri WHERE kurye_id = :kurye_id');
+        $stmt->execute(['kurye_id' => $kuryeId]);
 
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }

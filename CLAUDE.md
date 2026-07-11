@@ -171,9 +171,12 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   (7.3.1) `Sessiya` modeli ilə. Real MySQL+HTTP ilə test edildi. Ətraflı: `PROGRESS.md`.
   Qeyd: rol-əsaslı panel YÖNLƏNDIRMƏSI (HTML redirect) Faza 6-da Views qatı ilə
   gələcək — hazırda giriş JSON `{rol: ...}` qaytarır.
-- **Faza 3 — Sifariş və SSE:** müştəri sifariş yaratma/ləğv/tarixçə, SSE lövhə + rayon filtri,
-  atomic götürmə (race qoruması) + WhatsApp link generasiyası, onlayn/offline, tamamlama,
-  cron (1 saat passivləşmə).
+- **Faza 3 — Sifariş və SSE ✅ (tamamlandı 2026-07-11):** müştəri sifariş yaratma/ləğv/
+  tarixçə, SSE lövhə + rayon/tip/ölçü filtri, atomic götürmə (race qoruması, server-tərəfdə
+  də "uyğun daşıyıcı" yoxlaması) + WhatsApp link generasiyası, onlayn/offline, ərazi
+  idarəsi (`POST /kurye/bolgeler` — Əlavə A-da yoxdur, filtri işlək etmək üçün əlavə
+  olundu), tamamlama, cron (`cron/sifaris_temizle.php`, 1 saat passivləşmə). Real
+  MySQL + çox-worker HTTP server ilə test edildi. Ətraflı: `PROGRESS.md`.
 - **Faza 4 — Admin Paneli:** ayrı subdomen, admin auth, müştəri/kuryer tablar + pop-up +
   bloklama, sifariş idarəsi (filtr/pagination), abunə idarəsi (fərdi+qlobal), banner sistemi.
 - **Faza 5 — Abunə və Ödəniş:** abunə məntiqi/xəbərdarlıq/cron, payment adapter

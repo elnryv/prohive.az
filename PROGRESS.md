@@ -4,7 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 2 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 3 üçün)
+- **Cari faza:** Faza 3 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 4 üçün)
 
 ## Faza Cədvəli
 
@@ -14,7 +14,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 | 0 | Təməl (VPS, qovluq, Core, config, error handler) | ✅ Tamamlandı | 2026-07-11 |
 | 1 | Verilənlər Bazası (migrations, seed) | ✅ Tamamlandı | 2026-07-11 |
 | 2 | Autentifikasiya (qeydiyyat/giriş/sözləşmə/middleware) | ✅ Tamamlandı | 2026-07-11 |
-| 3 | Sifariş və SSE (race qoruması, WhatsApp) | ⏳ Gözləyir | — |
+| 3 | Sifariş və SSE (race qoruması, WhatsApp) | ✅ Tamamlandı | 2026-07-11 |
 | 4 | Admin Paneli | ⏳ Gözləyir | — |
 | 5 | Abunə və Ödəniş (adapter, webhook) | ⏳ Gözləyir | — |
 | 6 | PWA və Cilalama | ⏳ Gözləyir | — |
@@ -120,6 +120,64 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
     çıxışdan sonra `sessiyalar` cədvəli təmizlənib.
   - Test DB/istifadəçi və `.env` təmizləndi, repoya heç bir sirr commit edilmədi.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 3 (Sifariş və SSE)
+  başlanacaq.
+
+### 2026-07-11 — Faza 3 tamamlandı (Sifariş və SSE)
+- **Kiçik refaktor (Faza 2 üzərində):** `YukdasimaOlcusu` modeli əlavə olundu
+  (ölçü kataloqu sorğuları), `DasiyiciOlcusu` isə yalnız kuryerin seçdiyi ölçülərin
+  N—N əlaqəsinə fokuslandı (`attachSizes`, `olcuIdsByKurye`). `AuthService`
+  müvafiq olaraq yeniləndi, Faza 2 auth axını yenidən test edilib reqressiya yoxdur.
+- **Models:** `Sifaris` (create/find/tarixçə/SSE sorğuları/atomic götürmə-tamamlama-
+  ləğv/cron passivləşdirmə), `Rayon` (aktiv şəhər/rayon yoxlaması), `KuryeBolge`
+  (ərazi N—N sinxronizasiyası, tranzaksiyalı), `Kurye`-yə `findById`/`setOnlayn`/
+  `incrementTamamlanan` əlavə olundu.
+  Qeyd: `odenisler`-ə əlavə edilmiş FK-lara bənzər şəkildə, bu modellər orijinal
+  DDL-ə sadiq qalır, əlavə sxem dəyişikliyi edilməyib.
+- **Core:** `WhatsApp::link()` — bölmə 6.4-ə uyğun ön-doldurulmuş `wa.me` linki.
+- **Service:** `SifarisService` — sifariş yaratma (tip/şəhər-rayon/ölçü validasiyası),
+  ləğv (mülkiyyət yoxlaması ilə), tarixçə, SSE lövhə sorğusu (onlayn+ərazi+tip/ölçü
+  filtri — bölmə 5.3, 7.1.1), atomic götürmə + WhatsApp link + legal_logs yazma,
+  tamamlama (+`tamamlanan` sayğacı), onlayn/offline, ərazi yeniləmə, cron
+  passivləşdirmə.
+  **Diqqət (əlavə təhlükəsizlik qərarı):** `gotur()`-da SSE lövhə filtri ilə YANAŞI
+  server-tərəfində də tip/ölçü uyğunluğu yoxlanılır (bölmə 7.1.1 "uyğun daşıyıcı"
+  qaydası) — əks halda dəyişdirilmiş client sorğusu ilə uyğunsuz sifariş götürülə
+  bilərdi. Bu, orijinal sənəddə açıq deyilən amma nəzərdə tutulan qoruma kimi əlavə
+  olundu.
+- **Controllers:** `SifarisController` (yarat/legv/tarixçə/gotur/tamamla),
+  `KuryeController` (onlayn, bölgələr), `SseController` (canlı lövhə, `session_write_close()`,
+  `Last-Event-ID` dəstəyi, `nginx fastcgi_read_timeout`-a uyğun 1 saatlıq təhlükəsizlik həddi).
+  Qeyd: `POST /kurye/bolgeler` Əlavə A cədvəlində yoxdur, lakin rayon filtrini işlək
+  etmək üçün zəruri olduğundan Faza 3 çərçivəsində əlavə edildi (istifadəçiyə bildirilir).
+- `cron/sifaris_temizle.php` — 1 saatdan çox `axtarisda` qalan sifarişləri `passiv`
+  edir (bölmə 6.1/6.5).
+- `routes/web.php`-ə əlavə olundu: `POST /sifaris/yarat`, `POST /sifaris/{id}/legv`,
+  `GET /sifaris/tarixce`, `GET /sse/lovhe`, `POST /sifaris/{id}/gotur`,
+  `POST /sifaris/{id}/tamamla`, `POST /kurye/onlayn`, `POST /kurye/bolgeler`.
+- **Yoxlama (real MySQL + real HTTP server-ə qarşı, sadəcə sintaksis yox):**
+  - Bütün `.php` faylları `php -l` ilə xətasız.
+  - PHP built-in server-i çox-worker rejimində (`PHP_CLI_SERVER_WORKERS=4`) işə
+    salıb tam ssenari sınandı: 3 istifadəçinin qeydiyyatı/girişi, kuryerlərin ərazi
+    seçimi + onlayn olması, iki fərqli tipli (kurye/yukdasima) sifarişin yaradılması.
+  - **SSE canlı lövhə:** hər kuryer YALNIZ öz tipinə/ölçüsünə/ərazisinə uyğun
+    sifarişi gördü (kurye→tip=kurye, yukdasima→tip=yukdasima+uyğun ölçü);
+    bağlantı client tərəfdən kəsiləndə (`connection_aborted()`) dövr düzgün
+    dayandı.
+  - **Uyğunsuz götürmə cəhdi** (avtomobil kuryeri yükdaşıma sifarişini götürməyə
+    çalışdı) → 409 "xidmət tipinizə uyğun deyil" ilə rədd edildi.
+  - **Race/uyğun götürmə:** hər kuryer öz uyğun sifarişini uğurla götürdü,
+    WhatsApp linkləri (`wa.me/...?text=...`) düzgün generasiya olundu.
+  - **Tamamlama:** status `tamamlandi`-ya keçdi, `kuryeler.tamamlanan` 0→1 artdı.
+  - **IDOR qorumaları:** başqa rol (yukdasima) müştəri sifarişini ləğv etməyə
+    çalışanda `MusteriGuard` 403 qaytardı; eyni rollu (musteri) başqa istifadəçinin
+    sifarişini ləğv etməyə çalışanda mülkiyyət yoxlaması 422 ilə rədd etdi.
+  - **Cron:** `sifaris_temizle.php` əvvəlcə 0 sifariş tapdı; `created_at` süni
+    olaraq 2 saat geri çəkiləndə həmin sifarişi düzgün `passiv` etdi.
+  - `legal_logs`-da `sifaris_goturuldu` hadisələri düzgün `actor_id`/`sifaris_id`
+    ilə yazıldı.
+  - Test DB/istifadəçi, `.env` və rate-limit keşi təmizləndi, repoya heç bir sirr
+    commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 4 (Admin Paneli)
   başlanacaq.
 
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)

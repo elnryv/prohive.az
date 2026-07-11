@@ -11,6 +11,7 @@ use App\Models\Kurye;
 use App\Models\LegalLog;
 use App\Models\Sessiya;
 use App\Models\User;
+use App\Models\YukdasimaOlcusu;
 
 /**
  * Qeydiyyat/giriş/çıxış biznes məntiqi — bax CLAUDE.md bölmə 2 (Aktyorlar və Qeydiyyat)
@@ -26,6 +27,7 @@ final class AuthService
     private User $users;
     private Kurye $kuryeler;
     private DasiyiciOlcusu $dasiyiciOlculeri;
+    private YukdasimaOlcusu $yukdasimaOlculeri;
     private Sessiya $sessiyalar;
     private LegalLog $legalLogs;
 
@@ -34,6 +36,7 @@ final class AuthService
         $this->users = new User();
         $this->kuryeler = new Kurye();
         $this->dasiyiciOlculeri = new DasiyiciOlcusu();
+        $this->yukdasimaOlculeri = new YukdasimaOlcusu();
         $this->sessiyalar = new Sessiya();
         $this->legalLogs = new LegalLog();
     }
@@ -86,7 +89,7 @@ final class AuthService
             }
 
             $olcuIds = array_values(array_unique(array_map('intval', $secilenler)));
-            $movcud = $this->dasiyiciOlculeri->existingIds($olcuIds);
+            $movcud = $this->yukdasimaOlculeri->existingIds($olcuIds);
             if (count($movcud) !== count($olcuIds)) {
                 throw new ValidationException('Seçilmiş ölçülərdən bəziləri mövcud deyil.');
             }

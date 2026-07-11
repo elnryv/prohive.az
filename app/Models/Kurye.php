@@ -32,4 +32,25 @@ final class Kurye
 
         return $row === false ? null : $row;
     }
+
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM kuryeler WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
+    }
+
+    public function setOnlayn(int $kuryeId, bool $onlayn): void
+    {
+        $stmt = $this->db->prepare('UPDATE kuryeler SET onlayn = :onlayn WHERE id = :id');
+        $stmt->execute(['onlayn' => $onlayn ? 1 : 0, 'id' => $kuryeId]);
+    }
+
+    public function incrementTamamlanan(int $kuryeId): void
+    {
+        $stmt = $this->db->prepare('UPDATE kuryeler SET tamamlanan = tamamlanan + 1 WHERE id = :id');
+        $stmt->execute(['id' => $kuryeId]);
+    }
 }
