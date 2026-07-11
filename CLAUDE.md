@@ -154,8 +154,10 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
 > `php -l` ilə sintaksis yoxlanılır, `CLAUDE.md` və `PROGRESS.md` yenilənir,
 > istifadəçiyə YALNIZ bu deyilir: **"Faza X bitdi, yoxlamalar uğurludur, növbəti fazaya hazıram."**
 
-- **Faza 0 — Təməl:** VPS qurulum qeydləri (Nginx, PHP-FPM 8.3, MySQL 8.0, TLS), qovluq
-  strukturu, Core (Router, PDO DB, Session, Request/Response), config/.env sistemi, error handler.
+- **Faza 0 — Təməl ✅ (tamamlandı 2026-07-11):** VPS qurulum qeydləri (Nginx, PHP-FPM 8.3,
+  MySQL 8.0, TLS — bax `deploy/`), qovluq strukturu, Core (Router, PDO DB, Session,
+  Request/Response, ErrorHandler, Logger), `bootstrap.php` avtoloader, config/.env sistemi.
+  Ətraflı: `PROGRESS.md`.
 - **Faza 1 — Verilənlər Bazası:** bütün cədvəllərin migration-ları (bölmə 4), seed
   (şəhərlər Bakı+Sumqayıt, rayonlar, yukdasima_olculeri), legal_logs və ayarlar.
 - **Faza 2 — Autentifikasiya:** qeydiyyat/giriş (müştəri+kuryer+yükdaşıma), rol yönləndirmə,
