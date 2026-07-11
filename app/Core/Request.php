@@ -68,4 +68,12 @@ final class Request
     {
         return str_contains($this->server['CONTENT_TYPE'] ?? '', 'application/json');
     }
+
+    /**
+     * @return array{name:string, type:string, tmp_name:string, error:int, size:int}|null
+     */
+    public function file(string $key): ?array
+    {
+        return isset($_FILES[$key]) && is_array($_FILES[$key]) ? $_FILES[$key] : null;
+    }
 }

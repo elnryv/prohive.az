@@ -38,4 +38,23 @@ final class DasiyiciOlcusu
 
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
+
+    /**
+     * Admin popup detalı üçün — bax bölmə 8.2 ("...yükdaşıma ölçüləri").
+     *
+     * @return string[] Kod siyahısı (məs. ['XS', 'M'])
+     */
+    public function olcuKodlariByKurye(int $kuryeId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT yo.kod
+             FROM dasiyici_olculeri d
+             JOIN yukdasima_olculeri yo ON yo.id = d.olcu_id
+             WHERE d.kurye_id = :kurye_id
+             ORDER BY yo.sira'
+        );
+        $stmt->execute(['kurye_id' => $kuryeId]);
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }

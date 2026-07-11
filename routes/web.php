@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\BannerImageController;
 use App\Controllers\KuryeController;
 use App\Controllers\SifarisController;
 use App\Controllers\SseController;
@@ -49,5 +50,8 @@ $router->post('/sifaris/{id}/gotur', [SifarisController::class, 'gotur'], [Auth:
 $router->post('/sifaris/{id}/tamamla', [SifarisController::class, 'tamamla'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
 $router->post('/kurye/onlayn', [KuryeController::class, 'onlayn'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
 $router->post('/kurye/bolgeler', [KuryeController::class, 'bolgeler'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
+
+// Banner şəkli göstərmə (bax bölmə 8.4, admin panelində yüklənir, burada yayımlanır)
+$router->get('/banner-sekil/{fayl}', [BannerImageController::class, 'goster']);
 
 return $router;

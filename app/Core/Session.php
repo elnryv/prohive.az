@@ -8,14 +8,18 @@ final class Session
 {
     private static bool $started = false;
 
-    public static function start(): void
+    /**
+     * @param string|null $name Admin subdomeni üçün ayrı sessiya adı ötürülür ki,
+     *                          admin/müştəri-kuryer sessiyaları tamamilə izolyasiya olunsun.
+     */
+    public static function start(?string $name = null): void
     {
         if (self::$started || session_status() === PHP_SESSION_ACTIVE) {
             self::$started = true;
             return;
         }
 
-        session_name(Env::get('SESSION_NAME', 'birlikde_session'));
+        session_name($name ?? Env::get('SESSION_NAME', 'birlikde_session'));
 
         session_set_cookie_params([
             'lifetime' => Env::getInt('SESSION_LIFETIME', 0),

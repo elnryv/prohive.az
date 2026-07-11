@@ -177,8 +177,16 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   idarəsi (`POST /kurye/bolgeler` — Əlavə A-da yoxdur, filtri işlək etmək üçün əlavə
   olundu), tamamlama, cron (`cron/sifaris_temizle.php`, 1 saat passivləşmə). Real
   MySQL + çox-worker HTTP server ilə test edildi. Ətraflı: `PROGRESS.md`.
-- **Faza 4 — Admin Paneli:** ayrı subdomen, admin auth, müştəri/kuryer tablar + pop-up +
-  bloklama, sifariş idarəsi (filtr/pagination), abunə idarəsi (fərdi+qlobal), banner sistemi.
+- **Faza 4 — Admin Paneli ✅ (tamamlandı 2026-07-11):** ayrı subdomen (`appadmin`,
+  tam izolyasiya olunmuş sessiya/cookie), qısa idle-timeout admin auth (remember-me
+  YOXDUR), ayrı `adminler` cədvəli (yalnız CLI ilə yaradılır, web qeydiyyatı yoxdur),
+  müştəri/kuryer tablar + pop-up + bloklama (səbəb məcburi), sifariş idarəsi
+  (status/rayon/tarix filtri + pagination + tarixçə), abunə idarəsi (fərdi: +gün/
+  tip/dayandır; qlobal: `abune_rejimi` toggle), banner sistemi (yükləmə validasiyası
+  + `GET /banner-sekil/{fayl}` göstərmə marşrutu — Əlavə A-da yoxdur, zəruri olduğu
+  üçün əlavə olundu). Bölmə 8.1 (Dashboard) və 8.7 (Ərazi İdarəsi) roadmap
+  bəndlərində olmadığı üçün BU FAZADA YOXDUR (istəyə görə sonra əlavə edilə bilər).
+  Real MySQL+HTTP ilə test edildi. Ətraflı: `PROGRESS.md`.
 - **Faza 5 — Abunə və Ödəniş:** abunə məntiqi/xəbərdarlıq/cron, payment adapter
   (Birbank/Payriff), webhook doğrulama (idempotent).
 - **Faza 6 — PWA və Cilalama:** manifest, Service Worker, ana ekrana əlavə (Android+iOS),

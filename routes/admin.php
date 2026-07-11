@@ -2,13 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AdminAbunelikController;
+use App\Controllers\AdminAuthController;
+use App\Controllers\AdminBannerController;
+use App\Controllers\AdminSifarisController;
+use App\Controllers\AdminUserController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
+use App\Middleware\AdminAuth;
+use App\Middleware\CsrfGuard;
+use App\Middleware\RateLimit;
 
 /**
- * appadmin.birlikde.biz marşrutları (izolyasiya olunmuş admin paneli).
- * Controller-lər Faza 4-də əlavə olunacaq (bax CLAUDE.md bölmə 8).
+ * appadmin.birlikde.biz marşrutları (izolyasiya olunmuş admin paneli) — bax
+ * CLAUDE.md bölmə 8. Dashboard (8.1) və Ərazi İdarəsi (8.7) Faza 4 roadmap
+ * bəndlərində açıq sadalanmadığı üçün bu fazada YOXDUR (istəyə görə sonra əlavə).
  */
 
 $router = new Router();
@@ -20,5 +29,36 @@ $router->get('/', function (Request $request) {
 $router->get('/healthz', function (Request $request) {
     Response::json(['status' => 'ok']);
 });
+
+$router->get('/csrf-token', function (Request $request) {
+    Response::json(['csrf_token' => \App\Core\Csrf::token()]);
+});
+
+$router->post('/giris', [AdminAuthController::class, 'giris'], [CsrfGuard::class, RateLimit::class]);
+$router->post('/cixis', [AdminAuthController::class, 'cixis'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/parol-deyis', [AdminAuthController::class, 'parolDeyis'], [AdminAuth::class, CsrfGuard::class]);
+
+// Müştəri/kuryer siyahıları, pop-up detal, bloklama (bax bölmə 8.2)
+$router->get('/musteriler', [AdminUserController::class, 'musteriler'], [AdminAuth::class]);
+$router->get('/kuryerler', [AdminUserController::class, 'kuryerler'], [AdminAuth::class]);
+$router->get('/istifadeci/{id}', [AdminUserController::class, 'detal'], [AdminAuth::class]);
+$router->post('/istifadeci/{id}/blokla', [AdminUserController::class, 'blokla'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/istifadeci/{id}/blokdan-cixar', [AdminUserController::class, 'blokdanCixar'], [AdminAuth::class, CsrfGuard::class]);
+
+// Sifariş idarəsi, filtr, pagination (bax bölmə 8.3)
+$router->get('/sifarisler', [AdminSifarisController::class, 'siyahi'], [AdminAuth::class]);
+$router->get('/sifaris/{id}', [AdminSifarisController::class, 'detal'], [AdminAuth::class]);
+
+// Abunə idarəsi — fərdi + qlobal (bax bölmə 8.5)
+$router->get('/kurye/{kuryeId}/abunelik', [AdminAbunelikController::class, 'status'], [AdminAuth::class]);
+$router->post('/kurye/{kuryeId}/abunelik/uzat', [AdminAbunelikController::class, 'uzat'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/kurye/{kuryeId}/abunelik/tip', [AdminAbunelikController::class, 'tipDeyis'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/kurye/{kuryeId}/abunelik/aktivlik', [AdminAbunelikController::class, 'aktivlikDeyis'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/abune-rejimi', [AdminAbunelikController::class, 'qlobalRejim'], [AdminAuth::class, CsrfGuard::class]);
+
+// Banner sistemi (bax bölmə 8.4)
+$router->post('/banner', [AdminBannerController::class, 'yarat'], [AdminAuth::class, CsrfGuard::class]);
+$router->get('/bannerler', [AdminBannerController::class, 'siyahi'], [AdminAuth::class]);
+$router->post('/banner/{id}/aktivlik', [AdminBannerController::class, 'aktivlikDeyis'], [AdminAuth::class, CsrfGuard::class]);
 
 return $router;

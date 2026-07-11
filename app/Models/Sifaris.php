@@ -60,6 +60,94 @@ final class Sifaris
         return $row === false ? null : $row;
     }
 
+    /**
+     * Admin panel — sifariş idarəsi (bax bölmə 8.3): filtr + pagination.
+     *
+     * @param array{status?:string, rayon_id?:int, bas_tarix?:string, bit_tarix?:string} $filtrler
+     */
+    public function listForAdmin(array $filtrler, int $limit, int $offset): array
+    {
+        [$where, $params] = $this->adminFiltrSharti($filtrler);
+
+        $sql = "SELECT s.*, mu.ad AS musteri_ad, mu.soyad AS musteri_soyad, mu.telefon AS musteri_telefon,
+                       ku.ad AS kurye_ad, ku.soyad AS kurye_soyad, ku.telefon AS kurye_telefon
+                FROM sifarisler s
+                JOIN users mu ON mu.id = s.musteri_id
+                LEFT JOIN kuryeler k ON k.id = s.kurye_id
+                LEFT JOIN users ku ON ku.id = k.user_id
+                WHERE {$where}
+                ORDER BY s.created_at DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue('offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    public function countForAdmin(array $filtrler): int
+    {
+        [$where, $params] = $this->adminFiltrSharti($filtrler);
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM sifarisler s WHERE {$where}");
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function findDetailForAdmin(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT s.*, mu.ad AS musteri_ad, mu.soyad AS musteri_soyad, mu.telefon AS musteri_telefon,
+                    ku.ad AS kurye_ad, ku.soyad AS kurye_soyad, ku.telefon AS kurye_telefon
+             FROM sifarisler s
+             JOIN users mu ON mu.id = s.musteri_id
+             LEFT JOIN kuryeler k ON k.id = s.kurye_id
+             LEFT JOIN users ku ON ku.id = k.user_id
+             WHERE s.id = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
+    }
+
+    /**
+     * @return array{0: string, 1: array<string, mixed>}
+     */
+    private function adminFiltrSharti(array $filtrler): array
+    {
+        $where = '1=1';
+        $params = [];
+
+        if (!empty($filtrler['status'])) {
+            $where .= ' AND s.status = :status';
+            $params['status'] = $filtrler['status'];
+        }
+        if (!empty($filtrler['rayon_id'])) {
+            $where .= ' AND s.goturulme_rayon_id = :rayon_id';
+            $params['rayon_id'] = (int) $filtrler['rayon_id'];
+        }
+        if (!empty($filtrler['bas_tarix'])) {
+            $where .= ' AND s.created_at >= :bas_tarix';
+            $params['bas_tarix'] = $filtrler['bas_tarix'] . ' 00:00:00';
+        }
+        if (!empty($filtrler['bit_tarix'])) {
+            $where .= ' AND s.created_at <= :bit_tarix';
+            $params['bit_tarix'] = $filtrler['bit_tarix'] . ' 23:59:59';
+        }
+
+        return [$where, $params];
+    }
+
     public function listByMusteri(int $musteriId, int $limit = 50): array
     {
         $stmt = $this->db->prepare(

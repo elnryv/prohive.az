@@ -34,6 +34,7 @@ return [
         'days' => Env::getInt('REMEMBER_ME_DAYS', 365),
     ],
     'admin' => [
+        'session_name' => Env::get('ADMIN_SESSION_NAME', 'birlikde_admin_session'),
         'idle_minutes' => Env::getInt('ADMIN_SESSION_IDLE_MINUTES', 15),
     ],
     'payment' => [

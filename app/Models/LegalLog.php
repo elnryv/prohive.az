@@ -35,4 +35,17 @@ final class LegalLog
             'ip_adres' => @inet_pton($ip) ?: null,
         ]);
     }
+
+    /**
+     * Admin sifariş detalı — "tarixçə" (status keçidləri) — bax bölmə 8.3.
+     */
+    public function bySifarisId(int $sifarisId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM legal_logs WHERE sifaris_id = :sifaris_id ORDER BY created_at ASC'
+        );
+        $stmt->execute(['sifaris_id' => $sifarisId]);
+
+        return $stmt->fetchAll();
+    }
 }

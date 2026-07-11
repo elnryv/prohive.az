@@ -4,7 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 3 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 4 üçün)
+- **Cari faza:** Faza 4 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 5 üçün)
 
 ## Faza Cədvəli
 
@@ -15,7 +15,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 | 1 | Verilənlər Bazası (migrations, seed) | ✅ Tamamlandı | 2026-07-11 |
 | 2 | Autentifikasiya (qeydiyyat/giriş/sözləşmə/middleware) | ✅ Tamamlandı | 2026-07-11 |
 | 3 | Sifariş və SSE (race qoruması, WhatsApp) | ✅ Tamamlandı | 2026-07-11 |
-| 4 | Admin Paneli | ⏳ Gözləyir | — |
+| 4 | Admin Paneli | ✅ Tamamlandı | 2026-07-11 |
 | 5 | Abunə və Ödəniş (adapter, webhook) | ⏳ Gözləyir | — |
 | 6 | PWA və Cilalama | ⏳ Gözləyir | — |
 | 7 | Hüquqi (sonra) | ⏳ Gözləyir | — |
@@ -179,6 +179,84 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
     commit edilmədi.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 4 (Admin Paneli)
   başlanacaq.
+
+### 2026-07-11 — Faza 4 tamamlandı (Admin Paneli)
+- **Əhatə qərarı (istifadəçiyə soruşulub təsdiqləndi):** bölmə 8.1 (Dashboard) və
+  8.7 (Ərazi İdarəsi) Faza 4 roadmap bəndlərində açıq sadalanmadığı üçün bu
+  fazaya DAXİL EDİLMƏDİ — yalnız roadmap-da yazılan 4 bənd (admin auth,
+  müştəri/kuryer+bloklama, sifariş idarəsi, abunə+banner) tətbiq olundu. İstəsə
+  sonra ayrıca əlavə edilə bilər.
+- **DB:** `database/migrations/015_create_adminler_table.sql` — ayrı, izolyasiya
+  olunmuş `adminler` cədvəli (users-dən tamam ayrı, bölmə 8.8).
+  `database/create_admin.php` — CLI provisioning skripti (parol terminalda gizli
+  daxil edilir, heç vaxt arqument/koda yazılmır; web-dən admin qeydiyyatı QƏSDƏN
+  yoxdur).
+- **Sessiya izolyasiyası:** `Session::start()` indi opsional ad qəbul edir;
+  `public/admin.php` `ADMIN_SESSION_NAME` (ayrı cookie adı) ötürür — admin və
+  müştəri/kuryer sessiyaları tamamilə ayrı cookie/storage-dadır (sınaqla
+  təsdiqləndi: müştəri sessiyası ilə admin marşrutuna cəhd 401 verdi).
+  `AdminAuth` middleware qısa idle-timeout tətbiq edir (`ADMIN_SESSION_IDLE_MINUTES`,
+  default 15 dəq) — sessiya kalıcı DEYİL, remember-me YOXDUR (bölmə 8.8-ə tam uyğun).
+- **Models:** `Admin`, `Abunelik`, `Ayar`, `Banner`; `User`-ə admin siyahı/detal/
+  bloklama metodları, `Sifaris`-ə admin siyahı/filtr/detal (JOIN ilə müştəri+kuryer
+  məlumatı), `LegalLog`-a `bySifarisId()` (sifariş "tarixçəsi" — yeni cədvəl əvəzinə
+  mövcud audit jurnalından istifadə edildi), `DasiyiciOlcusu`-na ölçü kod siyahısı.
+  **Diqqət:** `Database` `EMULATE_PREPARES=false` istifadə etdiyi üçün eyni adlı
+  named placeholder-in bir sorğuda TƏKRAR istifadəsi native MySQL prepare-də
+  uğursuz olur — axtarış sorğusunda (`ad/soyad/telefon LIKE`) bu aşkarlanıb
+  düzəldildi (hər occurrence üçün ayrı placeholder adı). Bütün Models/Services
+  bu baxımdan yoxlanıldı, başqa yer tapılmadı.
+- **Services:** `AdminAuthService` (giriş/çıxış/parol dəyiş), `AdminUserService`
+  (müştəri/kuryer tab siyahısı axtarışla+pagination, pop-up detal, blokla/
+  blokdan-çıxar — səbəb MƏCBURİ), `AdminSifarisService` (filtr: status/rayon/
+  tarix aralığı + pagination, detal+tarixçə), `AbunelikService` (fərdi: +gün,
+  tip dəyiş, dayandır/aktivləşdir; qlobal: `abune_rejimi` toggle; status label
+  hesablama: aktiv/pulsuz/bitib/bloklu/pulsuz_qlobal — qlobal dayandırma bütün
+  fərdi vəziyyətləri üstələyir, bölmə 8.5.1-ə uyğun), `BannerService` (yükləmə
+  validasiyası: mime whitelist + `getimagesize` + 5MB limit + təsadüfi fayl adı,
+  tarix/hədəf/link validasiyası).
+- **Controllers:** `AdminAuthController`, `AdminUserController`,
+  `AdminSifarisController`, `AdminAbunelikController`, `AdminBannerController`,
+  `BannerImageController` (banner şəklini `storage/banners/`-dan təhlükəsiz
+  yayımlayır — fayl adı sərt regex (`^[a-f0-9]{32}\.(jpg|jpeg|png|webp)$`) ilə
+  yoxlanılır, path traversal sınandı və rədd edildi).
+  **Diqqət (Əlavə A-da yoxdur, amma zəruri):** `GET /banner-sekil/{fayl}`
+  (`routes/web.php`, ictimai) — banner şəkli `storage/` altında saxlanır və nginx
+  bu qovluğu bloklayır (Faza 0 konfiqi), ona görə kiçik bir PHP stream endpoint-i
+  əlavə olundu ki, "banner sistemi" bəndi əvvəldən-axıra (yüklə → göstər) işlək olsun.
+- `routes/admin.php` tam yazıldı: giriş/çıxış/parol-dəyiş, müştərilər/kuryerlər/
+  istifadəçi-detal/blokla/blokdan-çıxar, sifarişlər/sifaris-detal, kurye-abunəlik
+  (status/uzat/tip/aktivlik) + qlobal abunə-rejimi, banner/bannerlər/banner-aktivlik.
+- **Yoxlama (real MySQL + real HTTP server-ə qarşı, sadəcə sintaksis yox):**
+  - Bütün `.php` faylları `php -l` ilə xətasız, migration 015 real MySQL-ə tətbiq
+    olundu.
+  - Admin CLI ilə yaradıldı, giriş/yanlış-parol/çıxış/parol-dəyişmə (yanlış cari
+    parol rədd, düzgün dəyişiklikdən sonra yeni parolla giriş) sınandı.
+  - **Sessiya izolyasiyası:** müştəri sessiyası ilə admin marşrutuna cəhd 401.
+  - **Idle-timeout:** `ADMIN_SESSION_IDLE_MINUTES=0` ilə məcburi test edildi —
+    girişdən dərhal sonra qorunan marşrut 401 verdi (mexanizm işləyir); normal
+    (15 dəq) rejimdə həmin marşrut dərhal sonra 200 verdi.
+  - Müştəri/kuryer siyahıları, axtarış, pop-up detal (kuryerin nəqliyyat/onlayn/
+    tamamlanan sahələri düzgün JOIN edildi) sınandı.
+  - **Bloklama:** səbəbsiz blokla → 422; səbəblə blokla → uğurlu, bloklanan
+    istifadəçi girişdə "Hesabınız bloklanıb" aldı; blokdan çıxarma bərpa etdi.
+  - **Sifariş idarəsi:** status filtri (yanlış status → 422), JOIN edilmiş
+    müştəri/kuryer məlumatı, boş `tarixce` (hələ götürülməmiş sifariş üçün) düzgün.
+  - **Abunə:** heç bir dövr yoxdursa "bitib"; +30 gün → "aktiv" + düzgün qalan
+    gün; tip→pulsuz → label "pulsuz"; qlobal "dayandirilib" → bütün fərdi
+    vəziyyətləri üstələyib "pulsuz_qlobal" göstərdi; qlobal geri aktivləşdirmə
+    normala qaytardı.
+  - **Banner:** real PNG (1080×300) yükləndi, DB-yə yol yazıldı, `GET
+    /banner-sekil/{fayl}` ilə düzgün Content-Type (`image/png`) ilə geri
+    qaytarıldı; path traversal (`../../.env`) və hash-formatına uyğun olmayan
+    fayl adları 404 ilə rədd edildi.
+  - `legal_logs`-da bütün admin əməliyyatları (giriş, blokla/blokdan-çıxar,
+    abunəlik dəyişiklikləri, qlobal rejim, parol dəyiş) səbəblə birlikdə düzgün
+    yazıldı.
+  - Test DB/istifadəçi, `.env`, yüklənmiş test banner şəkli və rate-limit keşi
+    təmizləndi, repoya heç bir sirr commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 5 (Abunə və
+  Ödəniş) başlanacaq.
 
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
