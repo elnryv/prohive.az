@@ -520,9 +520,16 @@ admin bölməsi əlavə olundu.
 - `push_abuneler` cədvəli əvvəlki fazalarda səhvən "artıq mövcuddur" hesab
   edilmişdi — Faza 6-da düzəldilib, migration 016 kimi əlavə olundu.
 - Canlıya keçmədən əvvəl: real VAPID açarları `database/generate_vapid_keys.php`
-  ilə yaradılıb `.env`-ə yazılmalıdır (hazırkı `.env.example` yer tutucudur);
-  PWA ikonları (`public/assets/icons/icon-*.png`) hazırkı GD-generasiya
-  placeholder-dir — real marka dizaynı ilə əvəzlənməlidir.
+  ilə yaradılıb `.env`-ə yazılmalıdır (hazırkı `.env.example` yer tutucudur).
+- **PWA ikonları yeniləndi (2026-07-11):** əvvəlki `icon-192.png`/`icon-512.png`
+  şəffaf künclü dairə idi — "maskable" tələbini pozurdu (OS maska tətbiq edəndə
+  şəffaf küncdən boşluq görünə bilərdi). `database/generate_pwa_icons.php`
+  yazıldı (GD, 8x supersample + downsample), tam-bleed qara kvadrat fon + ağ
+  "B" glif, maskable safe-zone daxilində (~%47-48 canvas, limit %80) yenidən
+  yaradıldı, künc opaklığı təsdiqləndi (`alpha=0` = tam opak GD-də). Hələ də
+  proqramla çəkilmiş sadə plaseholder-dir (real marka loqosu deyil) — real
+  dizayn hazır olanda ya skript yenidən yazılmalı, ya da fayllar birbaşa
+  əvəzlənməlidir (manifest.json/head.php dəyişməyəcək, eyni fayl adları).
 - **Canlıya keçmədən əvvəl (Faza 7, MÜTLƏQ):** `config/legal/content/*.php`
   içindəki hüquqi mətnlər lisenziyalı hüquqşünas tərəfindən yoxlanılıb
   təsdiqlənməlidir; bracket-lə (`[...]`) işarələnmiş yer tutucular (VÖEN,
