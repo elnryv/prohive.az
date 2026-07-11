@@ -4,7 +4,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 5 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 6 üçün)
+- **Cari faza:** Faza 6 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 7 üçün)
 
 ## Faza Cədvəli
 
@@ -17,7 +17,7 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 | 3 | Sifariş və SSE (race qoruması, WhatsApp) | ✅ Tamamlandı | 2026-07-11 |
 | 4 | Admin Paneli | ✅ Tamamlandı | 2026-07-11 |
 | 5 | Abunə və Ödəniş (adapter, webhook) | ✅ Tamamlandı | 2026-07-11 |
-| 6 | PWA və Cilalama | ⏳ Gözləyir | — |
+| 6 | PWA və Cilalama (tam frontend daxil) | ✅ Tamamlandı | 2026-07-11 |
 | 7 | Hüquqi (sonra) | ⏳ Gözləyir | — |
 
 ## Jurnalı
@@ -364,6 +364,97 @@ admin bölməsi əlavə olundu.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 6 (PWA və
   Cilalama) başlanacaq.
 
+### 2026-07-11 — Faza 6 tamamlandı (PWA və Cilalama)
+- **Əhatə qərarı (istifadəçi ilə əvvəlcədən razılaşdırıldı):** (1) tam frontend
+  (həqiqi HTML görünüşlər) bu fazaya daxil edildi, sadəcə PWA/backend infrastrukturu
+  ilə kifayətlənilmədi; (2) Web Push üçün RFC 8291 şifrələnmiş göndərmə sıfırdan
+  YOXDUR — yalnız infrastruktur (VAPID açar idarəsi, abunəlik saxlama, hadisə
+  trigger nöqtələri) hazırlandı, faktiki göndərmə `PushService::gonder()`-də
+  YER TUTUCUDUR (storage/logs-a yazır, şəbəkəyə çıxmır).
+- **Düzəliş (Faza 5 üzərində geriyə doldurma):** `SifarisService::lovheYenileri()`
+  və `gotur()`-a "aktiv abunə tələb olunur" yoxlaması (bölmə 7.2.1) əlavə edildi —
+  Faza 3 yazılanda abunə sistemi hələ yox idi, indi tam əlaqələndirildi.
+- **Yeni tapılan/düzəldilən boşluq:** `push_abuneler` cədvəli əvvəlki fazalarda
+  "artıq var" kimi qeyd edilmişdi, amma HEÇ VAXT yaradılmamışdı — bu fazada
+  `database/migrations/016_create_push_abuneler_table.sql` ilə düzəldildi.
+- **Core:** `Lang` (i18n resolver: `?dil=` → sessiya → istifadəçi profili → `az`
+  default), `View` (sadə PHP-include şablon renderer, `Response::view()` üzərindən).
+- **i18n:** `public/assets/lang/{az,ru,en}.json` — 100 tərcümə açarı, hər 3 dildə
+  tam paritetli (proqramla yoxlanıldı). Brauzerdə real dil dəyişikliyi test edildi.
+- **PWA:** `public/manifest.json`, `public/sw.js` (app-shell cache-first, YALNIZ
+  `/assets/*` və `manifest.json` — HTML/JSON API QƏSDƏN toxunulmur, bax aşağıdakı
+  bug), `public/assets/icons/icon-{192,512}.png` (GD ilə generasiya edilmiş, OLED
+  qara + "B" loqo placeholder).
+- **Dizayn:** `public/assets/css/app.css` (bölmə 10.1-in `.glass` bloku EYNİLƏ
+  götürülüb), `public/assets/css/admin.css` (eyni dil, masaüstü-yönümlü).
+- **Client JS:** `public/assets/js/app.js` (CSRF-aware fetch wrapper, install-
+  prompt/iOS aşkarlama, Web Push abunə axını, dil dəyişdirici, XSS-təhlükəsiz
+  `escapeHtml`), `public/assets/js/admin.js` (admin üçün analoji).
+- **Views (`app/Views/`):** `partials/head.php`+`foot.php` (müştəri/kuryer shell,
+  install-prompt overlay), `auth/giris.php`+`qeydiyyat.php` (3-rol tab formu),
+  `musteri/panel.php` (sifariş yaratma+tarixçə+aktiv sifariş kartı), `kurye/lovhe.php`
+  (SSE-əsaslı canlı lövhə + "Mənim işim"), `kurye/profil.php` (ərazi seçimi, abunə
+  statusu+Ödə düyməsi, push icazə düyməsi); `admin/partials/login_head+foot.php`,
+  `admin/partials/shell_head+foot.php` (sidebar naviqasiya), `admin/giris.php`,
+  `admin/dashboard.php`, `admin/musteriler.php`, `admin/kuryerler.php` (abunəlik
+  idarəsi pop-up daxil), `admin/sifarisler.php` (filtr+tarixçə), `admin/bannerler.php`
+  (real fayl yükləmə forması), `admin/erazi.php` (şəhər/rayon CRUD).
+- **Kiçik boşluq-doldurma endpoint-ləri (Əlavə A-da yoxdur, frontend üçün zəruri):**
+  `GET /sehirler`, `GET /sehir/{id}/rayonlar` (ictimai, yalnız aktiv ərazilər —
+  admin-in tam siyahısından fərqli), `GET /kurye/bolgeler` (özünə-xidmət oxu),
+  `GET /kurye/abunelik`, `GET /kurye/profilim`, `GET /kurye/aktiv-isler` ("Mənim
+  işim" — səhifə yenilənəndə SSE-nin görmədiyi köhnə götürmələri bərpa edir).
+- **Web Push:** `PushAbune` modeli, `PushController` (`POST /push/abune`,
+  `POST /push/legv`), `PushService::gonder()` (3 nümunə trigger nöqtəsinə calışdırıldı:
+  `gotur()` → müştəriyə "daşıyıcı tapıldı", ödəniş uğuru → kuryeyə "abunə yeniləndi",
+  cron xəbərdarlığı → kuryeyə "abunə bitir"; "yeni sifariş" fan-out bildirişi
+  QƏSDƏN YOXDUR — SSE artıq bunu real-vaxtda edir, fan-out sorğusu əlavə mürəkkəblik
+  qatardı), `database/generate_vapid_keys.php` (native OpenSSL EC P-256 açar
+  cütü, real VAPID formatına uyğunluğu proqramla yoxlanıldı: 65 bayt uncompressed
+  point, `0x04` prefiksi).
+- **Dev-server düzəlişi:** `public/index.php`/`admin.php`-ə `PHP_SAPI==='cli-server'`
+  ilə şərtlənmiş statik fayl keçid məntiqi əlavə edildi (yalnız `php -S` üçün,
+  production-da nginx artıq bunu edir) — router skripti ilə işə salınan PHP
+  built-in server avtomatik statik fayl xidmətini söndürür.
+- **Yoxlama (real MySQL + real HTTP + HƏQİQİ BRAUZER — Playwright/Chromium):**
+  - `php -l` bütün fayllarda təmiz; migration 016 real MySQL-ə tətbiq edildi.
+  - Bütün statik fayllar (manifest/sw.js/ikonlar/css/js/dil JSON-ları) düzgün
+    Content-Type ilə 200 qaytardı; bütün 14 səhifə marşrutu (7 müştəri/kuryer +
+    7 admin) PHP xətasız render oldu (server logları YOXDUR yoxlanıldı).
+  - **2 HƏQİQİ BUG Playwright ilə tapıldı və düzəldildi (curl testləri bunları
+    tuta bilməzdi, çünki JS icra tələb edir):**
+    1. `app.js`/`admin.js` `foot.php`/`shell_foot.php`-də (səhifə skriptindən
+       SONRA) yüklənirdi — səhifələrin öz inline skriptləri "Birlikde is not
+       defined" xətası ilə uğursuz olurdu. Düzəliş: script tag-ları `head.php`/
+       `shell_head.php`-ə köçürüldü (skript sıra qaydası).
+    2. Service Worker-in `fetch` handler-i BÜTÜN eyni-mənşəli GET sorğularını
+       (JSON API daxil) tuturdu; SW daxilində `fetch(event.request)` çağırışı
+       Chromium-da credentials-i itirirdi (məlum davranış) — sessiya cookie-si
+       API sorğularına getmirdi, nəticədə hər GET sorğusu "boş" cavab verirdi
+       (məs. tarixçə həmişə `[]` qaytarırdı, hətta sifariş mövcud olsa belə).
+       Düzəliş: SW yalnız `/assets/*` və `manifest.json`-u tutur, HTML
+       səhifələrinə/API-lərə TOXUNMUR.
+  - **Tam brauzer ssenarisi (Playwright):** müştəri qeydiyyat→giriş→sifariş
+    yaratma (aktiv sifariş kartı düzgün göründü); kuryer qeydiyyat→giriş→ərazi
+    seçimi→onlayn; **tam SSE dövrəsi**: admin kuryeyə abunəlik verdi → müştəri
+    eyni ərazidə sifariş yaratdı → kuryerin lövhəsində SSE ilə DƏRHAL göründü →
+    "Götür" → "Mənim işim"ə keçdi → "Tamamlandı" → kart yox oldu.
+  - **Admin brauzer ssenarisi:** giriş, müştəri axtarış+bloklama (bloklanan
+    dərhal giriş edə bilmədi), real PNG banner yükləmə (siyahıda göründü), yeni
+    şəhər/rayon yaratma+deaktivetmə — hamısı UI vasitəsilə.
+  - **Dil dəyişikliyi:** eyni səhifədə 3 dilin fərqli mətn qaytardığı təsdiqləndi.
+  - **Web Push:** abunə saxlama/silmə endpoint-ləri test edildi; ödəniş webhook-u
+    vasitəsilə `PushService::gonder()` trigger edildi və gözlənilən "göndəriləcəkdi"
+    log yazısı `storage/logs/`-da düzgün göründü (aktiv abunəlik olmadıqda isə
+    sakitcə heç nə etmədiyi də təsdiqləndi).
+  - Bütün brauzer konsol/səhifə xətaları YOXDUR (hər Playwright ssenarisində
+    `pageerror`/`console.error` dinləyicisi aktiv idi).
+  - Test DB/istifadəçi, `.env`, yüklənmiş test bannerləri, rate-limit keşi və
+    log faylları təmizləndi, repoya heç bir sirr commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 7 (Hüquqi) başlanacaq
+  — bu, sonuncu fazadır (bax CLAUDE.md bölmə 9 "İş Qaydaları": bütün fazalar
+  bitdikdən sonra final directory tree və birləşdirilmiş kod təqdim edilməlidir).
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur
@@ -381,3 +472,13 @@ admin bölməsi əlavə olundu.
 - Faza 5 cron-u (`abunelik_xeberdarlig`) yalnız audit jurnalına yazır — faktiki
   Web Push bildirişi göndərmə Faza 6-da (VAPID açarları, `push_abuneler`
   cədvəli, Service Worker) qurulacaq.
+- Faza 6 tamamlandı: yuxarıdakı bənd üçün infrastruktur (VAPID, `push_abuneler`,
+  SW, trigger nöqtələri) hazırdır, AMMA faktiki şifrələnmiş göndərmə (RFC 8291)
+  hələ YOXDUR — `PushService::gonder()` yalnız `storage/logs/`-a yazır. Real
+  göndərmə əlavə ediləndə YALNIZ bu metodun daxili hissəsi dəyişməlidir.
+- `push_abuneler` cədvəli əvvəlki fazalarda səhvən "artıq mövcuddur" hesab
+  edilmişdi — Faza 6-da düzəldilib, migration 016 kimi əlavə olundu.
+- Canlıya keçmədən əvvəl: real VAPID açarları `database/generate_vapid_keys.php`
+  ilə yaradılıb `.env`-ə yazılmalıdır (hazırkı `.env.example` yer tutucudur);
+  PWA ikonları (`public/assets/icons/icon-*.png`) hazırkı GD-generasiya
+  placeholder-dir — real marka dizaynı ilə əvəzlənməlidir.

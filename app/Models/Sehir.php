@@ -43,6 +43,15 @@ final class Sehir
         return $this->db->query('SELECT * FROM sehirler ORDER BY ad_az')->fetchAll();
     }
 
+    /**
+     * Müştəri/kuryer tərəfindəki açar seçicilər üçün — yalnız aktiv şəhərlər
+     * (bax bölmə 5.2, 7.1.1, 7.2.2).
+     */
+    public function aktivListAll(): array
+    {
+        return $this->db->query('SELECT * FROM sehirler WHERE aktiv = 1 ORDER BY ad_az')->fetchAll();
+    }
+
     public function existsByAd(string $adAz): bool
     {
         $stmt = $this->db->prepare('SELECT COUNT(*) FROM sehirler WHERE ad_az = :ad_az');

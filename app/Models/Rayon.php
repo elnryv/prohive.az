@@ -73,6 +73,20 @@ final class Rayon
         return $stmt->fetchAll();
     }
 
+    /**
+     * Müştəri/kuryer tərəfindəki açar seçicilər üçün — yalnız aktiv ərazilər
+     * (bax bölmə 5.2, 7.1.1, 7.2.2, TERR-8.7).
+     */
+    public function aktivListBySehir(int $sehirId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM rayonlar WHERE sehir_id = :sehir_id AND aktiv = 1 ORDER BY ad_az'
+        );
+        $stmt->execute(['sehir_id' => $sehirId]);
+
+        return $stmt->fetchAll();
+    }
+
     public function existsByAdInSehir(int $sehirId, string $adAz): bool
     {
         $stmt = $this->db->prepare(

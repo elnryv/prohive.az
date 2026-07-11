@@ -72,6 +72,13 @@ final class SifarisController
         }
     }
 
+    public function kuryeAktivIsler(Request $request): mixed
+    {
+        $kuryeId = self::currentKuryeId();
+
+        return Response::json(['status' => 'ok', 'data' => (new SifarisService())->kuryeAktivIsler($kuryeId)]);
+    }
+
     private static function currentKuryeId(): int
     {
         $userId = (int) Session::get('user_id');

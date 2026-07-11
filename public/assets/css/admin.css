@@ -1,0 +1,265 @@
+/* Birlikdə Admin — eyni dizayn dili (bax bölmə 10.1), lakin masaüstü-yönümlü */
+
+:root {
+  --bg: #000000;
+  --text: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.6);
+  --accent: #0a84ff;
+  --danger: #ff453a;
+  --success: #30d158;
+  --warning: #ffd60a;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+}
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-nav {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 20px 14px;
+  border-radius: 0;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+}
+
+.admin-nav .brand {
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.admin-nav a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.admin-nav a.active,
+.admin-nav a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.admin-main {
+  flex: 1;
+  padding: 24px 32px;
+  max-width: 1100px;
+}
+
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-topbar h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-tile {
+  padding: 16px;
+}
+
+.stat-tile .value {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.stat-tile .label {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+th {
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+tbody tr {
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #062; }
+.btn-ghost { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-axtarisda { background: rgba(10, 132, 255, 0.2); color: #6cb2ff; }
+.badge-goturulub { background: rgba(255, 214, 10, 0.2); color: var(--warning); }
+.badge-tamamlandi { background: rgba(48, 209, 88, 0.2); color: var(--success); }
+.badge-legv { background: rgba(255, 69, 58, 0.2); color: var(--danger); }
+.badge-passiv { background: rgba(255, 255, 255, 0.1); color: var(--text-dim); }
+.badge-aktiv { background: rgba(48, 209, 88, 0.2); color: var(--success); }
+.badge-bloklu { background: rgba(255, 69, 58, 0.2); color: var(--danger); }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal-overlay.visible {
+  display: flex;
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.error-box {
+  background: rgba(255, 69, 58, 0.15);
+  border: 1px solid rgba(255, 69, 58, 0.4);
+  color: #ff8078;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  display: none;
+}
+
+.error-box.visible {
+  display: block;
+}
+
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 28px;
+}

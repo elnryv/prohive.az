@@ -31,6 +31,23 @@ final class KuryeBolge
     }
 
     /**
+     * Kuryerin seçdiyi ərazilər (ad daxil) — profil səhifəsində göstərmək üçün
+     * (bax bölmə 7.2.2 "kompakt xülasə").
+     */
+    public function getRayonlar(int $kuryeId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT r.* FROM kurye_bolgeler kb
+             JOIN rayonlar r ON r.id = kb.rayon_id
+             WHERE kb.kurye_id = :kurye_id
+             ORDER BY r.ad_az'
+        );
+        $stmt->execute(['kurye_id' => $kuryeId]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Kuryerin ərazi seçimini tam əvəzləyir (əvvəlkiləri silib yenilərini yazır).
      *
      * @param int[] $rayonIds

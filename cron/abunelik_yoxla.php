@@ -5,21 +5,25 @@ declare(strict_types=1);
 /**
  * CLI: php cron/abunelik_yoxla.php (gündəlik işə salınmalıdır — bax deploy/VPS_QURULUM.md).
  * Bax CLAUDE.md bölmə 9.1.2: bitənləri bağlayır (aktiv=0), bitməyə yaxın olanlara
- * (3 gün) xəbərdarlıq hadisəsi yazır. Faktiki Web Push göndərilməsi Faza 6-da
- * (VAPID/push_abuneler) əlavə olunacaq — bu skript indi audit jurnalına yazır ki,
- * həmin funksionallıq gələndə mənbə hazır olsun.
+ * (3 gün) xəbərdarlıq hadisəsi yazır + push tetikleyir. Faktiki şifrələnmiş Web
+ * Push göndərmə hələ YER TUTUCUDUR (bax PushService qeydi) — trigger nöqtəsi
+ * artıq hazırdır.
  */
 
 require dirname(__DIR__) . '/bootstrap.php';
 
 use App\Models\Abunelik;
+use App\Models\Kurye;
 use App\Models\LegalLog;
+use App\Services\PushService;
 
 const XEBERDARLIQ_GUN = 3;
 const XEBERDARLIQ_HADISE = 'abunelik_xeberdarlig';
 
 $abunelikler = new Abunelik();
 $legalLogs = new LegalLog();
+$kuryeler = new Kurye();
+$pushService = new PushService();
 
 $bagli = 0;
 foreach ($abunelikler->bitmisAmmaAktivOlanlar() as $abunelik) {
@@ -42,6 +46,12 @@ foreach ($abunelikler->tezliklaBitecekler(XEBERDARLIQ_GUN) as $abunelik) {
     $legalLogs->yaz(null, null, XEBERDARLIQ_HADISE, [
         'kurye_id' => $kuryeId, 'bitme' => $abunelik['bitme'],
     ], '127.0.0.1');
+
+    $kurye = $kuryeler->findById($kuryeId);
+    if ($kurye !== null) {
+        $pushService->gonder((int) $kurye['user_id'], 'Abunəniz bitir', 'Abunəniz tezliklə bitir — ödəyin');
+    }
+
     $xeberdarEdilen++;
 }
 

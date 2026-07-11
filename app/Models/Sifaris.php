@@ -172,6 +172,21 @@ final class Sifaris
     }
 
     /**
+     * Kuryerin özünün hazırda götürdüyü (bax bölmə 7.2.5 "Mənim işim") sifarişləri —
+     * səhifə yenidən yüklənəndə SSE-nin görmədiyi köhnə götürmələri bərpa etmək üçün.
+     */
+    public function listByKuryeAktiv(int $kuryeId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM sifarisler WHERE kurye_id = :kurye_id AND status = 'goturulub'
+             ORDER BY goturulme_vaxti DESC"
+        );
+        $stmt->execute(['kurye_id' => $kuryeId]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * @param int[] $rayonIds
      */
     public function axtarisdaByRayonlar(array $rayonIds, int $lastId): array

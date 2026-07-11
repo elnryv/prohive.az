@@ -33,6 +33,7 @@ final class SifarisService
     private User $users;
     private LegalLog $legalLogs;
     private AbunelikService $abunelikService;
+    private PushService $pushService;
 
     public function __construct()
     {
@@ -44,6 +45,7 @@ final class SifarisService
         $this->kuryeler = new Kurye();
         $this->users = new User();
         $this->legalLogs = new LegalLog();
+        $this->pushService = new PushService();
         $this->abunelikService = new AbunelikService();
     }
 
@@ -126,6 +128,14 @@ final class SifarisService
     }
 
     /**
+     * Kuryerin "Mənim işim" bölməsi — bax bölmə 7.2.5.
+     */
+    public function kuryeAktivIsler(int $kuryeId): array
+    {
+        return $this->sifarisler->listByKuryeAktiv($kuryeId);
+    }
+
+    /**
      * SSE lövhə üçün yeni sifarişlər — bax bölmə 5.3 (rayon filtri), 7.1.1 (tip/ölçü
      * filtri) və 7.2.1 ("Aktiv abunə olmalı; abunə bitibsə lövhə bağlıdır").
      */
@@ -205,6 +215,14 @@ final class SifarisService
 
         $metn = "Birlikdə sifarişi #{$sifarisId} barədə əlaqə";
 
+        if ($musteri !== null) {
+            $this->pushService->gonder(
+                (int) $musteri['id'],
+                'Daşıyıcı tapıldı!',
+                trim(($kuryeUser['ad'] ?? '') . ' qəbul etdi')
+            );
+        }
+
         return [
             'sifaris_id' => $sifarisId,
             'musteri_whatsapp_link' => $musteri !== null ? WhatsApp::link($musteri['whatsapp'], $metn) : null,
@@ -229,6 +247,14 @@ final class SifarisService
     public function onlaynToggle(int $kuryeId, bool $onlayn): void
     {
         $this->kuryeler->setOnlayn($kuryeId, $onlayn);
+    }
+
+    /**
+     * Kuryerin öz seçdiyi ərazilər — profil səhifəsi üçün (bax bölmə 7.2.2).
+     */
+    public function kuryeBolgeleri(int $kuryeId): array
+    {
+        return $this->kuryeBolgeler->getRayonlar($kuryeId);
     }
 
     /**

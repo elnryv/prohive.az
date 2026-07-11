@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\ValidationException;
 use App\Models\Kurye;
+use App\Services\AbunelikService;
 use App\Services\SifarisService;
 
 /**
@@ -43,6 +44,36 @@ final class KuryeController
             return Response::json(['status' => 'ok']);
         } catch (ValidationException $e) {
             return Response::json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function bolgelerimGoster(Request $request): mixed
+    {
+        $kurye = self::currentKurye();
+
+        return Response::json(['status' => 'ok', 'data' => (new SifarisService())->kuryeBolgeleri((int) $kurye['id'])]);
+    }
+
+    public function profilim(Request $request): mixed
+    {
+        $kurye = self::currentKurye();
+
+        return Response::json(['status' => 'ok', 'data' => [
+            'neqliyyat' => $kurye['neqliyyat'],
+            'onlayn' => (bool) $kurye['onlayn'],
+            'tamamlanan' => (int) $kurye['tamamlanan'],
+        ]]);
+    }
+
+    public function abuneligim(Request $request): mixed
+    {
+        try {
+            $kurye = self::currentKurye();
+            $data = (new AbunelikService())->status((int) $kurye['id']);
+
+            return Response::json(['status' => 'ok', 'data' => $data]);
+        } catch (ValidationException $e) {
+            return Response::json(['error' => $e->getMessage()], 404);
         }
     }
 

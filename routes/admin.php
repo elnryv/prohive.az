@@ -7,6 +7,7 @@ use App\Controllers\AdminAuthController;
 use App\Controllers\AdminBannerController;
 use App\Controllers\AdminDashboardController;
 use App\Controllers\AdminEraziController;
+use App\Controllers\AdminPageController;
 use App\Controllers\AdminSifarisController;
 use App\Controllers\AdminUserController;
 use App\Core\Request;
@@ -22,10 +23,6 @@ use App\Middleware\RateLimit;
  */
 
 $router = new Router();
-
-$router->get('/', function (Request $request) {
-    Response::json(['status' => 'ok', 'app' => 'birlikde-admin']);
-});
 
 $router->get('/healthz', function (Request $request) {
     Response::json(['status' => 'ok']);
@@ -72,5 +69,15 @@ $router->get('/sehir/{sehirId}/rayonlar', [AdminEraziController::class, 'rayonla
 $router->post('/sehir/{sehirId}/rayon', [AdminEraziController::class, 'rayonYarat'], [AdminAuth::class, CsrfGuard::class]);
 $router->post('/rayon/{id}/aktivlik', [AdminEraziController::class, 'rayonAktivlik'], [AdminAuth::class, CsrfGuard::class]);
 $router->post('/rayon/{id}/sil', [AdminEraziController::class, 'rayonSil'], [AdminAuth::class, CsrfGuard::class]);
+
+// HTML səhifələr (Faza 6) — Views qatı, /panel/* altında (JSON API-lərlə toqquşmasın deyə)
+$router->get('/', [AdminPageController::class, 'landing']);
+$router->get('/giris', [AdminPageController::class, 'giris']);
+$router->get('/panel', [AdminPageController::class, 'dashboard']);
+$router->get('/panel/musteriler', [AdminPageController::class, 'musteriler']);
+$router->get('/panel/kuryerler', [AdminPageController::class, 'kuryerler']);
+$router->get('/panel/sifarisler', [AdminPageController::class, 'sifarisler']);
+$router->get('/panel/bannerler', [AdminPageController::class, 'bannerler']);
+$router->get('/panel/erazi', [AdminPageController::class, 'erazi']);
 
 return $router;

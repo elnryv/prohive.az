@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Core\Env;
 use App\Core\ValidationException;
 use App\Models\Ayar;
+use App\Models\Kurye;
 use App\Models\LegalLog;
 use App\Models\Odenis;
 use App\Providers\PaymentProviderFactory;
@@ -25,6 +26,8 @@ final class OdenisService
     private Ayar $ayarlar;
     private LegalLog $legalLogs;
     private AbunelikService $abunelikService;
+    private Kurye $kuryeler;
+    private PushService $pushService;
 
     public function __construct()
     {
@@ -32,6 +35,8 @@ final class OdenisService
         $this->ayarlar = new Ayar();
         $this->legalLogs = new LegalLog();
         $this->abunelikService = new AbunelikService();
+        $this->kuryeler = new Kurye();
+        $this->pushService = new PushService();
     }
 
     /**
@@ -83,6 +88,15 @@ final class OdenisService
             $this->legalLogs->yaz(null, null, 'odenis_ugurlu', [
                 'order_id' => $odenis['order_id'], 'kurye_id' => $odenis['kurye_id'], 'mebleg' => $odenis['mebleg'],
             ], $ip);
+
+            $kurye = $this->kuryeler->findById((int) $odenis['kurye_id']);
+            if ($kurye !== null) {
+                $this->pushService->gonder(
+                    (int) $kurye['user_id'],
+                    'Abunəniz yeniləndi',
+                    '+' . self::ABUNE_GUN . ' gün əlavə olundu'
+                );
+            }
         } else {
             $this->odenisler->updateStatus((int) $odenis['id'], 'ugursuz', $neticeSonuc->ham);
             $this->legalLogs->yaz(null, null, 'odenis_ugursuz', [

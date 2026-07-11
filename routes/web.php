@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AppPageController;
 use App\Controllers\AuthController;
 use App\Controllers\BannerImageController;
+use App\Controllers\EraziController;
 use App\Controllers\KuryeController;
 use App\Controllers\OdenisController;
+use App\Controllers\PushController;
 use App\Controllers\SifarisController;
 use App\Controllers\SseController;
 use App\Core\Csrf;
@@ -23,10 +26,6 @@ use App\Middleware\RateLimit;
  */
 
 $router = new Router();
-
-$router->get('/', function (Request $request) {
-    Response::json(['status' => 'ok', 'app' => 'birlikde-app']);
-});
 
 $router->get('/healthz', function (Request $request) {
     Response::json(['status' => 'ok']);
@@ -49,8 +48,16 @@ $router->get('/sifaris/tarixce', [SifarisController::class, 'tarixce'], [Auth::c
 $router->get('/sse/lovhe', [SseController::class, 'lovhe'], [Auth::class, KuryeGuard::class]);
 $router->post('/sifaris/{id}/gotur', [SifarisController::class, 'gotur'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
 $router->post('/sifaris/{id}/tamamla', [SifarisController::class, 'tamamla'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
+$router->get('/kurye/aktiv-isler', [SifarisController::class, 'kuryeAktivIsler'], [Auth::class, KuryeGuard::class]);
 $router->post('/kurye/onlayn', [KuryeController::class, 'onlayn'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
+$router->get('/kurye/bolgeler', [KuryeController::class, 'bolgelerimGoster'], [Auth::class, KuryeGuard::class]);
 $router->post('/kurye/bolgeler', [KuryeController::class, 'bolgeler'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
+$router->get('/kurye/abunelik', [KuryeController::class, 'abuneligim'], [Auth::class, KuryeGuard::class]);
+$router->get('/kurye/profilim', [KuryeController::class, 'profilim'], [Auth::class, KuryeGuard::class]);
+
+// Ərazi axtarışı — ictimai (bax bölmə 5.2)
+$router->get('/sehirler', [EraziController::class, 'sehirler']);
+$router->get('/sehir/{sehirId}/rayonlar', [EraziController::class, 'rayonlar']);
 
 // Banner şəkli göstərmə (bax bölmə 8.4, admin panelində yüklənir, burada yayımlanır)
 $router->get('/banner-sekil/{fayl}', [BannerImageController::class, 'goster']);
@@ -58,5 +65,17 @@ $router->get('/banner-sekil/{fayl}', [BannerImageController::class, 'goster']);
 // Abunə ödənişi (bax bölmə 9.1)
 $router->post('/odenis/basla', [OdenisController::class, 'basla'], [Auth::class, KuryeGuard::class, CsrfGuard::class, RateLimit::class]);
 $router->post('/webhook/odenis', [OdenisController::class, 'webhook'], [RateLimit::class]);
+
+// Web Push abunəliyi (bax bölmə 9.3)
+$router->post('/push/abune', [PushController::class, 'abune'], [Auth::class, CsrfGuard::class]);
+$router->post('/push/legv', [PushController::class, 'legv'], [Auth::class, CsrfGuard::class]);
+
+// HTML səhifələr (bax bölmə 9.2, Views qatı) — Faza 6
+$router->get('/', [AppPageController::class, 'landing']);
+$router->get('/giris', [AppPageController::class, 'giris']);
+$router->get('/qeydiyyat', [AppPageController::class, 'qeydiyyat']);
+$router->get('/panel', [AppPageController::class, 'panel']);
+$router->get('/lovhe', [AppPageController::class, 'lovhe']);
+$router->get('/profil', [AppPageController::class, 'profil']);
 
 return $router;

@@ -40,4 +40,12 @@ final class YukdasimaOlcusu
     {
         return count($this->existingIds([$id])) === 1;
     }
+
+    /**
+     * Qeydiyyat formasında göstərmək üçün tam kataloq (bax bölmə 2.2.3, REG-2.2.3).
+     */
+    public function all(): array
+    {
+        return $this->db->query('SELECT * FROM yukdasima_olculeri ORDER BY sira')->fetchAll();
+    }
 }

@@ -197,8 +197,15 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   doldurularaq əlavə edildi (bölmə 7.2.1). Real MySQL+HTTP ilə test edildi
   (əsl bank credential-ı olmadan, imza yoxlaması yerli/pure əməliyyat olduğu
   üçün tam test edilə bildi). Ətraflı: `PROGRESS.md`.
-- **Faza 6 — PWA və Cilalama:** manifest, Service Worker, ana ekrana əlavə (Android+iOS),
-  çoxdilli (AZ/RU/EN), dizayn cilası (glassmorphism), test, təhlükəsizlik yoxlaması, canlıya keçid.
+- **Faza 6 — PWA və Cilalama ✅ (tamamlandı 2026-07-11):** manifest+Service Worker
+  (app-shell cache-first, statik fayllarla məhdudlaşdırılıb), PWA ikonları, tam
+  frontend (`app/Views/` — müştəri/kuryer/admin bütün səhifələr, real HTML+JS),
+  çoxdilli (AZ/RU/EN, 100 açar, paritetli), dizayn cilası (`.glass` bloku bölmə
+  10.1-dən eynilə), Web Push infrastrukturu (VAPID, `push_abuneler`, trigger
+  nöqtələri — faktiki şifrələnmiş göndərmə YER TUTUCUDUR). Faza 3-ün abunə
+  yoxlaması geriyə doldurularaq bağlandı. Real MySQL+HTTP+Playwright/Chromium
+  (həqiqi brauzer) ilə test edildi — 2 real bug (skript yükləmə sırası, Service
+  Worker credentials itirilməsi) tapılıb düzəldildi. Ətraflı: `PROGRESS.md`.
 - **Faza 7 — Hüquqi (sonra):** İstifadəçi Müqaviləsi + Məxfilik Siyasəti mətnləri
   (hüquqşünasdan sonra) aktivləşdirilir; infrastruktur artıq Faza 2-də hazırdır.
 
