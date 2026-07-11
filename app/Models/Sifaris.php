@@ -19,6 +19,17 @@ final class Sifaris
         $this->db = Database::connection();
     }
 
+    /**
+     * Admin Dashboard sayğacı — bax bölmə 8.1.
+     */
+    public function countByStatus(string $status): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM sifarisler WHERE status = :status');
+        $stmt->execute(['status' => $status]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(

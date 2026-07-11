@@ -53,4 +53,12 @@ final class Kurye
         $stmt = $this->db->prepare('UPDATE kuryeler SET tamamlanan = tamamlanan + 1 WHERE id = :id');
         $stmt->execute(['id' => $kuryeId]);
     }
+
+    /**
+     * Admin Dashboard sayğacı — bax bölmə 8.1.
+     */
+    public function countOnlayn(): int
+    {
+        return (int) $this->db->query('SELECT COUNT(*) FROM kuryeler WHERE onlayn = 1')->fetchColumn();
+    }
 }

@@ -184,9 +184,10 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   (status/rayon/tarix filtri + pagination + tarixçə), abunə idarəsi (fərdi: +gün/
   tip/dayandır; qlobal: `abune_rejimi` toggle), banner sistemi (yükləmə validasiyası
   + `GET /banner-sekil/{fayl}` göstərmə marşrutu — Əlavə A-da yoxdur, zəruri olduğu
-  üçün əlavə olundu). Bölmə 8.1 (Dashboard) və 8.7 (Ərazi İdarəsi) roadmap
-  bəndlərində olmadığı üçün BU FAZADA YOXDUR (istəyə görə sonra əlavə edilə bilər).
-  Real MySQL+HTTP ilə test edildi. Ətraflı: `PROGRESS.md`.
+  üçün əlavə olundu). Bölmə 8.1 (Dashboard: sayğaclar+son hadisələr) və 8.7
+  (Ərazi İdarəsi: şəhər/rayon yarat/aktivlik-dəyiş/sil, referential-integrity
+  qorumalı) əlavə tapşırıqla sonradan əlavə olundu. Real MySQL+HTTP ilə test
+  edildi. Ətraflı: `PROGRESS.md`.
 - **Faza 5 — Abunə və Ödəniş:** abunə məntiqi/xəbərdarlıq/cron, payment adapter
   (Birbank/Payriff), webhook doğrulama (idempotent).
 - **Faza 6 — PWA və Cilalama:** manifest, Service Worker, ana ekrana əlavə (Android+iOS),

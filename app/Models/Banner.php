@@ -64,6 +64,14 @@ final class Banner
         return (int) $this->db->query('SELECT COUNT(*) FROM bannerler')->fetchColumn();
     }
 
+    /**
+     * Admin Dashboard sayğacı — bax bölmə 8.1.
+     */
+    public function countAktiv(): int
+    {
+        return (int) $this->db->query('SELECT COUNT(*) FROM bannerler WHERE aktiv = 1')->fetchColumn();
+    }
+
     public function setAktiv(int $id, bool $aktiv): void
     {
         $stmt = $this->db->prepare('UPDATE bannerler SET aktiv = :aktiv WHERE id = :id');

@@ -48,4 +48,16 @@ final class LegalLog
 
         return $stmt->fetchAll();
     }
+
+    /**
+     * Admin Dashboard — "son hadisələr" (bax bölmə 8.1).
+     */
+    public function sonuncular(int $limit): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM legal_logs ORDER BY created_at DESC, id DESC LIMIT :limit');
+        $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }

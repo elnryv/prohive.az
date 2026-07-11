@@ -4,7 +4,8 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
 
 ## Status
 
-- **Cari faza:** Faza 4 tamamlandı — "Növbəti fazaya keç" əmri gözlənilir (Faza 5 üçün)
+- **Cari faza:** Faza 4 tamamlandı (bölmə 8.1 Dashboard + 8.7 Ərazi İdarəsi əlavə
+  olunmaqla) — "Növbəti fazaya keç" əmri gözlənilir (Faza 5 üçün)
 
 ## Faza Cədvəli
 
@@ -255,6 +256,49 @@ Cari status izləmə jurnalı. Hər faza bitəndə burada yenilənir.
     yazıldı.
   - Test DB/istifadəçi, `.env`, yüklənmiş test banner şəkli və rate-limit keşi
     təmizləndi, repoya heç bir sirr commit edilmədi.
+- Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 5 (Abunə və
+  Ödəniş) başlanacaq.
+
+### 2026-07-11 — Faza 4-ün əlavəsi: bölmə 8.1 (Dashboard) və 8.7 (Ərazi İdarəsi)
+İstifadəçinin açıq tapşırığı ilə əvvəllər roadmap-a görə təxirə salınan bu iki
+admin bölməsi əlavə olundu.
+
+- **Models:** `Sehir` (yeni — şəhər CRUD), `Rayon`-a admin CRUD metodları
+  (`create`, `listBySehir`, `setAktiv`, `isUsedInSifarisler`,
+  `isUsedInKuryeBolgeler`, `delete`), `User`/`Kurye`/`Sifaris`/`Banner`-ə
+  Dashboard sayğac metodları (`countByStatus`, `countOnlayn`, `countAktiv`),
+  `LegalLog`-a `sonuncular()` (son N hadisə).
+- **Servislər:** `AdminDashboardService` (sayğaclar: müştəri/kuryer/onlayn-kuryer/
+  bloklu-istifadəçi sayları, sifariş statuslarına görə say, aktiv banner sayı;
+  son 20 audit hadisəsi), `AdminEraziService` (şəhər yarat/siyahı, rayon yarat/
+  siyahı/aktivlik-dəyiş/sil — silmə YALNIZ heç bir sifarişdə VƏ heç bir kuryerin
+  seçdiyi bölgələrdə istifadə olunmadıqda icazəlidir, əks halda "deaktiv edin"
+  mesajı ilə rədd edilir — bölmə 8.7-yə tam uyğun).
+- **Controllers:** `AdminDashboardController` (`GET /admin/dashboard`),
+  `AdminEraziController` (`GET /admin/sehirler`, `POST /admin/sehir`,
+  `GET /admin/sehir/{sehirId}/rayonlar`, `POST /admin/sehir/{sehirId}/rayon`,
+  `POST /admin/rayon/{id}/aktivlik`, `POST /admin/rayon/{id}/sil`).
+- Bütün yazma marşrutları `AdminAuth` + `CsrfGuard` ilə qorunur, hər dəyişiklik
+  (şəhər/rayon yaratma, aktivlik dəyişmə, silmə) səbəb sahəsi olmadan da
+  `legal_logs`-a yazılır (bölmə 8.7 üçün doc səbəb tələb etmir, yalnız 8.5
+  abunə dəyişiklikləri üçün "səbəb" MƏCBURİ idi — fərq qorunub).
+- **Yoxlama (real MySQL + real HTTP server-ə qarşı):**
+  - `php -l` bütün fayllarda təmiz (UTF-8 metod adı `sayğaclar()` daxil olmaqla).
+  - Dashboard: boş vəziyyətdə bütün sayğaclar 0 idi; müştəri/kuryer qeydiyyatı
+    və sifariş yaradıldıqdan sonra sayğaclar dəqiq yeniləndi (2 müştəri, 2
+    kuryer, 1 axtarışda sifariş — real DB vəziyyəti ilə tam uyğun); son
+    hadisələr siyahısı düzgün sırada gəldi.
+  - Ərazi İdarəsi: yeni şəhər (Gəncə) yaradıldı, dublikat ad rədd edildi (422);
+    yeni rayon yaradıldı, siyahıda göründü; mövcud olmayan şəhər üçün 404.
+  - **Referential integrity (əsas tələb):** rayon əvvəlcə sifarişdə, sonra isə
+    ayrıca kuryerin seçdiyi bölgədə istifadə edilərək HƏR İKİ HALDA silmə
+    cəhdi 422 ilə rədd edildi ("deaktiv edin" mesajı ilə); eyni rayonun
+    deaktiv edilməsi isə (silmək əvəzinə) uğurla işlədi.
+  - Test zamanı ilk cəhddə app server (8104) təsadüfən söndürülmüş vəziyyətdə
+    qaldığından test məlumatları yaranmadı (səhv aşkarlandı, server yenidən
+    başladıldı, test təkrarlanıb düzgün nəticə alındı) — kodda problem yox idi.
+  - Test DB/istifadəçi, `.env` və rate-limit keşi təmizləndi, repoya heç bir
+    sirr commit edilmədi.
 - Növbəti addım: istifadəçi "Növbəti fazaya keç" deyəndə Faza 5 (Abunə və
   Ödəniş) başlanacaq.
 

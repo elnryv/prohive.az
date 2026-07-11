@@ -124,6 +124,17 @@ final class User
     }
 
     /**
+     * Admin Dashboard sayğacı — bax bölmə 8.1.
+     */
+    public function countByStatus(string $status): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM users WHERE status = :status');
+        $stmt->execute(['status' => $status]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
      * @param string[] $rollar
      * @return array{0: string, 1: array<string, string>}
      */

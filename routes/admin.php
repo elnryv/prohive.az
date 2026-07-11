@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Controllers\AdminAbunelikController;
 use App\Controllers\AdminAuthController;
 use App\Controllers\AdminBannerController;
+use App\Controllers\AdminDashboardController;
+use App\Controllers\AdminEraziController;
 use App\Controllers\AdminSifarisController;
 use App\Controllers\AdminUserController;
 use App\Core\Request;
@@ -16,8 +18,7 @@ use App\Middleware\RateLimit;
 
 /**
  * appadmin.birlikde.biz marşrutları (izolyasiya olunmuş admin paneli) — bax
- * CLAUDE.md bölmə 8. Dashboard (8.1) və Ərazi İdarəsi (8.7) Faza 4 roadmap
- * bəndlərində açıq sadalanmadığı üçün bu fazada YOXDUR (istəyə görə sonra əlavə).
+ * CLAUDE.md bölmə 8.
  */
 
 $router = new Router();
@@ -60,5 +61,16 @@ $router->post('/abune-rejimi', [AdminAbunelikController::class, 'qlobalRejim'], 
 $router->post('/banner', [AdminBannerController::class, 'yarat'], [AdminAuth::class, CsrfGuard::class]);
 $router->get('/bannerler', [AdminBannerController::class, 'siyahi'], [AdminAuth::class]);
 $router->post('/banner/{id}/aktivlik', [AdminBannerController::class, 'aktivlikDeyis'], [AdminAuth::class, CsrfGuard::class]);
+
+// Dashboard — canlı sayğaclar, son hadisələr (bax bölmə 8.1)
+$router->get('/dashboard', [AdminDashboardController::class, 'goster'], [AdminAuth::class]);
+
+// Ərazi idarəsi — şəhər/rayon əlavə/deaktiv/aktiv/sil (bax bölmə 8.7)
+$router->get('/sehirler', [AdminEraziController::class, 'sehirler'], [AdminAuth::class]);
+$router->post('/sehir', [AdminEraziController::class, 'sehirYarat'], [AdminAuth::class, CsrfGuard::class]);
+$router->get('/sehir/{sehirId}/rayonlar', [AdminEraziController::class, 'rayonlar'], [AdminAuth::class]);
+$router->post('/sehir/{sehirId}/rayon', [AdminEraziController::class, 'rayonYarat'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/rayon/{id}/aktivlik', [AdminEraziController::class, 'rayonAktivlik'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/rayon/{id}/sil', [AdminEraziController::class, 'rayonSil'], [AdminAuth::class, CsrfGuard::class]);
 
 return $router;
