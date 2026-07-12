@@ -477,6 +477,9 @@ tbody tr:last-child td {
   max-height: 85vh;
   overflow-y: auto;
   animation: modalIn 0.35s var(--bounce);
+  background: var(--surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 @keyframes modalIn {

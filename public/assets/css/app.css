@@ -684,6 +684,9 @@ a {
   padding: 26px 24px;
   text-align: center;
   animation: modalIn 0.4s var(--bounce);
+  background: var(--surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 @keyframes modalIn {
