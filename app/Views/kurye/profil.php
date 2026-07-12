@@ -61,6 +61,7 @@ var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNI
 var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_UGUR = <?= json_encode($t('profil.bildiris_ugur'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_DETEKLENMIR = <?= json_encode($t('profil.bildiris_deteklenmir'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var BILDIRIS_IOS_QEYRI_QURULU = <?= json_encode($t('profil.bildiris_ios_qeyri_qurulu'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_QADAGAN = <?= json_encode($t('profil.bildiris_qadagan'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_XETA = <?= json_encode($t('profil.bildiris_xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
@@ -228,7 +229,7 @@ var BILDIRIS_XETA = <?= json_encode($t('profil.bildiris_xeta'), JSON_UNESCAPED_U
     btn.disabled = false;
 
     if (!res.supported) {
-      Birlikde.showError(xetaEl, BILDIRIS_DETEKLENMIR);
+      Birlikde.showError(xetaEl, res.iosNotInstalled ? BILDIRIS_IOS_QEYRI_QURULU : BILDIRIS_DETEKLENMIR);
       return;
     }
     if (res.denied) {

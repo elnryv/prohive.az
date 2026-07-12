@@ -963,3 +963,14 @@ commit edildi:
   "İcazə verilmədi — brauzer ayarlarından bu sayt üçün bildirişə icazə
   verməlisən." mesajı düzgün göründü (əvvəllər tam səssiz idi) — bu, əsl
   bug-ın diaqnozunu təsdiqlədi. `sw.js` `CACHE_VERSION` v10→v11.
+- **iOS Safari xüsusi mesajı:** istifadəçi real iPhone-da sınayanda "Bu
+  brauzer bildirişləri dəstəkləmir" mesajını gördü — bu, BUG DEYİL, Apple-ın
+  öz qərarıdır (Safari-də Push API yalnız sayt "Ana ekrana əlavə et" ilə
+  quraşdırılandan sonra mövcuddur, CLAUDE.md bölmə 5-də əvvəldən
+  sənədləşdirilib). Amma köhnə mesaj bunu izah etmirdi. Düzəliş:
+  `Birlikde.subscribeToPush()`-a iOS Safari + qeyri-standalone aşkarlama
+  əlavə olundu (`navigator.standalone` / `display-mode: standalone` +
+  UA yoxlaması) — bu vəziyyətdə dəqiq təlimatlı mesaj göstərilir ("Safari-də
+  paylaşma düyməsinə basıb Ana ekrana əlavə et"). Playwright ilə saxta iOS
+  Safari UA + `PushManager` silinməsi ilə simulyasiya edilib, düzgün mesaj
+  təsdiqləndi. `sw.js` `CACHE_VERSION` v11→v12.

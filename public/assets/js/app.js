@@ -361,8 +361,23 @@ window.Birlikde = (function () {
     return outputArray;
   }
 
+  function isIosStandalone() {
+    return window.navigator.standalone === true
+      || window.matchMedia('(display-mode: standalone)').matches;
+  }
+
+  function isIosSafari() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
   async function subscribeToPush(vapidPublicKey) {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      // iOS Safari-də Push API YALNIZ "Ana ekrana əlavə et" ilə PWA kimi
+      // quraşdırılandan sonra mövcuddur (Apple-ın öz məhdudiyyəti) — adi
+      // Safari-də bu tamamilə gözlənilən haldır, real bug deyil.
+      if (isIosSafari() && !isIosStandalone()) {
+        return { supported: false, iosNotInstalled: true };
+      }
       return { supported: false };
     }
     if (!vapidPublicKey) {

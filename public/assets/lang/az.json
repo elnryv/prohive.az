@@ -111,6 +111,7 @@
   "profil.bildiris_xeberdarliq": "Bildiriş bağlıdır — yeni sifarişləri qaçıra bilərsən.",
   "profil.bildiris_ugur": "Bildirişlər aktivləşdirildi!",
   "profil.bildiris_deteklenmir": "Bu brauzer bildirişləri dəstəkləmir.",
+  "profil.bildiris_ios_qeyri_qurulu": "iPhone-da bildirişlər yalnız saytı \"Ana ekrana əlavə et\" ilə quraşdırdıqdan sonra işləyir. Safari-də paylaşma düyməsinə (⬆️) basıb \"Ana ekrana əlavə et\"-i seç, sonra ana ekrandan tətbiqi aç və bura qayıt.",
   "profil.bildiris_qadagan": "İcazə verilmədi — brauzer ayarlarından bu sayt üçün bildirişə icazə verməlisən.",
   "profil.bildiris_xeta": "Bildiriş aktivləşdirilə bilmədi. Yenidən cəhd et.",
 
