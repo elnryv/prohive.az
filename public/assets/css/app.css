@@ -1151,3 +1151,293 @@ a {
 @keyframes splashFadeUp {
   to { opacity: 1; }
 }
+
+.splash-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 220px;
+  height: 220px;
+  margin: -110px 0 0 -110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61, 90, 254, 0.35), rgba(255, 122, 61, 0.22) 45%, transparent 72%);
+  filter: blur(6px);
+  opacity: 0;
+  z-index: -1;
+  animation: splashGlowPulse 1.8s ease-out forwards;
+}
+
+@keyframes splashGlowPulse {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.2); }
+  35% { opacity: 1; }
+  100% { opacity: 0.55; transform: translate(0, 0) scale(1.35); }
+}
+
+#splashCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Giriş/Qeydiyyat kart karuseli (auth deck) ---------- */
+.auth-deck {
+  padding: 6px 4px 26px;
+  text-align: center;
+  transition: opacity 0.35s var(--smooth), transform 0.35s var(--smooth);
+}
+
+.auth-deck[hidden] {
+  display: none;
+}
+
+.auth-deck.leaving {
+  animation: deckLeave 0.4s var(--smooth) forwards;
+}
+
+@keyframes deckLeave {
+  to { opacity: 0; transform: translateY(-18px) scale(0.96); }
+}
+
+.deck-heading {
+  margin-bottom: 26px;
+}
+
+.deck-brand {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.deck-sub {
+  margin-top: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.deck-stack {
+  position: relative;
+  height: 250px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.deck-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 66%;
+  min-height: 212px;
+  margin-left: -33%;
+  border: none;
+  border-radius: 26px;
+  padding: 26px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(26, 26, 46, 0.18);
+  transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0)) scale(0.9);
+  transition: transform 0.5s var(--bounce), opacity 0.4s var(--smooth), box-shadow 0.3s ease;
+  opacity: 0.85;
+  user-select: none;
+  font: inherit;
+  text-align: center;
+}
+
+.deck-card:nth-child(1) { --tx: -58px; --ty: 6px; --rot: -9deg; }
+.deck-card:nth-child(2) { --tx: 58px; --ty: 6px; --rot: 9deg; }
+
+.deck-card[data-target="giris"] {
+  background: linear-gradient(150deg, var(--accent), #1c2fb0);
+}
+
+.deck-card[data-target="qeydiyyat"] {
+  background: linear-gradient(150deg, var(--accent-warm), var(--pink));
+}
+
+.deck-card-front {
+  z-index: 3;
+  transform: translate(0, 0) rotate(0deg) scale(1.05) !important;
+  opacity: 1;
+  box-shadow: 0 20px 38px rgba(26, 26, 46, 0.26);
+}
+
+.deck-card-back {
+  z-index: 1;
+}
+
+.deck-card:active {
+  transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0)) scale(0.86) !important;
+}
+
+.deck-card-front:active {
+  transform: translate(0, 0) rotate(0deg) scale(0.98) !important;
+}
+
+.auth-deck.selecting .deck-card-front {
+  transform: translate(0, 0) rotate(0deg) scale(1.16) !important;
+}
+
+.deck-card-icon {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.deck-card-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.deck-card-sub {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 190px;
+}
+
+.auth-form-wrap[hidden] {
+  display: none;
+}
+
+.auth-form-wrap.reveal {
+  animation: pageIn 0.45s var(--bounce);
+}
+
+/* ---------- Sifariş izləmə animasiyası (radar + marşrut) ---------- */
+.tracking-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 18px;
+  text-align: center;
+}
+
+.radar {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  animation: radarPing 2.2s ease-out infinite;
+}
+
+.radar-ring:nth-child(2) { animation-delay: 0.55s; }
+.radar-ring:nth-child(3) { animation-delay: 1.1s; }
+
+@keyframes radarPing {
+  0% { opacity: 0.55; transform: scale(0.35); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+.radar-core {
+  position: relative;
+  z-index: 2;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--accent), var(--pink));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  box-shadow: 0 8px 20px rgba(61, 90, 254, 0.35);
+  animation: radarCoreBeat 1.4s var(--smooth) infinite;
+}
+
+@keyframes radarCoreBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.tracking-status {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.tracking-sub {
+  margin-top: 3px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.transit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.transit-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--accent-warm), var(--pink));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 800;
+  flex: none;
+  box-shadow: 0 6px 16px rgba(255, 122, 61, 0.3);
+}
+
+.transit-info {
+  flex: 1;
+  text-align: left;
+}
+
+.transit-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.transit-role {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.transit-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin: 6px 0 16px;
+}
+
+.transit-track-fill {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+  animation: transitSlide 1.8s ease-in-out infinite;
+}
+
+@keyframes transitSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}

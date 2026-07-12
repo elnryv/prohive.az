@@ -6,6 +6,26 @@
  */
 require __DIR__ . '/../partials/head.php';
 ?>
+<div class="auth-deck" id="authDeck" data-my-rol="qeydiyyat">
+  <div class="deck-heading">
+    <div class="deck-brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
+    <div class="deck-sub"><?= htmlspecialchars($t('qapi.secim_basliq')) ?></div>
+  </div>
+  <div class="deck-stack" id="deckStack">
+    <div class="deck-card" data-target="giris">
+      <span class="deck-card-icon">&#128273;</span>
+      <span class="deck-card-title"><?= htmlspecialchars($t('qapi.giris_basliq')) ?></span>
+      <span class="deck-card-sub"><?= htmlspecialchars($t('qapi.giris_alt')) ?></span>
+    </div>
+    <div class="deck-card" data-target="qeydiyyat">
+      <span class="deck-card-icon">&#10024;</span>
+      <span class="deck-card-title"><?= htmlspecialchars($t('qapi.qeydiyyat_basliq')) ?></span>
+      <span class="deck-card-sub"><?= htmlspecialchars($t('qapi.qeydiyyat_alt')) ?></span>
+    </div>
+  </div>
+</div>
+
+<div class="auth-form-wrap" id="authFormWrap" hidden>
 <div class="card glass">
   <h1><?= htmlspecialchars($t('qeydiyyat.basliq')) ?></h1>
   <div class="error-box" id="errBox"></div>
@@ -91,6 +111,10 @@ require __DIR__ . '/../partials/head.php';
     <?= htmlspecialchars($t('nav.giris_var')) ?> <a href="/giris"><?= htmlspecialchars($t('ortaq.giris')) ?></a>
   </p>
 </div>
+</div>
+<script>
+  Birlikde.initAuthDeck();
+</script>
 <script>
 var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 

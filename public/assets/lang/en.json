@@ -18,6 +18,12 @@
   "nav.qeydiyyat_yoxdur": "Don't have an account?",
   "nav.giris_var": "Already have an account?",
 
+  "qapi.secim_basliq": "How would you like to continue?",
+  "qapi.giris_basliq": "Log in",
+  "qapi.giris_alt": "Already have an account — log in",
+  "qapi.qeydiyyat_basliq": "Sign up",
+  "qapi.qeydiyyat_alt": "Create a new account and get started",
+
   "install.basliq": "Add Birlikdə to your home screen",
   "install.metn": "Add it to your home screen to get notifications and a faster experience.",
   "install.duyme": "Add",
@@ -66,6 +72,10 @@
   "musteri.aktiv_sifaris_yoxdur": "No active orders",
   "musteri.sikayet": "Suggestions & complaints",
   "musteri.dasiyici": "Courier",
+  "musteri.axtarilir_basliq": "Searching for a courier...",
+  "musteri.axtarilir_alt": "Couriers in your area have been notified",
+  "musteri.yolda_basliq": "On the way",
+  "musteri.yolda_alt": "Your courier accepted the order and is heading to the address",
 
   "status.axtarisda": "Searching",
   "status.goturulub": "Accepted",

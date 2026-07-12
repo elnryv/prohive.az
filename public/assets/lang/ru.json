@@ -18,6 +18,12 @@
   "nav.qeydiyyat_yoxdur": "Нет аккаунта?",
   "nav.giris_var": "Уже есть аккаунт?",
 
+  "qapi.secim_basliq": "Как хотите продолжить?",
+  "qapi.giris_basliq": "Вход",
+  "qapi.giris_alt": "У вас уже есть аккаунт — войдите",
+  "qapi.qeydiyyat_basliq": "Регистрация",
+  "qapi.qeydiyyat_alt": "Создайте новый аккаунт и начните",
+
   "install.basliq": "Добавить Birlikdə на главный экран",
   "install.metn": "Добавьте на главный экран, чтобы получать уведомления и работать быстрее.",
   "install.duyme": "Добавить",
@@ -66,6 +72,10 @@
   "musteri.aktiv_sifaris_yoxdur": "Нет активных заказов",
   "musteri.sikayet": "Предложения и жалобы",
   "musteri.dasiyici": "Перевозчик",
+  "musteri.axtarilir_basliq": "Идёт поиск курьера...",
+  "musteri.axtarilir_alt": "Курьерам в вашем районе отправлено уведомление",
+  "musteri.yolda_basliq": "В пути",
+  "musteri.yolda_alt": "Курьер принял заказ и направляется по адресу",
 
   "status.axtarisda": "В поиске",
   "status.goturulub": "Принят",

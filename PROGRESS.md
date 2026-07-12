@@ -496,6 +496,55 @@ admin bölməsi əlavə olundu.
   görə (bax CLAUDE.md bölmə 9.7) final directory tree və birləşdirilmiş kod
   təqdimatı — istifadəçi bunu ayrıca tələb etdikdə hazırlanacaq.
 
+### 2026-07-12 (davam) — Giriş/Qeydiyyat kart karuseli + sifariş izləmə animasiyası + yeni splash
+
+- İstifadəçi 4 istinad video göndərdi (ffmpeg contact-sheet üsulu ilə
+  təhlil edildi — Read binary .mp4 aça bilmir, `ffmpeg -vf "fps=X,tile=RxC"`
+  ilə tiled PNG çıxarılıb baxıldı): (1) qara kart karuseli UI tutorialı
+  (fanned deck, toxunanda öndə böyüyür), (2) Three.js/WebGL "enerji orbu"
+  splash tutorialı, (3-4) eyni fayl (MD5 uyğun) — Flutter "kuryer axtarılır
+  → yoldadır → çatdı" izləmə ekranı tutorialı (@dailyflutterui).
+- İstifadəçi qərarı: 1 və 3 təsdiqləndi, 2 (splash) üçün "maraqlı,
+  mükəmməl bir açılış et" — sərbəstlik verildi, Three.js YOX (aşağı-
+  səviyyəli Android performans riski əsaslandırılıb, əvvəlcədən razılaşıb).
+- **Giriş/Qeydiyyat kart karuseli:** `auth/giris.php` və `auth/qeydiyyat.php`
+  hər ikisi indi `#authDeck` (iki fanned kart: Giriş=mavi qradiyent,
+  Qeydiyyat=narıncı/çəhrayı qradiyent) ilə açılır — öz kartına toxunanda
+  (`Birlikde.initAuthDeck()`, yeni `app.js` funksiyası) kart böyüyüb önə
+  keçir, deck sönür, forma (`#authFormWrap`) aşağıdan sürüşərək açılır;
+  digər kartına toxunanda kart önə keçir və `?open=1` ilə digər səhifəyə
+  keçid edilir (orada eyni animasiya avtomatik təkrarlanır). Yeni CSS:
+  `.auth-deck`/`.deck-stack`/`.deck-card` və s. (bax `app.css`). Playwright
+  ilə statik test səhifələri üzərində vizual təsdiqləndi (fan effekti,
+  toxunma keçidi, forma açılışı) — test faylları müvəqqəti idi, commit-ə
+  daxil deyil.
+- **Sifariş izləmə animasiyası:** `musteri/panel.php`-də aktiv sifariş
+  kartı artıq YALNIZ `axtarisda` deyil, `goturulub` statusunu da göstərir.
+  `axtarisda` → radar-puls animasiyası (3 genişlənən halqa + döyünən mərkəz
+  ikonu, "Kuryer axtarılır..."). `goturulub` → daşıyıcı kartı (baş hərf
+  avatarı, ad, "Yoldadır" yaşıl nöqtə) + hərəkətli irəliləyiş zolağı +
+  WhatsApp düyməsi (ləğv düyməsi göstərilmir — backend artıq yalnız
+  `axtarisda` statusunda ləğvə icazə verir, `Sifaris::cancel()`). Yeni CSS:
+  `.tracking-block`/`.radar`/`.transit-row`/`.transit-track` və s. Real
+  GPS/canlı xəritə YOXDUR (bu app-da mövcud deyil) — status-əsaslı
+  animasiya ilə "canlı izləmə" hissi verilir, saxta ETA rəqəmi göstərilmir.
+- **Yeni splash animasiyası:** köhnə 5-blob "partlayış" əvəz olundu —
+  Canvas 2D hissəcik sistemi (`runSplashParticles()`, `app.js`): mərkəzdən
+  spiral şəklində genişlənən ~70 parlaq hissəcik (marka rəngləri: mavi/
+  narıncı/çəhrayı/yaşıl/sarı, radial-gradient glow), arxada CSS puls
+  effektli işıq halosu (`.splash-glow`), üstündə mövcud "Birlikdə" söz
+  bounce animasiyası. **Şüurlu qərar: Three.js/WebGL YOX** — Canvas 2D
+  ilə ~70 hissəcik 60fps-də aşağı-səviyyəli Android telefonlarda da
+  rahat işləyir, WebGL+shader yükü (150-600KB əlavə + performans/enerji
+  riski) əsassızdır bu istifadə halı üçün. `prefers-reduced-motion`
+  hörmət edilir (hissəciklər tamamilə keçilir). Playwright screenshot
+  ilə vizual təsdiqləndi (mərkəzdən partlayan rəngli hissəciklər →
+  sözün üstündə sönür).
+- 3 yeni i18n blok (az/ru/en): `qapi.*` (deck başlıqları), `musteri.
+  axtarilir_*`/`musteri.yolda_*` (izləmə mətnləri). `php -l` bütün
+  dəyişən PHP fayllara, `node --check` `app.js`-ə, JSON validasiyası
+  3 dil faylına təmiz keçdi.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur

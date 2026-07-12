@@ -18,6 +18,12 @@
   "nav.qeydiyyat_yoxdur": "Hesabınız yoxdur?",
   "nav.giris_var": "Artıq hesabınız var?",
 
+  "qapi.secim_basliq": "Necə davam etmək istəyirsən?",
+  "qapi.giris_basliq": "Giriş",
+  "qapi.giris_alt": "Artıq hesabın var — daxil ol",
+  "qapi.qeydiyyat_basliq": "Qeydiyyat",
+  "qapi.qeydiyyat_alt": "Yeni hesab yarat və başla",
+
   "install.basliq": "Birlikdə-ni tətbiq kimi əlavə et",
   "install.metn": "Bildiriş almaq və daha sürətli işləmək üçün ana ekrana əlavə edin.",
   "install.duyme": "Əlavə et",
@@ -66,6 +72,10 @@
   "musteri.aktiv_sifaris_yoxdur": "Aktiv sifarişiniz yoxdur",
   "musteri.sikayet": "Təklif və iradlar",
   "musteri.dasiyici": "Daşıyıcı",
+  "musteri.axtarilir_basliq": "Kuryer axtarılır...",
+  "musteri.axtarilir_alt": "Uyğun ərazidəki kuryerlərə bildiriş göndərildi",
+  "musteri.yolda_basliq": "Yoldadır",
+  "musteri.yolda_alt": "Kuryeriniz sifarişi götürüb, ünvana doğru irəliləyir",
 
   "status.axtarisda": "Axtarışda",
   "status.goturulub": "Götürülüb",

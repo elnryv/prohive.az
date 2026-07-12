@@ -23,11 +23,20 @@
   aksent sistemi (mavi `#3d5afe`=marka/keçidlər, narıncı `#ff7a3d`=əsas əməliyyat
   düymələri, yaşıl=onlayn/uğur, çəhrayı=təcili), iri dəyirmi künclər (16-28px),
   sıçrayışlı (bouncy, `cubic-bezier(0.34,1.56,0.64,1)`) hərəkət hər yerdə (kart
-  giriş animasiyası, düymə basma, tab/toggle keçidləri). Hər səhifə açılışında
-  sessiyada BİR DƏFƏ rəngli "partlayış" splash animasiyası ("Birlikdə" sözü ilə,
-  `sessionStorage` ilə idarə olunur). Bütün səhifələrdə hamburger menyu (sürüşən
-  drawer) — dil bayraqları da drawer-in içindədir. Admin panel EYNİ dizayn dilini
-  paylaşır (sabit yan-menyu + eyni rəng/hərəkət tokenləri). Köhnə sinif adları
+  giriş animasiyası, düymə basma, tab/toggle keçidləri). Hər tətbiqə TƏZƏ girişdə
+  (kənar keçid — `document.referrer` eyni origin deyilsə; daxili keçidlərdə YOX)
+  Canvas 2D hissəcik "enerji partlayışı" splash animasiyası (mərkəzdən spiral
+  şəklində genişlənən marka-rəngli hissəciklər + puls işıq halosu + "Birlikdə"
+  sözü, bax `runSplashParticles()` app.js-də — WebGL/Three.js BİLƏRƏKDƏN
+  işlədilmir, aşağı-səviyyəli Android performansı üçün). Giriş/Qeydiyyat
+  səhifələri fanned kart karuseli ilə açılır (`#authDeck`, `Birlikde.
+  initAuthDeck()`) — kartına toxunanda forma aşağıdan sürüşərək açılır.
+  Müştəri panelində aktiv sifariş radar-puls ("axtarışda") və hərəkətli
+  irəliləyiş zolağı ("götürülüb") animasiyaları ilə göstərilir (canlı
+  GPS YOXDUR, status-əsaslı animasiya). Bütün səhifələrdə hamburger menyu
+  (sürüşən drawer) — dil bayraqları da drawer-in içindədir. Admin panel
+  EYNİ dizayn dilini paylaşır (sabit yan-menyu + eyni rəng/hərəkət
+  tokenləri). Köhnə sinif adları
   (`.card`, `.btn-primary`, `.glass`, `.badge-*` və s.) saxlanılıb — yalnız CSS
   dəyərləri dəyişib, view fayllarına toxunulmayıb.
 - **Hüquqi qeyd:** 10 hüquqi sənəd (Faza 7, `config/legal/`, `GET /huquqi`) QARALAMA

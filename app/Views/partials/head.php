@@ -26,12 +26,9 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
 <body>
 
 <div id="splashOverlay">
-  <div class="splash-blob" style="width:64px;height:64px;background:var(--accent);"></div>
-  <div class="splash-blob" style="width:46px;height:46px;background:var(--accent-warm);"></div>
-  <div class="splash-blob" style="width:38px;height:38px;background:var(--pink);"></div>
-  <div class="splash-blob" style="width:30px;height:30px;background:var(--warning);"></div>
-  <div class="splash-blob" style="width:52px;height:52px;background:var(--success);"></div>
+  <canvas id="splashCanvas"></canvas>
   <div class="splash-center">
+    <div class="splash-glow"></div>
     <div class="splash-word"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
     <div class="splash-tag"><?= htmlspecialchars($t('splash.tagline')) ?></div>
   </div>

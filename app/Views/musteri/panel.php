@@ -107,6 +107,10 @@ var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_
 var GOTURULME_ETIKETI = <?= json_encode($t('musteri.goturulme'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var CATDIRILMA_ETIKETI = <?= json_encode($t('musteri.catdirilma'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var TECILI_METNI = <?= json_encode($t('musteri.tecili'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var AXTARILIR_BASLIQ = <?= json_encode($t('musteri.axtarilir_basliq'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var AXTARILIR_ALT = <?= json_encode($t('musteri.axtarilir_alt'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var YOLDA_BASLIQ = <?= json_encode($t('musteri.yolda_basliq'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var YOLDA_ALT = <?= json_encode($t('musteri.yolda_alt'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var errBox = document.getElementById('errBox');
@@ -184,9 +188,13 @@ var TECILI_METNI = <?= json_encode($t('musteri.tecili'), JSON_UNESCAPED_UNICODE 
     return '<span class="badge badge-' + Birlikde.escapeHtml(status) + '">' + Birlikde.escapeHtml(label) + '</span>';
   }
 
+  function dasiyiciBasHerf(ad) {
+    return ad ? ad.trim().charAt(0).toUpperCase() : '?';
+  }
+
   function renderAktivSifaris(sifarisler) {
     var aktivCard = document.getElementById('aktivSifarisCard');
-    var aktiv = sifarisler.find(function (s) { return s.status === 'axtarisda'; });
+    var aktiv = sifarisler.find(function (s) { return s.status === 'axtarisda' || s.status === 'goturulub'; });
 
     if (!aktiv) {
       aktivCard.style.display = 'none';
@@ -198,8 +206,41 @@ var TECILI_METNI = <?= json_encode($t('musteri.tecili'), JSON_UNESCAPED_UNICODE 
     html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
     html += '<strong>#' + aktiv.id + '</strong>' + statusBadge(aktiv.status);
     html += '</div>';
+
+    if (aktiv.status === 'axtarisda') {
+      html += '<div class="tracking-block">' +
+        '<div class="radar">' +
+          '<span class="radar-ring"></span><span class="radar-ring"></span><span class="radar-ring"></span>' +
+          '<div class="radar-core">&#128269;</div>' +
+        '</div>' +
+        '<div class="tracking-status">' + Birlikde.escapeHtml(AXTARILIR_BASLIQ) + '</div>' +
+        '<div class="tracking-sub">' + Birlikde.escapeHtml(AXTARILIR_ALT) + '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="tracking-block" style="padding-top:2px;">' +
+        '<div class="transit-row">' +
+          '<div class="transit-avatar">' + Birlikde.escapeHtml(dasiyiciBasHerf(aktiv.dasiyici_adi)) + '</div>' +
+          '<div class="transit-info">' +
+            '<div class="transit-name">' + Birlikde.escapeHtml(aktiv.dasiyici_adi || DASIYICI_ETIKETI) + '</div>' +
+            '<div class="transit-role">&#9679; ' + Birlikde.escapeHtml(YOLDA_BASLIQ) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="transit-track"><div class="transit-track-fill"></div></div>' +
+        '<div class="tracking-sub" style="margin-bottom:10px;">' + Birlikde.escapeHtml(YOLDA_ALT) + '</div>' +
+      '</div>';
+    }
+
     html += Birlikde.routeStepperHtml(aktiv.goturulme_unvan, aktiv.catdirilma_unvan, GOTURULME_ETIKETI, CATDIRILMA_ETIKETI);
-    html += '<button class="btn btn-danger btn-small" id="legvBtn" data-id="' + aktiv.id + '">' + Birlikde.escapeHtml(LEGV_METNI) + '</button>';
+
+    if (aktiv.status === 'goturulub' && aktiv.dasiyici_whatsapp_link) {
+      html += '<a class="btn btn-ghost btn-small" style="margin-bottom:8px;" target="_blank" rel="noopener" href="' +
+        Birlikde.escapeHtml(aktiv.dasiyici_whatsapp_link) + '">' + Birlikde.escapeHtml(WHATSAPP_METNI) + '</a>';
+    }
+
+    if (aktiv.status === 'axtarisda') {
+      html += '<button class="btn btn-danger btn-small" id="legvBtn" data-id="' + aktiv.id + '">' + Birlikde.escapeHtml(LEGV_METNI) + '</button>';
+    }
+
     aktivCard.innerHTML = html;
     aktivCard.style.display = 'block';
 

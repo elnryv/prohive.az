@@ -71,6 +71,60 @@ window.Birlikde = (function () {
     );
   }
 
+  // Giriş/Qeydiyyat kart karuseli — bax auth/giris.php, auth/qeydiyyat.php
+  // (#authDeck data-my-rol="giris|qeydiyyat"). Cari səhifənin kartına toxunanda
+  // forma açılır; digər kartına toxunanda həmin səhifəyə keçid edilir və orada
+  // ?open=1 ilə eyni "seçim" animasiyası avtomatik oynadılır.
+  function initAuthDeck() {
+    var deck = document.getElementById('authDeck');
+    if (!deck) return;
+    var formWrap = document.getElementById('authFormWrap');
+    var myRol = deck.dataset.myRol;
+    var cards = deck.querySelectorAll('.deck-card');
+
+    function setFront(rol) {
+      cards.forEach(function (c) {
+        var isFront = c.dataset.target === rol;
+        c.classList.toggle('deck-card-front', isFront);
+        c.classList.toggle('deck-card-back', !isFront);
+      });
+    }
+
+    setFront(myRol);
+
+    function openForm() {
+      deck.classList.add('selecting');
+      setTimeout(function () {
+        deck.classList.add('leaving');
+        setTimeout(function () {
+          deck.setAttribute('hidden', '');
+          formWrap.removeAttribute('hidden');
+          formWrap.classList.add('reveal');
+          var firstInput = formWrap.querySelector('input, select, textarea');
+          if (firstInput) firstInput.focus({ preventScroll: true });
+        }, 400);
+      }, 260);
+    }
+
+    cards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        var target = card.dataset.target;
+        if (target === myRol) {
+          openForm();
+        } else {
+          setFront(target);
+          setTimeout(function () {
+            window.location.href = '/' + target + '?open=1';
+          }, 340);
+        }
+      });
+    });
+
+    if (/[?&]open=1\b/.test(window.location.search)) {
+      setTimeout(openForm, 200);
+    }
+  }
+
   function showError(el, message) {
     if (!el) return;
     el.textContent = message;
@@ -249,38 +303,105 @@ window.Birlikde = (function () {
   // ---- Açılış (splash) animasiyası — tətbiqə TƏZƏ girəndə (yox, hər daxili
   // keçiddə) oynanılır; daxili keçid olub-olmadığı head.php-dəki sinxron
   // referrer-yoxlaması ilə müəyyənləşir (bax orada .hide əlavəsi) ----
+  // Kanvas hissəcik "enerji partlayışı" — WebGL/Three.js əvəzinə yüngül Canvas 2D
+  // (aşağı-səviyyəli Android telefonlarda da rahat işləməsi üçün). Mərkəzdən
+  // spiral şəklində genişlənən, marka rənglərində (mavi/narıncı/çəhrayı/yaşıl)
+  // parlaq hissəciklər, sonda halqa şəklində sabitləşir və sözlə birgə sönür.
+  function runSplashParticles(canvas) {
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    var cx = w / 2;
+    var cy = h / 2;
+    var colors = ['#3d5afe', '#ff7a3d', '#ff4d8f', '#22c55e', '#ffb020'];
+    var COUNT = 70;
+    var particles = [];
+    for (var i = 0; i < COUNT; i++) {
+      var angle = (Math.PI * 2 * i) / COUNT + Math.random() * 0.4;
+      particles.push({
+        angle: angle,
+        spin: (Math.random() - 0.5) * 0.03,
+        radius: 0,
+        maxRadius: 70 + Math.random() * (Math.min(w, h) * 0.32),
+        speed: 2.2 + Math.random() * 2.4,
+        size: 2 + Math.random() * 3,
+        color: colors[i % colors.length],
+      });
+    }
+
+    var start = null;
+    var DURATION = 1500;
+    var rafId = null;
+
+    function frame(ts) {
+      if (!start) start = ts;
+      var elapsed = ts - start;
+      var t = Math.min(elapsed / DURATION, 1);
+      var ease = 1 - Math.pow(1 - t, 3);
+
+      ctx.clearRect(0, 0, w, h);
+
+      particles.forEach(function (p) {
+        p.angle += p.spin;
+        var r = p.maxRadius * ease;
+        var x = cx + Math.cos(p.angle) * r;
+        var y = cy + Math.sin(p.angle) * r;
+        var fade = t < 0.75 ? 1 : Math.max(0, 1 - (t - 0.75) / 0.25);
+
+        var grad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 3);
+        grad.addColorStop(0, p.color);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.globalAlpha = fade;
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, p.size * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = fade;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(x, y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      if (t < 1) {
+        rafId = requestAnimationFrame(frame);
+      }
+    }
+
+    rafId = requestAnimationFrame(frame);
+
+    return function stop() {
+      if (rafId) cancelAnimationFrame(rafId);
+      ctx.clearRect(0, 0, w, h);
+    };
+  }
+
   function playSplashOnce(splashEl) {
     if (!splashEl || splashEl.classList.contains('hide')) {
       return;
     }
 
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var stopParticles = null;
 
     if (!reduced) {
-      var targets = [
-        { dx: -0.5, dy: -0.6 },
-        { dx: 0.55, dy: -0.45 },
-        { dx: -0.58, dy: 0.5 },
-        { dx: 0.62, dy: 0.5 },
-        { dx: 0.02, dy: -0.68 },
-      ];
-      var blobs = splashEl.querySelectorAll('.splash-blob');
-      blobs.forEach(function (el, i) {
-        var t = targets[i] || targets[0];
-        var endX = t.dx * window.innerWidth;
-        var endY = t.dy * window.innerHeight;
-        el.style.left = '50%';
-        el.style.top = '50%';
-        el.style.marginLeft = (-el.offsetWidth / 2) + 'px';
-        el.style.marginTop = (-el.offsetHeight / 2) + 'px';
-        el.style.setProperty('--end', 'translate(' + endX + 'px,' + endY + 'px)');
-        el.style.animationDelay = (i * 0.05) + 's';
-      });
+      var canvas = splashEl.querySelector('#splashCanvas');
+      if (canvas && canvas.getContext) {
+        stopParticles = runSplashParticles(canvas);
+      }
     }
 
     setTimeout(function () {
       splashEl.classList.add('hide');
-    }, reduced ? 0 : 2000);
+      if (stopParticles) stopParticles();
+    }, reduced ? 0 : 1650);
   }
 
   function switchLanguage(dil) {
@@ -459,6 +580,7 @@ window.Birlikde = (function () {
     redirectIfUnauthorized: redirectIfUnauthorized,
     switchLanguage: switchLanguage,
     initDrawer: initDrawer,
+    initAuthDeck: initAuthDeck,
     playSplashOnce: playSplashOnce,
     registerServiceWorker: registerServiceWorker,
     initInstallPrompt: initInstallPrompt,
