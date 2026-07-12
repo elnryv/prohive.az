@@ -41,7 +41,7 @@
 | Qat | Texnologiya | Qeyd |
 |---|---|---|
 | Server/OS | Ubuntu (Hostinger VPS) | Nginx + PHP-FPM 8.3 |
-| Backend | Native PHP 8.3 | Framework yox, **hər faylda `declare(strict_types=1)`** |
+| Backend | Native PHP 8.3 | Framework yox, **hər faylda `declare(strict_types=1)`**. Tək istisna: Composer + `minishlink/web-push` (yalnız real Web Push göndərmə üçün, 2026-07-12 əlavə olundu — bax bölmə 5 "Web Push") |
 | DB | MySQL 8.0 | InnoDB, utf8mb4_unicode_ci, tranzaksiyalar |
 | Real-time | SSE (Server-Sent Events) | Server → kuryer bir-istiqamətli push |
 | Frontend | Vanilla JS + PWA | Service Worker, manifest, offline dəstəyi |
@@ -148,6 +148,17 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   məlumatı platformada saxlanmır.
 - **PWA/iOS:** `beforeinstallprompt` iOS Safari-də dəstəklənmir — vizual təlimat göstərilir.
   iOS-da Web Push YALNIZ ana ekrana əlavədən sonra işləyir.
+- **Web Push (2026-07-12 real edildi):** əvvəllər yalnız infrastruktur idi (niyyət
+  loglanırdı, faktiki göndərilmirdi) — indi `App\Services\PushService` real RFC 8291
+  (ECDH+AES-128-GCM şifrələmə) + RFC 8292 (VAPID JWT) ilə `minishlink/web-push`
+  (Composer) vasitəsilə göndərir. Serverdə **`composer install --no-dev`** işə
+  salınmalıdır (`vendor/` gitignore-dadır, commit olunmur). WebPush müştərisi
+  TƏNBƏL yaradılır (yalnız faktiki göndəriş anında) — kitabxananın GMP/BCMath
+  yoxdursa verdiyi performans xəbərdarlığı `@` ilə susdurulur (`ErrorHandler`
+  APP_DEBUG=true-da hər notice-i istisnaya çevirir, bu olmasa hər sorğu 500
+  verərdi — real bug tapılıb düzəldildi). `php-bcmath` genişlənməsinin serverdə
+  quraşdırılması tövsiyə olunur (performans, tələb olunmur). Ötürülmə uğursuz
+  olub (404/410) subscription bitibsə `push_abuneler`-dən avtomatik silinir.
 - **Ərazi idarəsi:** hardcode yox, hamısı DB-dən (admin əlavə/deaktiv/sil edə bilər).
   Sumqayıt siyahısı canlıya keçməzdən əvvəl rəsmi mənbədən yoxlanmalıdır.
 

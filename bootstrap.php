@@ -21,6 +21,13 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
+// Yalnız real Web Push göndərmə üçün minishlink/web-push (bax composer.json,
+// PushService.php) — layihənin qalan hissəsi asılılıqsız native PHP-dir.
+$composerAutoload = __DIR__ . '/vendor/autoload.php';
+if (is_file($composerAutoload)) {
+    require $composerAutoload;
+}
+
 use App\Core\Env;
 use App\Core\ErrorHandler;
 

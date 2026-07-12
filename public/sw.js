@@ -68,7 +68,8 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Web Push qəbulu (göndərmə tərəfi YER TUTUCUDUR — bax PushService qeydi).
+// Web Push qəbulu (göndərmə tərəfi PushService.php-də real RFC 8291/VAPID
+// göndərişdir — bax composer.json / minishlink/web-push).
 self.addEventListener('push', (event) => {
   let data = {};
   try {

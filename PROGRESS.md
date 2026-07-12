@@ -897,3 +897,47 @@ commit edildi:
   xətası/CSP pozuntusu yaranmadı (qeydiyyat, giriş, drawer, SSE canlı lövhə,
   onlayn toggle, admin panel — hamısı sınaqdan keçirildi), rate-limit dəqiq
   5-ci cəhddə 429 qaytardı, giriş enumeration-ı eyni ümumi mesajla bağlandı.
+
+### 2026-07-12 (davam) — Real Web Push göndərmə (RFC 8291 + VAPID)
+
+- İstifadəçinin tələbi: "real bildiriş hissəsini həll edək" — indiyədək
+  `PushService` yalnız infrastruktur idi (niyyət `storage/logs`-a yazılırdı,
+  faktiki brauzerə heç nə getmirdi). İstifadəçiyə iki yol təklif olundu
+  (tam native PHP-də sıfırdan RFC 8291/8292 kriptoqrafiyası YOXSA kiçik,
+  sənaye-standart Composer kitabxanəsi) — istifadəçi ikincini seçdi.
+- **Composer ilk dəfə layihəyə əlavə olundu** (yalnız bu bir məqsəd üçün,
+  layihənin qalan hissəsi native PHP olaraq qalır) — `minishlink/web-push`
+  v10.1.0 (yalnız `curl`/`json`/`mbstring`/`openssl` genişlənmələri tələb
+  edir, GMP/BCMath MƏCBURİ deyil). `vendor/` əvvəldən `.gitignore`-da idi
+  (gözlənilirmiş) — `composer.lock` commit olunur, serverdə `composer
+  install --no-dev` işə salınmalıdır (`git pull` təkbaşına kifayət etmir).
+- `bootstrap.php`-ə `vendor/autoload.php` müdafiəli (`is_file` yoxlaması ilə)
+  qoşuldu — mövcud `App\` avtoloader-inə əlavə, onu əvəz etmir.
+- `PushService::gonder()` tam yenidən yazıldı: `push_abuneler`-dəki hər
+  abunəlik üçün RFC 8291 şifrələnmiş + VAPID imzalı bildiriş göndərilir,
+  cavab uğursuz olub subscription bitibsə (404/410) həmin sətir avtomatik
+  `push_abuneler`-dən silinir.
+- **Tapılan real bug:** `PushService` əvvəllər hər `SifarisService` (demək
+  ki, demək olar hər kuryer sorğusu) konstruktorunda HƏVƏSLƏ `WebPush`
+  müştərisi yaradırdı. Kitabxana GMP/BCMath yoxdursa performans
+  xəbərdarlığı (`trigger_error`) verir — `App\Core\ErrorHandler`
+  `APP_DEBUG=true` olduqda İSTƏNİLƏN notice/warning-i istisnaya çevirib
+  atır, ona görə bu, push-la heç əlaqəsi olmayan onlarla endpoint-i 500
+  ilə çökürdü (test mühitində real DB+HTTP ilə aşkarlandı). Düzəliş:
+  `WebPush` müştərisi TƏNBƏL yaradılır (yalnız `gonder()` faktiki
+  çağırılanda, boş abunəlik siyahısında heç yaradılmır), tikinti `@` ilə
+  örtülür (kitabxananın öz `error_reporting()` yoxlamasına uyğun səhih
+  susdurma üsulu). Production-da `php-bcmath` quraşdırmaq bu xəbərdarlığı
+  kökündən aradan qaldırır (tövsiyə, məcburi deyil).
+- **Test:** real EC P-256 açar cütü ilə saxta-amma-kriptoqrafik-cəhətdən-
+  düzgün push abunəliyi DB-yə əlavə edilib `gonder()` birbaşa çağırıldı —
+  ECDH razılaşma açarı, AES-128-GCM şifrələmə və VAPID JWT imzası
+  UĞURLA hesablandı, real HTTPS POST `fcm.googleapis.com`-a çatdı, Google
+  `410 Gone` qaytardı (gözlənilən — saxta endpoint ID) və sətir avtomatik
+  silindi. Brauzerin öz `pushManager.subscribe()` çağırışı bu sandbox-dan
+  şəbəkə yolu olmadığı üçün test edilə bilmədi (eyni səbəb Payriff API
+  sınağı ilə) — real cihazda/serverdə yoxlanmalıdır, amma server-tərəf
+  kriptoqrafiya + çatdırma zənciri tam təsdiqləndi.
+- `sw.js`-dəki "göndərmə tərəfi YER TUTUCUDUR" qeydi silindi (artıq doğru
+  deyil). `composer.json`/`composer.lock` yeni fayllar, `bootstrap.php`
+  və `PushService.php` yeniləndi.

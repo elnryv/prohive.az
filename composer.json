@@ -1,0 +1,14 @@
+{
+    "name": "birlikde/app",
+    "description": "Birlikdə — real Web Push göndərmə üçün minishlink/web-push kitabxanası. Layihənin qalan hissəsi framework/asılılıq olmadan native PHP-dir (bax CLAUDE.md).",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.3",
+        "minishlink/web-push": "^10.1"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
