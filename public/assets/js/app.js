@@ -72,15 +72,26 @@ window.Birlikde = (function () {
   }
 
   // Giriş/Qeydiyyat kart karuseli — bax auth/giris.php, auth/qeydiyyat.php
-  // (#authDeck data-my-rol="giris|qeydiyyat"). Cari səhifənin kartına toxunanda
-  // forma açılır; digər kartına toxunanda həmin səhifəyə keçid edilir və orada
-  // ?open=1 ilə eyni "seçim" animasiyası avtomatik oynadılır.
+  // (#authDeck data-my-rol="giris|qeydiyyat"). Ön kartı barmaqla/mouse ilə
+  // real-vaxtda sürüşdürmək olar (Pointer Events, --dragX/--dragRot CSS
+  // dəyişənləri ilə, bax app.css `.deck-card-front`); yetərincə sürüşdürülsə
+  // digər karta keçir, azca hərəkət olarsa toxunma (tap) kimi qəbul edilib
+  // forma açılır. Arxa kartın görünən kənarına toxunmaq da (drag olmadan)
+  // ona keçid edir.
   function initAuthDeck() {
     var deck = document.getElementById('authDeck');
     if (!deck) return;
     var formWrap = document.getElementById('authFormWrap');
     var myRol = deck.dataset.myRol;
     var cards = deck.querySelectorAll('.deck-card');
+    var SWIPE_THRESHOLD = 70;
+
+    function otherCard(card) {
+      for (var i = 0; i < cards.length; i++) {
+        if (cards[i] !== card) return cards[i];
+      }
+      return null;
+    }
 
     function setFront(rol) {
       cards.forEach(function (c) {
@@ -106,16 +117,71 @@ window.Birlikde = (function () {
       }, 260);
     }
 
+    function switchTo(target) {
+      setFront(target);
+      setTimeout(function () {
+        window.location.href = '/' + target + '?open=1';
+      }, 340);
+    }
+
     cards.forEach(function (card) {
-      card.addEventListener('click', function () {
-        var target = card.dataset.target;
-        if (target === myRol) {
-          openForm();
-        } else {
-          setFront(target);
+      var dragging = false;
+      var moved = false;
+      var startX = 0;
+      var activePointerId = null;
+
+      card.addEventListener('pointerdown', function (e) {
+        if (card.dataset.target !== myRol) return;
+        dragging = true;
+        moved = false;
+        startX = e.clientX;
+        activePointerId = e.pointerId;
+        card.classList.add('dragging');
+        try { card.setPointerCapture(activePointerId); } catch (err) { /* noop */ }
+      });
+
+      card.addEventListener('pointermove', function (e) {
+        if (!dragging || e.pointerId !== activePointerId) return;
+        var dx = e.clientX - startX;
+        if (Math.abs(dx) > 6) moved = true;
+        card.style.setProperty('--dragX', dx + 'px');
+        card.style.setProperty('--dragRot', (dx / 14) + 'deg');
+      });
+
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        card.classList.remove('dragging');
+        var dx = e.clientX - startX;
+
+        if (Math.abs(dx) > SWIPE_THRESHOLD) {
+          var flyTo = dx > 0 ? 620 : -620;
+          card.style.setProperty('--dragX', flyTo + 'px');
+          card.style.setProperty('--dragRot', (dx > 0 ? 34 : -34) + 'deg');
+          var target = otherCard(card);
           setTimeout(function () {
-            window.location.href = '/' + target + '?open=1';
-          }, 340);
+            card.style.removeProperty('--dragX');
+            card.style.removeProperty('--dragRot');
+            if (target) switchTo(target.dataset.target);
+          }, 260);
+        } else {
+          card.style.removeProperty('--dragX');
+          card.style.removeProperty('--dragRot');
+          if (!moved) openForm();
+        }
+      }
+
+      card.addEventListener('pointerup', endDrag);
+      card.addEventListener('pointercancel', function () {
+        dragging = false;
+        card.classList.remove('dragging');
+        card.style.removeProperty('--dragX');
+        card.style.removeProperty('--dragRot');
+      });
+
+      card.addEventListener('click', function () {
+        if (card.dataset.target !== myRol) {
+          switchTo(card.dataset.target);
         }
       });
     });

@@ -4,21 +4,26 @@
  */
 require __DIR__ . '/../partials/head.php';
 ?>
+<div class="auth-page">
 <div class="auth-deck" id="authDeck" data-my-rol="giris">
   <div class="deck-heading">
-    <div class="deck-brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
+    <div class="deck-brand"><?php require __DIR__ . '/../partials/logo.php'; ?></div>
     <div class="deck-sub"><?= htmlspecialchars($t('qapi.secim_basliq')) ?></div>
   </div>
   <div class="deck-stack" id="deckStack">
     <div class="deck-card" data-target="giris">
-      <span class="deck-card-icon">&#128273;</span>
-      <span class="deck-card-title"><?= htmlspecialchars($t('qapi.giris_basliq')) ?></span>
-      <span class="deck-card-sub"><?= htmlspecialchars($t('qapi.giris_alt')) ?></span>
+      <div class="deck-card-inner">
+        <span class="deck-card-icon">&#128273;</span>
+        <span class="deck-card-title"><?= htmlspecialchars($t('qapi.giris_basliq')) ?></span>
+        <span class="deck-card-sub"><?= htmlspecialchars($t('qapi.giris_alt')) ?></span>
+      </div>
     </div>
     <div class="deck-card" data-target="qeydiyyat">
-      <span class="deck-card-icon">&#10024;</span>
-      <span class="deck-card-title"><?= htmlspecialchars($t('qapi.qeydiyyat_basliq')) ?></span>
-      <span class="deck-card-sub"><?= htmlspecialchars($t('qapi.qeydiyyat_alt')) ?></span>
+      <div class="deck-card-inner">
+        <span class="deck-card-icon">&#10024;</span>
+        <span class="deck-card-title"><?= htmlspecialchars($t('qapi.qeydiyyat_basliq')) ?></span>
+        <span class="deck-card-sub"><?= htmlspecialchars($t('qapi.qeydiyyat_alt')) ?></span>
+      </div>
     </div>
   </div>
 </div>
@@ -51,6 +56,7 @@ require __DIR__ . '/../partials/head.php';
   <p style="text-align:center; margin-top:16px; font-size:14px; color:var(--text-dim);">
     <?= htmlspecialchars($t('nav.qeydiyyat_yoxdur')) ?> <a href="/qeydiyyat"><?= htmlspecialchars($t('ortaq.qeydiyyat')) ?></a>
   </p>
+</div>
 </div>
 </div>
 <script>

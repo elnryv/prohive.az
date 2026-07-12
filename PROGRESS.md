@@ -545,6 +545,60 @@ admin bölməsi əlavə olundu.
   dəyişən PHP fayllara, `node --check` `app.js`-ə, JSON validasiyası
   3 dil faylına təmiz keçdi.
 
+### 2026-07-12 (davam) — Kart karuseli təkmilləşdirməsi: drag, drawer-dock, logo
+
+- İstifadəçi canlı serverdə (`app.birlikde.biz`) yoxlayıb 6 bənd geri-bildirim
+  verdi (real telefon skrinşotları ilə): (1) deck-in altında həddindən artıq
+  boş sahə, (2) kartlar YALNIZ toxunma ilə açılır — real-vaxt sürüşdürmə
+  (drag) istəyi, (3) drawer-də "Əsas sayta qayıt"/"Hüquqi Sənədlər" siyahıdan
+  çıxıb aşağıda animasiyalı ikon-dock olsun, (4) dil bayraqları "Birlikdə"
+  yazısının altına, ortada, yanaşı keçsin, (5) "Birlikdə" mətni "bərbaddır",
+  müasir logo görünüşünə çevrilsin, (6) kartlar və üzərindəki emoji-lər
+  davamlı animasiyalı olsun.
+- **Boşluq düzəlişi:** `.auth-page` sarğı div-i (`giris.php`/`qeydiyyat.php`)
+  — `.container`-in 84px `padding-bottom`-u (digər səhifələrdəki sürüşən
+  siyahılar üçün nəzərdə tutulub) mənfi `margin-bottom:-84px` ilə ləğv
+  edilir ki, dikey ortalama HƏQİQƏTƏN görünən ekran sahəsinə görə olsun —
+  əvvəlki cəhddə (`min-height: calc(100vh - 170px)`, `margin` olmadan)
+  riyazi ortalama düzgün idi, amma container-in öz alt padding-i ORTALAMA
+  QUTUSUNDAN SONRA əlavə olunduğu üçün nəticə asimmetrik idi (aşağıda daha
+  çox boşluq). Playwright screenshot ilə görüldü, yuxarı/aşağı boşluqlar
+  demək olar bərabərləşdi.
+- **Sürüşdürmə (drag):** `Birlikde.initAuthDeck()` tam yenidən yazıldı —
+  Pointer Events (mouse+toxunma vahid) ilə ön kartı real-vaxtda izləyir
+  (`--dragX`/`--dragRot` CSS dəyişənləri, `.deck-card-front` bunları
+  `transform`-da oxuyur). 70px-dən az sürüşdürülübsə "toxunma" sayılır və
+  forma açılır (köhnə davranış saxlanıldı); 70px-dən çox sürüşdürülübsə kart
+  həmin istiqamətə uçub gedir və digər kart önə keçib səhifə dəyişir (eyni
+  `?open=1` mexanizmi). Köhnə `:active` scale-down qaydaları silindi (yeni
+  drag transformu ilə toqquşurdu — CSS specificity bug, `:active` daha
+  spesifik olduğu üçün drag-i "dondururdu"). Playwright ilə mouse
+  down→move→up simulyasiyası ilə həm sürüşdürmə izi, həm uçub-getmə,
+  həm digər kartın önə keçməsi vizual təsdiqləndi.
+- **Drawer yenidən quruldu:** "Əsas sayta qayıt" və "Hüquqi Sənədlər"
+  siyahı elementləri çıxarılıb, yeni `.drawer-dock` (2 dairəvi ikon, 🏠/📜,
+  davamlı yumşaq üzmə animasiyası `dockFloat`) drawer-in lap altına
+  (`.drawer-bottom` sarğısı, `margin-top:auto`) əlavə olundu. Dil
+  bayraqları (`.drawer-langs`) aşağıdan çıxarılıb `.drawer-brand`-ın
+  (indi `.brand-logo`) altına, ortalanmış/yanaşı köçürüldü. Artıq boş
+  qalan `.drawer-section-label` CSS qaydası silindi (istifadə olunmurdu).
+- **Yeni "Birlikdə" logo:** paylaşılan `app/Views/partials/logo.php`
+  komponenti (`.brand-logo`/`.brand-mark`/`.brand-word` — qradiyentli "B"
+  nişanı dairəvi kvadratda + qradiyent-mətn "Birlikdə" sözü, `em`-əsaslı
+  miqyaslanma) top-nav, drawer-brand, auth-deck başlığı VƏ splash sözündə
+  bütün köhnə düz mətni əvəz etdi — 5 yerdə eyni marka indi vahid görünür.
+  (Splash-da mövcud bounce/opacity animasiyası toxunulmadı, yeni logo ona
+  daxil edildi.)
+- **Kart idle animasiyası:** hər `.deck-card`-ın içinə `.deck-card-inner`
+  sarğısı əlavə olundu (drag transformu ilə toqquşmasın deyə — eyni
+  elementdə iki fərqli `transform` animasiyası ola bilməz) — yumşaq
+  yuxarı-aşağı üzmə (`cardFloat`, 3.4s) + emoji ikonun yellənmə/böyümə
+  animasiyası (`iconWiggle`, 2.8s), hər kartda fərqli gecikmə ilə.
+- `sw.js` `CACHE_VERSION` v14→v15 (yenə `app.css`/`app.js` dəyişdi).
+  `php -l` bütün dəyişən fayllara, `node --check` `app.js`-ə təmiz keçdi.
+  Playwright ilə statik test səhifələri üzərində bütün 6 bənd vizual
+  təsdiqləndi (müvəqqəti test faylları commit-ə daxil deyil).
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur

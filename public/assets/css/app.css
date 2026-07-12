@@ -216,10 +216,39 @@ a {
 }
 
 .top-nav .brand {
-  font-weight: 800;
   font-size: 18px;
-  color: var(--text);
-  letter-spacing: -0.01em;
+}
+
+/* ---------- Paylaşılan "Birlikdə" logo (bax partials/logo.php) ---------- */
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32em;
+}
+
+.brand-mark {
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 32%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6em;
+  font-weight: 800;
+  color: #fff;
+  flex: none;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  box-shadow: 0 0.22em 0.5em rgba(61, 90, 254, 0.35);
+}
+
+.brand-word {
+  font-size: 1em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(120deg, var(--text) 35%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .field {
@@ -1007,29 +1036,8 @@ a {
 }
 
 .drawer-brand {
-  font-weight: 800;
-  font-size: 20px;
-  padding: 6px 10px 18px;
-}
-
-.drawer-mainsite {
-  color: var(--accent);
-  border-bottom: 1px solid var(--glass-border);
-  padding-bottom: 16px;
-  margin-bottom: 6px;
-}
-
-.drawer-mainsite .drawer-dot {
-  background: var(--accent);
-}
-
-.drawer-section-label {
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  padding: 14px 10px 6px;
+  font-size: 22px;
+  padding: 6px 10px 4px;
 }
 
 .drawer-item {
@@ -1069,20 +1077,62 @@ a {
 
 .drawer-langs {
   display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 2px 10px 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.drawer-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  padding: 10px;
-  margin-top: 10px;
-  border-top: 1px solid var(--glass-border);
-  padding-top: 16px;
 }
 
 .drawer-exit {
-  margin-top: auto;
   padding: 12px 12px;
   color: var(--danger);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}
+
+/* Aşağı ikon-dock — "Əsas sayta qayıt" / "Hüquqi Sənədlər" (bax head.php) */
+.drawer-dock {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.dock-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s var(--bounce), box-shadow 0.2s ease;
+  animation: dockFloat 2.6s ease-in-out infinite;
+}
+
+.dock-icon:nth-child(2) {
+  animation-delay: 0.45s;
+}
+
+.dock-icon:active {
+  transform: scale(0.86);
+}
+
+@keyframes dockFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 /* ---------- Açılış (splash) — yalnız sessiyada bir dəfə ---------- */
@@ -1181,6 +1231,20 @@ a {
 }
 
 /* ---------- Giriş/Qeydiyyat kart karuseli (auth deck) ---------- */
+/* Ekranın altında boş sahə qalmasın deyə deck+forma dikey ortalanır (bax
+   auth/giris.php, auth/qeydiyyat.php `.auth-page` sarğı div-i). `.container`-in
+   böyük `padding-bottom`-u (84px, digər səhifələrdəki sürüşən siyahılar üçün)
+   burada lazım deyil — `margin-bottom` ilə ləğv edilir ki, ortalama HƏQİQƏTƏN
+   ekranın tam görünən sahəsinə görə olsun, əks halda aşağıda əlavə boşluq qalır. */
+.auth-page {
+  min-height: calc(100vh - 74px);
+  min-height: calc(100dvh - 74px);
+  margin-bottom: -84px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .auth-deck {
   padding: 6px 4px 26px;
   text-align: center;
@@ -1204,14 +1268,11 @@ a {
 }
 
 .deck-brand {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--text);
+  font-size: 27px;
 }
 
 .deck-sub {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-dim);
@@ -1233,19 +1294,16 @@ a {
   margin-left: -33%;
   border: none;
   border-radius: 26px;
-  padding: 26px 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  padding: 0;
+  overflow: hidden;
   color: #fff;
-  cursor: pointer;
+  cursor: grab;
   box-shadow: 0 14px 30px rgba(26, 26, 46, 0.18);
   transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0)) scale(0.9);
   transition: transform 0.5s var(--bounce), opacity 0.4s var(--smooth), box-shadow 0.3s ease;
   opacity: 0.85;
   user-select: none;
+  touch-action: pan-y;
   font: inherit;
   text-align: center;
 }
@@ -1263,30 +1321,62 @@ a {
 
 .deck-card-front {
   z-index: 3;
-  transform: translate(0, 0) rotate(0deg) scale(1.05) !important;
+  cursor: grab;
+  transform: translate(var(--dragX, 0px), 0px) rotate(var(--dragRot, 0deg)) scale(1.05) !important;
   opacity: 1;
   box-shadow: 0 20px 38px rgba(26, 26, 46, 0.26);
 }
 
 .deck-card-back {
   z-index: 1;
+  cursor: pointer;
 }
 
-.deck-card:active {
-  transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0)) scale(0.86) !important;
-}
-
-.deck-card-front:active {
-  transform: translate(0, 0) rotate(0deg) scale(0.98) !important;
+.deck-card.dragging {
+  cursor: grabbing;
+  transition: none !important;
 }
 
 .auth-deck.selecting .deck-card-front {
   transform: translate(0, 0) rotate(0deg) scale(1.16) !important;
 }
 
+.deck-card-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 26px 18px;
+  animation: cardFloat 3.4s ease-in-out infinite;
+}
+
+.deck-card:nth-child(2) .deck-card-inner {
+  animation-delay: 0.5s;
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
 .deck-card-icon {
   font-size: 38px;
   line-height: 1;
+  display: inline-block;
+  animation: iconWiggle 2.8s ease-in-out infinite;
+}
+
+.deck-card:nth-child(2) .deck-card-icon {
+  animation-delay: 0.3s;
+}
+
+@keyframes iconWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.06); }
+  75% { transform: rotate(8deg) scale(1.06); }
 }
 
 .deck-card-title {

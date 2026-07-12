@@ -29,7 +29,7 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
   <canvas id="splashCanvas"></canvas>
   <div class="splash-center">
     <div class="splash-glow"></div>
-    <div class="splash-word"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
+    <div class="splash-word"><?php require __DIR__ . '/logo.php'; ?></div>
     <div class="splash-tag"><?= htmlspecialchars($t('splash.tagline')) ?></div>
   </div>
 </div>
@@ -57,14 +57,18 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
 
 <div class="top-nav glass">
   <button class="burger" id="drawerBurger" type="button" aria-label="Menyu"><span></span><span></span><span></span></button>
-  <span class="brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></span>
+  <span class="brand"><?php require __DIR__ . '/logo.php'; ?></span>
   <span style="width:40px;"></span>
 </div>
 
 <div class="drawer-scrim" id="drawerScrim"></div>
 <nav class="drawer" id="drawerNav">
-  <div class="drawer-brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
-  <a class="drawer-item drawer-mainsite" href="https://birlikde.biz"><span class="drawer-dot"></span><?= htmlspecialchars($t('drawer.esas_sayt')) ?></a>
+  <div class="drawer-brand"><?php require __DIR__ . '/logo.php'; ?></div>
+  <div class="drawer-langs">
+    <a class="lang-flag<?= $dil === 'az' ? ' active' : '' ?>" href="?dil=az" title="Azərbaycan" aria-label="Azərbaycan" onclick="event.preventDefault(); Birlikde.switchLanguage('az');">&#127462;&#127487;</a>
+    <a class="lang-flag<?= $dil === 'ru' ? ' active' : '' ?>" href="?dil=ru" title="Русский" aria-label="Русский" onclick="event.preventDefault(); Birlikde.switchLanguage('ru');">&#127479;&#127482;</a>
+    <a class="lang-flag<?= $dil === 'en' ? ' active' : '' ?>" href="?dil=en" title="English" aria-label="English" onclick="event.preventDefault(); Birlikde.switchLanguage('en');">&#127468;&#127463;</a>
+  </div>
 
   <?php if (!empty($girisEdilib)): ?>
     <?php if (($rol ?? null) === 'musteri'): ?>
@@ -79,18 +83,15 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
     <a class="drawer-item<?= $hazirkiYol === '/qeydiyyat' ? ' active' : '' ?>" href="/qeydiyyat"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.qeydiyyat')) ?></a>
   <?php endif; ?>
 
-  <div class="drawer-section-label"><?= htmlspecialchars($t('drawer.diger')) ?></div>
-  <a class="drawer-item<?= $hazirkiYol === '/huquqi' || str_starts_with($hazirkiYol, '/huquqi/') ? ' active' : '' ?>" href="/huquqi"><span class="drawer-dot"></span><?= htmlspecialchars($t('huquqi.basliq')) ?></a>
-
-  <div class="drawer-langs">
-    <a class="lang-flag<?= $dil === 'az' ? ' active' : '' ?>" href="?dil=az" title="Azərbaycan" aria-label="Azərbaycan" onclick="event.preventDefault(); Birlikde.switchLanguage('az');">&#127462;&#127487;</a>
-    <a class="lang-flag<?= $dil === 'ru' ? ' active' : '' ?>" href="?dil=ru" title="Русский" aria-label="Русский" onclick="event.preventDefault(); Birlikde.switchLanguage('ru');">&#127479;&#127482;</a>
-    <a class="lang-flag<?= $dil === 'en' ? ' active' : '' ?>" href="?dil=en" title="English" aria-label="English" onclick="event.preventDefault(); Birlikde.switchLanguage('en');">&#127468;&#127463;</a>
+  <div class="drawer-bottom">
+    <?php if (!empty($girisEdilib)): ?>
+      <div class="drawer-exit" id="navCixisBtn"><?= htmlspecialchars($t('ortaq.cixis')) ?></div>
+    <?php endif; ?>
+    <div class="drawer-dock">
+      <a class="dock-icon" href="https://birlikde.biz" title="<?= htmlspecialchars($t('drawer.esas_sayt')) ?>" aria-label="<?= htmlspecialchars($t('drawer.esas_sayt')) ?>">&#127968;</a>
+      <a class="dock-icon" href="/huquqi" title="<?= htmlspecialchars($t('huquqi.basliq')) ?>" aria-label="<?= htmlspecialchars($t('huquqi.basliq')) ?>">&#128220;</a>
+    </div>
   </div>
-
-  <?php if (!empty($girisEdilib)): ?>
-    <div class="drawer-exit" id="navCixisBtn"><?= htmlspecialchars($t('ortaq.cixis')) ?></div>
-  <?php endif; ?>
 </nav>
 
 <div class="container">
