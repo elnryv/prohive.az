@@ -109,6 +109,10 @@
   "profil.ode": "Ödə",
   "profil.bildiris_icaze": "Bildirişlərə icazə ver",
   "profil.bildiris_xeberdarliq": "Bildiriş bağlıdır — yeni sifarişləri qaçıra bilərsən.",
+  "profil.bildiris_ugur": "Bildirişlər aktivləşdirildi!",
+  "profil.bildiris_deteklenmir": "Bu brauzer bildirişləri dəstəkləmir.",
+  "profil.bildiris_qadagan": "İcazə verilmədi — brauzer ayarlarından bu sayt üçün bildirişə icazə verməlisən.",
+  "profil.bildiris_xeta": "Bildiriş aktivləşdirilə bilmədi. Yenidən cəhd et.",
 
   "admin.giris_basliq": "Admin Giriş",
   "admin.dashboard": "Dashboard",

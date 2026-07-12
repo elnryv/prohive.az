@@ -109,6 +109,10 @@
   "profil.ode": "Оплатить",
   "profil.bildiris_icaze": "Разрешить уведомления",
   "profil.bildiris_xeberdarliq": "Уведомления отключены — вы можете пропустить новые заказы.",
+  "profil.bildiris_ugur": "Уведомления включены!",
+  "profil.bildiris_deteklenmir": "Этот браузер не поддерживает уведомления.",
+  "profil.bildiris_qadagan": "Разрешение не предоставлено — включите уведомления для этого сайта в настройках браузера.",
+  "profil.bildiris_xeta": "Не удалось включить уведомления. Попробуйте снова.",
 
   "admin.giris_basliq": "Вход администратора",
   "admin.dashboard": "Дашборд",

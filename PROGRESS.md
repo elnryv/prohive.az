@@ -941,3 +941,25 @@ commit edildi:
 - `sw.js`-dəki "göndərmə tərəfi YER TUTUCUDUR" qeydi silindi (artıq doğru
   deyil). `composer.json`/`composer.lock` yeni fayllar, `bootstrap.php`
   və `PushService.php` yeniləndi.
+
+### 2026-07-12 (davam) — Bildiriş düyməsi bug-ı: səssiz uğursuzluq
+
+- İstifadəçi VAPID+Composer serverə tam quraşdırdıqdan sonra ("Bildirişlərə
+  icazə ver" düyməsini) sınadı: "Bildiris duymesi saytdada pwa dada islemir".
+  Kök səbəb: `kurye/profil.php`-dəki düymə handler-i `Birlikde.subscribeToPush()`-
+  un nəticəsini TAMAMILƏ NƏZƏRƏ ALMIRDI (`await ...;` — dəyər atılırdı) —
+  brauzer icazəni rədd etsə (və ya istifadəçi əvvəllər səhvən "İcazə vermə"
+  seçmişdisə, hansı ki bu halda `Notification.requestPermission()` popup
+  belə göstərmədən dərhal "denied" qaytarır), səhifədə HEÇ NƏ baş vermirdi —
+  nə uğur mesajı, nə xəta. Bu, "düymə işləmir" hissi yaradırdı, baxmayaraq ki
+  arxa-plan kodu düzgün işləyirdi.
+- Düzəliş: `Birlikde.subscribeToPush()` (`app.js`) try/catch ilə tam əhatə
+  olundu, dəqiq nəticə (`denied`/`error`/`supported:false`) qaytarır.
+  `profil.php`-də düymənin yanına görünən uğur (`.success-box`, yeni CSS
+  sinif) və xəta (`.error-box`, mövcud naxış) qutuları əlavə olundu — hər
+  bir hal (dəstəklənmir, icazə rədd edildi, server xətası, uğur) indi aydın
+  mesajla göstərilir. 4 yeni i18n açarı (az/ru/en) əlavə olundu.
+- Playwright ilə real DB+HTTP test edildi: icazə verilmədiyi ssenaridə
+  "İcazə verilmədi — brauzer ayarlarından bu sayt üçün bildirişə icazə
+  verməlisən." mesajı düzgün göründü (əvvəllər tam səssiz idi) — bu, əsl
+  bug-ın diaqnozunu təsdiqlədi. `sw.js` `CACHE_VERSION` v10→v11.

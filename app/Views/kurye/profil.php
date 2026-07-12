@@ -44,6 +44,8 @@ require __DIR__ . '/../partials/head.php';
 
 <div class="card glass">
   <button class="btn btn-ghost" id="pushBtn">&#128276;&nbsp; <?= htmlspecialchars($t('profil.bildiris_icaze')) ?></button>
+  <div class="error-box" id="pushXeta"></div>
+  <div class="success-box" id="pushUgur"></div>
 </div>
 
 <script>
@@ -57,6 +59,10 @@ var ABUNE_ETIKETLERI = <?= json_encode([
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var BILDIRIS_UGUR = <?= json_encode($t('profil.bildiris_ugur'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var BILDIRIS_DETEKLENMIR = <?= json_encode($t('profil.bildiris_deteklenmir'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var BILDIRIS_QADAGAN = <?= json_encode($t('profil.bildiris_qadagan'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var BILDIRIS_XETA = <?= json_encode($t('profil.bildiris_xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var secilmisRayonlar = new Set();
@@ -211,8 +217,32 @@ var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON
   });
 
   document.getElementById('pushBtn').addEventListener('click', async function () {
-    if (!VAPID_PUBLIC_KEY) return;
-    await Birlikde.subscribeToPush(VAPID_PUBLIC_KEY);
+    var btn = document.getElementById('pushBtn');
+    var xetaEl = document.getElementById('pushXeta');
+    var ugurEl = document.getElementById('pushUgur');
+    Birlikde.hideError(xetaEl);
+    ugurEl.classList.remove('visible');
+    btn.disabled = true;
+
+    var res = await Birlikde.subscribeToPush(VAPID_PUBLIC_KEY);
+    btn.disabled = false;
+
+    if (!res.supported) {
+      Birlikde.showError(xetaEl, BILDIRIS_DETEKLENMIR);
+      return;
+    }
+    if (res.denied) {
+      Birlikde.showError(xetaEl, BILDIRIS_QADAGAN);
+      return;
+    }
+    if (res.error) {
+      Birlikde.showError(xetaEl, BILDIRIS_XETA + ' (' + res.error + ')');
+      return;
+    }
+    if (res.granted) {
+      ugurEl.textContent = BILDIRIS_UGUR;
+      ugurEl.classList.add('visible');
+    }
   });
 
   profilYukle();

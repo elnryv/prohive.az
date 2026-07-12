@@ -404,6 +404,23 @@ a {
   animation: shake 0.4s var(--bounce);
 }
 
+.success-box {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #15803d;
+  padding: 12px 14px;
+  border-radius: 14px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  display: none;
+}
+
+.success-box.visible {
+  display: block;
+  animation: pageIn 0.3s var(--smooth);
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }

@@ -365,26 +365,37 @@ window.Birlikde = (function () {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       return { supported: false };
     }
-
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      return { supported: true, granted: false };
+    if (!vapidPublicKey) {
+      return { supported: true, granted: false, error: 'vapid_missing' };
     }
 
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-    });
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        return { supported: true, granted: false, denied: true };
+      }
 
-    const json = subscription.toJSON();
-    await api('POST', '/push/abune', {
-      endpoint: json.endpoint,
-      p256dh: json.keys.p256dh,
-      auth: json.keys.auth,
-    });
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      });
 
-    return { supported: true, granted: true };
+      const json = subscription.toJSON();
+      const res = await api('POST', '/push/abune', {
+        endpoint: json.endpoint,
+        p256dh: json.keys.p256dh,
+        auth: json.keys.auth,
+      });
+
+      if (!res.ok) {
+        return { supported: true, granted: true, error: 'server' };
+      }
+
+      return { supported: true, granted: true };
+    } catch (e) {
+      return { supported: true, granted: false, error: (e && e.message) || 'unknown' };
+    }
   }
 
   // Seçilmiş şəkli (HEIC daxil olmaqla — Safari <img>/canvas HEIC-i doğma
