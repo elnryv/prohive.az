@@ -88,7 +88,9 @@ var BAGLA_METNI = <?= json_encode($t('ortaq.bagla'), JSON_UNESCAPED_UNICODE | JS
     }
     html += ' <button class="btn btn-ghost" id="modalBaglaBtn">' + BirlikdeAdmin.escapeHtml(BAGLA_METNI) + '</button>';
 
-    document.getElementById('modalIcerik').innerHTML = html;
+    var modalIcerikEl = document.getElementById('modalIcerik');
+    modalIcerikEl.innerHTML = html;
+    modalIcerikEl.scrollTop = 0;
     document.getElementById('modalOverlay').classList.add('visible');
 
     document.getElementById('modalBaglaBtn').addEventListener('click', modalBagla);

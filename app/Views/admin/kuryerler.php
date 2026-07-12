@@ -133,7 +133,9 @@ var BAGLA_METNI = <?= json_encode($t('ortaq.bagla'), JSON_UNESCAPED_UNICODE | JS
     html += '<hr style="border-color:var(--glass-border); margin:16px 0;">';
     html += '<div id="abunelikBolmesi"></div>';
 
-    document.getElementById('modalIcerik').innerHTML = html;
+    var modalIcerikEl = document.getElementById('modalIcerik');
+    modalIcerikEl.innerHTML = html;
+    modalIcerikEl.scrollTop = 0;
     document.getElementById('modalOverlay').classList.add('visible');
 
     document.getElementById('modalBaglaBtn').addEventListener('click', modalBagla);

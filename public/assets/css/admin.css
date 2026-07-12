@@ -128,7 +128,7 @@ a {
   min-width: 0;
   padding: 24px 32px;
   max-width: 1100px;
-  animation: pageIn 0.4s var(--smooth) both;
+  animation: pageIn 0.4s var(--smooth);
 }
 
 /* ---------- Mobil top-bar + sürüşən (off-canvas) menyu ---------- */

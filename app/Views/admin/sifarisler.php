@@ -99,7 +99,9 @@ require __DIR__ . '/partials/shell_head.php';
 
     html += '<button class="btn btn-ghost" id="modalBaglaBtn" style="margin-top:12px;"><?= htmlspecialchars($t('ortaq.bagla')) ?></button>';
 
-    document.getElementById('modalIcerik').innerHTML = html;
+    var modalIcerikEl = document.getElementById('modalIcerik');
+    modalIcerikEl.innerHTML = html;
+    modalIcerikEl.scrollTop = 0;
     document.getElementById('modalOverlay').classList.add('visible');
     document.getElementById('modalBaglaBtn').addEventListener('click', function () {
       document.getElementById('modalOverlay').classList.remove('visible');
