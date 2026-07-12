@@ -46,6 +46,7 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
 <div class="drawer-scrim" id="drawerScrim"></div>
 <nav class="drawer" id="drawerNav">
   <div class="drawer-brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
+  <a class="drawer-item drawer-mainsite" href="https://birlikde.biz"><span class="drawer-dot"></span><?= htmlspecialchars($t('drawer.esas_sayt')) ?></a>
 
   <?php if (!empty($girisEdilib)): ?>
     <?php if (($rol ?? null) === 'musteri'): ?>
