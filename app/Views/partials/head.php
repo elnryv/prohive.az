@@ -26,9 +26,11 @@
 <div class="top-nav glass">
   <span class="brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></span>
   <div style="display:flex; align-items:center; gap:12px; font-size:13px;">
-    <a href="?dil=az" onclick="event.preventDefault(); Birlikde.switchLanguage('az');">AZ</a>
-    <a href="?dil=ru" onclick="event.preventDefault(); Birlikde.switchLanguage('ru');">RU</a>
-    <a href="?dil=en" onclick="event.preventDefault(); Birlikde.switchLanguage('en');">EN</a>
+    <span class="lang-switch">
+      <a class="lang-flag<?= $dil === 'az' ? ' active' : '' ?>" href="?dil=az" title="Azərbaycan" aria-label="Azərbaycan" onclick="event.preventDefault(); Birlikde.switchLanguage('az');">&#127462;&#127487;</a>
+      <a class="lang-flag<?= $dil === 'ru' ? ' active' : '' ?>" href="?dil=ru" title="Русский" aria-label="Русский" onclick="event.preventDefault(); Birlikde.switchLanguage('ru');">&#127479;&#127482;</a>
+      <a class="lang-flag<?= $dil === 'en' ? ' active' : '' ?>" href="?dil=en" title="English" aria-label="English" onclick="event.preventDefault(); Birlikde.switchLanguage('en');">&#127468;&#127463;</a>
+    </span>
     <?php if (!empty($girisEdilib)): ?>
       <?php if (($rol ?? null) === 'musteri'): ?>
         <a href="/panel"><?= htmlspecialchars($t('ortaq.panel')) ?></a>

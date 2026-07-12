@@ -4,41 +4,49 @@
  */
 require __DIR__ . '/../partials/head.php';
 ?>
-<div class="card glass" style="display:flex; justify-content:space-between; align-items:center;">
-  <strong><?= htmlspecialchars($t('kurye.lovhe')) ?></strong>
-  <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
-    <span id="onlaynLabel"><?= htmlspecialchars($t('kurye.offline')) ?></span>
+<div class="card glass lovhe-header">
+  <div>
+    <div class="lovhe-header-title"><?= htmlspecialchars($t('kurye.lovhe')) ?></div>
+    <div class="lovhe-status-row" style="margin-top:6px;">
+      <span class="lovhe-status-dot" id="statusDot"></span>
+      <span class="lovhe-status-label" id="onlaynLabel"><?= htmlspecialchars($t('kurye.offline')) ?></span>
+    </div>
+  </div>
+  <label class="toggle-switch">
     <input type="checkbox" id="onlaynToggle">
+    <span class="toggle-slider"></span>
   </label>
 </div>
 
-
 <div class="push-warning" id="pushWarning"><?= htmlspecialchars($t('profil.bildiris_xeberdarliq')) ?></div>
 
-<div id="menimIslerim"></div>
-
-<h3 style="font-size:14px; color:var(--text-dim);"><?= htmlspecialchars($t('kurye.lovhe')) ?></h3>
 <div id="lovheKartlar"></div>
 <div class="empty-state" id="lovheBos"><?= htmlspecialchars($t('kurye.lovhe_bos')) ?></div>
 
+<div class="modal-overlay" id="goturModal">
+  <div class="modal-sheet glass">
+    <div class="modal-icon">&#10003;</div>
+    <h2><?= htmlspecialchars($t('kurye.goturuldu_basliq')) ?></h2>
+    <p id="goturMusteri"></p>
+    <p id="goturUnvanlar"></p>
+    <div class="modal-actions">
+      <a class="btn btn-primary" id="goturWaBtn" target="_blank" rel="noopener"><?= htmlspecialchars($t('kurye.whatsapp_elaqe')) ?></a>
+      <button class="btn btn-ghost" id="goturBaglaBtn" type="button"><?= htmlspecialchars($t('ortaq.bagla')) ?></button>
+    </div>
+  </div>
+</div>
+
 <script>
-var STATUS_ETIKETLERI = <?= json_encode([
-    'axtarisda' => $t('status.axtarisda'),
-    'goturulub' => $t('status.goturulub'),
-    'tamamlandi' => $t('status.tamamlandi'),
-], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var GOT_METNI = <?= json_encode($t('kurye.got'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-var TAMAMLA_METNI = <?= json_encode($t('kurye.tamamla'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var ONLAYN_METNI = <?= json_encode($t('kurye.onlayn'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var kartlarEl = document.getElementById('lovheKartlar');
   var bosEl = document.getElementById('lovheBos');
-  var menimIslerimEl = document.getElementById('menimIslerim');
 
-  function sifarisKarti(s, tamamlanmisBolme) {
+  function sifarisKarti(s) {
     var div = document.createElement('div');
     div.className = 'card glass';
     div.id = 'sifaris-' + s.id;
@@ -50,17 +58,28 @@ var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE 
     html += '<p style="font-size:14px;">' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>';
     if (s.yuk_tesviri) html += '<p style="color:var(--text-dim); font-size:13px;">' + Birlikde.escapeHtml(s.yuk_tesviri) + '</p>';
     if (s.teklif_qiymet) html += '<p style="font-weight:600;">' + Birlikde.escapeHtml(s.teklif_qiymet) + ' AZN</p>';
-
-    if (tamamlanmisBolme) {
-      html += '<button class="btn btn-primary btn-small" data-tamamla="' + s.id + '">' + Birlikde.escapeHtml(TAMAMLA_METNI) + '</button>';
-    } else {
-      html += '<button class="btn btn-primary btn-small" data-got="' + s.id + '">' + Birlikde.escapeHtml(GOT_METNI) + '</button>';
-    }
-    html += '<div class="wa-link" style="margin-top:8px;"></div>';
+    html += '<button class="btn btn-primary btn-small" data-got="' + s.id + '">' + Birlikde.escapeHtml(GOT_METNI) + '</button>';
 
     div.innerHTML = html;
     return div;
   }
+
+  function goturModalGoster(data) {
+    document.getElementById('goturMusteri').textContent = MUSTERI_ETIKETI + ': ' + (data.musteri_adi || '—');
+    document.getElementById('goturUnvanlar').textContent = data.goturulme_unvan + ' → ' + data.catdirilma_unvan;
+    var waBtn = document.getElementById('goturWaBtn');
+    if (data.musteri_whatsapp_link) {
+      waBtn.href = data.musteri_whatsapp_link;
+      waBtn.style.display = 'flex';
+    } else {
+      waBtn.style.display = 'none';
+    }
+    document.getElementById('goturModal').classList.add('visible');
+  }
+
+  document.getElementById('goturBaglaBtn').addEventListener('click', function () {
+    document.getElementById('goturModal').classList.remove('visible');
+  });
 
   function baglaGotDuymesi(div, id) {
     var btn = div.querySelector('[data-got]');
@@ -69,39 +88,12 @@ var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE 
       btn.disabled = true;
       var res = await Birlikde.api('POST', '/sifaris/' + id + '/gotur');
       if (!res.ok) {
-        div.remove();
-        yenileBos();
+        btn.disabled = false;
         return;
       }
-      var waDiv = div.querySelector('.wa-link');
-      if (res.data.data.kurye_whatsapp_link) {
-        waDiv.innerHTML = '<a class="btn btn-ghost btn-small" target="_blank" rel="noopener" href="' +
-          Birlikde.escapeHtml(res.data.data.musteri_whatsapp_link) + '">' + Birlikde.escapeHtml(WHATSAPP_METNI) + '</a>';
-      }
       div.remove();
-      menimIslerimEl.appendChild(div);
-      div.querySelector('button[data-got]')?.remove();
-      var tamamlaBtn = document.createElement('button');
-      tamamlaBtn.className = 'btn btn-primary btn-small';
-      tamamlaBtn.textContent = TAMAMLA_METNI;
-      tamamlaBtn.dataset.tamamla = id;
-      div.insertBefore(tamamlaBtn, waDiv);
-      baglaTamamlaDuymesi(div, id);
       yenileBos();
-    });
-  }
-
-  function baglaTamamlaDuymesi(div, id) {
-    var btn = div.querySelector('[data-tamamla]');
-    if (!btn) return;
-    btn.addEventListener('click', async function () {
-      btn.disabled = true;
-      var res = await Birlikde.api('POST', '/sifaris/' + id + '/tamamla');
-      if (res.ok) {
-        div.remove();
-      } else {
-        btn.disabled = false;
-      }
+      goturModalGoster(res.data.data);
     });
   }
 
@@ -109,24 +101,26 @@ var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE 
     bosEl.style.display = kartlarEl.children.length === 0 ? 'block' : 'none';
   }
 
-  async function menimIslerimYukle() {
-    var res = await Birlikde.api('GET', '/kurye/aktiv-isler');
-    if (Birlikde.redirectIfUnauthorized(res.status)) return;
-    (res.data.data || []).forEach(function (s) {
-      var div = sifarisKarti(s, true);
-      menimIslerimEl.appendChild(div);
-      baglaTamamlaDuymesi(div, s.id);
-    });
-  }
-
   // Onlayn/offline toggle
   var onlaynToggle = document.getElementById('onlaynToggle');
   var onlaynLabel = document.getElementById('onlaynLabel');
+  var statusDot = document.getElementById('statusDot');
+
+  function tetbiqOnlaynGorunus(onlayn) {
+    onlaynLabel.textContent = onlayn ? ONLAYN_METNI : OFFLINE_METNI;
+    statusDot.classList.toggle('online', onlayn);
+  }
+
   onlaynToggle.addEventListener('change', async function () {
-    var res = await Birlikde.api('POST', '/kurye/onlayn', { onlayn: onlaynToggle.checked ? '1' : '0' });
+    var yeniVeziyyet = onlaynToggle.checked;
+    var res = await Birlikde.api('POST', '/kurye/onlayn', { onlayn: yeniVeziyyet ? '1' : '0' });
     if (Birlikde.redirectIfUnauthorized(res.status)) return;
-    onlaynLabel.textContent = onlaynToggle.checked ? ONLAYN_METNI : OFFLINE_METNI;
-    if (onlaynToggle.checked) {
+    if (!res.ok) {
+      onlaynToggle.checked = !yeniVeziyyet;
+      return;
+    }
+    tetbiqOnlaynGorunus(yeniVeziyyet);
+    if (yeniVeziyyet) {
       connectSse();
     }
   });
@@ -137,7 +131,7 @@ var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE 
     es = new EventSource('/sse/lovhe');
     es.addEventListener('yeni_sifaris', function (event) {
       var s = JSON.parse(event.data);
-      var div = sifarisKarti(s, false);
+      var div = sifarisKarti(s);
       kartlarEl.appendChild(div);
       baglaGotDuymesi(div, s.id);
       yenileBos();
@@ -152,10 +146,21 @@ var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE 
     document.getElementById('pushWarning').classList.add('visible');
   }
 
-  menimIslerimYukle();
+  // Səhifə açılanda serverdəki HƏQİQİ onlayn vəziyyəti oxunur (əvvəllər hər dəfə
+  // "offline" kimi sıfırlanırdı — bu, istifadəçiyə "özü-özünə offline olur" kimi
+  // görünürdü, halbuki server tərəfdəki vəziyyət toxunulmamış qalırdı).
+  (async function initVeziyyet() {
+    var res = await Birlikde.api('GET', '/kurye/profilim');
+    if (Birlikde.redirectIfUnauthorized(res.status)) return;
+    var onlayn = !!(res.data && res.data.data && res.data.data.onlayn);
+    onlaynToggle.checked = onlayn;
+    tetbiqOnlaynGorunus(onlayn);
+    if (onlayn) {
+      connectSse();
+    }
+  })();
+
   yenileBos();
-  onlaynToggle.checked = false;
-  connectSse();
 })();
 </script>
 <?php require __DIR__ . '/../partials/foot.php'; ?>

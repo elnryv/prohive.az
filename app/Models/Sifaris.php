@@ -159,29 +159,24 @@ final class Sifaris
         return [$where, $params];
     }
 
+    /**
+     * Kuryer/yükdaşıma daşıyıcının əlaqə məlumatı JOIN ilə əlavə olunur ki, müştəri
+     * sifarişi götürən daşıyıcı ilə WhatsApp üzərindən əlaqə saxlaya bilsin (götürmə
+     * = tamamlanma, ayrıca "Tamamla" addımı yoxdur — bax SifarisService::gotur()).
+     */
     public function listByMusteri(int $musteriId, int $limit = 50): array
     {
         $stmt = $this->db->prepare(
-            'SELECT * FROM sifarisler WHERE musteri_id = :musteri_id ORDER BY created_at DESC LIMIT :limit'
+            'SELECT s.*, ku.ad AS kurye_ad, ku.soyad AS kurye_soyad, ku.whatsapp AS kurye_whatsapp
+             FROM sifarisler s
+             LEFT JOIN kuryeler k ON k.id = s.kurye_id
+             LEFT JOIN users ku ON ku.id = k.user_id
+             WHERE s.musteri_id = :musteri_id
+             ORDER BY s.created_at DESC LIMIT :limit'
         );
         $stmt->bindValue('musteri_id', $musteriId, PDO::PARAM_INT);
         $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
-
-        return $stmt->fetchAll();
-    }
-
-    /**
-     * Kuryerin özünün hazırda götürdüyü (bax bölmə 7.2.5 "Mənim işim") sifarişləri —
-     * səhifə yenidən yüklənəndə SSE-nin görmədiyi köhnə götürmələri bərpa etmək üçün.
-     */
-    public function listByKuryeAktiv(int $kuryeId): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM sifarisler WHERE kurye_id = :kurye_id AND status = 'goturulub'
-             ORDER BY goturulme_vaxti DESC"
-        );
-        $stmt->execute(['kurye_id' => $kuryeId]);
 
         return $stmt->fetchAll();
     }
@@ -235,26 +230,19 @@ final class Sifaris
 
     /**
      * Atomic götürmə (bax CLAUDE.md bölmə 6.3, RACE-6.3). rowCount()===1 → uğur.
+     * Götürmə = tamamlanma: ayrıca "Tamamla" addımı yoxdur, daşıyıcı sifarişi
+     * götürən kimi status birbaşa 'tamamlandi'-yə keçir (kuryer üçün lövhədən/aktiv
+     * işlərdən dərhal yox olur, müştəri tərəfdə isə daşıyıcının əlaqə məlumatı ilə
+     * tarixçədə saxlanılır).
      */
     public function atomicGotur(int $id, int $kuryeId): bool
     {
         $stmt = $this->db->prepare(
             "UPDATE sifarisler
-             SET kurye_id = :kurye_id, status = 'goturulub', goturulme_vaxti = NOW(), version = version + 1
+             SET kurye_id = :kurye_id, status = 'tamamlandi', goturulme_vaxti = NOW(), version = version + 1
              WHERE id = :id AND status = 'axtarisda' AND kurye_id IS NULL"
         );
         $stmt->execute(['kurye_id' => $kuryeId, 'id' => $id]);
-
-        return $stmt->rowCount() === 1;
-    }
-
-    public function complete(int $id, int $kuryeId): bool
-    {
-        $stmt = $this->db->prepare(
-            "UPDATE sifarisler SET status = 'tamamlandi'
-             WHERE id = :id AND kurye_id = :kurye_id AND status = 'goturulub'"
-        );
-        $stmt->execute(['id' => $id, 'kurye_id' => $kuryeId]);
 
         return $stmt->rowCount() === 1;
     }
@@ -263,7 +251,7 @@ final class Sifaris
     {
         $stmt = $this->db->prepare(
             "UPDATE sifarisler SET status = 'legv'
-             WHERE id = :id AND musteri_id = :musteri_id AND status IN ('axtarisda', 'goturulub')"
+             WHERE id = :id AND musteri_id = :musteri_id AND status = 'axtarisda'"
         );
         $stmt->execute(['id' => $id, 'musteri_id' => $musteriId]);
 

@@ -104,6 +104,8 @@ var STATUS_ETIKETLERI = <?= json_encode([
 var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var LEGV_METNI = <?= json_encode($t('ortaq.legv'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BOS_TARIXCE = <?= json_encode($t('musteri.aktiv_sifaris_yoxdur'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var DASIYICI_ETIKETI = <?= json_encode($t('musteri.dasiyici'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var errBox = document.getElementById('errBox');
@@ -183,7 +185,7 @@ var BOS_TARIXCE = <?= json_encode($t('musteri.aktiv_sifaris_yoxdur'), JSON_UNESC
 
   function renderAktivSifaris(sifarisler) {
     var aktivCard = document.getElementById('aktivSifarisCard');
-    var aktiv = sifarisler.find(function (s) { return s.status === 'axtarisda' || s.status === 'goturulub'; });
+    var aktiv = sifarisler.find(function (s) { return s.status === 'axtarisda'; });
 
     if (!aktiv) {
       aktivCard.style.display = 'none';
@@ -226,11 +228,21 @@ var BOS_TARIXCE = <?= json_encode($t('musteri.aktiv_sifaris_yoxdur'), JSON_UNESC
     }
 
     listEl.innerHTML = sifarisler.map(function (s) {
-      return '<div class="card glass">' +
+      var html = '<div class="card glass">' +
         '<div style="display:flex; justify-content:space-between;"><strong>#' + s.id + '</strong>' + statusBadge(s.status) + '</div>' +
         '<p style="color:var(--text-dim); font-size:14px;">' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>' +
-        '<p style="color:var(--text-dim); font-size:12px;">' + Birlikde.escapeHtml(s.created_at) + '</p>' +
-        '</div>';
+        '<p style="color:var(--text-dim); font-size:12px;">' + Birlikde.escapeHtml(s.created_at) + '</p>';
+      if (s.dasiyici_adi) {
+        html += '<div class="dasiyici-info">' +
+          '<span>' + Birlikde.escapeHtml(DASIYICI_ETIKETI) + ': ' + Birlikde.escapeHtml(s.dasiyici_adi) + '</span>';
+        if (s.dasiyici_whatsapp_link) {
+          html += '<a class="btn btn-ghost btn-small" target="_blank" rel="noopener" href="' +
+            Birlikde.escapeHtml(s.dasiyici_whatsapp_link) + '">' + Birlikde.escapeHtml(WHATSAPP_METNI) + '</a>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+      return html;
     }).join('');
   }
 

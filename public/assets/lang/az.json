@@ -62,6 +62,7 @@
   "musteri.tarixce": "Tarixçə",
   "musteri.aktiv_sifaris_yoxdur": "Aktiv sifarişiniz yoxdur",
   "musteri.sikayet": "Şikayət et",
+  "musteri.dasiyici": "Daşıyıcı",
 
   "status.axtarisda": "Axtarışda",
   "status.goturulub": "Götürülüb",
@@ -73,10 +74,11 @@
   "kurye.onlayn": "Onlayn",
   "kurye.offline": "Offline",
   "kurye.got": "Götür",
-  "kurye.tamamla": "Tamamlandı",
   "kurye.lovhe_bos": "Hazırda uyğun sifariş yoxdur",
   "kurye.erazi_secilmeyib": "Ərazi seçilməyib — profildən əraziləri seçin",
   "kurye.whatsapp_elaqe": "WhatsApp ilə əlaqə",
+  "kurye.goturuldu_basliq": "Sifariş götürüldü!",
+  "kurye.musteri_adi": "Müştəri",
 
   "profil.basliq": "Profil",
   "profil.erazilerim": "Ərazilərim",

@@ -343,3 +343,182 @@ a {
   border: 1px solid rgba(255, 214, 10, 0.35);
   color: var(--warning);
 }
+
+/* Dil bayraqları (nav) */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lang-flag {
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0.45;
+  filter: grayscale(100%);
+  transition: opacity 0.15s ease, filter 0.15s ease;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.lang-flag.active,
+.lang-flag:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Onlayn/offline toggle switch (mobil-app tərzi) — bax kurye/lovhe.php */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 30px;
+  flex: none;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-switch .toggle-slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.toggle-switch .toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  top: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.18s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Kuryer lövhə başlığı */
+.lovhe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+.lovhe-header-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.lovhe-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lovhe-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex: none;
+}
+
+.lovhe-status-dot.online {
+  background: var(--success);
+  box-shadow: 0 0 0 4px rgba(48, 209, 88, 0.18);
+}
+
+.lovhe-status-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 600;
+  min-width: 56px;
+}
+
+/* Ümumi pop-up modal (məs. sifariş götürüldü təsdiqi) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  padding: 16px;
+}
+
+.modal-overlay.visible {
+  display: flex;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: 420px;
+  padding: 26px 24px;
+  text-align: center;
+}
+
+.modal-sheet .modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(48, 209, 88, 0.16);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 14px;
+}
+
+.modal-sheet h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+
+.modal-sheet p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.modal-sheet .modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Sifariş kartlarında daşıyıcı əlaqə bloku (müştəri tarixçəsi) */
+.dasiyici-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--glass-border);
+  font-size: 13px;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}

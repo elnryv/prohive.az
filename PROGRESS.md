@@ -535,3 +535,54 @@ admin bölməsi əlavə olundu.
   təsdiqlənməlidir; bracket-lə (`[...]`) işarələnmiş yer tutucular (VÖEN,
   operator adı, əlaqə nömrəsi, abunə məbləği, saxlanma müddəti, geri qaytarılma
   siyasəti) doldurulmalıdır. Bu, hazırkı halında hüquqi məsləhət DEYİL.
+
+### 2026-07-12 — Canlıya çıxarma prosesi + UX düzəlişləri (post-launch)
+
+- Layihə Hetzner+aaPanel üzərində canlıya çıxarıldı (`app.birlikde.biz` +
+  `appadmin.birlikde.biz`, ikinci sayt birincinin qovluğuna symlink,
+  eyni kodu/storage-ı paylaşır — iki ayrı klon YOXDUR). aaPanel-ə xas
+  düzəlişlər: `.user.ini` immutable bayrağı (`chattr -i`), `putenv`/`system`
+  funksiyalarının `disable_functions`-dan çıxarılması, PHP-FPM soketi
+  (`unix:/tmp/php-cgi-83.sock`) `location = /sse/lovhe` blokunda əl ilə
+  təkrarlanmalı oldu (aaPanel-in avtomatik generasiya etdiyi `enable-php-83.conf`
+  yalnız ümumi `.php$` reqex-i əhatə edir), URL Rewrite qaydaları GUI-dən
+  deyil, birbaşa `/www/server/panel/vhost/rewrite/{domen}.conf` fayllarına
+  yazıldı (`try_files $uri $uri/ /index.php?$query_string;` və admin üçün
+  `/admin.php?$query_string`).
+- **UX/biznes-məntiq dəyişikliyi (istifadəçi tələbi ilə):** kuryerin ayrıca
+  "Tamamla" addımı LƏĞV edildi — "Götür" basılan kimi sifariş ATOMIC olaraq
+  birbaşa `axtarisda → tamamlandi`-yə keçir (əvvəlki iki-addımlı
+  `axtarisda → goturulub → tamamlandi` axını sadələşdirildi). Nəticələr:
+  - `Sifaris::atomicGotur()` birbaşa `status='tamamlandi'` yazır,
+    `Sifaris::complete()` və `listByKuryeAktiv()` (dead code) silindi.
+  - `SifarisService::gotur()` `kuryeler.tamamlanan` sayğacını dərhal artırır
+    (əvvəllər `tamamla()`-da idi, o metod tamamilə silindi).
+  - `POST /sifaris/{id}/tamamla` və `GET /kurye/aktiv-isler` marşrutları
+    silindi (404 verir).
+  - Kuryer lövhəsində "Mənim işlərim" bölməsi tamamilə çıxarıldı; "Götür"
+    basılan kimi kart lövhədən silinir, əvəzinə müştərinin adı+ünvanları+
+    WhatsApp keçidi olan pop-up (`.modal-overlay`) açılır.
+  - Müştəri tərəfdə `SifarisService::tarixce()` indi daşıyıcının adı və
+    hazır WhatsApp linkini (`dasiyici_adi`, `dasiyici_whatsapp_link`) hər
+    sifariş üçün qaytarır — götürülüb-tamamlanmış sifarişlərdə tarixçədə
+    daimi görünür (bax `Views/musteri/panel.php`).
+- **Bug düzəlişi:** kuryer lövhəyə hər girişində/yeniləməsində vizual olaraq
+  "offline"-a sıfırlanırdı (`onlaynToggle.checked = false` hardcode idi,
+  serverdəki həqiqi vəziyyət heç vaxt oxunmurdu). İndi səhifə açılanda
+  `GET /kurye/profilim`-dən həqiqi `onlayn` vəziyyəti oxunur və UI ona görə
+  qurulur (SSE bağlantısı da yalnız faktiki onlayn olduqda açılır).
+- **Vizual yeniləmələr:** dil seçimi indi bayraq emoji-ləri ilə (`.lang-flag`,
+  aktiv dil boyalı/parlaq, digərləri boz/solğun); onlayn/offline indi mobil-
+  tətbiq tərzi toggle switch (`.toggle-switch`) + status nöqtəsi
+  (`.lovhe-status-dot`, onlayn olanda yaşıl "halo"); "Canlı Lövhə" başlıq
+  bloku (`.lovhe-header`) təmiz kart dizaynına keçirildi. Rəng sxemi
+  (OLED qara + `.glass`) toxunulmadı, yalnız komponent səviyyəsində.
+- Real MySQL + HTTP (curl, o cümlədən race-safety üçün təkrar götürmə cəhdi
+  409 qaytardığı təsdiqləndi) + real Playwright/Chromium skrinşotları ilə
+  test edildi (dil bayraqları, toggle switch, pop-up, müştəri tarixçəsi
+  daşıyıcı əlaqə bloku ilə birlikdə vizual təsdiqləndi). RU bayrağının
+  headless Linux Chromium-da monoxrom göründüyü müşahidə olundu — kodda
+  Unicode kod nöqtələri (`&#127479;&#127482;`) proqramla təsdiqləndi ki,
+  düzgündür, bu sırf test mühitinin emoji-font məhdudiyyətidir, real
+  iOS/Android-də normal rəngli bayraq kimi görünəcək.
+- Test DB/istifadəçi, `.env`, keş, sessiya və log faylları təmizləndi.

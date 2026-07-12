@@ -60,25 +60,6 @@ final class SifarisController
         }
     }
 
-    public function tamamla(Request $request, array $params): mixed
-    {
-        try {
-            $kuryeId = self::currentKuryeId();
-            (new SifarisService())->tamamla((int) $params['id'], $kuryeId);
-
-            return Response::json(['status' => 'ok']);
-        } catch (ValidationException $e) {
-            return Response::json(['error' => $e->getMessage()], 422);
-        }
-    }
-
-    public function kuryeAktivIsler(Request $request): mixed
-    {
-        $kuryeId = self::currentKuryeId();
-
-        return Response::json(['status' => 'ok', 'data' => (new SifarisService())->kuryeAktivIsler($kuryeId)]);
-    }
-
     private static function currentKuryeId(): int
     {
         $userId = (int) Session::get('user_id');

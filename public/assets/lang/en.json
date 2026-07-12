@@ -62,6 +62,7 @@
   "musteri.tarixce": "History",
   "musteri.aktiv_sifaris_yoxdur": "No active orders",
   "musteri.sikayet": "Report an issue",
+  "musteri.dasiyici": "Courier",
 
   "status.axtarisda": "Searching",
   "status.goturulub": "Accepted",
@@ -73,10 +74,11 @@
   "kurye.onlayn": "Online",
   "kurye.offline": "Offline",
   "kurye.got": "Accept",
-  "kurye.tamamla": "Complete",
   "kurye.lovhe_bos": "No matching orders right now",
   "kurye.erazi_secilmeyib": "No area selected — pick your areas in your profile",
   "kurye.whatsapp_elaqe": "Contact via WhatsApp",
+  "kurye.goturuldu_basliq": "Order accepted!",
+  "kurye.musteri_adi": "Customer",
 
   "profil.basliq": "Profile",
   "profil.erazilerim": "My areas",

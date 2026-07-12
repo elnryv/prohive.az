@@ -45,11 +45,9 @@ $router->post('/sifaris/yarat', [SifarisController::class, 'yarat'], [Auth::clas
 $router->post('/sifaris/{id}/legv', [SifarisController::class, 'legv'], [Auth::class, MusteriGuard::class, CsrfGuard::class]);
 $router->get('/sifaris/tarixce', [SifarisController::class, 'tarixce'], [Auth::class, MusteriGuard::class]);
 
-// Kuryer — canlı lövhə, götürmə, tamamlama, onlayn/ərazi (bax bölmə 6.2, 6.3, 7.2)
+// Kuryer — canlı lövhə, götürmə (= tamamlanma, ayrıca addım yoxdur), onlayn/ərazi (bax bölmə 6.2, 6.3, 7.2)
 $router->get('/sse/lovhe', [SseController::class, 'lovhe'], [Auth::class, KuryeGuard::class]);
 $router->post('/sifaris/{id}/gotur', [SifarisController::class, 'gotur'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
-$router->post('/sifaris/{id}/tamamla', [SifarisController::class, 'tamamla'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
-$router->get('/kurye/aktiv-isler', [SifarisController::class, 'kuryeAktivIsler'], [Auth::class, KuryeGuard::class]);
 $router->post('/kurye/onlayn', [KuryeController::class, 'onlayn'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);
 $router->get('/kurye/bolgeler', [KuryeController::class, 'bolgelerimGoster'], [Auth::class, KuryeGuard::class]);
 $router->post('/kurye/bolgeler', [KuryeController::class, 'bolgeler'], [Auth::class, KuryeGuard::class, CsrfGuard::class]);

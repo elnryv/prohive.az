@@ -122,17 +122,26 @@ final class SifarisService
         }
     }
 
+    /**
+     * Müştəri tarixçəsi — daşıyıcı götürübsə (status='tamamlandi'), müştərinin
+     * onunla əlaqə saxlaya bilməsi üçün ad + WhatsApp linki əlavə olunur (bax
+     * SifarisService::gotur() — ayrıca "Tamamla" addımı yoxdur, götürmə=tamamlanma,
+     * daşıyıcı məlumatı müştəri tərəfdə həmişəlik saxlanılır).
+     */
     public function tarixce(int $musteriId): array
     {
-        return $this->sifarisler->listByMusteri($musteriId);
-    }
+        $sifarisler = $this->sifarisler->listByMusteri($musteriId);
 
-    /**
-     * Kuryerin "Mənim işim" bölməsi — bax bölmə 7.2.5.
-     */
-    public function kuryeAktivIsler(int $kuryeId): array
-    {
-        return $this->sifarisler->listByKuryeAktiv($kuryeId);
+        foreach ($sifarisler as &$s) {
+            $kuryeAdi = trim(($s['kurye_ad'] ?? '') . ' ' . ($s['kurye_soyad'] ?? ''));
+            $s['dasiyici_adi'] = $kuryeAdi !== '' ? $kuryeAdi : null;
+            $s['dasiyici_whatsapp_link'] = !empty($s['kurye_whatsapp'])
+                ? WhatsApp::link($s['kurye_whatsapp'], "Birlikdə sifarişi #{$s['id']} barədə əlaqə")
+                : null;
+        }
+        unset($s);
+
+        return $sifarisler;
     }
 
     /**
@@ -201,6 +210,8 @@ final class SifarisService
             throw new ValidationException('Sifariş artıq götürülüb.');
         }
 
+        $this->kuryeler->incrementTamamlanan($kuryeId);
+
         $kurye = $this->kuryeler->findById($kuryeId);
         $kuryeUser = $kurye !== null ? $this->users->findById((int) $kurye['user_id']) : null;
         $musteri = $this->users->findById((int) $sifaris['musteri_id']);
@@ -225,23 +236,14 @@ final class SifarisService
 
         return [
             'sifaris_id' => $sifarisId,
+            'musteri_adi' => trim(($musteri['ad'] ?? '') . ' ' . ($musteri['soyad'] ?? '')),
             'musteri_whatsapp_link' => $musteri !== null ? WhatsApp::link($musteri['whatsapp'], $metn) : null,
             'kurye_whatsapp_link' => $kuryeUser !== null ? WhatsApp::link($kuryeUser['whatsapp'], $metn) : null,
             'kurye_adi' => $kuryeUser['ad'] ?? null,
             'neqliyyat' => $kurye['neqliyyat'] ?? null,
+            'goturulme_unvan' => $sifaris['goturulme_unvan'],
+            'catdirilma_unvan' => $sifaris['catdirilma_unvan'],
         ];
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    public function tamamla(int $sifarisId, int $kuryeId): void
-    {
-        if (!$this->sifarisler->complete($sifarisId, $kuryeId)) {
-            throw new ValidationException('Sifariş tamamlana bilmədi (artıq tamamlanıb və ya sizə aid deyil).');
-        }
-
-        $this->kuryeler->incrementTamamlanan($kuryeId);
     }
 
     public function onlaynToggle(int $kuryeId, bool $onlayn): void

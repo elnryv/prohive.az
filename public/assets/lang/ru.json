@@ -62,6 +62,7 @@
   "musteri.tarixce": "История",
   "musteri.aktiv_sifaris_yoxdur": "Нет активных заказов",
   "musteri.sikayet": "Пожаловаться",
+  "musteri.dasiyici": "Перевозчик",
 
   "status.axtarisda": "В поиске",
   "status.goturulub": "Принят",
@@ -73,10 +74,11 @@
   "kurye.onlayn": "Онлайн",
   "kurye.offline": "Офлайн",
   "kurye.got": "Принять",
-  "kurye.tamamla": "Завершить",
   "kurye.lovhe_bos": "Подходящих заказов пока нет",
   "kurye.erazi_secilmeyib": "Район не выбран — выберите районы в профиле",
   "kurye.whatsapp_elaqe": "Связаться через WhatsApp",
+  "kurye.goturuldu_basliq": "Заказ принят!",
+  "kurye.musteri_adi": "Клиент",
 
   "profil.basliq": "Профиль",
   "profil.erazilerim": "Мои районы",
