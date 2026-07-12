@@ -109,7 +109,40 @@ final class SifarisService
             'yukdasima_olcu_id' => $yukdasimaOlcuId,
         ]);
 
+        $this->yeniSifarisBildirisiGonder($gRayonId, $tip, $yukdasimaOlcuId, $gUnvan, $tecili);
+
         return $this->sifarisler->findById($id) ?? [];
+    }
+
+    /**
+     * Yeni sifariş yaradılanda uyğun ərazidəki kuryer/yükdaşımalara push
+     * bildirişi göndərir — SSE canlı lövhə yalnız tətbiq açıq olanda işləyir,
+     * bu isə tətbiq bağlı olanda da xəbərdar edir. Onlayn/offline statusundan
+     * asılı olmayaraq göndərilir (məqsəd elə budur — bağlı olan kuryeri işə
+     * çağırmaq), yalnız aktiv abunə tələb olunur.
+     */
+    private function yeniSifarisBildirisiGonder(
+        int $rayonId,
+        string $tip,
+        ?int $yukdasimaOlcuId,
+        string $unvan,
+        bool $tecili
+    ): void {
+        $namizedler = $this->kuryeler->rayonaVeTipeUygunlar($rayonId, $tip, $yukdasimaOlcuId);
+        if ($namizedler === []) {
+            return;
+        }
+
+        $baslik = $tecili ? 'Təcili yeni sifariş!' : 'Yeni sifariş!';
+        $metn = 'Götürülmə: ' . $unvan;
+
+        foreach ($namizedler as $namized) {
+            if (!$this->kuryeAbunesiAktivdirmi($namized['id'])) {
+                continue;
+            }
+
+            $this->pushService->gonder($namized['user_id'], $baslik, $metn, '/lovhe');
+        }
     }
 
     /**

@@ -984,3 +984,34 @@ commit edildi:
   əlavə olundu. Playwright ilə saxta iOS UA-la vizual təsdiqləndi —
   pop-up düzgün açılır/bağlanır, dizayn sisteminə tam uyğundur.
   `sw.js` `CACHE_VERSION` v12→v13.
+
+### 2026-07-12 (davam) — Yeni sifariş push bildirişi (əsl boşluq tapıldı)
+
+- İstifadəçi VAPID+Composer+iOS düzəlişlərindən sonra real sifariş verib
+  yoxladı: "Bildiris yenə gəlmədi... girəndə görürəm ki canlı lövhədə
+  sifariş var". Kök səbəb: `PushService::gonder()` mövcud idi və düzgün
+  işləyirdi (əvvəlki sessiyada tam təsdiqlənmişdi), AMMA sifariş
+  yaradılanda ONU HEÇ KIM ÇAĞIRMIRDI — `SifarisService::yarat()`-da push
+  tetikləyicisi ümumiyyətlə yox idi. Mövcud yeganə push nöqtələri:
+  ödəniş uğuru, abunə xəbərdarlığı (cron), admin toplu kampaniya, VƏ
+  sifariş GÖTÜRÜLƏNDƏ müştəriyə "Daşıyıcı tapıldı" — kuryerə "yeni sifariş
+  var" bildirişi heç vaxt olmayıb. SSE canlı lövhə isə YALNIZ kuryer
+  tətbiqi açıq saxlayanda işləyir — tətbiq bağlı olanda heç nə
+  bilmirdi, elə bu şikayətin əsl kökü idi.
+- **Düzəliş:** `Kurye::rayonaVeTipeUygunlar($rayonId, $tip, $olcuId)` yeni
+  model metodu — sifarişin götürülmə rayonuna VƏ tipinə (kurye/yükdaşıma,
+  yükdaşımada ölçü də) uyğun bütün kuryerləri tapır (`kurye_bolgeler` +
+  `users.rol` + lazım olsa `dasiyici_olculeri` join-ləri ilə).
+  `SifarisService::yarat()` sifariş yaradılan kimi bu siyahını çəkib, hər
+  namizəd üçün aktiv abunə yoxlayır (`kuryeAbunesiAktivdirmi` — mövcud
+  metod), keçənlərə "Yeni sifariş!" (təcili olarsa "Təcili yeni
+  sifariş!") push göndərir, `/lovhe`-yə keçid linki ilə.
+  **Şüurlu qərar: onlayn/offline statusundan ASILI OLMAYARAQ göndərilir**
+  — çünki push-un məqsədi elə budur ki, tətbiqi bağlı/offline olan
+  kuryeri işə çağırsın; yalnız onlayn olanlara göndərmək bütün funksiyanı
+  mənasız edərdi.
+- Real DB+HTTP ilə tam test edildi: real EC açarla saxta-amma-kriptoqrafik-
+  düzgün push abunəliyi olan OFFLINE kuryer üçün sifariş yaradılanda real
+  HTTPS FCM-ə çatdı (410 Gone — saxta endpoint, gözlənilən), fərqli
+  rayonda olan ikinci kuryer üçün isə HEÇ bir göndəriş cəhdi olmadı
+  (rayon filtri düzgün işləyir, təsdiqləndi).

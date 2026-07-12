@@ -118,6 +118,14 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   Nginx: `proxy_buffering off`, `fastcgi_read_timeout` artırılmalı.
 - **Kuryer lövhəsi** yalnız öz seçdiyi rayonlardan gələn sifarişləri göstərir
   (`WHERE goturulme_rayon_id IN (...)`) — "hamısını göstər" toggle YOXDUR.
+- **Yeni sifariş push bildirişi (2026-07-12 əlavə olundu):** SSE canlı lövhə
+  yalnız tətbiq açıq olanda işləyir — bağlı olan kuryerə xəbər vermək üçün
+  `SifarisService::yarat()` sifariş yaradılan kimi uyğun ərazidəki (rayon +
+  tip + yükdaşıma olarsa ölçü uyğunluğu, `Kurye::rayonaVeTipeUygunlar`)
+  BÜTÜN aktiv-abunəli kuryerlərə push göndərir — **onlayn/offline
+  statusundan asılı olmayaraq** (məqsəd elə budur: bağlı kuryeri işə
+  çağırmaq). Real DB+HTTP ilə test edilib: uyğun ərazidəki offline kuryer
+  bildiriş aldı, fərqli ərazidəki kuryer almadı.
 - **WhatsApp:** platforma söhbətə qarışmır/saxlamır, yalnız ön-doldurulmuş `wa.me` linki açır.
 - **Sessiya modeli:** müştəri/kuryer — KALICI (yalnız "Çıxış" və ya parol dəyişəndə bitir,
   remember-me cookie httponly+secure+samesite). Admin — QISA idle-timeout, KALICI DEYİL.

@@ -83,4 +83,38 @@ final class Kurye
             $satirlar
         );
     }
+
+    /**
+     * Yeni sifarişə uyğun kuryer/yükdaşımalar — bax SifarisService::yarat()
+     * ("Yeni sifariş!" push tetikləyicisi). Rayon + tip (rol) + (yükdaşıma
+     * olarsa) ölçü uyğunluğuna görə. Onlayn/abunə statusu burada
+     * yoxlanılmır — çağıran tərəf (SifarisService) hər namizəd üçün
+     * abunə statusunu ayrıca yoxlayır (bax kuryeAbunesiAktivdirmi).
+     *
+     * @return array<int, array{id:int, user_id:int}>
+     */
+    public function rayonaVeTipeUygunlar(int $rayonId, string $tip, ?int $yukdasimaOlcuId): array
+    {
+        $sql = 'SELECT DISTINCT k.id, k.user_id
+                FROM kuryeler k
+                JOIN users u ON u.id = k.user_id
+                JOIN kurye_bolgeler kb ON kb.kurye_id = k.id AND kb.rayon_id = :rayon_id';
+
+        $params = ['rayon_id' => $rayonId, 'rol' => $tip];
+
+        if ($tip === 'yukdasima') {
+            $sql .= ' JOIN dasiyici_olculeri d ON d.kurye_id = k.id AND d.olcu_id = :olcu_id';
+            $params['olcu_id'] = $yukdasimaOlcuId;
+        }
+
+        $sql .= ' WHERE u.rol = :rol AND u.status = \'aktiv\'';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return array_map(
+            static fn (array $r) => ['id' => (int) $r['id'], 'user_id' => (int) $r['user_id']],
+            $stmt->fetchAll()
+        );
+    }
 }
