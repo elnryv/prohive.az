@@ -23,10 +23,12 @@ require __DIR__ . '/partials/shell_head.php';
 </div>
 
 <div class="glass" style="padding:8px 16px;">
-  <table>
-    <thead><tr><th>#</th><th>Müştəri</th><th>Kuryer</th><th>Status</th><th>Tarix</th></tr></thead>
-    <tbody id="siyahiTbody"></tbody>
-  </table>
+  <div class="table-wrap-admin">
+    <table>
+      <thead><tr><th>#</th><th>Müştəri</th><th>Kuryer</th><th>Status</th><th>Tarix</th></tr></thead>
+      <tbody id="siyahiTbody"></tbody>
+    </table>
+  </div>
 </div>
 <div class="pagination" id="pagination"></div>
 
@@ -90,9 +92,9 @@ require __DIR__ . '/partials/shell_head.php';
     if (s.tarixce.length === 0) {
       html += '<p style="color:var(--text-dim); font-size:13px;">—</p>';
     } else {
-      html += '<table><tbody>' + s.tarixce.map(function (h) {
+      html += '<div class="table-wrap-admin"><table><tbody>' + s.tarixce.map(function (h) {
         return '<tr><td>' + BirlikdeAdmin.escapeHtml(h.created_at) + '</td><td>' + BirlikdeAdmin.escapeHtml(h.hadise) + '</td></tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
     }
 
     html += '<button class="btn btn-ghost" id="modalBaglaBtn" style="margin-top:12px;"><?= htmlspecialchars($t('ortaq.bagla')) ?></button>';

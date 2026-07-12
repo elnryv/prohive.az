@@ -13,10 +13,12 @@ require __DIR__ . '/partials/shell_head.php';
 
 <div class="glass" style="padding:16px;">
   <h3 style="margin-top:0;">Son hadisələr</h3>
-  <table>
-    <thead><tr><th>Vaxt</th><th>Hadisə</th><th>Detal</th></tr></thead>
-    <tbody id="hadiseTbody"></tbody>
-  </table>
+  <div class="table-wrap-admin">
+    <table>
+      <thead><tr><th>Vaxt</th><th>Hadisə</th><th>Detal</th></tr></thead>
+      <tbody id="hadiseTbody"></tbody>
+    </table>
+  </div>
 </div>
 
 <script>

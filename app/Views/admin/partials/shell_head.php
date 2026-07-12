@@ -18,14 +18,20 @@ $aktivSehife = $aktivSehife ?? '';
 </head>
 <body>
 <div class="admin-shell">
-  <div class="admin-nav glass">
-    <div class="brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
-    <a href="/panel" class="<?= $aktivSehife === 'dashboard' ? 'active' : '' ?>"><?= htmlspecialchars($t('admin.dashboard')) ?></a>
-    <a href="/panel/musteriler" class="<?= $aktivSehife === 'musteriler' ? 'active' : '' ?>"><?= htmlspecialchars($t('admin.musteriler')) ?></a>
-    <a href="/panel/kuryerler" class="<?= $aktivSehife === 'kuryerler' ? 'active' : '' ?>"><?= htmlspecialchars($t('admin.kuryerler')) ?></a>
-    <a href="/panel/sifarisler" class="<?= $aktivSehife === 'sifarisler' ? 'active' : '' ?>"><?= htmlspecialchars($t('admin.sifarisler')) ?></a>
-    <a href="/panel/bannerler" class="<?= $aktivSehife === 'bannerler' ? 'active' : '' ?>"><?= htmlspecialchars($t('admin.bannerler')) ?></a>
-    <a href="/panel/erazi" class="<?= $aktivSehife === 'erazi' ? 'active' : '' ?>"><?= htmlspecialchars($t('admin.erazi')) ?></a>
-    <a href="#" id="adminCixisBtn"><?= htmlspecialchars($t('ortaq.cixis')) ?></a>
+  <div class="admin-topbar-mobile">
+    <button class="admin-burger" id="adminBurger" type="button" aria-label="Menyu"><span></span><span></span><span></span></button>
+    <span class="brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?> Admin</span>
+    <span style="width:40px;"></span>
   </div>
+  <div class="admin-drawer-scrim" id="adminDrawerScrim"></div>
+  <nav class="admin-nav glass" id="adminNav">
+    <div class="brand"><?= htmlspecialchars($t('ortaq.app_adi')) ?></div>
+    <a href="/panel" class="<?= $aktivSehife === 'dashboard' ? 'active' : '' ?>"><span class="nav-icon">&#128202;</span><?= htmlspecialchars($t('admin.dashboard')) ?></a>
+    <a href="/panel/musteriler" class="<?= $aktivSehife === 'musteriler' ? 'active' : '' ?>"><span class="nav-icon">&#128101;</span><?= htmlspecialchars($t('admin.musteriler')) ?></a>
+    <a href="/panel/kuryerler" class="<?= $aktivSehife === 'kuryerler' ? 'active' : '' ?>"><span class="nav-icon">&#128757;</span><?= htmlspecialchars($t('admin.kuryerler')) ?></a>
+    <a href="/panel/sifarisler" class="<?= $aktivSehife === 'sifarisler' ? 'active' : '' ?>"><span class="nav-icon">&#128230;</span><?= htmlspecialchars($t('admin.sifarisler')) ?></a>
+    <a href="/panel/bannerler" class="<?= $aktivSehife === 'bannerler' ? 'active' : '' ?>"><span class="nav-icon">&#128247;</span><?= htmlspecialchars($t('admin.bannerler')) ?></a>
+    <a href="/panel/erazi" class="<?= $aktivSehife === 'erazi' ? 'active' : '' ?>"><span class="nav-icon">&#128205;</span><?= htmlspecialchars($t('admin.erazi')) ?></a>
+    <a href="#" id="adminCixisBtn"><span class="nav-icon">&#128682;</span><?= htmlspecialchars($t('ortaq.cixis')) ?></a>
+  </nav>
   <div class="admin-main">

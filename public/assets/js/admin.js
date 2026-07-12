@@ -66,6 +66,46 @@ window.BirlikdeAdmin = (function () {
     return false;
   }
 
+  // ---- Mobil üçün sürüşən (off-canvas) yan-menyu — bax shell_head.php.
+  // Masaüstündə .admin-nav sabit sidebar olaraq qalır (CSS media query xaricində
+  // heç bir təsiri yoxdur), yalnız 860px-dən dar ekranlarda işə düşür ----
+  function initDrawer(burgerEl, drawerEl, scrimEl) {
+    if (!burgerEl || !drawerEl || !scrimEl) return;
+
+    function openDrawer() {
+      drawerEl.classList.add('open');
+      scrimEl.classList.add('visible');
+      burgerEl.classList.add('open');
+    }
+    function closeDrawer() {
+      drawerEl.classList.remove('open');
+      scrimEl.classList.remove('visible');
+      burgerEl.classList.remove('open');
+    }
+
+    burgerEl.addEventListener('click', function () {
+      drawerEl.classList.contains('open') ? closeDrawer() : openDrawer();
+    });
+    scrimEl.addEventListener('click', closeDrawer);
+  }
+
+  // ---- Cədvəllər üfüqi sürüşəndə sağ kənarda "daha çox var" ipucu ----
+  // Cədvəllər (musteriler.php, kuryerler.php və s.) JS ilə dinamik doldurulur,
+  // ona görə hər fayla toxunmadan bir dəfə bütün .table-wrap-admin
+  // elementlərini MutationObserver ilə izləyirik.
+  function initTableScrollHints() {
+    var wraps = document.querySelectorAll('.table-wrap-admin');
+    wraps.forEach(function (wrap) {
+      function update() {
+        wrap.classList.toggle('has-overflow', wrap.scrollWidth - wrap.scrollLeft > wrap.clientWidth + 2);
+      }
+      update();
+      new MutationObserver(update).observe(wrap, { childList: true, subtree: true });
+      wrap.addEventListener('scroll', update);
+      window.addEventListener('resize', update);
+    });
+  }
+
   // ---- Açılış (splash) animasiyası — admin girişinə TƏZƏ girəndə (daxili
   // yönləndirmədə yox) oynanılır; bax login_head.php-dəki referrer yoxlaması ----
   function playSplashOnce(splashEl) {
@@ -110,5 +150,7 @@ window.BirlikdeAdmin = (function () {
     hideError: hideError,
     redirectIfUnauthorized: redirectIfUnauthorized,
     playSplashOnce: playSplashOnce,
+    initDrawer: initDrawer,
+    initTableScrollHints: initTableScrollHints,
   };
 })();

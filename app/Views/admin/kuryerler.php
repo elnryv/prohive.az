@@ -10,14 +10,16 @@ require __DIR__ . '/partials/shell_head.php';
 </div>
 
 <div class="toolbar">
-  <input type="text" id="axtarInput" placeholder="<?= htmlspecialchars($t('admin.axtar')) ?>" style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.04); color:var(--text);">
+  <input type="text" id="axtarInput" placeholder="<?= htmlspecialchars($t('admin.axtar')) ?>">
 </div>
 
 <div class="glass" style="padding:8px 16px;">
-  <table>
-    <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>Rol</th><th>Status</th><th>Tarix</th></tr></thead>
-    <tbody id="siyahiTbody"></tbody>
-  </table>
+  <div class="table-wrap-admin">
+    <table>
+      <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>Rol</th><th>Status</th><th>Tarix</th></tr></thead>
+      <tbody id="siyahiTbody"></tbody>
+    </table>
+  </div>
 </div>
 <div class="pagination" id="pagination"></div>
 
