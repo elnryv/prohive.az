@@ -65,10 +65,7 @@ final class AppPageController
     {
         $this->hazirlaDil($request);
 
-        $params = $this->navParams();
-        $params['whatsappSupport'] = Env::get('WHATSAPP_SUPPORT_NUMBER', '');
-
-        return View::render('kurye/lovhe', $params);
+        return View::render('kurye/lovhe', $this->navParams());
     }
 
     public function profil(Request $request): mixed
@@ -76,6 +73,16 @@ final class AppPageController
         $this->hazirlaDil($request);
 
         return View::render('kurye/profil', $this->navParams());
+    }
+
+    public function sifarislerim(Request $request): mixed
+    {
+        $this->hazirlaDil($request);
+
+        $params = $this->navParams();
+        $params['whatsappSupport'] = Env::get('WHATSAPP_SUPPORT_NUMBER', '');
+
+        return View::render('kurye/sifarislerim', $params);
     }
 
     private function hazirlaDil(Request $request): void

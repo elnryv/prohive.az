@@ -222,6 +222,12 @@ a {
   box-shadow: 0 8px 20px rgba(239, 68, 68, 0.24);
 }
 
+.btn-support {
+  background: linear-gradient(120deg, var(--pink), var(--accent));
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 77, 143, 0.28);
+}
+
 .btn-ghost {
   background: var(--surface);
   color: var(--text);
@@ -611,39 +617,6 @@ a {
   margin-top: 18px;
 }
 
-/* Geniş, siyahılı pop-up (bax kurye/lovhe.php "Sifarişlərim") */
-.modal-sheet-wide {
-  max-width: 460px;
-  text-align: left;
-}
-
-.modal-sheet-wide h2 {
-  text-align: center;
-}
-
-.modal-scroll-list {
-  max-height: 54vh;
-  overflow-y: auto;
-  margin: 14px 0;
-  border-top: 1px solid var(--glass-border);
-}
-
-.modal-list-item {
-  padding: 12px 2px;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.modal-list-item strong {
-  display: block;
-  font-size: 14.5px;
-}
-
-.modal-list-item p {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--text-dim);
-}
-
 /* Profil — sosial-şəbəkə stilli başlıq (bax kurye/profil.php) */
 .profil-hero {
   display: flex;
@@ -701,6 +674,17 @@ a {
   font-size: 14px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.15s var(--bounce), opacity 0.15s ease;
+}
+
+.profil-avatar-edit.loading {
+  opacity: 0.55;
+  pointer-events: none;
+  animation: avatarSpin 0.8s linear infinite;
+}
+
+@keyframes avatarSpin {
+  to { transform: rotate(360deg); }
 }
 
 .profil-name {
@@ -720,11 +704,19 @@ a {
 }
 
 .profil-stat-pill {
+  display: block;
   flex: 1;
   background: var(--surface-2);
   border-radius: 16px;
   padding: 10px 8px;
   text-align: center;
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.12s var(--bounce);
+}
+
+.profil-stat-pill:active {
+  transform: scale(0.96);
 }
 
 .profil-stat-pill strong {

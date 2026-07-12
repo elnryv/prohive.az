@@ -9,16 +9,17 @@ require __DIR__ . '/../partials/head.php';
     <img class="profil-avatar" id="avatarImg" style="display:none;" alt="">
     <div class="profil-avatar-placeholder" id="avatarPlaceholder">?</div>
     <div class="profil-avatar-edit" id="avatarEditBtn">&#9998;</div>
-    <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+    <input type="file" id="avatarInput" accept="image/*" style="display:none;">
   </div>
   <div class="profil-name" id="profilAd"><?= htmlspecialchars($t('profil.basliq')) ?></div>
   <div class="profil-rol-badge"><span class="badge badge-tamamlandi" id="neqliyyatBadge">—</span></div>
+  <div class="error-box" id="avatarXeta" style="margin-top:10px;"></div>
 
   <div class="profil-stats">
-    <div class="profil-stat-pill">
+    <a class="profil-stat-pill" href="/sifarislerim">
       <strong id="tamamlananVal">—</strong>
       <span><?= htmlspecialchars($t('profil.tamamlanan')) ?></span>
-    </div>
+    </a>
   </div>
 </div>
 
@@ -55,6 +56,7 @@ var ABUNE_ETIKETLERI = <?= json_encode([
     'pulsuz_qlobal' => $t('profil.abune.pulsuz_qlobal'),
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var secilmisRayonlar = new Set();
@@ -89,16 +91,35 @@ var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNI
     document.getElementById('avatarInput').click();
   });
 
+  var avatarEditBtn = document.getElementById('avatarEditBtn');
+  var avatarXeta = document.getElementById('avatarXeta');
+
   document.getElementById('avatarInput').addEventListener('change', async function (event) {
     var file = event.target.files[0];
     if (!file) return;
-    var formData = new FormData();
-    formData.append('sekil', file);
-    var res = await Birlikde.api('POST', '/kurye/sekil', formData);
-    if (res.ok) {
-      avatarGoster(res.data.data.sekil);
+    Birlikde.hideError(avatarXeta);
+    avatarEditBtn.classList.add('loading');
+
+    try {
+      // HEIC (iPhone-un default foto formatı) daxil olmaqla hər növ şəkil
+      // brauzerdə kiçik JPEG-ə çevrilir — server-tərəfli format rədd
+      // olunmasının (səssizcə "heç nə baş vermir" görünən) qarşısı alınır,
+      // həm də yükləmə kiçik ölçü sayəsində daha sürətli olur.
+      var blob = await Birlikde.imageToJpegBlob(file, 640, 0.85);
+      var formData = new FormData();
+      formData.append('sekil', blob, 'avatar.jpg');
+      var res = await Birlikde.api('POST', '/kurye/sekil', formData);
+      if (res.ok) {
+        avatarGoster(res.data.data.sekil);
+      } else {
+        Birlikde.showError(avatarXeta, (res.data && res.data.error) || XETA_METNI);
+      }
+    } catch (e) {
+      Birlikde.showError(avatarXeta, XETA_METNI);
+    } finally {
+      avatarEditBtn.classList.remove('loading');
+      event.target.value = '';
     }
-    event.target.value = '';
   });
 
   async function abuneYukle() {

@@ -80,6 +80,7 @@ $router->get('/qeydiyyat', [AppPageController::class, 'qeydiyyat']);
 $router->get('/panel', [AppPageController::class, 'panel']);
 $router->get('/lovhe', [AppPageController::class, 'lovhe']);
 $router->get('/profil', [AppPageController::class, 'profil']);
+$router->get('/sifarislerim', [AppPageController::class, 'sifarislerim']);
 
 // Hüquqi sənədlər (bax bölmə 1 "Hüquqi qeyd", Faza 7) — ictimai, giriş tələb olunmur
 $router->get('/huquqi', [LegalController::class, 'index']);

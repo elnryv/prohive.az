@@ -74,6 +74,7 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
       <a class="drawer-item<?= $hazirkiYol === '/panel' ? ' active' : '' ?>" href="/panel"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.panel')) ?></a>
     <?php elseif (in_array($rol ?? null, ['kurye', 'yukdasima'], true)): ?>
       <a class="drawer-item<?= $hazirkiYol === '/lovhe' ? ' active' : '' ?>" href="/lovhe"><span class="drawer-dot"></span><?= htmlspecialchars($t('kurye.lovhe')) ?></a>
+      <a class="drawer-item<?= $hazirkiYol === '/sifarislerim' ? ' active' : '' ?>" href="/sifarislerim"><span class="drawer-dot"></span><?= htmlspecialchars($t('kurye.sifarislerim')) ?></a>
       <a class="drawer-item<?= $hazirkiYol === '/profil' ? ' active' : '' ?>" href="/profil"><span class="drawer-dot"></span><?= htmlspecialchars($t('profil.basliq')) ?></a>
     <?php endif; ?>
   <?php else: ?>

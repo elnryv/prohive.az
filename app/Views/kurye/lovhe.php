@@ -1,7 +1,6 @@
 <?php
 /**
  * @var callable $t
- * @var string $whatsappSupport
  */
 require __DIR__ . '/../partials/head.php';
 ?>
@@ -18,8 +17,6 @@ require __DIR__ . '/../partials/head.php';
     <span class="toggle-slider"></span>
   </label>
 </div>
-
-<button class="btn btn-ghost btn-small" id="sifarislerimBtn" style="margin-bottom:11px;">&#128230;&nbsp; <?= htmlspecialchars($t('kurye.sifarislerim')) ?></button>
 
 <div class="push-warning" id="pushWarning"><?= htmlspecialchars($t('profil.bildiris_xeberdarliq')) ?></div>
 
@@ -39,27 +36,11 @@ require __DIR__ . '/../partials/head.php';
   </div>
 </div>
 
-<div class="modal-overlay" id="sifarislerimModal">
-  <div class="modal-sheet glass modal-sheet-wide">
-    <h2><?= htmlspecialchars($t('kurye.sifarislerim')) ?></h2>
-    <div class="modal-scroll-list" id="sifarislerimList"></div>
-    <div class="modal-actions">
-      <a class="btn btn-ghost" id="sifarislerimSikayetBtn" target="_blank" rel="noopener"><?= htmlspecialchars($t('kurye.sikayet_teklif')) ?></a>
-      <button class="btn btn-ghost" id="sifarislerimBaglaBtn" type="button"><?= htmlspecialchars($t('ortaq.bagla')) ?></button>
-    </div>
-  </div>
-</div>
-
 <script>
 var GOT_METNI = <?= json_encode($t('kurye.got'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var ONLAYN_METNI = <?= json_encode($t('kurye.onlayn'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-var SIFARISLERIM_BOS = <?= json_encode($t('kurye.sifarislerim_bos'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-var SIKAYET_WA_LINK = <?= json_encode(
-    'https://wa.me/' . $whatsappSupport . '?text=' . rawurlencode('Təklif/İrad — '),
-    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-) ?>;
 
 (function () {
   var kartlarEl = document.getElementById('lovheKartlar');
@@ -180,40 +161,6 @@ var SIKAYET_WA_LINK = <?= json_encode(
   })();
 
   yenileBos();
-
-  // ---- "Sifarişlərim" pop-up (götürülmüş sifarişlərin tarixçəsi) ----
-  var sifarislerimModal = document.getElementById('sifarislerimModal');
-  var sifarislerimList = document.getElementById('sifarislerimList');
-
-  document.getElementById('sifarislerimSikayetBtn').href = SIKAYET_WA_LINK;
-
-  async function sifarislerimYukle() {
-    sifarislerimList.innerHTML = '';
-    var res = await Birlikde.api('GET', '/kurye/sifarislerim');
-    if (Birlikde.redirectIfUnauthorized(res.status)) return;
-    var sifarisler = (res.data && res.data.data) || [];
-
-    if (sifarisler.length === 0) {
-      sifarislerimList.innerHTML = '<div class="empty-state">' + Birlikde.escapeHtml(SIFARISLERIM_BOS) + '</div>';
-      return;
-    }
-
-    sifarislerimList.innerHTML = sifarisler.map(function (s) {
-      return '<div class="modal-list-item">' +
-        '<strong>' + Birlikde.escapeHtml(s.musteri_adi || MUSTERI_ETIKETI) + '</strong>' +
-        '<p>' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>' +
-        '</div>';
-    }).join('');
-  }
-
-  document.getElementById('sifarislerimBtn').addEventListener('click', function () {
-    sifarislerimModal.classList.add('visible');
-    sifarislerimYukle();
-  });
-
-  document.getElementById('sifarislerimBaglaBtn').addEventListener('click', function () {
-    sifarislerimModal.classList.remove('visible');
-  });
 })();
 </script>
 <?php require __DIR__ . '/../partials/foot.php'; ?>

@@ -5,7 +5,7 @@
  * müddətsiz saxlanıla bilər (activate hadisəsi yalnız CACHE_NAME dəyişəndə
  * köhnə cache-i təmizləyir).
  */
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = 'birlikde-shell-' + CACHE_VERSION;
 const APP_SHELL = [
   '/manifest.json',

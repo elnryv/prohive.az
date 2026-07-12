@@ -234,6 +234,43 @@ window.Birlikde = (function () {
     return { supported: true, granted: true };
   }
 
+  // Seçilmiş şəkli (HEIC daxil olmaqla — Safari <img>/canvas HEIC-i doğma
+  // dəstəkləyir) kiçik, universal JPEG-ə çevirir. Serverin qəbul etmədiyi
+  // formatlar (iPhone-un default HEIC-i kimi) ucbatından "yüklənmə göstərilmir"
+  // problemini kökündən aradan qaldırır, həm də şəkli kiçildərək yükləməni
+  // sürətləndirir.
+  function imageToJpegBlob(file, maxDim, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        var scale = Math.min(1, (maxDim || 640) / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, cw, ch);
+        canvas.toBlob(function (blob) {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('toBlob failed'));
+          }
+        }, 'image/jpeg', quality || 0.85);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('Image load failed'));
+      };
+      img.src = url;
+    });
+  }
+
   return {
     api: api,
     getCsrf: getCsrf,
@@ -249,5 +286,6 @@ window.Birlikde = (function () {
     subscribeToPush: subscribeToPush,
     isIos: isIos,
     isStandalone: isStandalone,
+    imageToJpegBlob: imageToJpegBlob,
   };
 })();

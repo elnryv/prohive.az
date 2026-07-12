@@ -87,11 +87,9 @@ require __DIR__ . '/../partials/head.php';
   <div id="tarixceList"></div>
 </div>
 
-<p style="text-align:center;">
-  <a href="<?= htmlspecialchars('https://wa.me/' . $whatsappSupport . '?text=' . rawurlencode('Təklif/İrad — ')) ?>" target="_blank" rel="noopener">
-    <?= htmlspecialchars($t('musteri.sikayet')) ?>
-  </a>
-</p>
+<a class="btn btn-support" style="margin-top:6px;" href="<?= htmlspecialchars('https://wa.me/' . $whatsappSupport . '?text=' . rawurlencode('Təklif/İrad — ')) ?>" target="_blank" rel="noopener">
+  &#128172;&nbsp; <?= htmlspecialchars($t('musteri.sikayet')) ?>
+</a>
 
 <script>
 var STATUS_ETIKETLERI = <?= json_encode([
