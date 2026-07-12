@@ -66,9 +66,10 @@ window.BirlikdeAdmin = (function () {
     return false;
   }
 
-  // ---- Açılış (splash) animasiyası — admin giriş səhifəsi hər açılanda ----
+  // ---- Açılış (splash) animasiyası — admin girişinə TƏZƏ girəndə (daxili
+  // yönləndirmədə yox) oynanılır; bax login_head.php-dəki referrer yoxlaması ----
   function playSplashOnce(splashEl) {
-    if (!splashEl) {
+    if (!splashEl || splashEl.classList.contains('hide')) {
       return;
     }
 

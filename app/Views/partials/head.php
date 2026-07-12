@@ -36,6 +36,27 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
     <div class="splash-tag"><?= htmlspecialchars($t('splash.tagline')) ?></div>
   </div>
 </div>
+<script>
+  // Tətbiq DAXİLİNDƏ bir səhifədən digərinə keçid (drawer linki, giriş →
+  // panel yönləndirməsi və s.) animasiyanı YENİDƏN göstərməməlidir — yalnız
+  // PWA-nı təzə açanda / saytа kənardan (yeni) girəndə göstərilməlidir.
+  // document.referrer eyni origin-dədirsə bu, "tətbiq daxili keçid" deməkdir
+  // (PWA standalone açılışında və kənar keçiddə referrer boş/fərqli olur).
+  (function () {
+    var ref = document.referrer;
+    var daxiliKecid = false;
+    if (ref) {
+      try {
+        daxiliKecid = new URL(ref).origin === window.location.origin;
+      } catch (e) {
+        daxiliKecid = false;
+      }
+    }
+    if (daxiliKecid) {
+      document.getElementById('splashOverlay').classList.add('hide');
+    }
+  })();
+</script>
 
 <div class="top-nav glass">
   <button class="burger" id="drawerBurger" type="button" aria-label="Menyu"><span></span><span></span><span></span></button>

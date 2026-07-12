@@ -93,9 +93,11 @@ window.Birlikde = (function () {
     scrimEl.addEventListener('click', closeDrawer);
   }
 
-  // ---- Açılış (splash) animasiyası — hər səhifə açılışında oynanılır ----
+  // ---- Açılış (splash) animasiyası — tətbiqə TƏZƏ girəndə (yox, hər daxili
+  // keçiddə) oynanılır; daxili keçid olub-olmadığı head.php-dəki sinxron
+  // referrer-yoxlaması ilə müəyyənləşir (bax orada .hide əlavəsi) ----
   function playSplashOnce(splashEl) {
-    if (!splashEl) {
+    if (!splashEl || splashEl.classList.contains('hide')) {
       return;
     }
 

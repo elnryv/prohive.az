@@ -26,6 +26,24 @@
     <div class="splash-tag"><?= htmlspecialchars($t('admin.giris_basliq')) ?></div>
   </div>
 </div>
+<script>
+  // Bax app/Views/partials/head.php-dəki eyni məntiq: admin panel daxilində
+  // (idle-timeout) giriş səhifəsinə yönləndirmə animasiyanı təkrarlamamalı.
+  (function () {
+    var ref = document.referrer;
+    var daxiliKecid = false;
+    if (ref) {
+      try {
+        daxiliKecid = new URL(ref).origin === window.location.origin;
+      } catch (e) {
+        daxiliKecid = false;
+      }
+    }
+    if (daxiliKecid) {
+      document.getElementById('splashOverlay').classList.add('hide');
+    }
+  })();
+</script>
 
 <div class="login-wrap">
   <div class="login-card glass">
