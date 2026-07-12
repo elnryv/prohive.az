@@ -974,3 +974,13 @@ commit edildi:
   paylaşma düyməsinə basıb Ana ekrana əlavə et"). Playwright ilə saxta iOS
   Safari UA + `PushManager` silinməsi ilə simulyasiya edilib, düzgün mesaj
   təsdiqləndi. `sw.js` `CACHE_VERSION` v11→v12.
+- **İstifadəçi tələbi: "Bu yazı bildirişi elə etki pop up açılsın və müasir
+  şəkildə izah etsin"** — düz mətn xəta qutusu əvəzinə, iOS quraşdırma
+  təlimatı indi mövcud `.modal-overlay`/`.modal-sheet` naxışı ilə (tam
+  qeyri-şəffaf ağ kart, bax əvvəlki modal bug-ı düzəlişi) rəngli nişan-
+  dairəli 3 addımlı pop-up kimi göstərilir (📱 ikon + "Bildirişləri
+  aktivləşdirmək üçün" başlıq + 1/2/3 nömrələnmiş mavi dairələr + "Bağla").
+  Yeni `.step-list`/`.step-item`/`.step-num`/`.step-text` CSS sinifləri
+  əlavə olundu. Playwright ilə saxta iOS UA-la vizual təsdiqləndi —
+  pop-up düzgün açılır/bağlanır, dizayn sisteminə tam uyğundur.
+  `sw.js` `CACHE_VERSION` v12→v13.

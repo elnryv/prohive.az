@@ -742,6 +742,43 @@ a {
   margin-top: 18px;
 }
 
+.modal-sheet .step-list {
+  text-align: left;
+  margin: 18px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-sheet .step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modal-sheet .step-num {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 3px 8px rgba(61, 90, 254, 0.3);
+}
+
+.modal-sheet .step-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.45;
+  padding-top: 4px;
+  text-align: left;
+}
+
 /* Profil — sosial-şəbəkə stilli başlıq (bax kurye/profil.php) */
 .profil-hero {
   display: flex;

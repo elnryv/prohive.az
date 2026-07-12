@@ -48,6 +48,22 @@ require __DIR__ . '/../partials/head.php';
   <div class="success-box" id="pushUgur"></div>
 </div>
 
+<div class="modal-overlay" id="iosInstallModal">
+  <div class="modal-sheet glass">
+    <div class="modal-icon">&#128241;</div>
+    <h2><?= htmlspecialchars($t('profil.ios_basliq')) ?></h2>
+    <p><?= htmlspecialchars($t('profil.ios_izah')) ?></p>
+    <div class="step-list">
+      <div class="step-item"><span class="step-num">1</span><span class="step-text"><?= htmlspecialchars($t('profil.ios_addim1')) ?></span></div>
+      <div class="step-item"><span class="step-num">2</span><span class="step-text"><?= htmlspecialchars($t('profil.ios_addim2')) ?></span></div>
+      <div class="step-item"><span class="step-num">3</span><span class="step-text"><?= htmlspecialchars($t('profil.ios_addim3')) ?></span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="iosModalBaglaBtn" type="button"><?= htmlspecialchars($t('ortaq.bagla')) ?></button>
+    </div>
+  </div>
+</div>
+
 <script>
 var VAPID_PUBLIC_KEY = <?= json_encode(\App\Core\Env::get('VAPID_PUBLIC_KEY', ''), JSON_UNESCAPED_UNICODE) ?>;
 var ABUNE_ETIKETLERI = <?= json_encode([
@@ -61,7 +77,6 @@ var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNI
 var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_UGUR = <?= json_encode($t('profil.bildiris_ugur'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_DETEKLENMIR = <?= json_encode($t('profil.bildiris_deteklenmir'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-var BILDIRIS_IOS_QEYRI_QURULU = <?= json_encode($t('profil.bildiris_ios_qeyri_qurulu'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_QADAGAN = <?= json_encode($t('profil.bildiris_qadagan'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BILDIRIS_XETA = <?= json_encode($t('profil.bildiris_xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
@@ -229,7 +244,11 @@ var BILDIRIS_XETA = <?= json_encode($t('profil.bildiris_xeta'), JSON_UNESCAPED_U
     btn.disabled = false;
 
     if (!res.supported) {
-      Birlikde.showError(xetaEl, res.iosNotInstalled ? BILDIRIS_IOS_QEYRI_QURULU : BILDIRIS_DETEKLENMIR);
+      if (res.iosNotInstalled) {
+        document.getElementById('iosInstallModal').classList.add('visible');
+      } else {
+        Birlikde.showError(xetaEl, BILDIRIS_DETEKLENMIR);
+      }
       return;
     }
     if (res.denied) {
@@ -243,6 +262,15 @@ var BILDIRIS_XETA = <?= json_encode($t('profil.bildiris_xeta'), JSON_UNESCAPED_U
     if (res.granted) {
       ugurEl.textContent = BILDIRIS_UGUR;
       ugurEl.classList.add('visible');
+    }
+  });
+
+  document.getElementById('iosModalBaglaBtn').addEventListener('click', function () {
+    document.getElementById('iosInstallModal').classList.remove('visible');
+  });
+  document.getElementById('iosInstallModal').addEventListener('click', function (event) {
+    if (event.target.id === 'iosInstallModal') {
+      document.getElementById('iosInstallModal').classList.remove('visible');
     }
   });
 
