@@ -137,8 +137,12 @@ apt install -y software-properties-common && add-apt-repository ppa:ondrej/php -
 ## 5. Kodu serverə köçürmək
 
 ```
-mkdir -p /var/www && cd /var/www && git clone https://github.com/elnryv/prohive.az.git birlikde && cd birlikde
+mkdir -p /var/www && cd /var/www && git clone -b claude/project-memory-system-m966o7 https://github.com/elnryv/prohive.az.git birlikde && cd birlikde
 ```
+
+> **Vacib:** kod GitHub-da `claude/project-memory-system-m966o7` adlı budaqdadır
+> (branch), `main` YOX — `main` hələ demək olar boşdur. `-b claude/project-memory-system-m966o7`
+> hissəsini əmrdən çıxarmayın, əks halda boş repo endiriləcək.
 
 Repo özəldirsə istifadəçi adı/token soruşacaq — GitHub → Settings →
 Developer settings → Personal access tokens bölməsindən yaradıb parol

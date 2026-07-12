@@ -277,12 +277,18 @@ yanlışlıqla başqa cür Nginx quraşdırmayın.
 ```bash
 mkdir -p /var/www
 cd /var/www
-git clone https://github.com/elnryv/prohive.az.git birlikde
+git clone -b claude/project-memory-system-m966o7 https://github.com/elnryv/prohive.az.git birlikde
 cd birlikde
 ```
 
 Bu, bütün kodu `/var/www/birlikde/` qovluğuna endirəcək (yuxarıdakı struktur
 avtomatik yaranacaq).
+
+> **Vacib:** kod GitHub-da `claude/project-memory-system-m966o7` adlı budaqdadır
+> (branch), `main` budağında DEYİL — `main` hələ demək olar boşdur. Ona görə
+> `-b claude/project-memory-system-m966o7` hissəsini əmrdən ÇIXARMAYIN, əks
+> halda boş repo endiriləcək. Repo linki: `https://github.com/elnryv/prohive.az`
+> (budaq seçimi ilə: `https://github.com/elnryv/prohive.az/tree/claude/project-memory-system-m966o7`).
 
 **Qeyd — repo özəldirsə:** `git clone` zamanı istifadəçi adı/token soruşa bilər.
 GitHub-da Settings → Developer settings → Personal access tokens bölməsindən
@@ -292,7 +298,7 @@ Növbəti dəfələr (kod yenilənəndə) sadəcə bu qovluqda:
 
 ```bash
 cd /var/www/birlikde
-git pull origin main
+git pull origin claude/project-memory-system-m966o7
 ```
 
 ---
