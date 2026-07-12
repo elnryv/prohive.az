@@ -121,11 +121,30 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
 - **WhatsApp:** platforma söhbətə qarışmır/saxlamır, yalnız ön-doldurulmuş `wa.me` linki açır.
 - **Sessiya modeli:** müştəri/kuryer — KALICI (yalnız "Çıxış" və ya parol dəyişəndə bitir,
   remember-me cookie httponly+secure+samesite). Admin — QISA idle-timeout, KALICI DEYİL.
-- **Abunə:** yarım-avtomatik ödəniş (recurring/avtomatik kart çəkmə YOXDUR). Kuryer hər ay
-  özü "Ödə" basır. Admin panelində fərdi (+30 gün, tip dəyiş, dayandır) VƏ qlobal
-  (bütün platformada abunəni dayandır/aktivləşdir) idarə səviyyələri var — fərqlidir.
-- **Ödəniş:** `PaymentProvider` interfeysi (`baslat`, `callbackDogrula`), Birbank/Payriff
-  adapterləri. Webhook idempotent olmalı (eyni `order_id` iki dəfə emal olunmaz). Kart
+- **Abunə:** yarım-avtomatik ödəniş (recurring/avtomatik kart çəkmə YOXDUR — "avtomatik"
+  yalnız bitmə tarixi keçəndə bildiriş + lövhənin avtomatik bağlanması mənasındadır,
+  `cron/abunelik_yoxla.php`). Kuryer hər ay özü "Ödə" basır. Admin panelində fərdi
+  (+30 gün, tip dəyiş, dayandır) VƏ qlobal (bütün platformada abunəni dayandır/
+  aktivləşdir — `abune_rejimi`) idarə səviyyələri var. Bundan ƏLAVƏ: kuryerlər
+  səhifəsində "Hamısını PULSUZ/PULLU et" toplu düyməsi var (`AbunelikService::
+  hamisiniDeyis`) — "pulsuz" bütün kuryerlərə 30 günlük aktiv+pulsuz dövr verir
+  (yoxdursa yaradır, varsa uzadır) VƏ rəsmi kampaniya bildirişi göndərir (PushService);
+  "pullu" yalnız hazırda pulsuz olanları geri "pullu"-ya çevirir, qalan müddətə
+  toxunmur.
+- **Ödəniş:** `PaymentProvider` interfeysi (`baslat`, `callbackDogrula`). **Payriff REAL
+  API-yə qoşulub** (`PayriffProvider`, `POST https://api.payriff.com/api/v2/createOrder`,
+  `Authorization: <SECRET_KEY>` başlığı, cavabda `payload.paymentUrl`/`payload.orderId`) —
+  default provayder. `approveURL`/`cancelURL`/`declineURL` eyni `/odenis/qayit` ünvanına
+  göstərir (Payriff bura HƏM POST payload göndərir, HƏM brauzeri yönləndirir; nəticə
+  `payload.paymentStatus === 'PAID'`-dan oxunur). Ödənişdən sonra kuryer `/odenis/qayit`
+  təsdiq səhifəsində JS polling (`GET /odenis/son-hal`) ilə nəticəni gözləyir, uğurlu
+  olduqda avtomatik `/lovhe`-yə yönləndirilir. **Qeyd:** rəsmi Payriff sənədləşməsi
+  (docs.payriff.com) bu inkişaf mühitindən şəbəkə siyasətinə görə əlçatan olmadığı üçün
+  callback-in kriptoqrafik imza sxemi tam təsdiqlənə bilməyib — hazırkı müdafiə xətti
+  `order_id`-nin təxmin edilə bilməyən UUID olması + məbləğ/vəziyyət yoxlamasıdır (bax
+  `PayriffProvider.php` qeydi). Canlıya keçmədən əvvəl real Payriff hesabı ilə test
+  kartlarla (VISA/MC, 3DS icbari) tam axın yoxlanmalıdır. Birbank (`BirbankProvider`) hələ
+  YER TUTUCUDUR. Webhook idempotent olmalı (eyni `order_id` iki dəfə emal olunmaz). Kart
   məlumatı platformada saxlanmır.
 - **PWA/iOS:** `beforeinstallprompt` iOS Safari-də dəstəklənmir — vizual təlimat göstərilir.
   iOS-da Web Push YALNIZ ana ekrana əlavədən sonra işləyir.
@@ -158,6 +177,10 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
 | POST /kurye/onlayn | Kuryer | Onlayn/offline toggle |
 | POST /odenis/basla | Kuryer | Abunə ödənişi |
 | POST /webhook/odenis | Sistem | Ödəniş callback |
+| GET /odenis/qayit | Kuryer | Ödəniş təsdiq səhifəsi (Əlavə A-da yoxdur, Payriff return/callback üçün əlavə olundu) |
+| POST /odenis/qayit | Sistem | Payriff callback (eyni ünvan — approveURL=cancelURL=declineURL) |
+| GET /odenis/son-hal | Kuryer | Ödəniş vəziyyəti polling (JSON) |
+| POST /kuryeler/abunelik/hamisi | Admin | Bütün kuryerləri pulsuz/pullu et (Əlavə A-da yoxdur, əlavə olundu) |
 | GET /admin/... | Admin | Panel bölmələri |
 | POST /admin/banner | Admin | Banner idarəsi |
 

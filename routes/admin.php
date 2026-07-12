@@ -53,6 +53,7 @@ $router->post('/kurye/{kuryeId}/abunelik/uzat', [AdminAbunelikController::class,
 $router->post('/kurye/{kuryeId}/abunelik/tip', [AdminAbunelikController::class, 'tipDeyis'], [AdminAuth::class, CsrfGuard::class]);
 $router->post('/kurye/{kuryeId}/abunelik/aktivlik', [AdminAbunelikController::class, 'aktivlikDeyis'], [AdminAuth::class, CsrfGuard::class]);
 $router->post('/abune-rejimi', [AdminAbunelikController::class, 'qlobalRejim'], [AdminAuth::class, CsrfGuard::class]);
+$router->post('/kuryeler/abunelik/hamisi', [AdminAbunelikController::class, 'hamisiniDeyis'], [AdminAuth::class, CsrfGuard::class]);
 
 // Banner sistemi (bax bölmə 8.4)
 $router->post('/banner', [AdminBannerController::class, 'yarat'], [AdminAuth::class, CsrfGuard::class]);

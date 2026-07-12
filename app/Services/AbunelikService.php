@@ -21,6 +21,7 @@ final class AbunelikService
     private const GLOBAL_AYAR_ADI = 'abune_rejimi';
     private const TIPLER = ['pulsuz', 'pullu'];
     private const REJIMLER = ['aktiv', 'dayandirilib'];
+    private const TOPLU_KAMPANIYA_GUN = 30;
 
     private Abunelik $abunelikler;
     private Ayar $ayarlar;
@@ -210,6 +211,58 @@ final class AbunelikService
         $this->legalLogs->yaz($adminId, null, 'qlobal_abune_rejimi_deyisdi', [
             'rejim' => $rejim, 'sebeb' => $sebeb,
         ], $ip);
+    }
+
+    /**
+     * Admin-in bir düymə ilə BÜTÜN kuryerləri pulsuz/pullu etməsi (bax
+     * istifadəçi tələbi: "bir düymə ilə bütün kuryerləri ödənişli və ya
+     * pulsuz etmə"). "pulsuz": hər kuryerə 30 günlük aktiv+pulsuz dövr
+     * təmin edilir (yoxdursa yaradılır, bitibsə uzadılır) — kampaniya kimi
+     * dərhal işə düşür. "pullu": yalnız hazırda "pulsuz" olanlar "pullu"-ya
+     * çevrilir, qalan müddət toxunulmaz saxlanılır (kim nə qədər ödəyibsə
+     * itirmir, sadəcə növbəti dəfə ödəniş tələb olunacaq).
+     *
+     * @throws ValidationException
+     */
+    public function hamisiniDeyis(string $tip, string $sebeb, int $adminId, string $ip): array
+    {
+        $this->sebebYoxla($sebeb);
+
+        if (!in_array($tip, self::TIPLER, true)) {
+            throw new ValidationException('Abunə tipi düzgün deyil.');
+        }
+
+        $kuryeler = $this->kuryeler->hamisi();
+        $deyisenSayi = 0;
+
+        foreach ($kuryeler as $kurye) {
+            $kuryeId = $kurye['id'];
+
+            if ($tip === 'pulsuz') {
+                $this->uzatMuddet($kuryeId, self::TOPLU_KAMPANIYA_GUN);
+                $mevcud = $this->abunelikler->sonuncu($kuryeId);
+                $this->abunelikler->setTip((int) $mevcud['id'], 'pulsuz');
+                $deyisenSayi++;
+                continue;
+            }
+
+            $mevcud = $this->abunelikler->sonuncu($kuryeId);
+            if ($mevcud !== null && $mevcud['tip'] === 'pulsuz') {
+                $this->abunelikler->setTip((int) $mevcud['id'], 'pullu');
+                $deyisenSayi++;
+            }
+        }
+
+        $this->legalLogs->yaz($adminId, null, 'abunelik_hamisi_' . $tip, [
+            'sebeb' => $sebeb, 'deyisen_sayi' => $deyisenSayi, 'umumi_sayi' => count($kuryeler),
+        ], $ip);
+
+        return [
+            'tip' => $tip,
+            'deyisen_sayi' => $deyisenSayi,
+            'umumi_sayi' => count($kuryeler),
+            'kuryeler' => $tip === 'pulsuz' ? $kuryeler : [],
+        ];
     }
 
     /**

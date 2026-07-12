@@ -67,4 +67,20 @@ final class Kurye
     {
         return (int) $this->db->query('SELECT COUNT(*) FROM kuryeler WHERE onlayn = 1')->fetchColumn();
     }
+
+    /**
+     * Bütün kuryer/yükdaşıma id-ləri — admin-in "hamısını pulsuz/pullu et"
+     * toplu əməliyyatı üçün (bax AbunelikService::hamisiniDeyis).
+     *
+     * @return array<int, array{id:int, user_id:int}>
+     */
+    public function hamisi(): array
+    {
+        $satirlar = $this->db->query('SELECT id, user_id FROM kuryeler')->fetchAll();
+
+        return array_map(
+            static fn (array $r) => ['id' => (int) $r['id'], 'user_id' => (int) $r['user_id']],
+            $satirlar
+        );
+    }
 }

@@ -68,6 +68,8 @@ $router->get('/kurye-sekil/{fayl}', [KuryeSekilController::class, 'goster']);
 // Abunə ödənişi (bax bölmə 9.1)
 $router->post('/odenis/basla', [OdenisController::class, 'basla'], [Auth::class, KuryeGuard::class, CsrfGuard::class, RateLimit::class]);
 $router->post('/webhook/odenis', [OdenisController::class, 'webhook'], [RateLimit::class]);
+$router->post('/odenis/qayit', [OdenisController::class, 'qayitCallback'], [RateLimit::class]);
+$router->get('/odenis/son-hal', [OdenisController::class, 'sonHal'], [Auth::class, KuryeGuard::class]);
 
 // Web Push abunəliyi (bax bölmə 9.3)
 $router->post('/push/abune', [PushController::class, 'abune'], [Auth::class, CsrfGuard::class]);
@@ -81,6 +83,7 @@ $router->get('/panel', [AppPageController::class, 'panel']);
 $router->get('/lovhe', [AppPageController::class, 'lovhe']);
 $router->get('/profil', [AppPageController::class, 'profil']);
 $router->get('/sifarislerim', [AppPageController::class, 'sifarislerim']);
+$router->get('/odenis/qayit', [AppPageController::class, 'odenisQayit'], [Auth::class, KuryeGuard::class]);
 
 // Hüquqi sənədlər (bax bölmə 1 "Hüquqi qeyd", Faza 7) — ictimai, giriş tələb olunmur
 $router->get('/huquqi', [LegalController::class, 'index']);

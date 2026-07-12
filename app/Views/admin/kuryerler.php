@@ -9,6 +9,16 @@ require __DIR__ . '/partials/shell_head.php';
   <h1><?= htmlspecialchars($t('admin.kuryerler')) ?></h1>
 </div>
 
+<div class="glass" style="padding:16px; margin-bottom:14px;">
+  <h3 style="margin:0 0 10px;"><?= htmlspecialchars($t('admin.hamisi_basliq')) ?></h3>
+  <div class="field"><label><?= htmlspecialchars($t('admin.sebeb')) ?></label><input type="text" id="topluSebebInput"></div>
+  <div class="toolbar" style="margin-top:10px;">
+    <button class="btn btn-success btn-small" id="topluPulsuzBtn"><?= htmlspecialchars($t('admin.hamisi_pulsuz')) ?></button>
+    <button class="btn btn-ghost btn-small" id="topluPulluBtn"><?= htmlspecialchars($t('admin.hamisi_pullu')) ?></button>
+  </div>
+  <p id="topluNetice" style="color:var(--text-dim); font-size:13px; margin:10px 0 0; display:none;"></p>
+</div>
+
 <div class="toolbar">
   <input type="text" id="axtarInput" placeholder="<?= htmlspecialchars($t('admin.axtar')) ?>">
 </div>
@@ -32,6 +42,11 @@ var SEBEB_METNI = <?= json_encode($t('admin.sebeb'), JSON_UNESCAPED_UNICODE | JS
 var BLOKLA_METNI = <?= json_encode($t('admin.blokla'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BLOKDAN_CIXAR_METNI = <?= json_encode($t('admin.blokdan_cixar'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var BAGLA_METNI = <?= json_encode($t('ortaq.bagla'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var HAMISI_PULSUZ_TESDIQ = <?= json_encode($t('admin.hamisi_pulsuz_tesdiq'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var HAMISI_PULLU_TESDIQ = <?= json_encode($t('admin.hamisi_pullu_tesdiq'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var HAMISI_SEBEB_MECBURI = <?= json_encode($t('admin.hamisi_sebeb_mecburi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var HAMISI_NETICE_PULSUZ = <?= json_encode($t('admin.hamisi_netice_pulsuz'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var HAMISI_NETICE_PULLU = <?= json_encode($t('admin.hamisi_netice_pullu'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var API = '/kuryerler';
@@ -164,6 +179,38 @@ var BAGLA_METNI = <?= json_encode($t('ortaq.bagla'), JSON_UNESCAPED_UNICODE | JS
   document.getElementById('axtarInput').addEventListener('input', function () {
     clearTimeout(axtarTimeout);
     axtarTimeout = setTimeout(function () { page = 1; siyahiYukle(); }, 350);
+  });
+
+  async function topluDeyis(tip, tesdiqMetni) {
+    var sebeb = document.getElementById('topluSebebInput').value;
+    if (!sebeb.trim()) {
+      alert(HAMISI_SEBEB_MECBURI);
+      return;
+    }
+    if (!window.confirm(tesdiqMetni)) return;
+
+    var res = await BirlikdeAdmin.api('POST', '/kuryeler/abunelik/hamisi', { tip: tip, sebeb: sebeb });
+    var neticeEl = document.getElementById('topluNetice');
+    neticeEl.style.display = 'block';
+
+    if (!res.ok) {
+      neticeEl.textContent = (res.data && res.data.error) || '—';
+      return;
+    }
+
+    var metnSablonu = tip === 'pulsuz' ? HAMISI_NETICE_PULSUZ : HAMISI_NETICE_PULLU;
+    neticeEl.textContent = metnSablonu
+      .replace('{deyisen}', res.data.data.deyisen_sayi)
+      .replace('{umumi}', res.data.data.umumi_sayi);
+
+    siyahiYukle();
+  }
+
+  document.getElementById('topluPulsuzBtn').addEventListener('click', function () {
+    topluDeyis('pulsuz', HAMISI_PULSUZ_TESDIQ);
+  });
+  document.getElementById('topluPulluBtn').addEventListener('click', function () {
+    topluDeyis('pullu', HAMISI_PULLU_TESDIQ);
   });
 
   siyahiYukle();

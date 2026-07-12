@@ -49,15 +49,34 @@ final class OdenisService
         }
 
         $qiymet = (float) ($this->ayarlar->get('abune_qiymeti') ?? self::DEFAULT_QIYMET);
-        $orderId = self::orderIdYarat();
-        $provayderAdi = Env::get('PAYMENT_PROVIDER', 'birbank');
-
-        $this->odenisler->create($kuryeId, $orderId, $qiymet, $provayderAdi);
+        $provayderAdi = Env::get('PAYMENT_PROVIDER', 'payriff');
 
         $provider = PaymentProviderFactory::current();
-        $sessiya = $provider->baslat($kuryeId, $qiymet, $orderId);
+        // Sessiya provayderdən ƏVVƏL alınır — Payriff kimi provayderlər öz
+        // order id-lərini (UUID) özləri yaradır və cavabda qaytarırlar,
+        // ona görə yerli qeyd yalnız real order id məlumdur olandan sonra açılır.
+        $sessiya = $provider->baslat($kuryeId, $qiymet, self::orderIdYarat());
+
+        $this->odenisler->create($kuryeId, $sessiya->orderId, $qiymet, $provayderAdi);
 
         return ['order_id' => $sessiya->orderId, 'redirect_url' => $sessiya->redirectUrl];
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function sonHal(int $kuryeId): array
+    {
+        $odenis = $this->odenisler->findPendingByKurye($kuryeId) ?? $this->odenisler->findSonuncuByKurye($kuryeId);
+
+        if ($odenis === null) {
+            throw new ValidationException('Ödəniş qeydi tapılmadı.');
+        }
+
+        return [
+            'order_id' => $odenis['order_id'],
+            'status' => $odenis['status'],
+        ];
     }
 
     /**

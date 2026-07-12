@@ -10,8 +10,11 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
+use App\Core\ValidationException;
+use App\Models\Kurye;
 use App\Models\User;
 use App\Models\YukdasimaOlcusu;
+use App\Services\OdenisService;
 
 /**
  * app.birlikde.biz HTML səhifələri (unauthenticated shell — həqiqi giriş
@@ -83,6 +86,32 @@ final class AppPageController
         $params['whatsappSupport'] = Env::get('WHATSAPP_SUPPORT_NUMBER', '');
 
         return View::render('kurye/sifarislerim', $params);
+    }
+
+    /**
+     * Ödənişdən sonra Payriff-in kuryerin brauzerini yönləndirdiyi təsdiq
+     * səhifəsi — bax OdenisController qeydi.
+     */
+    public function odenisQayit(Request $request): mixed
+    {
+        $this->hazirlaDil($request);
+
+        $params = $this->navParams();
+        $params['ilkinHal'] = null;
+
+        $userId = Session::get('user_id');
+        if ($userId !== null) {
+            $kurye = (new Kurye())->findByUserId((int) $userId);
+            if ($kurye !== null) {
+                try {
+                    $params['ilkinHal'] = (new OdenisService())->sonHal((int) $kurye['id']);
+                } catch (ValidationException) {
+                    $params['ilkinHal'] = null;
+                }
+            }
+        }
+
+        return View::render('odenis/qayit', $params);
     }
 
     private function hazirlaDil(Request $request): void

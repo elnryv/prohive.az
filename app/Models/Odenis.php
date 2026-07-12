@@ -56,6 +56,17 @@ final class Odenis
         return $row === false ? null : $row;
     }
 
+    public function findSonuncuByKurye(int $kuryeId): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM odenisler WHERE kurye_id = :kurye_id ORDER BY created_at DESC LIMIT 1'
+        );
+        $stmt->execute(['kurye_id' => $kuryeId]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
+    }
+
     public function updateStatus(int $id, string $status, array $callback): void
     {
         $stmt = $this->db->prepare(

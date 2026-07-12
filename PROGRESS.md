@@ -778,3 +778,79 @@ commit edildi:
   test edilib (müştəri VƏ kuryer detal modalları, həm masaüstü, həm mobil
   ölçüdə) — modal kartı təmiz ağ, overlay isə normal tündləşdirmə effekti
   kimi göründü. `sw.js` `CACHE_VERSION` v7→v8.
+
+### 2026-07-12 (davam) — Modal-ın yuxarı hissəsi gizlənmə bug-ı (CSS containing-block)
+
+- İstifadəçi eyni modal-ı yenidən skrinşotla göstərdi: bu dəfə fon ağ idi,
+  amma kartın YUXARI hissəsi (ad, telefon, status) ekrandan kənarda qalıb
+  görünmürdü. Kök səbəb tapıldı: `.admin-main` (və app tərəfdə `.container`)
+  `animation: pageIn ... both` istifadə edirdi — "both" fill-mode animasiya
+  bitəndən sonra son keyframe-in `transform: translateY(0)` dəyərini əbədi
+  saxlayır; CSS spesifikasiyasına görə `none` olmayan istənilən `transform`
+  əcdad elementi `position:fixed` övladları üçün yeni containing block edir
+  — nəticədə `.modal-overlay` əsl viewport əvəzinə `.admin-main`-in kiçik
+  boksuna həbs olunurdu. Düzəliş: animasiyalardan `both` çıxarıldı (vizual
+  fərq yoxdur, defolt fill-mode son vəziyyəti eyni saxlayır, sadəcə
+  transform əbədi qalmır). Əlavə olaraq: admin modal-larının daxili scroll
+  mövqeyi (`#modalIcerik`) hər açılışda sıfırlanır (əvvəllər eyni DOM
+  elementi təkrar istifadə olunduğundan əvvəlki kartın scroll mövqeyi
+  qalırdı). Playwright ilə `overlayRect`/`modalRect` koordinatları
+  ölçülərək təsdiqləndi (əvvəl: overlay 301px hündürlükdə həbs olunmuşdu;
+  sonra: tam 700px viewport-u əhatə etdi). `sw.js` `CACHE_VERSION` v8→v9.
+
+### 2026-07-12 (davam) — Payriff real API inteqrasiyası + admin toplu pulsuz/pullu
+
+- İstifadəçinin tələbi: "avtomatik abunəlik" — hər AY OTOMATİK KART ÇƏKMƏ
+  YOX, bitmə tarixi keçəndə bildiriş + lövhənin avtomatik bağlanması
+  (bu, artıq Faza 3/5-dən bəri `cron/abunelik_yoxla.php` ilə mövcud idi,
+  yalnız təsdiqləndi/sənədləşdirildi). Real dəyişiklik: ödəniş Payriff-ə
+  keçirildi (əvvəlki `PayriffProvider` tam YER TUTUCU idi — saxta HMAC
+  imza, real API çağırışı YOX idi).
+- **PayriffProvider tam yenidən yazıldı** — rəsmi nümunə repo
+  (github.com/payriff-com/payriff-examples) və istifadəçinin paylaşdığı
+  əsl callback payload nümunəsi əsasında: `POST https://api.payriff.com/
+  api/v2/createOrder` (`Authorization: <SECRET_KEY>` başlığı, body:
+  amount/currencyType/description/language/approveURL/cancelURL/
+  declineURL/merchant), cavabdan `payload.paymentUrl`+`payload.orderId`
+  oxunur (Payriff öz UUID order id-ni özü yaradır — buna görə
+  `OdenisService::basla()` sırası dəyişdirildi: əvvəlcə provayderdən
+  sessiya alınır, YALNIZ SONRA yerli `odenisler` qeydi Payriff-in real
+  order id-si ilə açılır). `approveURL=cancelURL=declineURL` eyni
+  `/odenis/qayit` ünvanına göstərir (istifadəçinin Payriff dəstəyindən
+  aldığı təsdiqə görə: "callback və return URL eynidir", Payriff bura
+  HƏM POST payload göndərir, HƏM brauzeri paralel yönləndirir) — nəticə
+  `payload.paymentStatus === 'PAID'` sahəsindən oxunur.
+- **Yeni `/odenis/qayit` səhifəsi:** kuryer ödənişdən sonra bura düşür,
+  spinner göstərilir, `GET /odenis/son-hal` ilə 1.5 saniyəlik polling
+  edilir (webhook asinxron gələ bilər), uğurlu olduqda ✅ görünür və
+  1.8 saniyə sonra avtomatik `/lovhe`-yə yönləndirilir, uğursuz olduqda
+  "Yenidən cəhd et" düyməsi göstərilir. `.odenis-spinner` fırlanan dairə
+  CSS-i əlavə olundu.
+- **⚠ QEYD (şəffaflıq):** rəsmi Payriff sənədləşməsi (docs.payriff.com)
+  bu inkişaf mühitindən şəbəkə siyasətinə görə (proxy allowlist) əlçatan
+  olmadı — createOrder sorğu/cavab formatı rəsmi nümunə repo + istifadəçi
+  ilə Payriff dəstəyi arasındakı yazışmadan (paylaşılan əsl callback
+  payload) tərtib olundu, YÜKSƏK ETİBAR səviyyəsindədir, AMMA callback-in
+  kriptoqrafik imza sxemi (əgər varsa) tam təsdiqlənə bilməyib. Hazırkı
+  müdafiə: `order_id` Payriff tərəfindən yaradılan təxmin edilə bilməyən
+  UUID-dir (yerli `odenisler.order_id` UNIQUE) + yalnız `gozlemede`
+  statuslu uyğun qeyd varsa emal olunur (idempotent). **Canlıya keçmədən
+  əvvəl real Payriff merchant hesabı ilə test kartlarla (VISA
+  4000007546012078, MC 5000005541096514, 3DS icbari, OTP 123456) tam
+  axın yoxlanmalıdır** — istifadəçi bunu edə bilər, mən sandbox-dan
+  api.payriff.com-a çata bilmirəm (test zamanı bu, gözlənilən "CONNECT
+  tunnel failed" xətası ilə təsdiqləndi, kодun özü səhvsiz idi).
+- **Admin: "Hamısını PULSUZ/PULLU et" toplu düyməsi** (`kuryerler.php`,
+  `AbunelikService::hamisiniDeyis`) — bir kliklə BÜTÜN kuryerlərin abunə
+  vəziyyətini dəyişir. "Pulsuz": hər kuryerə 30 günlük aktiv+pulsuz dövr
+  təmin edilir (yoxdursa yaradılır, varsa uzadılır) VƏ rəsmi kampaniya
+  mətni ilə bildiriş göndərilir (PushService — hazırda yalnız infrastruktur
+  səviyyəsində, real Web Push göndərmə hələ YER TUTUCUDUR, bax
+  PushService qeydi). "Pullu": yalnız hazırda pulsuz olanlar geri
+  çevrilir, qalan müddət toxunulmur. Səbəb sahəsi məcburi, audit
+  jurnalına (`legal_logs`) yazılır. Real DB+HTTP+Playwright ilə test
+  edildi: yeni qeyd yaratma VƏ mövcud qeydi uzatma hər iki qol, validasiya
+  xətaları, UI-də təsdiq dialoqları.
+- `.env.example` yeniləndi: `PAYMENT_PROVIDER=payriff` default oldu,
+  `PAYRIFF_PAYMENT_URL` silindi (URL artıq kod daxilində sabit).
+  `sw.js` `CACHE_VERSION` v9→v10.
