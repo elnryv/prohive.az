@@ -10,11 +10,17 @@ require __DIR__ . '/../partials/head.php';
   <form id="girisForm">
     <div class="field">
       <label for="telefon"><?= htmlspecialchars($t('giris.telefon')) ?></label>
-      <input type="tel" id="telefon" name="telefon" required autocomplete="tel" placeholder="994501234567">
+      <div class="input-icon-wrap">
+        <span class="input-icon">&#128222;</span>
+        <input type="tel" id="telefon" name="telefon" required autocomplete="tel" placeholder="994501234567">
+      </div>
     </div>
     <div class="field">
       <label for="parol"><?= htmlspecialchars($t('giris.parol')) ?></label>
-      <input type="password" id="parol" name="parol" required autocomplete="current-password">
+      <div class="input-icon-wrap">
+        <span class="input-icon">&#128274;</span>
+        <input type="password" id="parol" name="parol" required autocomplete="current-password">
+      </div>
     </div>
     <div class="field field-check">
       <input type="checkbox" id="meniXatirla" name="meni_xatirla" value="1" checked>

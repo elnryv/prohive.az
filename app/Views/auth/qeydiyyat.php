@@ -29,15 +29,24 @@ require __DIR__ . '/../partials/head.php';
     </div>
     <div class="field">
       <label for="telefon"><?= htmlspecialchars($t('qeydiyyat.telefon')) ?></label>
-      <input type="tel" id="telefon" name="telefon" required placeholder="994501234567">
+      <div class="input-icon-wrap">
+        <span class="input-icon">&#128222;</span>
+        <input type="tel" id="telefon" name="telefon" required placeholder="994501234567">
+      </div>
     </div>
     <div class="field">
       <label for="whatsapp"><?= htmlspecialchars($t('qeydiyyat.whatsapp')) ?></label>
-      <input type="tel" id="whatsapp" name="whatsapp" required placeholder="994501234567">
+      <div class="input-icon-wrap">
+        <span class="input-icon">&#128172;</span>
+        <input type="tel" id="whatsapp" name="whatsapp" required placeholder="994501234567">
+      </div>
     </div>
     <div class="field">
       <label for="parol"><?= htmlspecialchars($t('qeydiyyat.parol')) ?></label>
-      <input type="password" id="parol" name="parol" required autocomplete="new-password" minlength="6">
+      <div class="input-icon-wrap">
+        <span class="input-icon">&#128274;</span>
+        <input type="password" id="parol" name="parol" required autocomplete="new-password" minlength="6">
+      </div>
     </div>
 
     <div class="field" id="neqliyyatField" style="display:none;">

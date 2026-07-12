@@ -17,6 +17,8 @@ require __DIR__ . '/../partials/head.php';
 <script>
 var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var GOTURULME_ETIKETI = <?= json_encode($t('musteri.goturulme'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var CATDIRILMA_ETIKETI = <?= json_encode($t('musteri.catdirilma'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var SIKAYET_WA_LINK = <?= json_encode(
     'https://wa.me/' . $whatsappSupport . '?text=' . rawurlencode('Təklif/İrad — '),
     JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
@@ -44,7 +46,7 @@ var SIKAYET_WA_LINK = <?= json_encode(
       html += '<strong>#' + s.id + '</strong>';
       html += '<span class="badge badge-tamamlandi">' + Birlikde.escapeHtml(s.goturulme_vaxti || s.created_at) + '</span>';
       html += '</div>';
-      html += '<p style="font-size:14.5px; margin-top:6px;">' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>';
+      html += Birlikde.routeStepperHtml(s.goturulme_unvan, s.catdirilma_unvan, GOTURULME_ETIKETI, CATDIRILMA_ETIKETI);
       html += '<div class="dasiyici-info">';
       html += '<span>' + Birlikde.escapeHtml(MUSTERI_ETIKETI) + ': ' + Birlikde.escapeHtml(s.musteri_adi || '—') + '</span>';
       if (s.musteri_whatsapp_link) {

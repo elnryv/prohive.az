@@ -41,6 +41,9 @@ var GOT_METNI = <?= json_encode($t('kurye.got'), JSON_UNESCAPED_UNICODE | JSON_H
 var ONLAYN_METNI = <?= json_encode($t('kurye.onlayn'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var GOTURULME_ETIKETI = <?= json_encode($t('musteri.goturulme'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var CATDIRILMA_ETIKETI = <?= json_encode($t('musteri.catdirilma'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var TECILI_METNI = <?= json_encode($t('musteri.tecili'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var kartlarEl = document.getElementById('lovheKartlar');
@@ -51,11 +54,10 @@ var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UN
     div.className = 'card glass';
     div.id = 'sifaris-' + s.id;
 
-    var html = '<div style="display:flex; justify-content:space-between;">';
+    var html = '';
+    if (s.tecili) html += '<div class="card-ribbon">' + Birlikde.escapeHtml(TECILI_METNI) + '</div>';
     html += '<strong>#' + s.id + '</strong>';
-    if (s.tecili) html += '<span class="badge badge-legv">!</span>';
-    html += '</div>';
-    html += '<p style="font-size:14px;">' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>';
+    html += Birlikde.routeStepperHtml(s.goturulme_unvan, s.catdirilma_unvan, GOTURULME_ETIKETI, CATDIRILMA_ETIKETI);
     if (s.yuk_tesviri) html += '<p style="color:var(--text-dim); font-size:13px;">' + Birlikde.escapeHtml(s.yuk_tesviri) + '</p>';
     if (s.teklif_qiymet) html += '<p style="font-weight:600;">' + Birlikde.escapeHtml(s.teklif_qiymet) + ' AZN</p>';
     html += '<button class="btn btn-primary btn-small" data-got="' + s.id + '">' + Birlikde.escapeHtml(GOT_METNI) + '</button>';

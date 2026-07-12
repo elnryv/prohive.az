@@ -104,6 +104,9 @@ var LEGV_METNI = <?= json_encode($t('ortaq.legv'), JSON_UNESCAPED_UNICODE | JSON
 var BOS_TARIXCE = <?= json_encode($t('musteri.aktiv_sifaris_yoxdur'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var DASIYICI_ETIKETI = <?= json_encode($t('musteri.dasiyici'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var GOTURULME_ETIKETI = <?= json_encode($t('musteri.goturulme'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var CATDIRILMA_ETIKETI = <?= json_encode($t('musteri.catdirilma'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var TECILI_METNI = <?= json_encode($t('musteri.tecili'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var errBox = document.getElementById('errBox');
@@ -190,10 +193,12 @@ var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_
       return;
     }
 
-    var html = '<div style="display:flex; justify-content:space-between; align-items:center;">';
+    var html = '';
+    if (aktiv.tecili) html += '<div class="card-ribbon">' + Birlikde.escapeHtml(TECILI_METNI) + '</div>';
+    html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
     html += '<strong>#' + aktiv.id + '</strong>' + statusBadge(aktiv.status);
     html += '</div>';
-    html += '<p style="color:var(--text-dim); font-size:14px;">' + Birlikde.escapeHtml(aktiv.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(aktiv.catdirilma_unvan) + '</p>';
+    html += Birlikde.routeStepperHtml(aktiv.goturulme_unvan, aktiv.catdirilma_unvan, GOTURULME_ETIKETI, CATDIRILMA_ETIKETI);
     html += '<button class="btn btn-danger btn-small" id="legvBtn" data-id="' + aktiv.id + '">' + Birlikde.escapeHtml(LEGV_METNI) + '</button>';
     aktivCard.innerHTML = html;
     aktivCard.style.display = 'block';
@@ -226,9 +231,10 @@ var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_
     }
 
     listEl.innerHTML = sifarisler.map(function (s) {
-      var html = '<div class="card glass">' +
-        '<div style="display:flex; justify-content:space-between;"><strong>#' + s.id + '</strong>' + statusBadge(s.status) + '</div>' +
-        '<p style="color:var(--text-dim); font-size:14px;">' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>' +
+      var html = '<div class="card glass">';
+      if (s.tecili) html += '<div class="card-ribbon">' + Birlikde.escapeHtml(TECILI_METNI) + '</div>';
+      html += '<div style="display:flex; justify-content:space-between;"><strong>#' + s.id + '</strong>' + statusBadge(s.status) + '</div>' +
+        Birlikde.routeStepperHtml(s.goturulme_unvan, s.catdirilma_unvan, GOTURULME_ETIKETI, CATDIRILMA_ETIKETI) +
         '<p style="color:var(--text-dim); font-size:12px;">' + Birlikde.escapeHtml(s.created_at) + '</p>';
       if (s.dasiyici_adi) {
         html += '<div class="dasiyici-info">' +

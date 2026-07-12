@@ -52,6 +52,25 @@ window.Birlikde = (function () {
     return div.innerHTML;
   }
 
+  // Ünvan marşrutunu (götürülmə → çatdırılma) vertikal stepper kimi göstərən
+  // paylaşılan HTML parçası — bax public/assets/css/app.css .route-stepper.
+  function routeStepperHtml(fromAddr, toAddr, fromLabel, toLabel) {
+    return (
+      '<div class="route-stepper">' +
+        '<div class="route-point">' +
+          '<span class="route-dot route-dot-start"></span>' +
+          '<div><span class="route-label">' + escapeHtml(fromLabel) + '</span>' +
+          '<span class="route-addr">' + escapeHtml(fromAddr) + '</span></div>' +
+        '</div>' +
+        '<div class="route-point">' +
+          '<span class="route-dot route-dot-end"></span>' +
+          '<div><span class="route-label">' + escapeHtml(toLabel) + '</span>' +
+          '<span class="route-addr">' + escapeHtml(toAddr) + '</span></div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function showError(el, message) {
     if (!el) return;
     el.textContent = message;
@@ -424,5 +443,6 @@ window.Birlikde = (function () {
     initRouter: initRouter,
     navigate: navigate,
     onPageLeave: onPageLeave,
+    routeStepperHtml: routeStepperHtml,
   };
 })();

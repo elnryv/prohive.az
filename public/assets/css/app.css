@@ -72,7 +72,9 @@ a {
 /* Kartlar/panellər — bax bölmə 10.1 (əvvəlki qara-şüşə "glass" bloku "Canlı Şəhər"
    ilə açıq, kölgəli səthə çevrilib; sinif adı geriyə uyğunluq üçün saxlanılıb). */
 .glass {
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--glass-border);
   border-radius: 22px;
   box-shadow: var(--shadow-sm);
@@ -91,6 +93,7 @@ a {
 }
 
 .card {
+  position: relative;
   padding: 15px 16px;
   margin-bottom: 11px;
   opacity: 0;
@@ -100,6 +103,86 @@ a {
 
 .card p {
   margin: 4px 0;
+}
+
+/* Künc nişanı (məs. "Təcili" sifariş) — bax kurye/lovhe.php sifarisKarti() */
+.card-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--pink);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 0 21px 0 14px;
+  box-shadow: 0 2px 8px rgba(255, 77, 143, 0.3);
+  z-index: 1;
+}
+
+/* Ünvan marşrutu — vertikal stepper (götürülmə → çatdırılma), bax
+   Birlikde.routeStepperHtml() (app.js) */
+.route-stepper {
+  margin: 10px 0;
+}
+
+.route-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 14px;
+}
+
+.route-point:last-child {
+  padding-bottom: 0;
+}
+
+.route-point:first-child::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 14px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--glass-border);
+}
+
+.route-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex: none;
+}
+
+.route-dot-start {
+  background: var(--surface);
+  border: 2px solid var(--text-faint);
+}
+
+.route-dot-end {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(61, 90, 254, 0.18);
+}
+
+.route-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.route-addr {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 2px;
 }
 
 @keyframes cardIn {
@@ -187,6 +270,25 @@ a {
   color: var(--text-dim);
 }
 
+/* Giriş sahəsi daxilində ikon (məs. telefon/kilid) — bax auth/giris.php */
+.input-icon-wrap {
+  position: relative;
+}
+
+.input-icon-wrap input {
+  padding-left: 42px !important;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -243,28 +345,31 @@ a {
 
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 12px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 4px;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 8px;
-  border-radius: 13px;
-  background: var(--surface);
-  border: 1px solid var(--glass-border);
+  padding: 9px 8px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
   color: var(--text-dim);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
-  transition: transform 0.15s var(--bounce), background 0.15s ease, color 0.15s ease;
+  transition: transform 0.15s var(--bounce), background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tab.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 3px 10px rgba(26, 26, 46, 0.12);
   transform: scale(1.02);
 }
 
