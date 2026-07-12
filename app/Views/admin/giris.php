@@ -17,7 +17,7 @@ require __DIR__ . '/partials/login_head.php';
   </div>
   <button type="submit" class="btn btn-primary" style="width:100%;"><?= htmlspecialchars($t('giris.duyme')) ?></button>
 </form>
-<script src="/assets/js/admin.js"></script>
+<script src="<?= \App\Core\Asset::v('js/admin.js') ?>"></script>
 <script>
 var XETA_METNI = <?= json_encode($t('ortaq.xeta'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 

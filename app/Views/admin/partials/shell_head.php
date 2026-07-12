@@ -13,8 +13,8 @@ $aktivSehife = $aktivSehife ?? '';
 <title>Birlikdə Admin</title>
 <meta name="theme-color" content="#f5f3fb">
 <link rel="icon" href="/assets/icons/icon-192.png">
-<link rel="stylesheet" href="/assets/css/admin.css">
-<script src="/assets/js/admin.js"></script>
+<link rel="stylesheet" href="<?= \App\Core\Asset::v('css/admin.css') ?>">
+<script src="<?= \App\Core\Asset::v('js/admin.js') ?>"></script>
 </head>
 <body>
 <div class="admin-shell">

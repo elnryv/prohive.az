@@ -20,8 +20,8 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
 <meta name="apple-mobile-web-app-title" content="Birlikdə">
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
 <link rel="icon" href="/assets/icons/icon-192.png">
-<link rel="stylesheet" href="/assets/css/app.css">
-<script src="/assets/js/app.js"></script>
+<link rel="stylesheet" href="<?= \App\Core\Asset::v('css/app.css') ?>">
+<script src="<?= \App\Core\Asset::v('js/app.js') ?>"></script>
 </head>
 <body>
 

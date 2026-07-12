@@ -11,7 +11,7 @@
 <title><?= htmlspecialchars($t('admin.giris_basliq')) ?> — Birlikdə</title>
 <meta name="theme-color" content="#f5f3fb">
 <link rel="icon" href="/assets/icons/icon-192.png">
-<link rel="stylesheet" href="/assets/css/admin.css">
+<link rel="stylesheet" href="<?= \App\Core\Asset::v('css/admin.css') ?>">
 </head>
 <body>
 
