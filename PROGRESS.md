@@ -854,3 +854,46 @@ commit edildi:
 - `.env.example` yeniləndi: `PAYMENT_PROVIDER=payriff` default oldu,
   `PAYRIFF_PAYMENT_URL` silindi (URL artıq kod daxilində sabit).
   `sw.js` `CACHE_VERSION` v9→v10.
+
+### 2026-07-12 (davam) — Tam təhlükəsizlik auditi (app + admin)
+
+- İstifadəçinin tələbi: "bütün saytı tam qorumaya almaq" — həm app.birlikde.biz,
+  həm appadmin.birlikde.biz. Middleware (Session, Csrf, RateLimit, Auth,
+  AdminAuth, RoleGuard), bütün Controller/Service qatı, Model-lərdəki SQL
+  sorğuları, JS-də bütün `innerHTML` interpolasiyaları, fayl yükləmə/göstərmə
+  yolu, nginx konfiqurasiyası sistemli şəkildə yoxlanıldı.
+- **Tapılan və düzəldilən boşluqlar:**
+  1. **Təhlükəsizlik başlıqları tamamilə yox idi** (CSP, X-Frame-Options,
+     X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS) —
+     CLAUDE.md-in özü "CSP header" tələb etsə də heç yerdə tətbiq olunmurdu.
+     Yeni `App\Core\SecurityHeaders` sinifi yaradıldı, hər iki front
+     controller-də çağırılır. Statik fayllar üçün `deploy/nginx/*.conf`-a
+     paralel `add_header` əlavə olundu (bunun serverdə əl ilə tətbiqi
+     lazımdır — `nginx -t && systemctl reload nginx`).
+  2. **Qeydiyyat endpoint-i (`/qeydiyyat`) rate-limitsiz idi** — sərhədsiz
+     avtomatik hesab yaratma/spam mümkün idi. `RateLimit` middleware əlavə
+     olundu (5 cəhd/15 dəq, digər endpoint-lərlə eyni).
+  3. **Giriş timing side-channel** — mövcud olmayan telefon nömrəsi üçün
+     `password_verify()` heç çağırılmırdı (bcrypt hesablama xərci yox idi),
+     mövcud hesabın səhv parolu isə tam bcrypt vaxtı çəkirdi — bu fərq
+     nəzəri olaraq hansı nömrələrin qeydiyyatdan keçdiyini ayırd etməyə
+     imkan verirdi. Düzəliş: hər iki halda da sabit dummy-hash ilə
+     `password_verify` çağırılır (`AuthService::DUMMY_HASH`,
+     `AdminAuthService::DUMMY_HASH`) — cavab vaxtı sabitləşdi. Həm app, həm
+     admin girişində.
+- **Təsdiqlənən, DƏYİŞDİRİLMƏYƏN sahələr (audit zamanı yoxlanıldı, boşluq
+  tapılmadı):** SQL injection (bütün sorğular PDO prepared, `EMULATE_PREPARES
+  =false`), XSS (server tərəfdə `htmlspecialchars`, client tərəfdə
+  `escapeHtml` — bütün `innerHTML` interpolasiyaları yoxlanıldı, boş yer
+  tapılmadı), CSRF (bütün yazma sorğularında), IDOR (rol middleware-i ilə
+  yanaşı sahiblik DB sorğusunun özündə də var, məs. `Sifaris::cancel()`),
+  fayl yükləmə (`is_uploaded_file`, real MIME + `getimagesize` yoxlaması,
+  təsadüfi ad), fayl göstərmə (`basename()` + sərt regex whitelist, path
+  traversal qorunub), open-redirect (bütün `Response::redirect()` çağırışları
+  sabit daxili yollara), CORS (heç bir başlıq yoxdur — defolt olaraq
+  same-origin, düzgün), admin sessiya izolyasiyası (ayrı cookie adı, qısa
+  idle-timeout, remember-me yoxdur), parol hash (`PASSWORD_DEFAULT`/bcrypt).
+- Real DB+HTTP+Playwright ilə geniş test: CSP başlığı ilə HEÇ bir konsol
+  xətası/CSP pozuntusu yaranmadı (qeydiyyat, giriş, drawer, SSE canlı lövhə,
+  onlayn toggle, admin panel — hamısı sınaqdan keçirildi), rate-limit dəqiq
+  5-ci cəhddə 429 qaytardı, giriş enumeration-ı eyni ümumi mesajla bağlandı.

@@ -15,6 +15,10 @@ use App\Models\LegalLog;
  */
 final class AdminAuthService
 {
+    // Bax AuthService::DUMMY_HASH qeydi — mövcud olmayan admin hesabı üçün
+    // timing side-channel yaranmasın deyə.
+    private const DUMMY_HASH = '$2y$12$RY.MHhCqtOeyxmLALCHwCug1aUvP9mE4dwnEJp/jlAGeVMc6nmeHO';
+
     private Admin $adminlər;
     private LegalLog $legalLogs;
 
@@ -31,8 +35,9 @@ final class AdminAuthService
     {
         $telefon = (string) preg_replace('/\D/', '', $telefonRaw);
         $admin = $this->adminlər->findByTelefon($telefon);
+        $parolDogrudur = password_verify($parol, $admin['parol_hash'] ?? self::DUMMY_HASH);
 
-        if ($admin === null || !password_verify($parol, $admin['parol_hash'])) {
+        if ($admin === null || !$parolDogrudur) {
             throw new ValidationException('Telefon nömrəsi və ya parol yanlışdır.');
         }
         if ($admin['status'] !== 'aktiv') {

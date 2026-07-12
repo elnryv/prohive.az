@@ -37,7 +37,7 @@ $router->get('/csrf-token', function (Request $request) {
     Response::json(['csrf_token' => Csrf::token()]);
 });
 
-$router->post('/qeydiyyat', [AuthController::class, 'qeydiyyat'], [CsrfGuard::class]);
+$router->post('/qeydiyyat', [AuthController::class, 'qeydiyyat'], [CsrfGuard::class, RateLimit::class]);
 $router->post('/giris', [AuthController::class, 'giris'], [CsrfGuard::class, RateLimit::class]);
 $router->post('/cixis', [AuthController::class, 'cixis'], [CsrfGuard::class, Auth::class]);
 

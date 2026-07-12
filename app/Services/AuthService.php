@@ -23,6 +23,11 @@ final class AuthService
     private const ROLLAR = ['musteri', 'kurye', 'yukdasima'];
     private const DILLER = ['az', 'ru', 'en'];
     private const WHATSAPP_TIPLERI = ['sexsi', 'business'];
+    // Mövcud olmayan telefon nömrəsi üçün password_verify() çağırılmasa,
+    // bcrypt hesablama vaxtının olmaması ilə mövcud/mövcud olmayan hesab
+    // arasında timing side-channel yaranır — bu saxta hash həmişə eyni
+    // hesablama xərcini yaradır ki, cavab vaxtı fərqlənməsin.
+    private const DUMMY_HASH = '$2y$12$RY.MHhCqtOeyxmLALCHwCug1aUvP9mE4dwnEJp/jlAGeVMc6nmeHO';
 
     private User $users;
     private Kurye $kuryeler;
@@ -137,8 +142,9 @@ final class AuthService
     {
         $telefon = self::normalisePhone($telefonRaw);
         $user = $this->users->findByTelefon($telefon);
+        $parolDogrudur = password_verify($parol, $user['parol_hash'] ?? self::DUMMY_HASH);
 
-        if ($user === null || !password_verify($parol, $user['parol_hash'])) {
+        if ($user === null || !$parolDogrudur) {
             throw new ValidationException('Telefon nömrəsi və ya parol yanlışdır.');
         }
         if ($user['status'] !== 'aktiv') {

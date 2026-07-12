@@ -156,11 +156,36 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
 - **Hər PHP faylında `declare(strict_types=1);`**
 - **PDO prepared statements** — heç bir raw SQL interpolation
 - **CSRF token** bütün yazma (POST/PUT/DELETE) sorğularında, `hash_equals` ilə yoxlama
-- **XSS:** çıxış `htmlspecialchars` ilə escape, CSP header
+- **XSS:** çıxış `htmlspecialchars` ilə escape (server), `Birlikde.escapeHtml`/
+  `BirlikdeAdmin.escapeHtml` (JS-də render olunan bütün dinamik sahələr — 2026-07-12
+  tam auditlə təsdiqləndi, escape-siz `innerHTML` interpolasiyası tapılmadı), CSP header
+  (`App\Core\SecurityHeaders`, bax aşağı).
+- **Təhlükəsizlik başlıqları (2026-07-12 əlavə olundu):** `App\Core\SecurityHeaders::apply()`
+  hər iki front controller-də (`public/index.php`, `public/admin.php`) çağırılır —
+  CSP (`default-src 'self'`, `object-src 'none'`, `frame-ancestors 'none'`,
+  `base-uri/form-action 'self'`; `script-src`/`style-src`-də geniş inline istifadəyə görə
+  `'unsafe-inline'` saxlanılıb, nonce-əsaslı refaktorinq gələcək iş kimi qalır),
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`,
+  `Permissions-Policy`, `Cross-Origin-Opener-Policy`, HSTS (`SESSION_SECURE=true`-da).
+  Statik fayllar (nginx birbaşa verir, PHP-ə çatmır) üçün eyni əsas başlıqlar
+  `deploy/nginx/*.conf`-da `add_header` ilə təkrarlanıb — **DİQQƏT: bu nginx dəyişiklikləri
+  serverə əl ilə köçürülüb `nginx -t && systemctl reload nginx` ilə tətbiq edilməlidir,
+  `git pull` avtomatik aktivləşdirmir**. `sw.js` xüsusi `Cache-Control: no-cache` alır (uzun
+  keş PWA yeniləmələrini gecikdirməsin deyə).
 - **Sessiya:** httponly + secure + samesite cookie, login-də `session_regenerate_id`
-- **Parol:** yalnız `password_hash`/`password_verify` (bcrypt/argon2), heç vaxt açıq mətn
-- **Rol qoruması / IDOR:** middleware hər sorğuda rolu yoxlayır (müştəri yalnız öz sifarişini görür)
-- **Rate-limit:** giriş, SSE, ödəniş endpoint-lərində
+- **Parol:** yalnız `password_hash`/`password_verify` (bcrypt/argon2), heç vaxt açıq mətn.
+  Giriş (həm app, həm admin) mövcud olmayan hesab üçün də sabit hash ilə `password_verify`
+  çağırır (`AuthService::DUMMY_HASH`) — timing side-channel ilə hesab mövcudluğunun
+  müəyyənləşdirilməsinin qarşısı alınır.
+- **Rol qoruması / IDOR:** middleware hər sorğuda rolu yoxlayır (müştəri yalnız öz sifarişini
+  görür); sahiblik yoxlaması DB sorğusunun özündə də var (məs. `Sifaris::cancel()`
+  `WHERE id=:id AND musteri_id=:musteri_id`), təkcə tətbiq qatında deyil.
+- **Fayl yükləmə:** ölçü limiti, `is_uploaded_file()`, real `mime_content_type()` +
+  `getimagesize()` yoxlaması (uzantı saxtakarlığına qarşı), təsadüfi fayl adı, faylı
+  göstərən controller-lər (`KuryeSekilController`, `BannerImageController`) sərt regex
+  whitelist ilə `basename()` istifadə edir (path traversal qoruması).
+- **Rate-limit:** giriş, qeydiyyat, SSE, ödəniş endpoint-lərində (fayl-əsaslı, IP+yol üzrə,
+  5 cəhd/15 dəq).
 
 ## 7. Endpoint Xəritəsi (Əlavə A)
 

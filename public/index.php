@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Core\Request;
+use App\Core\SecurityHeaders;
 use App\Core\Session;
 
 // PHP built-in dev server (php -S) ilə statik faylları birbaşa yayımlamaq üçün
@@ -16,6 +17,7 @@ if (PHP_SAPI === 'cli-server') {
 
 require dirname(__DIR__) . '/bootstrap.php';
 
+SecurityHeaders::apply();
 Session::start();
 
 /** @var \App\Core\Router $router */
