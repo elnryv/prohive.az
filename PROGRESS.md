@@ -745,3 +745,36 @@ commit edildi:
   yenilənmədən dərhal göründüyü təsdiqləndi — 0 konsol xətası. `php -l` və
   `node --check` bütün dəyişən fayllarda səhvsiz. `sw.js` `CACHE_VERSION`
   bu sessiyada v1→v6 addım-addım artırıldı (hər CSS/JS dəyişikliyi ilə).
+
+### 2026-07-12 (davam) — Dizayn cilası, admin mobil, çıxış bug-ı, modal bug-ı
+
+- **Dizayn zərif toxunuşlar:** `.glass` blur/şəffaflıq effekti gücləndirildi
+  (`rgba(255,255,255,0.72-0.76)` + `backdrop-filter: blur(14-16px)
+  saturate(160%)`), tab/toggle-lar pill-track stilinə keçdi, kart künclərinə
+  "Təcili" ribbon-nişanı (`.card-ribbon`), input sahələrinə ikon-in-field
+  naxışı (`.input-icon-wrap`), marşrut göstərilməsi hər yerdə vertikal
+  nöqtə-xətt stepper-ə (`Birlikde.routeStepperHtml`) keçirildi.
+- **Admin panel tam mobil-responsiv edildi:** sürüşən yan-menyu (off-canvas
+  drawer, `BirlikdeAdmin.initDrawer`), bütün cədvəllər üfüqi sürüşmə
+  wrapper-inə alındı (`.table-wrap-admin`, overflow varsa qıraq-fade
+  ipucu ilə), toolbar filtr sahələrinə stil əlavə olundu (əvvəllər
+  görünməz idi — köhnə tünd-tema `rgba(...,0.04)` fonu unudulmuşdu).
+- **Çıxış düyməsi bug-ı** ("heç nə baş vermir"): kök səbəb kimi köhnə
+  keşlənmiş `admin.js`/`app.css` faylının brauzerdə saxlanması müəyyən
+  edildi (yeni funksiya çağırışı köhnə skriptdə tapılmayıb bütün
+  `<script>` blokunu dayandırırdı, çıxış handler-i heç vaxt bağlanmırdı).
+  Düzəliş: `App\Core\Asset::v()` — `filemtime()`-əsaslı avtomatik
+  keş-sındırma sinifi yaradıldı, bütün CSS/JS `<link>`/`<script>`
+  teqlərinə (admin + app) tətbiq olundu.
+- **Admin modal pop-up-ların boz/solğun görünüş bug-ı** (istifadəçi
+  skrinşotla bildirdi): admin mobil dizaynında `.glass`-a əlavə olunan
+  blur+şəffaflıq (`rgba(255,255,255,0.76)` + `backdrop-filter: blur`)
+  `.modal`/`modal-sheet` siniflərinə də tətbiq olunurdu — modal öz tünd
+  overlay-i (`rgba(26,26,46,0.45)`) üzərində oturduğundan, blur bu tünd
+  fonu modalın özünə sızdırıb boz/kirli görünüş yaradırdı. Düzəliş: həm
+  admin (`.modal`), həm app (`.modal-sheet`) tam qeyri-şəffaf ağ fona
+  (`var(--surface)`, `backdrop-filter: none`) keçirildi — modal artıq
+  frosted-glass effektinə ehtiyac duymur. Playwright ilə real DB + HTTP
+  test edilib (müştəri VƏ kuryer detal modalları, həm masaüstü, həm mobil
+  ölçüdə) — modal kartı təmiz ağ, overlay isə normal tündləşdirmə effekti
+  kimi göründü. `sw.js` `CACHE_VERSION` v7→v8.
