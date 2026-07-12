@@ -141,6 +141,16 @@ var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UN
     };
   }
 
+  // SPA naviqasiyası ilə bu səhifədən ayrılanda (tam səhifə yenilənməsi
+  // olmadan) SSE bağlantısı DOM-dan asılı olmayaraq arxa fonda açıq qalardı —
+  // bax app.js Birlikde.onPageLeave().
+  Birlikde.onPageLeave(function () {
+    if (es) {
+      es.close();
+      es = null;
+    }
+  });
+
   // Bax bölmə 9.3.1: bildiriş icazəsi verilməyibsə davamlı xəbərdarlıq göstərilir.
   if (!('Notification' in window) || Notification.permission !== 'granted') {
     document.getElementById('pushWarning').classList.add('visible');

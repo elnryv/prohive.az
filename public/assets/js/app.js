@@ -73,6 +73,8 @@ window.Birlikde = (function () {
   }
 
   // ---- Sürüşən menyu (hamburger drawer) ----
+  let closeDrawerFn = null;
+
   function initDrawer(burgerEl, drawerEl, scrimEl) {
     if (!burgerEl || !drawerEl || !scrimEl) return;
 
@@ -91,6 +93,138 @@ window.Birlikde = (function () {
       drawerEl.classList.contains('open') ? closeDrawer() : openDrawer();
     });
     scrimEl.addEventListener('click', closeDrawer);
+    closeDrawerFn = closeDrawer;
+  }
+
+  // ---- Yüngül client-tərəfli marşrutlaşdırma (SPA-vari naviqasiya) ----
+  // Məqsəd: eyni origin daxilində səhifədən-səhifəyə keçid (drawer linkləri,
+  // profildəki "Sifarişlərim" keçidi, hüquqi sənəd siyahısı və s.) tam
+  // səhifə yenilənməsi olmadan, dərhal baş versin. Login/qeydiyyat/çıxış və
+  // dil dəyişimi ŞÜURLU ŞƏKİLDƏ bundan kənar saxlanılıb (window.location.href
+  // ilə tam yenilənir) — çünki bunlar sessiya/rol vəziyyətini kökündən
+  // dəyişir, drawer-in bütün məzmunu (rol-əsaslı menyu) yenidən server
+  // tərəfdən render olunmalıdır.
+  let pageLeaveCleanup = null;
+
+  function onPageLeave(fn) {
+    pageLeaveCleanup = fn;
+  }
+
+  function runContainerScripts(container) {
+    var scripts = container.querySelectorAll('script');
+    scripts.forEach(function (oldScript) {
+      var newScript = document.createElement('script');
+      for (var i = 0; i < oldScript.attributes.length; i++) {
+        var attr = oldScript.attributes[i];
+        newScript.setAttribute(attr.name, attr.value);
+      }
+      newScript.textContent = oldScript.textContent;
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+  }
+
+  function updateDrawerActive(pathname) {
+    document.querySelectorAll('.drawer-item[href]').forEach(function (link) {
+      var href = link.getAttribute('href');
+      if (!href || href.indexOf('/') !== 0) {
+        return; // xarici keçid (məs. birlikde.biz) — toxunulmur
+      }
+      var aktiv = href === pathname || (href === '/huquqi' && pathname.indexOf('/huquqi/') === 0);
+      link.classList.toggle('active', aktiv);
+    });
+  }
+
+  async function navigate(url, pushHistory) {
+    if (pushHistory === undefined) pushHistory = true;
+
+    if (pageLeaveCleanup) {
+      try {
+        pageLeaveCleanup();
+      } catch (e) {
+        // sakitcə keç
+      }
+      pageLeaveCleanup = null;
+    }
+
+    var res;
+    try {
+      res = await fetch(url, { credentials: 'same-origin' });
+    } catch (e) {
+      window.location.href = url;
+      return;
+    }
+
+    if (!res.ok) {
+      window.location.href = url;
+      return;
+    }
+
+    var html = await res.text();
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var newContainer = doc.querySelector('.container');
+    var oldContainer = document.querySelector('.container');
+
+    if (!newContainer || !oldContainer) {
+      window.location.href = url;
+      return;
+    }
+
+    if (closeDrawerFn) closeDrawerFn();
+
+    // fetch() 3xx-i özü izləyir (məs. mövcud olmayan hüquqi sənəd slug-ı
+    // /huquqi-yə server-tərəfdən yönləndirilir) — ünvan çubuğu SON gerçək
+    // URL-i göstərməlidir, ilkin tıklanan linki yox.
+    var finalUrl = res.url || url;
+
+    document.title = doc.title || document.title;
+    oldContainer.innerHTML = newContainer.innerHTML;
+    runContainerScripts(oldContainer);
+
+    var parsedUrl = new URL(finalUrl, window.location.href);
+    updateDrawerActive(parsedUrl.pathname);
+
+    if (pushHistory) {
+      history.pushState({ birlikdeSpa: true }, '', parsedUrl.pathname + parsedUrl.search);
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function initRouter() {
+    document.body.addEventListener('click', function (event) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      var link = event.target.closest('a');
+      if (!link || !link.getAttribute('href')) {
+        return;
+      }
+      if (link.target && link.target !== '_self') {
+        return;
+      }
+      if (link.hasAttribute('download') || link.dataset.noSpa !== undefined) {
+        return;
+      }
+
+      var url;
+      try {
+        url = new URL(link.href, window.location.href);
+      } catch (e) {
+        return;
+      }
+      if (url.origin !== window.location.origin) {
+        return; // kənar keçid (birlikde.biz, wa.me və s.) — normal davranış
+      }
+      if (url.pathname === window.location.pathname && url.search === window.location.search) {
+        return; // eyni səhifə (məs. #-keçidi) — normal davranış
+      }
+
+      event.preventDefault();
+      navigate(url.pathname + url.search);
+    });
+
+    window.addEventListener('popstate', function () {
+      navigate(window.location.pathname + window.location.search, false);
+    });
   }
 
   // ---- Açılış (splash) animasiyası — tətbiqə TƏZƏ girəndə (yox, hər daxili
@@ -287,5 +421,8 @@ window.Birlikde = (function () {
     isIos: isIos,
     isStandalone: isStandalone,
     imageToJpegBlob: imageToJpegBlob,
+    initRouter: initRouter,
+    navigate: navigate,
+    onPageLeave: onPageLeave,
   };
 })();

@@ -30,6 +30,7 @@
     document.getElementById('drawerScrim')
   );
   Birlikde.playSplashOnce(document.getElementById('splashOverlay'));
+  Birlikde.initRouter();
 
   var navCixisBtn = document.getElementById('navCixisBtn');
   if (navCixisBtn) {
