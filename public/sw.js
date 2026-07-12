@@ -1,4 +1,12 @@
-const CACHE_NAME = 'birlikde-shell-v1';
+/**
+ * DİQQƏT: hər dəfə app.css/app.js (və ya digər /assets/* faylı) dəyişəndə bu
+ * versiya nömrəsi ARTIRILMALIDIR. Əks halda artıq PWA kimi quraşdırılmış
+ * istifadəçilərin cihazında köhnə cache "cache-first" strategiyası ilə
+ * müddətsiz saxlanıla bilər (activate hadisəsi yalnız CACHE_NAME dəyişəndə
+ * köhnə cache-i təmizləyir).
+ */
+const CACHE_VERSION = 'v2';
+const CACHE_NAME = 'birlikde-shell-' + CACHE_VERSION;
 const APP_SHELL = [
   '/manifest.json',
   '/assets/css/app.css',

@@ -235,6 +235,13 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   Yalnız AZ dilində; RU/EN səhifələrində "rəsmi mətn AZ dilindədir" qeydi var
   (uydurma tərcümə edilmədi). Real MySQL+HTTP ilə test edildi. Ətraflı: PROGRESS.md.
   **Bütün fazalar (0-7) tamamlandı.**
+- **Post-launch (canlı Hetzner/aaPanel serverə yerləşdirmə + UX/dizayn
+  iterasiyaları):** layihə Faza 7-dən sonra canlıya keçirildi, real
+  istifadəçi testindən gələn düzəlişlər davam edən iterasiyalarla tətbiq
+  olunur (PWA keş versiyalanması, kuryer "Sifarişlərim" bölməsi, profil
+  şəkli, sosial-stil profil, yığcam dizayn və s.) — tam xronoloji detallar
+  PROGRESS.md-də tarixli qeydlərlə saxlanılır, bu fayl yalnız yekun
+  vəziyyəti (bölmə 1-7) əks etdirir.
 
 ## 9. İş Qaydaları (Claude üçün məcburi davranış)
 

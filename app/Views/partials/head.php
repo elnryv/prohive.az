@@ -36,13 +36,6 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
     <div class="splash-tag"><?= htmlspecialchars($t('splash.tagline')) ?></div>
   </div>
 </div>
-<script>
-  // Sessiyada artıq göstərilibsə, JS aşağıda işə düşənə qədər görünüb-yox olmasın
-  // deyə dərhal (sinxron) gizlədilir — bax app.js Birlikde.playSplashOnce().
-  if (sessionStorage.getItem('birlikde_splash_shown') === '1') {
-    document.getElementById('splashOverlay').classList.add('hide');
-  }
-</script>
 
 <div class="top-nav glass">
   <button class="burger" id="drawerBurger" type="button" aria-label="Menyu"><span></span><span></span><span></span></button>

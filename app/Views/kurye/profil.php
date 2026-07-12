@@ -4,21 +4,37 @@
  */
 require __DIR__ . '/../partials/head.php';
 ?>
-<div class="card glass">
-  <h1><?= htmlspecialchars($t('profil.basliq')) ?></h1>
-  <p><strong><?= htmlspecialchars($t('profil.neqliyyat')) ?>:</strong> <span id="neqliyyatVal">—</span></p>
-  <p><strong><?= htmlspecialchars($t('profil.tamamlanan')) ?>:</strong> <span id="tamamlananVal">—</span></p>
+<div class="card glass profil-hero">
+  <div class="profil-avatar-wrap">
+    <img class="profil-avatar" id="avatarImg" style="display:none;" alt="">
+    <div class="profil-avatar-placeholder" id="avatarPlaceholder">?</div>
+    <div class="profil-avatar-edit" id="avatarEditBtn">&#9998;</div>
+    <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+  </div>
+  <div class="profil-name" id="profilAd"><?= htmlspecialchars($t('profil.basliq')) ?></div>
+  <div class="profil-rol-badge"><span class="badge badge-tamamlandi" id="neqliyyatBadge">—</span></div>
+
+  <div class="profil-stats">
+    <div class="profil-stat-pill">
+      <strong id="tamamlananVal">—</strong>
+      <span><?= htmlspecialchars($t('profil.tamamlanan')) ?></span>
+    </div>
+    <div class="profil-stat-pill">
+      <strong id="abuneVal">—</strong>
+      <span><?= htmlspecialchars($t('profil.abune')) ?></span>
+    </div>
+  </div>
 </div>
 
 <div class="card glass" id="abuneCard">
-  <h3 style="margin-top:0;"><?= htmlspecialchars($t('profil.abune')) ?></h3>
+  <h3><?= htmlspecialchars($t('profil.abune')) ?></h3>
   <p><span class="badge" id="abuneBadge">—</span></p>
   <p id="qalanGunSetiri" style="display:none; color:var(--text-dim); font-size:14px;"></p>
   <button class="btn btn-primary" id="odeBtn" style="display:none;"><?= htmlspecialchars($t('profil.ode')) ?></button>
 </div>
 
 <div class="card glass">
-  <h3 style="margin-top:0;"><?= htmlspecialchars($t('profil.erazilerim')) ?></h3>
+  <h3><?= htmlspecialchars($t('profil.erazilerim')) ?></h3>
   <p id="eraziXulase" style="color:var(--text-dim); font-size:14px;">—</p>
 
   <div class="field">
@@ -47,20 +63,58 @@ var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNI
 (function () {
   var secilmisRayonlar = new Set();
 
+  function avatarGoster(sekil) {
+    var img = document.getElementById('avatarImg');
+    var placeholder = document.getElementById('avatarPlaceholder');
+    if (sekil) {
+      img.src = '/kurye-sekil/' + sekil;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = 'flex';
+    }
+  }
+
   async function profilYukle() {
     var res = await Birlikde.api('GET', '/kurye/profilim');
     if (Birlikde.redirectIfUnauthorized(res.status)) return;
-    document.getElementById('neqliyyatVal').textContent = res.data.data.neqliyyat || '—';
-    document.getElementById('tamamlananVal').textContent = res.data.data.tamamlanan;
+    var d = res.data.data;
+    var ad = (d.ad || '') + ' ' + (d.soyad || '');
+    ad = ad.trim();
+    document.getElementById('profilAd').textContent = ad || '—';
+    document.getElementById('avatarPlaceholder').textContent = ad ? ad.charAt(0).toUpperCase() : '?';
+    document.getElementById('neqliyyatBadge').textContent = d.neqliyyat || '—';
+    document.getElementById('tamamlananVal').textContent = d.tamamlanan;
+    avatarGoster(d.sekil);
   }
+
+  document.getElementById('avatarEditBtn').addEventListener('click', function () {
+    document.getElementById('avatarInput').click();
+  });
+
+  document.getElementById('avatarInput').addEventListener('change', async function (event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var formData = new FormData();
+    formData.append('sekil', file);
+    var res = await Birlikde.api('POST', '/kurye/sekil', formData);
+    if (res.ok) {
+      avatarGoster(res.data.data.sekil);
+    }
+    event.target.value = '';
+  });
 
   async function abuneYukle() {
     var res = await Birlikde.api('GET', '/kurye/abunelik');
     if (!res.ok) return;
     var d = res.data.data;
     var badge = document.getElementById('abuneBadge');
-    badge.textContent = ABUNE_ETIKETLERI[d.label] || d.label;
-    badge.className = 'badge badge-' + (d.label === 'aktiv' || d.label === 'pulsuz' || d.label === 'pulsuz_qlobal' ? 'tamamlandi' : 'legv');
+    var etiket = ABUNE_ETIKETLERI[d.label] || d.label;
+    badge.textContent = etiket;
+    var aktivmi = d.label === 'aktiv' || d.label === 'pulsuz' || d.label === 'pulsuz_qlobal';
+    badge.className = 'badge badge-' + (aktivmi ? 'tamamlandi' : 'legv');
+    document.getElementById('abuneVal').textContent = etiket;
 
     var qalanEl = document.getElementById('qalanGunSetiri');
     if (d.qalan_gun !== null) {

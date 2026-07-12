@@ -182,6 +182,26 @@ final class Sifaris
     }
 
     /**
+     * Kuryerin/yükdaşımanın özünün götürdüyü sifarişlər (bax "Sifarişlərim"
+     * bölməsi) — müştəri əlaqə məlumatı ilə birgə, ən yeni öndə.
+     */
+    public function listByKurye(int $kuryeId, int $limit = 50): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT s.*, mu.ad AS musteri_ad, mu.soyad AS musteri_soyad, mu.whatsapp AS musteri_whatsapp
+             FROM sifarisler s
+             JOIN users mu ON mu.id = s.musteri_id
+             WHERE s.kurye_id = :kurye_id
+             ORDER BY s.goturulme_vaxti DESC LIMIT :limit'
+        );
+        $stmt->bindValue('kurye_id', $kuryeId, PDO::PARAM_INT);
+        $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * @param int[] $rayonIds
      */
     public function axtarisdaByRayonlar(array $rayonIds, int $lastId): array

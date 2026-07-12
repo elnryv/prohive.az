@@ -4,24 +4,35 @@
  */
 require __DIR__ . '/../partials/head.php';
 ?>
-<div class="card glass lovhe-header">
-  <div>
-    <div class="lovhe-header-title"><?= htmlspecialchars($t('kurye.lovhe')) ?></div>
-    <div class="lovhe-status-row" style="margin-top:6px;">
-      <span class="lovhe-status-dot" id="statusDot"></span>
-      <span class="lovhe-status-label" id="onlaynLabel"><?= htmlspecialchars($t('kurye.offline')) ?></span>
-    </div>
-  </div>
-  <label class="toggle-switch">
-    <input type="checkbox" id="onlaynToggle">
-    <span class="toggle-slider"></span>
-  </label>
+<div class="tabs" id="lovheTabs">
+  <div class="tab active" data-panel="lovhe"><?= htmlspecialchars($t('kurye.lovhe')) ?></div>
+  <div class="tab" data-panel="sifarislerim"><?= htmlspecialchars($t('kurye.sifarislerim')) ?></div>
 </div>
 
-<div class="push-warning" id="pushWarning"><?= htmlspecialchars($t('profil.bildiris_xeberdarliq')) ?></div>
+<div id="panelLovhe">
+  <div class="card glass lovhe-header">
+    <div>
+      <div class="lovhe-header-title"><?= htmlspecialchars($t('kurye.lovhe')) ?></div>
+      <div class="lovhe-status-row" style="margin-top:6px;">
+        <span class="lovhe-status-dot" id="statusDot"></span>
+        <span class="lovhe-status-label" id="onlaynLabel"><?= htmlspecialchars($t('kurye.offline')) ?></span>
+      </div>
+    </div>
+    <label class="toggle-switch">
+      <input type="checkbox" id="onlaynToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
 
-<div id="lovheKartlar"></div>
-<div class="empty-state" id="lovheBos"><?= htmlspecialchars($t('kurye.lovhe_bos')) ?></div>
+  <div class="push-warning" id="pushWarning"><?= htmlspecialchars($t('profil.bildiris_xeberdarliq')) ?></div>
+
+  <div id="lovheKartlar"></div>
+  <div class="empty-state" id="lovheBos"><?= htmlspecialchars($t('kurye.lovhe_bos')) ?></div>
+</div>
+
+<div id="panelSifarislerim" style="display:none;">
+  <div id="sifarislerimList"></div>
+</div>
 
 <div class="modal-overlay" id="goturModal">
   <div class="modal-sheet glass">
@@ -41,6 +52,8 @@ var GOT_METNI = <?= json_encode($t('kurye.got'), JSON_UNESCAPED_UNICODE | JSON_H
 var ONLAYN_METNI = <?= json_encode($t('kurye.onlayn'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var OFFLINE_METNI = <?= json_encode($t('kurye.offline'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var WHATSAPP_METNI = <?= json_encode($t('kurye.whatsapp_elaqe'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var SIFARISLERIM_BOS = <?= json_encode($t('kurye.sifarislerim_bos'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var kartlarEl = document.getElementById('lovheKartlar');
@@ -132,7 +145,7 @@ var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UN
     es.addEventListener('yeni_sifaris', function (event) {
       var s = JSON.parse(event.data);
       var div = sifarisKarti(s);
-      kartlarEl.appendChild(div);
+      kartlarEl.insertBefore(div, kartlarEl.firstChild);
       baglaGotDuymesi(div, s.id);
       yenileBos();
     });
@@ -161,6 +174,55 @@ var MUSTERI_ETIKETI = <?= json_encode($t('kurye.musteri_adi'), JSON_UNESCAPED_UN
   })();
 
   yenileBos();
+
+  // ---- "Sifarişlərim" bölməsi (götürülmüş sifarişlərin tarixçəsi) ----
+  var sifarislerimList = document.getElementById('sifarislerimList');
+
+  async function sifarislerimYukle() {
+    var res = await Birlikde.api('GET', '/kurye/sifarislerim');
+    if (Birlikde.redirectIfUnauthorized(res.status)) return;
+    var sifarisler = (res.data && res.data.data) || [];
+
+    if (sifarisler.length === 0) {
+      sifarislerimList.innerHTML = '<div class="empty-state">' + Birlikde.escapeHtml(SIFARISLERIM_BOS) + '</div>';
+      return;
+    }
+
+    sifarislerimList.innerHTML = sifarisler.map(function (s) {
+      var html = '<div class="card glass">' +
+        '<div style="display:flex; justify-content:space-between;"><strong>#' + s.id + '</strong>' +
+        '<span class="badge badge-tamamlandi">' + Birlikde.escapeHtml(s.goturulme_vaxti || s.created_at) + '</span></div>' +
+        '<p style="font-size:14px;">' + Birlikde.escapeHtml(s.goturulme_unvan) + ' &rarr; ' + Birlikde.escapeHtml(s.catdirilma_unvan) + '</p>';
+      if (s.musteri_adi) {
+        html += '<div class="dasiyici-info">' +
+          '<span>' + Birlikde.escapeHtml(MUSTERI_ETIKETI) + ': ' + Birlikde.escapeHtml(s.musteri_adi) + '</span>';
+        if (s.musteri_whatsapp_link) {
+          html += '<a class="btn btn-ghost btn-small" target="_blank" rel="noopener" href="' +
+            Birlikde.escapeHtml(s.musteri_whatsapp_link) + '">' + Birlikde.escapeHtml(WHATSAPP_METNI) + '</a>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+      return html;
+    }).join('');
+  }
+
+  var lovheTabs = document.querySelectorAll('#lovheTabs .tab');
+  var panelLovhe = document.getElementById('panelLovhe');
+  var panelSifarislerim = document.getElementById('panelSifarislerim');
+  lovheTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      lovheTabs.forEach(function (t) { t.classList.toggle('active', t === tab); });
+      if (tab.dataset.panel === 'sifarislerim') {
+        panelLovhe.style.display = 'none';
+        panelSifarislerim.style.display = 'block';
+        sifarislerimYukle();
+      } else {
+        panelLovhe.style.display = 'block';
+        panelSifarislerim.style.display = 'none';
+      }
+    });
+  });
 })();
 </script>
 <?php require __DIR__ . '/../partials/foot.php'; ?>

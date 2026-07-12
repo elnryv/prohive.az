@@ -54,6 +54,12 @@ final class Kurye
         $stmt->execute(['id' => $kuryeId]);
     }
 
+    public function setSekil(int $kuryeId, string $sekil): void
+    {
+        $stmt = $this->db->prepare('UPDATE kuryeler SET sekil = :sekil WHERE id = :id');
+        $stmt->execute(['sekil' => $sekil, 'id' => $kuryeId]);
+    }
+
     /**
      * Admin Dashboard sayğacı — bax bölmə 8.1.
      */

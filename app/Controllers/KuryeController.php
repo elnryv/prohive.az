@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\ValidationException;
 use App\Models\Kurye;
+use App\Models\User;
 use App\Services\AbunelikService;
 use App\Services\SifarisService;
 
@@ -57,12 +58,29 @@ final class KuryeController
     public function profilim(Request $request): mixed
     {
         $kurye = self::currentKurye();
+        $user = (new User())->findById((int) $kurye['user_id']);
 
         return Response::json(['status' => 'ok', 'data' => [
+            'ad' => $user['ad'] ?? null,
+            'soyad' => $user['soyad'] ?? null,
             'neqliyyat' => $kurye['neqliyyat'],
             'onlayn' => (bool) $kurye['onlayn'],
             'tamamlanan' => (int) $kurye['tamamlanan'],
+            'sekil' => $kurye['sekil'],
         ]]);
+    }
+
+    public function sekilYukle(Request $request): mixed
+    {
+        try {
+            $kurye = self::currentKurye();
+            $storageDir = dirname(__DIR__, 2) . '/storage/kurye-sekiller';
+            $adFayl = (new SifarisService())->sekilYukle((int) $kurye['id'], $request->file('sekil'), $storageDir);
+
+            return Response::json(['status' => 'ok', 'data' => ['sekil' => $adFayl]]);
+        } catch (ValidationException $e) {
+            return Response::json(['error' => $e->getMessage()], 422);
+        }
     }
 
     public function abuneligim(Request $request): mixed

@@ -26,11 +26,6 @@
     <div class="splash-tag"><?= htmlspecialchars($t('admin.giris_basliq')) ?></div>
   </div>
 </div>
-<script>
-  if (sessionStorage.getItem('birlikde_admin_splash_shown') === '1') {
-    document.getElementById('splashOverlay').classList.add('hide');
-  }
-</script>
 
 <div class="login-wrap">
   <div class="login-card glass">

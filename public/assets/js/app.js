@@ -93,9 +93,9 @@ window.Birlikde = (function () {
     scrimEl.addEventListener('click', closeDrawer);
   }
 
-  // ---- Açılış (splash) animasiyası — hər sessiyada yalnız bir dəfə ----
+  // ---- Açılış (splash) animasiyası — hər səhifə açılışında oynanılır ----
   function playSplashOnce(splashEl) {
-    if (!splashEl || splashEl.classList.contains('hide')) {
+    if (!splashEl) {
       return;
     }
 
@@ -125,11 +125,6 @@ window.Birlikde = (function () {
 
     setTimeout(function () {
       splashEl.classList.add('hide');
-      try {
-        sessionStorage.setItem('birlikde_splash_shown', '1');
-      } catch (e) {
-        // Sessiya yaddaşı bloklanıbsa (məs. private mode) sakitcə keç.
-      }
     }, reduced ? 0 : 2000);
   }
 

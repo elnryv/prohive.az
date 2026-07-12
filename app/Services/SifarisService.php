@@ -23,6 +23,8 @@ final class SifarisService
 {
     private const TIPLER = ['kurye', 'yukdasima'];
     private const ABUNE_AKTIV_ETIKETLERI = ['aktiv', 'pulsuz', 'pulsuz_qlobal'];
+    private const SEKIL_ICAZE_VERILEN_MIME = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    private const SEKIL_MAX_HECM_BAYT = 5 * 1024 * 1024;
 
     private Sifaris $sifarisler;
     private Rayon $rayonlar;
@@ -145,6 +147,26 @@ final class SifarisService
     }
 
     /**
+     * "Sifarişlərim" bölməsi — kuryerin/yükdaşımanın özünün götürdüyü sifarişlər,
+     * müştəri ilə əlaqə saxlaya bilməsi üçün WhatsApp linki ilə birgə.
+     */
+    public function kuryeSifarisleri(int $kuryeId): array
+    {
+        $sifarisler = $this->sifarisler->listByKurye($kuryeId);
+
+        foreach ($sifarisler as &$s) {
+            $musteriAdi = trim(($s['musteri_ad'] ?? '') . ' ' . ($s['musteri_soyad'] ?? ''));
+            $s['musteri_adi'] = $musteriAdi !== '' ? $musteriAdi : null;
+            $s['musteri_whatsapp_link'] = !empty($s['musteri_whatsapp'])
+                ? WhatsApp::link($s['musteri_whatsapp'], "Birlikdə sifarişi #{$s['id']} barədə əlaqə")
+                : null;
+        }
+        unset($s);
+
+        return $sifarisler;
+    }
+
+    /**
      * SSE lövhə üçün yeni sifarişlər — bax bölmə 5.3 (rayon filtri), 7.1.1 (tip/ölçü
      * filtri) və 7.2.1 ("Aktiv abunə olmalı; abunə bitibsə lövhə bağlıdır").
      */
@@ -249,6 +271,50 @@ final class SifarisService
     public function onlaynToggle(int $kuryeId, bool $onlayn): void
     {
         $this->kuryeler->setOnlayn($kuryeId, $onlayn);
+    }
+
+    /**
+     * Kuryer/yükdaşıma profil şəkli yükləmə — bax profil.php "sosial-şəbəkə
+     * stilli" bölmə tələbi. Şəkil storage/kurye-sekiller/-da saxlanılır, DB-də
+     * yalnız fayl adı (BannerService-dəki yükləmə qaydasına bənzər).
+     *
+     * @param array{name:string, type:string, tmp_name:string, error:int, size:int}|null $file
+     * @throws ValidationException
+     */
+    public function sekilYukle(int $kuryeId, ?array $file, string $storageDir): string
+    {
+        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
+            throw new ValidationException('Şəkil yüklənmədi.');
+        }
+        if ($file['size'] > self::SEKIL_MAX_HECM_BAYT) {
+            throw new ValidationException('Şəkil ölçüsü 5 MB-dan çox ola bilməz.');
+        }
+        if (!is_uploaded_file($file['tmp_name'])) {
+            throw new ValidationException('Şəkil yükləmə etibarsızdır.');
+        }
+
+        $mime = (string) mime_content_type($file['tmp_name']);
+        if (!array_key_exists($mime, self::SEKIL_ICAZE_VERILEN_MIME)) {
+            throw new ValidationException('Yalnız JPEG, PNG və ya WEBP formatına icazə verilir.');
+        }
+        if (@getimagesize($file['tmp_name']) === false) {
+            throw new ValidationException('Fayl həqiqi şəkil deyil.');
+        }
+
+        if (!is_dir($storageDir)) {
+            mkdir($storageDir, 0755, true);
+        }
+
+        $adFayl = bin2hex(random_bytes(16)) . '.' . self::SEKIL_ICAZE_VERILEN_MIME[$mime];
+        $hedefYol = rtrim($storageDir, '/') . '/' . $adFayl;
+
+        if (!move_uploaded_file($file['tmp_name'], $hedefYol)) {
+            throw new ValidationException('Şəkil saxlanıla bilmədi.');
+        }
+
+        $this->kuryeler->setSekil($kuryeId, $adFayl);
+
+        return $adFayl;
     }
 
     /**

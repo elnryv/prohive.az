@@ -56,7 +56,12 @@ h1, h2, h3 {
   font-weight: 800;
   letter-spacing: -0.01em;
   text-wrap: balance;
+  margin: 0 0 10px;
 }
+
+h1 { font-size: 21px; }
+h2 { font-size: 17px; }
+h3 { font-size: 15px; }
 
 a {
   color: var(--accent);
@@ -76,7 +81,7 @@ a {
 .container {
   max-width: 480px;
   margin: 0 auto;
-  padding: 20px 16px 96px;
+  padding: 14px 14px 84px;
   animation: pageIn 0.4s var(--smooth) both;
 }
 
@@ -86,11 +91,15 @@ a {
 }
 
 .card {
-  padding: 20px;
-  margin-bottom: 16px;
+  padding: 15px 16px;
+  margin-bottom: 11px;
   opacity: 0;
   transform: translateY(14px) scale(0.98);
   animation: cardIn 0.5s var(--bounce) forwards;
+}
+
+.card p {
+  margin: 4px 0;
 }
 
 @keyframes cardIn {
@@ -108,7 +117,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 11px 16px;
   position: sticky;
   top: 0;
   z-index: 30;
@@ -131,15 +140,15 @@ a {
 }
 
 .field {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .field label {
   display: block;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-dim);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .field input[type="text"],
@@ -150,8 +159,8 @@ a {
 .field select,
 .field textarea {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
+  padding: 10px 12px;
+  border-radius: 13px;
   border: 1px solid var(--glass-border);
   background: var(--surface-2);
   color: var(--text);
@@ -183,9 +192,9 @@ a {
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 16px;
-  padding: 14px 20px;
-  font-size: 16px;
+  border-radius: 15px;
+  padding: 12px 18px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.12s var(--bounce), box-shadow 0.2s ease, opacity 0.15s ease;
@@ -228,15 +237,15 @@ a {
 
 .tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 10px;
-  border-radius: 14px;
+  padding: 8px;
+  border-radius: 13px;
   background: var(--surface);
   border: 1px solid var(--glass-border);
   color: var(--text-dim);
@@ -293,7 +302,7 @@ a {
 .empty-state {
   text-align: center;
   color: var(--text-faint);
-  padding: 40px 16px;
+  padding: 26px 16px;
   font-weight: 600;
 }
 
@@ -501,7 +510,7 @@ a {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 18px 20px;
+  padding: 14px 16px;
 }
 
 .lovhe-header-title {
@@ -600,6 +609,101 @@ a {
   flex-direction: column;
   gap: 10px;
   margin-top: 18px;
+}
+
+/* Profil — sosial-şəbəkə stilli başlıq (bax kurye/profil.php) */
+.profil-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 22px 16px 16px;
+}
+
+.profil-avatar-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 10px;
+}
+
+.profil-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-2);
+  border: 3px solid var(--surface);
+  box-shadow: var(--shadow-md);
+  display: block;
+}
+
+.profil-avatar-placeholder {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+  box-shadow: var(--shadow-md);
+}
+
+.profil-avatar-edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  color: #fff;
+  border: 2px solid var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.profil-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.profil-rol-badge {
+  margin-top: 4px;
+}
+
+.profil-stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.profil-stat-pill {
+  flex: 1;
+  background: var(--surface-2);
+  border-radius: 16px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.profil-stat-pill strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.profil-stat-pill span {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-weight: 600;
 }
 
 /* Sifariş kartlarında daşıyıcı əlaqə bloku (müştəri tarixçəsi) */

@@ -47,6 +47,13 @@ final class SifarisController
         return Response::json(['status' => 'ok', 'data' => (new SifarisService())->tarixce($musteriId)]);
     }
 
+    public function kuryeSifarisleri(Request $request): mixed
+    {
+        $kuryeId = self::currentKuryeId();
+
+        return Response::json(['status' => 'ok', 'data' => (new SifarisService())->kuryeSifarisleri($kuryeId)]);
+    }
+
     public function gotur(Request $request, array $params): mixed
     {
         try {

@@ -632,3 +632,77 @@ admin bölməsi əlavə olundu.
 - **Qeyd:** PWA ikonları (`icon-192.png`/`icon-512.png`) hələ köhnə qara
   fonlu "B" işarəsidir — yeni açıq temaya uyğunlaşdırılması (istəyə bağlı,
   bloklayıcı deyil) sonrakı bir addımda edilə bilər.
+
+### 2026-07-12 — Canlı testdən sonra düzəlişlər (PWA keş, Sifarişlərim, profil)
+
+İstifadəçi canlı serverdə "Canlı Şəhər" redizaynını sınadıqdan sonra 7 bənddən
+ibarət geri bildirim verdi. Hamısı tətbiq, real MySQL+Playwright ilə test,
+commit edildi:
+
+1. **Kök səbəb tapıldı — PWA keş bayatlığı:** "Kuryer sifariş götürəndə kart
+   yox olur amma pop-up açılmır" şikayəti Playwright ilə real klik axını
+   canlandırılaraq araşdırıldı — təmiz mühitdə (fresh DB, fresh brauzer)
+   axın SƏHVSIZ işlədi (`goturModalGoster()` düzgün çağırılır, modal
+   `.visible` alır). Əsl kök səbəb tapıldı: `public/sw.js`-də `CACHE_NAME`
+   heç vaxt versiyalanmırdı (`birlikde-shell-v1` sabit qalırdı), `fetch`
+   handler isə "stale-first" strategiyası ilə KEŞLƏNMIŞ köhnə cavabı DƏRHAL
+   qaytarır, şəbəkədən təzəsini yalnız FON REJIMDƏ növbəti dəfə üçün
+   yeniləyir (`cached || networkFetch`). Nəticə: artıq quraşdırılmış PWA-sı
+   olan kuryerin cihazı hər yeni deploy-dan sonra köhnə `app.js`/`app.css`
+   ilə "ilişib qala" bilirdi, `activate` hadisəsinin köhnə keş təmizləməsi
+   isə CACHE_NAME dəyişmədiyi üçün heç vaxt işə düşmürdü. **Düzəliş:**
+   `CACHE_VERSION` sabiti əlavə olundu (`v1` → `v2`) + şərh ilə "hər
+   asset dəyişikliyində bu artırılmalıdır" xəbərdarlığı yazıldı.
+2. **Splash — hər səhifə açılışında:** əvvəlki "sessiyada bir dəfə"
+   (`sessionStorage`) məhdudiyyəti İSTİFADƏÇİNİN AÇIQ TƏLƏBİ ilə geri
+   çevrildi — `app.js`/`admin.js`-də `playSplashOnce()`-dən
+   `sessionStorage` oxuma/yazma tamamilə çıxarıldı, `head.php`/
+   `login_head.php`-dəki sinxron ön-yoxlama skripti silindi.
+3. **SSE yeni sifarişlər — başda görünür:** `kurye/lovhe.php`-də
+   `connectSse()`-nin `yeni_sifaris` handler-i `appendChild` əvəzinə
+   `insertBefore(kartlarEl.firstChild)` istifadə edir — yeni sifariş
+   həmişə lövhənin başında çıxır, mövcud `.card` `cardIn` animasiyası
+   yeni əlavə olunan DOM elementinə avtomatik tətbiq olunur (əlavə CSS
+   lazım olmadı).
+4. **"Sifarişlərim" bölməsi (kuryer/yükdaşıma):** `Sifaris::listByKurye()`
+   (yeni model metodu) + `SifarisService::kuryeSifarisleri()` (müştəri adı/
+   WhatsApp linki ilə zənginləşdirir) + `SifarisController::kuryeSifarisleri()`
+   + `GET /kurye/sifarislerim` marşrutu. `kurye/lovhe.php`-yə "Canlı Lövhə /
+   Sifarişlərim" tab-ları əlavə olundu (müştəri panelindəki tab pattern-i
+   ilə eyni), götürülmüş sifarişlər ən yenidən köhnəyə (`goturulme_vaxti
+   DESC`) müştəri əlaqə məlumatı ilə göstərilir.
+5. **Profil şəkli yükləmə:** `017_add_sekil_to_kuryeler.sql` migrasiyası
+   (`kuryeler.sekil VARCHAR(64) NULL`), `Kurye::setSekil()`,
+   `SifarisService::sekilYukle()` (BannerService-dəki eyni validasiya
+   qaydası: JPEG/PNG/WEBP, 5MB limit, `getimagesize` yoxlaması,
+   `storage/kurye-sekiller/`-də təsadüfi ad ilə saxlama), yeni
+   `KuryeSekilController` (banner şəkil controller-inin eyni naming/
+   təhlükəsizlik qaydası ilə) + `GET /kurye-sekil/{fayl}` marşrutu,
+   `POST /kurye/sekil` yükləmə marşrutu.
+6. **Profil — sosial-şəbəkə stilli redizayn:** `kurye/profil.php` böyük
+   dairəvi avatar (və ya baş hərf placeholder-i) + qələm ikonlu redaktə
+   düyməsi + ad/soyad + nəqliyyat nişanı + "tamamlanan sifariş"/"abunə"
+   stat pill-ləri ilə yenidən qurulduq. `KuryeController::profilim()`
+   indi `ad`/`soyad`/`sekil` də qaytarır (əvvəllər yalnız `neqliyyat`/
+   `onlayn`/`tamamlanan`). Yeni CSS: `.profil-hero`, `.profil-avatar*`,
+   `.profil-stats`, `.profil-stat-pill` (`app.css`).
+7. **Yığcam (compact) dizayn keçidi — müştəri/kuryer/yükdaşıma:**
+   `app.css`-də (admin.css TOXUNULMADI) `.container`/`.card`/`.field`/
+   `.btn`/`.tabs`/`.tab`/`.top-nav`/`.lovhe-header`/`.empty-state`
+   padding+margin dəyərləri azaldıldı, `h1/h2/h3` üçün ölçülü `font-size`
+   + sıx `margin` əlavə olundu, `.card p` margini sıxlaşdırıldı — məqsəd
+   həddindən artıq scroll-u azaltmaq idi, rəng/forma sxeminə toxunulmadı.
+- 2 yeni i18n açarı (`kurye.sifarislerim`, `kurye.sifarislerim_bos`)
+  az/ru/en-ə paritetlə əlavə olundu (112/112/112).
+- Bütün dəyişikliklər real MySQL (təmiz, sıfırdan qurulmuş disposable DB)
+  + `php -S` HTTP server + Playwright/Chromium ilə test edildi: splash
+  hər səhifə açılışında göründüyü (həm `/lovhe`, həm `/profil` üçün ayrı-
+  ayrı) təsdiqləndi; profil şəkli yükləmə+göstərmə axını uçdan-uca
+  işlədiyi (fayl yükləndi, `/kurye-sekil/{fayl}` ilə göstərildi)
+  təsdiqləndi; "Sifarişlərim" boş/dolu vəziyyətləri, iki sifariş
+  götürüləndən sonra siyahının düzgün (ən yeni başda) göründüyü
+  təsdiqləndi; SSE prepend + Götür pop-up axını təkrar-təsdiqləndi.
+  `php -l` bütün `app/`, `config/`, `database/`, `routes/`, `public/`
+  PHP fayllarında səhvsiz, `node --check` `app.js`/`admin.js`/`sw.js`-də
+  səhvsiz. Test DB/istifadəçi, `.env`, keş/sessiya/log faylları,
+  yüklənmiş test şəkilləri təmizləndi.

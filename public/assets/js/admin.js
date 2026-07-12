@@ -66,9 +66,9 @@ window.BirlikdeAdmin = (function () {
     return false;
   }
 
-  // ---- Açılış (splash) animasiyası — yalnız admin girişində, sessiyada bir dəfə ----
+  // ---- Açılış (splash) animasiyası — admin giriş səhifəsi hər açılanda ----
   function playSplashOnce(splashEl) {
-    if (!splashEl || splashEl.classList.contains('hide')) {
+    if (!splashEl) {
       return;
     }
 
@@ -98,11 +98,6 @@ window.BirlikdeAdmin = (function () {
 
     setTimeout(function () {
       splashEl.classList.add('hide');
-      try {
-        sessionStorage.setItem('birlikde_admin_splash_shown', '1');
-      } catch (e) {
-        // Sessiya yaddaşı bloklanıbsa sakitcə keç.
-      }
     }, reduced ? 0 : 2000);
   }
 
