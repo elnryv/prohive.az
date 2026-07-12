@@ -706,3 +706,42 @@ commit edildi:
   PHP fayllarında səhvsiz, `node --check` `app.js`/`admin.js`/`sw.js`-də
   səhvsiz. Test DB/istifadəçi, `.env`, keş/sessiya/log faylları,
   yüklənmiş test şəkilləri təmizləndi.
+
+### 2026-07-12 (davam) — Sifarişlərim ayrıca səhifə, foto HEIC bug-ı, SPA naviqasiya
+
+- İstifadəçi pop-up variantından imtina etdi: "Sifarişlərim" Canlı Lövhədən
+  tamamilə çıxarıldı, əvəzində `GET /sifarislerim` ayrıca səhifəsi yaradıldı
+  (profildəki "Tamamlanan sifariş" stat-pill-inə basanda açılır, drawer
+  menyusuna da əlavə olundu) — hər kartda # + tarix + tam marşrut + müştəri
+  adı + WhatsApp əlaqə düyməsi. "Şikayət və təklif üçün müraciət" rəngli
+  (`.btn-support`, pink→mavi gradient) düymə oldu, müştəri panelindəki eyni
+  funksiya da bu stilə keçirildi və "Təklif və iradlar" adlandırıldı.
+- Profildə Abunə statusunun İKİ DƏFƏ göstərilməsi bug-ı düzəldildi (hero
+  stat-pill + ayrıca Abunə kartı eyni məlumatı təkrarlayırdı), bölmə
+  başlıqlarına kiçik rəngli ikon-nişanlar əlavə olundu (`.section-icon`).
+- **Profil şəkli yükləmə bug-ı (iOS HEIC):** istifadəçi real iPhone-da
+  yüklədiyi şəkilin göstərilmədiyini bildirdi — kök səbəb: iPhone-un default
+  foto formatı HEIC serverdə səssizcə rədd olunurdu, uğursuzluq halında
+  UI-da heç bir xəbərdarlıq yox idi. Düzəliş: seçilən şəkil (HEIC daxil,
+  Safari-nin doğma HEIC dekodlaması vasitəsilə) brauzerdə canvas ilə kiçik
+  JPEG-ə çevrilib yüklənir (`Birlikde.imageToJpegBlob`), uğursuz olarsa
+  aydın xəta mesajı göstərilir (əvvəllər tam səssiz idi).
+- **Səhifələr arası SPA-vari naviqasiya:** istifadəçinin "hər şey saniyədən
+  sürətli, səhifə yenilənmədən işləməlidir" tələbi ilə `Birlikde.initRouter()`
+  əlavə olundu — bütün eyni-origin `<a>` keçidləri (drawer, hüquqi sənəd
+  siyahısı, "Sifarişlərim" keçidi və s.) client tərəfdə tutulur, yalnız
+  `.container` DOM məzmunu fetch+swap edilir, səhifənin öz `<script>`-i
+  yenidən icra olunur, `history.pushState`/`popstate` ilə geri/irəli
+  dəstəklənir. Giriş/qeydiyyat/çıxış/dil dəyişimi ŞÜURLU olaraq kənarda
+  saxlanıldı (tam yenilənmə davam edir — rol-əsaslı drawer render tələb
+  edir). `kurye/lovhe.php`-də SSE bağlantısı üçün `Birlikde.onPageLeave()`
+  cleanup hook-u əlavə olundu ki, səhifədən SPA ilə ayrılanda bağlantı
+  arxa fonda açıq qalmasın.
+- Real MySQL+HTTP+Playwright ilə geniş test: heç bir real səhifə
+  yenilənməsinin baş vermədiyi (window sentinel dəyəri saxlanıldı), drawer
+  aktiv nişanının düzgün yeniləndiyi, geri/irəli funksionallığının, hüquqi
+  sənəd zəncirinin, SSE-nin (onlayn keçid + sifariş götürmə) SPA
+  naviqasiyasından sonra da qüsursuz işlədiyi, foto yükləmənin səhifə
+  yenilənmədən dərhal göründüyü təsdiqləndi — 0 konsol xətası. `php -l` və
+  `node --check` bütün dəyişən fayllarda səhvsiz. `sw.js` `CACHE_VERSION`
+  bu sessiyada v1→v6 addım-addım artırıldı (hər CSS/JS dəyişikliyi ilə).
