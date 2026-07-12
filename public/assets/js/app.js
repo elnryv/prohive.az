@@ -89,6 +89,12 @@ window.Birlikde = (function () {
       });
     }
 
+    function closeAll() {
+      items.forEach(function (i) {
+        i.classList.remove('open');
+      });
+    }
+
     function focusFirstField(item) {
       var firstInput = item.querySelector('input, select, textarea');
       if (firstInput) firstInput.focus({ preventScroll: true });
@@ -103,8 +109,12 @@ window.Birlikde = (function () {
         setTimeout(function () { item.classList.remove('opening'); }, 350);
 
         if (target === myRol) {
-          openItem(item);
-          setTimeout(function () { focusFirstField(item); }, 300);
+          if (item.classList.contains('open')) {
+            closeAll();
+          } else {
+            openItem(item);
+            setTimeout(function () { focusFirstField(item); }, 300);
+          }
         } else {
           openItem(item);
           setTimeout(function () {

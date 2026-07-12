@@ -657,6 +657,24 @@ admin bölməsi əlavə olundu.
   splash ikon-pulse mərhələsi) — müvəqqəti test faylları/`​.env` commit-ə
   daxil deyil.
 
+### 2026-07-13 — Bug: accordion "donur" (toggle-close yox idi)
+
+- İstifadəçi bildirdi: "açılışda donur giriş və qeydiyyat, həmçinin yenidən
+  toxunanda bağlanmır." Kod nəzərdən keçirilərək təsdiqləndi: `initAuthAccordion()`
+  yalnız AÇMA məntiqi yazılmışdı (`openItem()`), artıq açıq olan item-ə
+  yenidən toxunanda BAĞLAMA (toggle) heç vaxt tətbiq olunmurdu — istifadəçi
+  bunu "dondu" kimi hiss edib (açılır, sonra heç nəyə cavab vermir).
+  Düzəliş: `header` klik handler-inə `if (item.classList.contains('open'))
+  closeAll(); else openItem(item);` şərti əlavə olundu — indi öz-səhifənin
+  pill-inə basmaq aç/bağla arasında keçir. Playwright ilə real HTTP-lə
+  1-ci toxunuş→open class, 2-ci toxunuş→open class silinir təsdiqləndi.
+- İstifadəçi eyni zamanda əvvəllər göndərdiyi kuryer-izləmə videosunu
+  (MD5 dəyişməz, artıq `musteri/panel.php`-də tətbiq olunmuş radar-puls
+  dizaynı) yenidən "giriş animasiyası üçün" istinad kimi göndərdi — bu
+  video splash/giriş ilə əlaqəli deyil, artıq tanınıb istifadə olunub;
+  aydınlıq üçün istifadəçidən soruşuldu.
+- `sw.js` `CACHE_VERSION` v16→v17.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur
