@@ -66,6 +66,46 @@ window.BirlikdeAdmin = (function () {
     return false;
   }
 
+  // ---- Açılış (splash) animasiyası — yalnız admin girişində, sessiyada bir dəfə ----
+  function playSplashOnce(splashEl) {
+    if (!splashEl || splashEl.classList.contains('hide')) {
+      return;
+    }
+
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduced) {
+      var targets = [
+        { dx: -0.5, dy: -0.6 },
+        { dx: 0.55, dy: -0.45 },
+        { dx: -0.58, dy: 0.5 },
+        { dx: 0.62, dy: 0.5 },
+        { dx: 0.02, dy: -0.68 },
+      ];
+      var blobs = splashEl.querySelectorAll('.splash-blob');
+      blobs.forEach(function (el, i) {
+        var t = targets[i] || targets[0];
+        var endX = t.dx * window.innerWidth;
+        var endY = t.dy * window.innerHeight;
+        el.style.left = '50%';
+        el.style.top = '50%';
+        el.style.marginLeft = (-el.offsetWidth / 2) + 'px';
+        el.style.marginTop = (-el.offsetHeight / 2) + 'px';
+        el.style.setProperty('--end', 'translate(' + endX + 'px,' + endY + 'px)');
+        el.style.animationDelay = (i * 0.05) + 's';
+      });
+    }
+
+    setTimeout(function () {
+      splashEl.classList.add('hide');
+      try {
+        sessionStorage.setItem('birlikde_admin_splash_shown', '1');
+      } catch (e) {
+        // Sessiya yaddaşı bloklanıbsa sakitcə keç.
+      }
+    }, reduced ? 0 : 2000);
+  }
+
   return {
     api: api,
     getCsrf: getCsrf,
@@ -73,5 +113,6 @@ window.BirlikdeAdmin = (function () {
     showError: showError,
     hideError: hideError,
     redirectIfUnauthorized: redirectIfUnauthorized,
+    playSplashOnce: playSplashOnce,
   };
 })();

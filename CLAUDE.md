@@ -16,8 +16,20 @@
   - `app.birlikde.biz` — Müştəri + Kuryer (eyni giriş, `users.rol`-a görə yönləndirmə)
   - `appadmin.birlikde.biz` — Admin (ayrı, izolyasiya olunmuş panel)
 - **Əsas prinsiplər:** PWA (iOS+Android), SSE ilə real-time, Native PHP 8.3 (framework yox),
-  MySQL 8.0, Hostinger VPS, çoxdilli (AZ/RU/EN), OLED qara (#000000) + glassmorphism dizayn,
-  bütün əlaqə WhatsApp Click-to-Chat üzərindən.
+  MySQL 8.0, Hostinger/Hetzner VPS, çoxdilli (AZ/RU/EN), bütün əlaqə WhatsApp
+  Click-to-Chat üzərindən.
+- **Dizayn sistemi — "Canlı Şəhər" (yenilənib 2026-07-12, bax bölmə 10.1):** əvvəlki
+  OLED-qara+glassmorphism tam əvəz olunub — açıq lavanda fon (`#f5f3fb`), çoxrəngli
+  aksent sistemi (mavi `#3d5afe`=marka/keçidlər, narıncı `#ff7a3d`=əsas əməliyyat
+  düymələri, yaşıl=onlayn/uğur, çəhrayı=təcili), iri dəyirmi künclər (16-28px),
+  sıçrayışlı (bouncy, `cubic-bezier(0.34,1.56,0.64,1)`) hərəkət hər yerdə (kart
+  giriş animasiyası, düymə basma, tab/toggle keçidləri). Hər səhifə açılışında
+  sessiyada BİR DƏFƏ rəngli "partlayış" splash animasiyası ("Birlikdə" sözü ilə,
+  `sessionStorage` ilə idarə olunur). Bütün səhifələrdə hamburger menyu (sürüşən
+  drawer) — dil bayraqları da drawer-in içindədir. Admin panel EYNİ dizayn dilini
+  paylaşır (sabit yan-menyu + eyni rəng/hərəkət tokenləri). Köhnə sinif adları
+  (`.card`, `.btn-primary`, `.glass`, `.badge-*` və s.) saxlanılıb — yalnız CSS
+  dəyərləri dəyişib, view fayllarına toxunulmayıb.
 - **Hüquqi qeyd:** 10 hüquqi sənəd (Faza 7, `config/legal/`, `GET /huquqi`) QARALAMA
   statusundadır — süni intellekt hazırlayıb, lisenziyalı hüquqşünas HƏLƏ təsdiqləməyib,
   bracket-lə (`[VÖEN]`, `[məbləğ]` və s.) işarələnmiş yer tutucular doldurulmayıb.

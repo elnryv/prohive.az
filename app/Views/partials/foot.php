@@ -24,6 +24,12 @@
     document.getElementById('installSkipBtn'),
     document.getElementById('installIosText')
   );
+  Birlikde.initDrawer(
+    document.getElementById('drawerBurger'),
+    document.getElementById('drawerNav'),
+    document.getElementById('drawerScrim')
+  );
+  Birlikde.playSplashOnce(document.getElementById('splashOverlay'));
 
   var navCixisBtn = document.getElementById('navCixisBtn');
   if (navCixisBtn) {

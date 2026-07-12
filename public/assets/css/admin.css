@@ -1,15 +1,24 @@
-/* Birlikdə Admin — eyni dizayn dili (bax bölmə 10.1), lakin masaüstü-yönümlü */
+/* Birlikdə Admin — eyni dizayn dili: "Canlı Şəhər" (bax bölmə 10.1, yenilənib
+   2026-07-12), masaüstü-yönümlü sabit yan-menyu ilə. */
 
 :root {
-  --bg: #000000;
-  --text: #ffffff;
-  --text-dim: rgba(255, 255, 255, 0.6);
-  --accent: #0a84ff;
-  --danger: #ff453a;
-  --success: #30d158;
-  --warning: #ffd60a;
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --bg: #f5f3fb;
+  --surface: #ffffff;
+  --surface-2: #f0edf9;
+  --text: #1a1a2e;
+  --text-dim: rgba(26, 26, 46, 0.62);
+  --text-faint: rgba(26, 26, 46, 0.42);
+  --accent: #3d5afe;
+  --accent-warm: #ff7a3d;
+  --pink: #ff4d8f;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #ffb020;
+  --glass-bg: #ffffff;
+  --glass-border: rgba(26, 26, 46, 0.09);
+  --shadow-sm: 0 2px 10px rgba(26, 26, 46, 0.07);
+  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth: cubic-bezier(0.2, 1, 0.3, 1);
 }
 
 * {
@@ -24,17 +33,30 @@ body {
   min-height: 100vh;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-shell {
@@ -43,41 +65,58 @@ a {
 }
 
 .admin-nav {
-  width: 220px;
+  width: 224px;
   flex-shrink: 0;
   padding: 20px 14px;
   border-radius: 0;
   border-top: none;
   border-bottom: none;
   border-left: none;
+  box-shadow: none;
+  border-right: 1px solid var(--glass-border);
 }
 
 .admin-nav .brand {
-  font-weight: 700;
-  font-size: 18px;
+  font-weight: 800;
+  font-size: 19px;
   margin-bottom: 24px;
-  padding: 0 8px;
+  padding: 0 10px;
+  letter-spacing: -0.01em;
 }
 
 .admin-nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 14px;
   color: var(--text-dim);
   font-size: 14px;
+  font-weight: 700;
   margin-bottom: 4px;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s var(--bounce);
 }
 
 .admin-nav a.active,
 .admin-nav a:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-2);
   color: var(--text);
+}
+
+.admin-nav a.active {
+  color: var(--accent);
 }
 
 .admin-main {
   flex: 1;
   padding: 24px 32px;
   max-width: 1100px;
+  animation: pageIn 0.4s var(--smooth) both;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .admin-topbar {
@@ -88,7 +127,7 @@ a {
 }
 
 .admin-topbar h1 {
-  font-size: 20px;
+  font-size: 21px;
   margin: 0;
 }
 
@@ -100,46 +139,78 @@ a {
 }
 
 .stat-tile {
-  padding: 16px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: tileIn 0.5s var(--bounce) forwards;
 }
 
+@keyframes tileIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-tile:nth-child(5n+1) { background: linear-gradient(135deg, var(--accent), #7c8bff); color: #fff; border: none; box-shadow: 0 6px 18px rgba(61,90,254,0.22); }
+.stat-tile:nth-child(5n+2) { background: linear-gradient(135deg, var(--accent-warm), #ffab6f); color: #fff; border: none; box-shadow: 0 6px 18px rgba(255,122,61,0.22); }
+.stat-tile:nth-child(5n+3) { background: linear-gradient(135deg, var(--pink), #ff85b8); color: #fff; border: none; box-shadow: 0 6px 18px rgba(255,77,143,0.2); }
+.stat-tile:nth-child(5n+4) { background: var(--surface); border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); }
+.stat-tile:nth-child(5n+5) { background: var(--surface); border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); }
+
+.stat-tile:nth-child(5n+1) .label, .stat-tile:nth-child(5n+2) .label, .stat-tile:nth-child(5n+3) .label { color: rgba(255,255,255,0.85); }
+
 .stat-tile .value {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 27px;
+  font-weight: 800;
 }
 
 .stat-tile .label {
   font-size: 12px;
+  font-weight: 600;
   color: var(--text-dim);
   margin-top: 4px;
 }
 
+.table-wrap-admin,
 table {
   width: 100%;
-  border-collapse: collapse;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 14px;
+  background: var(--surface);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 th, td {
   text-align: left;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--glass-border);
 }
 
 th {
-  color: var(--text-dim);
-  font-weight: 600;
-  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 700;
+  font-size: 11.5px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+  background: var(--surface-2);
 }
 
 tbody tr {
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-2);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .field {
@@ -149,6 +220,7 @@ tbody tr:hover {
 .field label {
   display: block;
   font-size: 13px;
+  font-weight: 600;
   color: var(--text-dim);
   margin-bottom: 6px;
 }
@@ -156,11 +228,16 @@ tbody tr:hover {
 .field input, .field select, .field textarea {
   width: 100%;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-2);
   color: var(--text);
   font-size: 14px;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .toolbar {
@@ -175,38 +252,43 @@ tbody tr:hover {
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
+  border-radius: 12px;
+  padding: 10px 18px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 0.12s var(--bounce);
 }
 
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-success { background: var(--success); color: #062; }
-.btn-ghost { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary { background: var(--accent-warm); color: #fff; box-shadow: 0 6px 16px rgba(255,122,61,0.28); }
+.btn-danger { background: var(--danger); color: #fff; box-shadow: 0 6px 16px rgba(239,68,68,0.22); }
+.btn-success { background: var(--success); color: #fff; box-shadow: 0 6px 16px rgba(34,197,94,0.22); }
+.btn-ghost { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 
 .badge {
   display: inline-block;
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
-.badge-axtarisda { background: rgba(10, 132, 255, 0.2); color: #6cb2ff; }
-.badge-goturulub { background: rgba(255, 214, 10, 0.2); color: var(--warning); }
-.badge-tamamlandi { background: rgba(48, 209, 88, 0.2); color: var(--success); }
-.badge-legv { background: rgba(255, 69, 58, 0.2); color: var(--danger); }
-.badge-passiv { background: rgba(255, 255, 255, 0.1); color: var(--text-dim); }
-.badge-aktiv { background: rgba(48, 209, 88, 0.2); color: var(--success); }
-.badge-bloklu { background: rgba(255, 69, 58, 0.2); color: var(--danger); }
+.badge-axtarisda { background: rgba(61, 90, 254, 0.12); color: var(--accent); }
+.badge-goturulub { background: rgba(255, 176, 32, 0.18); color: #a56a1f; }
+.badge-tamamlandi { background: rgba(34, 197, 94, 0.16); color: #15803d; }
+.badge-legv { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+.badge-passiv { background: var(--surface-2); color: var(--text-faint); }
+.badge-aktiv { background: rgba(34, 197, 94, 0.16); color: #15803d; }
+.badge-bloklu { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(26, 26, 46, 0.45);
   display: none;
   align-items: center;
   justify-content: center;
@@ -224,6 +306,12 @@ tbody tr:hover {
   padding: 24px;
   max-height: 85vh;
   overflow-y: auto;
+  animation: modalIn 0.35s var(--bounce);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .pagination {
@@ -236,13 +324,14 @@ tbody tr:hover {
 }
 
 .error-box {
-  background: rgba(255, 69, 58, 0.15);
-  border: 1px solid rgba(255, 69, 58, 0.4);
-  color: #ff8078;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #b91c1c;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 14px;
   font-size: 13px;
+  font-weight: 600;
   display: none;
 }
 
@@ -256,10 +345,85 @@ tbody tr:hover {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  position: relative;
 }
 
 .login-card {
   width: 100%;
   max-width: 360px;
   padding: 28px;
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+  animation: cardIn 0.5s var(--bounce) 0.1s forwards;
+}
+
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- Açılış (splash) — yalnız admin girişində, sessiyada bir dəfə ---------- */
+#splashOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+  overflow: hidden;
+}
+
+#splashOverlay.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: splashBlobBurst 0.9s cubic-bezier(0.16, 1.4, 0.3, 1) forwards;
+}
+
+@keyframes splashBlobBurst {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: var(--end) scale(1); }
+}
+
+.splash-center {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.splash-word {
+  font-weight: 800;
+  font-size: 36px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  opacity: 0;
+  transform: scale(0.5);
+  animation: splashWordBounce 0.7s var(--bounce) 0.35s forwards;
+}
+
+@keyframes splashWordBounce {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.splash-tag {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  opacity: 0;
+  animation: splashFadeUp 0.5s ease 0.75s forwards;
+}
+
+@keyframes splashFadeUp {
+  to { opacity: 1; }
 }

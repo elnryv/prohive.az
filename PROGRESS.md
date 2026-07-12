@@ -586,3 +586,49 @@ admin bölməsi əlavə olundu.
   düzgündür, bu sırf test mühitinin emoji-font məhdudiyyətidir, real
   iOS/Android-də normal rəngli bayraq kimi görünəcək.
 - Test DB/istifadəçi, `.env`, keş, sessiya və log faylları təmizləndi.
+
+### 2026-07-12 — Tam vizual redizayn: "Canlı Şəhər"
+
+- İstifadəçi bütün saytın (müştəri+kuryer+yükdaşıma+admin) dizaynını dəyişmək
+  istədi. 3 fərqli prototip (Artifact olaraq) təqdim edildi: A) Neon Marşrut
+  (qaranlıq, neon), B) Poçt Dəftəri (isti kağız), C) Nəzarət Mərkəzi (OLED
+  terminal). İstifadəçi A-nı bəyənmədi ("tamamfərqli" istədi) — A tamamilə
+  yenidən, "Canlı Şəhər" istiqamətində (açıq lavanda fon, çoxrəngli mavi/
+  narıncı/yaşıl/çəhrayı aksent sistemi, sıçrayışlı hərəkət, rəngli-partlayış
+  splash) hazırlandı və bəyənildi. B/C tələb olunmadı, birbaşa əsl kodda
+  tətbiq edildi.
+- **CSS tam yenidən yazıldı** (`public/assets/css/app.css`, `admin.css`) —
+  BÜTÜN mövcud sinif adları (`.card`, `.glass`, `.btn-primary/-ghost/-danger`,
+  `.badge-*`, `.tab`, `.toggle-switch`, `.modal-overlay` və s.) və CSS
+  dəyişən adları (`--text`, `--text-dim`, `--glass-border` və s.) SAXLANILDI —
+  yalnız dəyərlər dəyişdi. Bu sayədə TƏK BİR view faylına toxunmadan bütün
+  səhifələr yeni görünüşü avtomatik aldı (rənglər, künc radiusu, kölgələr,
+  animasiyalar mərkəzi CSS-dən idarə olunur).
+- **Yeni komponentlər əlavə olundu** (view dəyişikliyi tələb etdi):
+  - Hamburger + sürüşən menyu (drawer): `partials/head.php`-ə əlavə olundu
+    (rol-əsaslı naviqasiya + dil bayraqları köçürüldü), `app.js`-də
+    `Birlikde.initDrawer()`.
+  - Açılış (splash) animasiyası: hər səhifə YÜKLƏNƏNDƏ yox, **sessiyada bir
+    dəfə** (`sessionStorage`) göstərilir — hər klikdə göstərilsəydi
+    naviqasiya əzab verici olardı. Sinxron inline skript flash-ı önləyir
+    (`app.js`-də `Birlikde.playSplashOnce()`).
+  - Admin: sabit yan-menyu SAXLANILDI (drawer əvəzinə — desktop alət üçün
+    daha münasib), amma eyni rəng/hərəkət dili tətbiq olundu; splash yalnız
+    admin GİRİŞ səhifəsində (idarəetmə zamanı hər naviqasiyada göstərmək
+    pis UX olardı).
+- Fontlar: `@font-face` ilə xüsusi şrift YÜKLƏNMƏDİ (sistemin öz şrift
+  yığını saxlanıldı) — prototip Artifact-larında istifadə olunan böyük
+  base64 TTF-lər yalnız Artifact CSP-sinin xarici font CDN-ni bloklaması
+  ucbatından idi, əsl saytda belə bir məhdudiyyət yoxdur və hər səhifə
+  yükləməsində çoxlu MB font yükləmək performansa zərərli olardı; "böyük,
+  qalın" görünüş `font-weight:800` ilə əldə edilib.
+- 2 yeni i18n açarı (`splash.tagline`, `drawer.diger`) az/ru/en-ə paritetlə
+  əlavə olundu (110/110/110). `manifest.json`-un `theme_color`/
+  `background_color`-u da yeni fona uyğunlaşdırıldı.
+- Real MySQL + HTTP + Playwright ilə tam test edildi: giriş/qeydiyyat/
+  drawer/müştəri panel+tarixçə/kuryer lövhə+profil/hüquqi/admin giriş+
+  dashboard — heç bir konsol xətası yoxdur, bütün ekranlar skrinşotla
+  vizual təsdiqləndi. Test DB/istifadəçi/`.env`/keş təmizləndi.
+- **Qeyd:** PWA ikonları (`icon-192.png`/`icon-512.png`) hələ köhnə qara
+  fonlu "B" işarəsidir — yeni açıq temaya uyğunlaşdırılması (istəyə bağlı,
+  bloklayıcı deyil) sonrakı bir addımda edilə bilər.
