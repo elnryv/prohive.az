@@ -1135,6 +1135,70 @@ a {
   50% { transform: translateY(-4px); }
 }
 
+/* ---------- Aşağı naviqasiya paneli (bottom nav) — yalnız girişli
+   istifadəçilər üçün, rol-əsaslı (bax head.php). Aktiv bölmənin adı
+   ikonun yanında animasiya ilə "açılır" (max-width/opacity keçidi). ---------- */
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  gap: 4px;
+  padding: 7px;
+  background: var(--surface);
+  border-radius: 999px;
+  box-shadow: 0 12px 30px rgba(26, 26, 46, 0.2);
+  max-width: calc(100% - 28px);
+}
+
+.bottom-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 11px;
+  border-radius: 999px;
+  color: var(--text-faint);
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 0.35s var(--bounce), color 0.25s ease, padding 0.35s var(--bounce);
+}
+
+.bottom-nav-item:active {
+  transform: scale(0.92);
+}
+
+.bottom-nav-icon {
+  font-size: 19px;
+  line-height: 1;
+  transition: transform 0.3s var(--bounce);
+  flex: none;
+}
+
+.bottom-nav-label {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.35s var(--bounce), opacity 0.2s ease, margin-left 0.35s var(--bounce);
+}
+
+.bottom-nav-item.active {
+  padding: 11px 16px;
+  background: linear-gradient(120deg, var(--accent), var(--pink));
+  color: #fff;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+  transform: scale(1.12);
+}
+
+.bottom-nav-item.active .bottom-nav-label {
+  max-width: 120px;
+  opacity: 1;
+  margin-left: 7px;
+}
+
 /* ---------- Açılış (splash) — yalnız sessiyada bir dəfə ---------- */
 #splashOverlay {
   position: fixed;
@@ -1154,19 +1218,6 @@ a {
   pointer-events: none;
 }
 
-.splash-blob {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0;
-  animation: splashBlobBurst 0.9s cubic-bezier(0.16, 1.4, 0.3, 1) forwards;
-}
-
-@keyframes splashBlobBurst {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
-  55% { opacity: 1; }
-  100% { opacity: 1; transform: var(--end) scale(1); }
-}
-
 .splash-center {
   position: relative;
   z-index: 2;
@@ -1175,14 +1226,35 @@ a {
   align-items: center;
 }
 
+/* İkon əvvəl "nəfəs alır" (pulse), sonra söz sıçrayaraq açılır — reference
+   video-dakı "ikon pulse edir, sonra mətn" ritmi (bax PROGRESS.md). */
 .splash-word {
   font-weight: 800;
   font-size: 40px;
   letter-spacing: -0.01em;
   color: var(--text);
+}
+
+.splash-word .brand-mark {
   opacity: 0;
-  transform: scale(0.5);
-  animation: splashWordBounce 0.7s var(--bounce) 0.35s forwards;
+  transform: scale(0.3);
+  animation: splashMarkPop 0.5s var(--bounce) forwards, splashMarkPulse 0.5s ease-in-out 0.5s 2;
+}
+
+@keyframes splashMarkPop {
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes splashMarkPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+.splash-word .brand-word {
+  display: inline-block;
+  opacity: 0;
+  transform: scale(0.6);
+  animation: splashWordBounce 0.6s var(--bounce) 0.7s forwards;
 }
 
 @keyframes splashWordBounce {
@@ -1195,7 +1267,7 @@ a {
   font-weight: 700;
   color: var(--text-dim);
   opacity: 0;
-  animation: splashFadeUp 0.5s ease 0.75s forwards;
+  animation: splashFadeUp 0.5s ease 1.05s forwards;
 }
 
 @keyframes splashFadeUp {
@@ -1230,12 +1302,12 @@ a {
   height: 100%;
 }
 
-/* ---------- Giriş/Qeydiyyat kart karuseli (auth deck) ---------- */
-/* Ekranın altında boş sahə qalmasın deyə deck+forma dikey ortalanır (bax
-   auth/giris.php, auth/qeydiyyat.php `.auth-page` sarğı div-i). `.container`-in
-   böyük `padding-bottom`-u (84px, digər səhifələrdəki sürüşən siyahılar üçün)
-   burada lazım deyil — `margin-bottom` ilə ləğv edilir ki, ortalama HƏQİQƏTƏN
-   ekranın tam görünən sahəsinə görə olsun, əks halda aşağıda əlavə boşluq qalır. */
+/* ---------- Giriş/Qeydiyyat aккордеon (bax auth/giris.php, auth/qeydiyyat.php) ----------
+   Əvvəlki kart-karuseli konsepti ləğv edildi (istifadəçi qərarı) — indi iki
+   yığcam "pill" başlıq alt-alta, toxunulan öz-səhifə açılıb formanı göstərir
+   (CSS grid `0fr → 1fr` texnikası ilə hündürlük animasiyası, JS ölçmə lazım
+   deyil), digər səhifənin başlığı toxunulanda qısa "açılma" əks-əlaqəsi
+   verib həmin səhifəyə keçir (`?open=1` ilə orada avtomatik açılır). */
 .auth-page {
   min-height: calc(100vh - 74px);
   min-height: calc(100dvh - 74px);
@@ -1245,158 +1317,129 @@ a {
   justify-content: center;
 }
 
-.auth-deck {
-  padding: 6px 4px 26px;
+.auth-heading {
   text-align: center;
-  transition: opacity 0.35s var(--smooth), transform 0.35s var(--smooth);
+  margin-bottom: 22px;
 }
 
-.auth-deck[hidden] {
-  display: none;
-}
-
-.auth-deck.leaving {
-  animation: deckLeave 0.4s var(--smooth) forwards;
-}
-
-@keyframes deckLeave {
-  to { opacity: 0; transform: translateY(-18px) scale(0.96); }
-}
-
-.deck-heading {
-  margin-bottom: 26px;
-}
-
-.deck-brand {
+.auth-heading .deck-brand {
   font-size: 27px;
 }
 
-.deck-sub {
+.auth-sub {
   margin-top: 6px;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-dim);
 }
 
-.deck-stack {
-  position: relative;
-  height: 250px;
-  max-width: 320px;
-  margin: 0 auto;
-}
-
-.deck-card {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 66%;
-  min-height: 212px;
-  margin-left: -33%;
-  border: none;
-  border-radius: 26px;
-  padding: 0;
+.accordion-item {
+  border-radius: 22px;
   overflow: hidden;
-  color: #fff;
-  cursor: grab;
-  box-shadow: 0 14px 30px rgba(26, 26, 46, 0.18);
-  transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0)) scale(0.9);
-  transition: transform 0.5s var(--bounce), opacity 0.4s var(--smooth), box-shadow 0.3s ease;
-  opacity: 0.85;
-  user-select: none;
-  touch-action: pan-y;
-  font: inherit;
-  text-align: center;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease;
 }
 
-.deck-card:nth-child(1) { --tx: -58px; --ty: 6px; --rot: -9deg; }
-.deck-card:nth-child(2) { --tx: 58px; --ty: 6px; --rot: 9deg; }
-
-.deck-card[data-target="giris"] {
-  background: linear-gradient(150deg, var(--accent), #1c2fb0);
+.accordion-item.open {
+  box-shadow: var(--shadow-md);
 }
 
-.deck-card[data-target="qeydiyyat"] {
-  background: linear-gradient(150deg, var(--accent-warm), var(--pink));
-}
-
-.deck-card-front {
-  z-index: 3;
-  cursor: grab;
-  transform: translate(var(--dragX, 0px), 0px) rotate(var(--dragRot, 0deg)) scale(1.05) !important;
-  opacity: 1;
-  box-shadow: 0 20px 38px rgba(26, 26, 46, 0.26);
-}
-
-.deck-card-back {
-  z-index: 1;
-  cursor: pointer;
-}
-
-.deck-card.dragging {
-  cursor: grabbing;
-  transition: none !important;
-}
-
-.auth-deck.selecting .deck-card-front {
-  transform: translate(0, 0) rotate(0deg) scale(1.16) !important;
-}
-
-.deck-card-inner {
+.accordion-header {
   width: 100%;
-  height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 26px 18px;
-  animation: cardFloat 3.4s ease-in-out infinite;
+  gap: 12px;
+  padding: 17px 20px;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: #fff;
+  text-align: left;
+  transition: transform 0.15s var(--bounce);
 }
 
-.deck-card:nth-child(2) .deck-card-inner {
-  animation-delay: 0.5s;
+.accordion-header:active {
+  transform: scale(0.98);
 }
 
-@keyframes cardFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+.accordion-item[data-target="giris"] .accordion-header {
+  background: linear-gradient(120deg, var(--accent), #1c2fb0);
 }
 
-.deck-card-icon {
-  font-size: 38px;
+.accordion-item[data-target="qeydiyyat"] .accordion-header {
+  background: linear-gradient(120deg, var(--accent-warm), var(--pink));
+}
+
+.accordion-icon {
+  font-size: 21px;
   line-height: 1;
-  display: inline-block;
+  flex: none;
   animation: iconWiggle 2.8s ease-in-out infinite;
 }
 
-.deck-card:nth-child(2) .deck-card-icon {
-  animation-delay: 0.3s;
+.accordion-item[data-target="qeydiyyat"] .accordion-icon {
+  animation-delay: 0.4s;
 }
 
 @keyframes iconWiggle {
   0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-8deg) scale(1.06); }
-  75% { transform: rotate(8deg) scale(1.06); }
+  25% { transform: rotate(-8deg) scale(1.05); }
+  75% { transform: rotate(8deg) scale(1.05); }
 }
 
-.deck-card-title {
-  font-size: 20px;
+.accordion-title {
+  flex: 1;
   font-weight: 800;
+  font-size: 16px;
 }
 
-.deck-card-sub {
-  font-size: 12.5px;
+.accordion-sub {
+  display: block;
+  font-size: 11.5px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 190px;
+  color: rgba(255, 255, 255, 0.82);
+  margin-top: 1px;
 }
 
-.auth-form-wrap[hidden] {
-  display: none;
+.accordion-chev {
+  flex: none;
+  font-size: 14px;
+  transition: transform 0.35s var(--bounce);
 }
 
-.auth-form-wrap.reveal {
-  animation: pageIn 0.45s var(--bounce);
+.accordion-item.open .accordion-chev {
+  transform: rotate(180deg);
+}
+
+.accordion-item.opening .accordion-header {
+  animation: accordionPulse 0.35s var(--bounce);
+}
+
+@keyframes accordionPulse {
+  50% { transform: scale(0.97); }
+}
+
+.accordion-body-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  background: var(--surface);
+  transition: grid-template-rows 0.45s var(--smooth);
+}
+
+.accordion-item.open .accordion-body-wrap {
+  grid-template-rows: 1fr;
+}
+
+.accordion-body {
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 20px;
+  transition: padding 0.45s var(--smooth);
+}
+
+.accordion-item.open .accordion-body {
+  padding: 20px;
 }
 
 /* ---------- Sifariş izləmə animasiyası (radar + marşrut) ---------- */

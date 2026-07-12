@@ -70,15 +70,7 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
     <a class="lang-flag<?= $dil === 'en' ? ' active' : '' ?>" href="?dil=en" title="English" aria-label="English" onclick="event.preventDefault(); Birlikde.switchLanguage('en');">&#127468;&#127463;</a>
   </div>
 
-  <?php if (!empty($girisEdilib)): ?>
-    <?php if (($rol ?? null) === 'musteri'): ?>
-      <a class="drawer-item<?= $hazirkiYol === '/panel' ? ' active' : '' ?>" href="/panel"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.panel')) ?></a>
-    <?php elseif (in_array($rol ?? null, ['kurye', 'yukdasima'], true)): ?>
-      <a class="drawer-item<?= $hazirkiYol === '/lovhe' ? ' active' : '' ?>" href="/lovhe"><span class="drawer-dot"></span><?= htmlspecialchars($t('kurye.lovhe')) ?></a>
-      <a class="drawer-item<?= $hazirkiYol === '/sifarislerim' ? ' active' : '' ?>" href="/sifarislerim"><span class="drawer-dot"></span><?= htmlspecialchars($t('kurye.sifarislerim')) ?></a>
-      <a class="drawer-item<?= $hazirkiYol === '/profil' ? ' active' : '' ?>" href="/profil"><span class="drawer-dot"></span><?= htmlspecialchars($t('profil.basliq')) ?></a>
-    <?php endif; ?>
-  <?php else: ?>
+  <?php if (empty($girisEdilib)): ?>
     <a class="drawer-item<?= $hazirkiYol === '/giris' ? ' active' : '' ?>" href="/giris"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.giris')) ?></a>
     <a class="drawer-item<?= $hazirkiYol === '/qeydiyyat' ? ' active' : '' ?>" href="/qeydiyyat"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.qeydiyyat')) ?></a>
   <?php endif; ?>
@@ -93,5 +85,25 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
     </div>
   </div>
 </nav>
+
+<?php if (!empty($girisEdilib)): ?>
+<nav class="bottom-nav" id="bottomNav">
+  <?php if (($rol ?? null) === 'musteri'): ?>
+    <a class="bottom-nav-item<?= $hazirkiYol === '/panel' ? ' active' : '' ?>" href="/panel">
+      <span class="bottom-nav-icon">&#127968;</span><span class="bottom-nav-label"><?= htmlspecialchars($t('ortaq.panel')) ?></span>
+    </a>
+  <?php elseif (in_array($rol ?? null, ['kurye', 'yukdasima'], true)): ?>
+    <a class="bottom-nav-item<?= $hazirkiYol === '/lovhe' ? ' active' : '' ?>" href="/lovhe">
+      <span class="bottom-nav-icon">&#128203;</span><span class="bottom-nav-label"><?= htmlspecialchars($t('kurye.lovhe')) ?></span>
+    </a>
+    <a class="bottom-nav-item<?= $hazirkiYol === '/sifarislerim' ? ' active' : '' ?>" href="/sifarislerim">
+      <span class="bottom-nav-icon">&#129534;</span><span class="bottom-nav-label"><?= htmlspecialchars($t('kurye.sifarislerim')) ?></span>
+    </a>
+    <a class="bottom-nav-item<?= $hazirkiYol === '/profil' ? ' active' : '' ?>" href="/profil">
+      <span class="bottom-nav-icon">&#128100;</span><span class="bottom-nav-label"><?= htmlspecialchars($t('profil.basliq')) ?></span>
+    </a>
+  <?php endif; ?>
+</nav>
+<?php endif; ?>
 
 <div class="container">

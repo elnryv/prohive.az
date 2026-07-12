@@ -71,123 +71,57 @@ window.Birlikde = (function () {
     );
   }
 
-  // Giriş/Qeydiyyat kart karuseli — bax auth/giris.php, auth/qeydiyyat.php
-  // (#authDeck data-my-rol="giris|qeydiyyat"). Ön kartı barmaqla/mouse ilə
-  // real-vaxtda sürüşdürmək olar (Pointer Events, --dragX/--dragRot CSS
-  // dəyişənləri ilə, bax app.css `.deck-card-front`); yetərincə sürüşdürülsə
-  // digər karta keçir, azca hərəkət olarsa toxunma (tap) kimi qəbul edilib
-  // forma açılır. Arxa kartın görünən kənarına toxunmaq da (drag olmadan)
-  // ona keçid edir.
-  function initAuthDeck() {
-    var deck = document.getElementById('authDeck');
-    if (!deck) return;
-    var formWrap = document.getElementById('authFormWrap');
-    var myRol = deck.dataset.myRol;
-    var cards = deck.querySelectorAll('.deck-card');
-    var SWIPE_THRESHOLD = 70;
+  // Giriş/Qeydiyyat aккордеon — bax auth/giris.php, auth/qeydiyyat.php
+  // (.auth-page[data-my-rol="giris|qeydiyyat"], .accordion-item[data-target]).
+  // Kart-karuseli konsepti ləğv edilib — indi iki "pill" başlıq alt-alta,
+  // toxunulan öz-səhifənin başlığı yerində açılır (CSS grid animasiyası,
+  // bax app.css `.accordion-body-wrap`), digər səhifənin başlığı qısa
+  // "açılma" əks-əlaqəsi verib (`.opening` class) həmin səhifəyə keçir.
+  function initAuthAccordion() {
+    var page = document.querySelector('.auth-page[data-my-rol]');
+    if (!page) return;
+    var myRol = page.dataset.myRol;
+    var items = page.querySelectorAll('.accordion-item');
 
-    function otherCard(card) {
-      for (var i = 0; i < cards.length; i++) {
-        if (cards[i] !== card) return cards[i];
-      }
-      return null;
-    }
-
-    function setFront(rol) {
-      cards.forEach(function (c) {
-        var isFront = c.dataset.target === rol;
-        c.classList.toggle('deck-card-front', isFront);
-        c.classList.toggle('deck-card-back', !isFront);
+    function openItem(item) {
+      items.forEach(function (i) {
+        i.classList.toggle('open', i === item);
       });
     }
 
-    setFront(myRol);
-
-    function openForm() {
-      deck.classList.add('selecting');
-      setTimeout(function () {
-        deck.classList.add('leaving');
-        setTimeout(function () {
-          deck.setAttribute('hidden', '');
-          formWrap.removeAttribute('hidden');
-          formWrap.classList.add('reveal');
-          var firstInput = formWrap.querySelector('input, select, textarea');
-          if (firstInput) firstInput.focus({ preventScroll: true });
-        }, 400);
-      }, 260);
+    function focusFirstField(item) {
+      var firstInput = item.querySelector('input, select, textarea');
+      if (firstInput) firstInput.focus({ preventScroll: true });
     }
 
-    function switchTo(target) {
-      setFront(target);
-      setTimeout(function () {
-        window.location.href = '/' + target + '?open=1';
-      }, 340);
-    }
+    items.forEach(function (item) {
+      var header = item.querySelector('.accordion-header');
+      var target = item.dataset.target;
 
-    cards.forEach(function (card) {
-      var dragging = false;
-      var moved = false;
-      var startX = 0;
-      var activePointerId = null;
+      header.addEventListener('click', function () {
+        item.classList.add('opening');
+        setTimeout(function () { item.classList.remove('opening'); }, 350);
 
-      card.addEventListener('pointerdown', function (e) {
-        if (card.dataset.target !== myRol) return;
-        dragging = true;
-        moved = false;
-        startX = e.clientX;
-        activePointerId = e.pointerId;
-        card.classList.add('dragging');
-        try { card.setPointerCapture(activePointerId); } catch (err) { /* noop */ }
-      });
-
-      card.addEventListener('pointermove', function (e) {
-        if (!dragging || e.pointerId !== activePointerId) return;
-        var dx = e.clientX - startX;
-        if (Math.abs(dx) > 6) moved = true;
-        card.style.setProperty('--dragX', dx + 'px');
-        card.style.setProperty('--dragRot', (dx / 14) + 'deg');
-      });
-
-      function endDrag(e) {
-        if (!dragging) return;
-        dragging = false;
-        card.classList.remove('dragging');
-        var dx = e.clientX - startX;
-
-        if (Math.abs(dx) > SWIPE_THRESHOLD) {
-          var flyTo = dx > 0 ? 620 : -620;
-          card.style.setProperty('--dragX', flyTo + 'px');
-          card.style.setProperty('--dragRot', (dx > 0 ? 34 : -34) + 'deg');
-          var target = otherCard(card);
-          setTimeout(function () {
-            card.style.removeProperty('--dragX');
-            card.style.removeProperty('--dragRot');
-            if (target) switchTo(target.dataset.target);
-          }, 260);
+        if (target === myRol) {
+          openItem(item);
+          setTimeout(function () { focusFirstField(item); }, 300);
         } else {
-          card.style.removeProperty('--dragX');
-          card.style.removeProperty('--dragRot');
-          if (!moved) openForm();
-        }
-      }
-
-      card.addEventListener('pointerup', endDrag);
-      card.addEventListener('pointercancel', function () {
-        dragging = false;
-        card.classList.remove('dragging');
-        card.style.removeProperty('--dragX');
-        card.style.removeProperty('--dragRot');
-      });
-
-      card.addEventListener('click', function () {
-        if (card.dataset.target !== myRol) {
-          switchTo(card.dataset.target);
+          openItem(item);
+          setTimeout(function () {
+            window.location.href = '/' + target + '?open=1';
+          }, 380);
         }
       });
     });
 
     if (/[?&]open=1\b/.test(window.location.search)) {
-      setTimeout(openForm, 200);
+      var mine = page.querySelector('.accordion-item[data-target="' + myRol + '"]');
+      if (mine) {
+        setTimeout(function () {
+          openItem(mine);
+          focusFirstField(mine);
+        }, 200);
+      }
     }
   }
 
@@ -263,7 +197,7 @@ window.Birlikde = (function () {
   }
 
   function updateDrawerActive(pathname) {
-    document.querySelectorAll('.drawer-item[href]').forEach(function (link) {
+    document.querySelectorAll('.drawer-item[href], .bottom-nav-item[href]').forEach(function (link) {
       var href = link.getAttribute('href');
       if (!href || href.indexOf('/') !== 0) {
         return; // xarici keçid (məs. birlikde.biz) — toxunulmur
@@ -467,7 +401,7 @@ window.Birlikde = (function () {
     setTimeout(function () {
       splashEl.classList.add('hide');
       if (stopParticles) stopParticles();
-    }, reduced ? 0 : 1650);
+    }, reduced ? 0 : 1900);
   }
 
   function switchLanguage(dil) {
@@ -646,7 +580,7 @@ window.Birlikde = (function () {
     redirectIfUnauthorized: redirectIfUnauthorized,
     switchLanguage: switchLanguage,
     initDrawer: initDrawer,
-    initAuthDeck: initAuthDeck,
+    initAuthAccordion: initAuthAccordion,
     playSplashOnce: playSplashOnce,
     registerServiceWorker: registerServiceWorker,
     initInstallPrompt: initInstallPrompt,

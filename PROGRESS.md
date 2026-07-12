@@ -599,6 +599,64 @@ admin bölməsi əlavə olundu.
   Playwright ilə statik test səhifələri üzərində bütün 6 bənd vizual
   təsdiqləndi (müvəqqəti test faylları commit-ə daxil deyil).
 
+### 2026-07-12 (davam) — Kart karuseli ləğv edildi, accordion + bottom-nav + splash təkmilləşdirməsi
+
+- İstifadəçi canlıda 3 yeni video göndərdi (ffmpeg contact-sheet üsulu ilə
+  təhlil edildi): (1) "Scoops" dondurma tətbiqi tutorialı — açılış ikon-
+  pulse + "Get Started" axını VƏ ev ekranındakı üzən bottom-nav (🏠/💬/🛒/👤,
+  aktiv olan ağ dairə ilə vurğulanır); (2) əvvəllər görülmüş kuryer-izləmə
+  videosunun təkrarı (eyni MD5, yeni məlumat yox); (3) "Hover Expanding
+  Login" kolleksiyası — kompakt "LOGIN" pill-i toxunulanda/hover-də tam
+  formaya genişlənir (neon mavi/çəhrayı sərhədli, tünd tema).
+- İstifadəçi qərarı: kart-karuseli konsepti LƏĞV edildi ("cart məsələsini
+  ləğv edirik, daha müasir bir şey etməliyik") — əvəzinə video (3)-dəki
+  "genişlənən pill" konsepsiyası, öz rəng sxemimizdə. Bundan əlavə: "aşağı
+  naviqasiya paneli kimi olsun, toxunanda bölmənin adı animasiya ilə
+  yazılsın" (video 1-dəki bottom-nav) və splash üçün "ikon pulse edir,
+  sonra mətn" ritmi istəndi.
+- İstifadəçinin bildirdiyi 2 "xəta": (a) kart sürüşdürüləndə birbaşa
+  qeydiyyata keçməsi — bu, əvvəlki sessiyada bilərəkdən qurulmuş sürüşdürmə-
+  keçid funksiyası idi, kartların ləğvi ilə mövzu bağlandı, ayrıca düzəliş
+  tələb olunmadı; (b) "girişetməmiş istifadəçi üçün sol menyu overlay kimi
+  deyil, birbaşa ekranda görünür" — Playwright ilə təcrid olunmuş mühitdə
+  (`/giris`, real MySQL + HTTP) yoxlanıldı: `.drawer` `position:fixed`,
+  bağlı vəziyyətdə `transform:translateX(-108%)`, açıqda `translateX(0)`
+  — TAM DÜZGÜN davranış, reproduksiya olunmadı. Səbəb ehtimalı: köhnə
+  Service Worker keşinin hələ aktiv olması (öncəki push-lardan sonra tam
+  bağlanıb-açılmayıb). İstifadəçidən bu yeniləmədən sonra yenidən yoxlamaq
+  və davam edərsə screenshot göndərmək xahiş olundu.
+- **Yeni accordion (auth/giris.php, auth/qeydiyyat.php):** kart-deck tam
+  silindi. İndi iki "pill" başlıq (`​.accordion-item`, mavi=Giriş,
+  narıncı-çəhrayı=Qeydiyyat qradiyenti) alt-alta göstərilir; öz-səhifənin
+  başlığına toxunanda CSS grid `0fr → 1fr` texnikası ilə (JS hündürlük
+  ölçmədən, avtomatik uyğunlaşan) forma yerində açılır, digər başlığa
+  toxunanda qısa "pulse" əks-əlaqədən sonra `?open=1` ilə digər səhifəyə
+  keçilir (orada eyni item avtomatik açılır). `Birlikde.initAuthAccordion()`
+  köhnə `initAuthDeck()`-i əvəz etdi (drag/swipe məntiqi ləğv edildi).
+  Playwright ilə real DB+HTTP-lə tam axın (bağlı → açıq → doldurulmuş
+  qeydiyyat forması, rol tabları daxil) vizual təsdiqləndi.
+- **Yeni bottom-nav (yalnız girişli istifadəçilər):** rol-əsaslı naviqasiya
+  elementləri (müştəri: Panel; kuryer/yükdaşıma: Lövhə+Sifarişlərim+Profil)
+  drawer-dən çıxarılıb üzən, dairəvi `.bottom-nav` panelinə köçürüldü —
+  passiv bölmələr yalnız ikon göstərir, AKTİV bölmə qradiyent fon +
+  animasiyalı genişlənən label göstərir (`max-width`/`opacity` keçidi,
+  bounce). SPA marşrutlaşdırma (`updateDrawerActive()`) indi bottom-nav
+  elementlərini də yeniləyir — tab-lar arası keçiddə DOM elementi
+  saxlanıldığı üçün animasiya HƏQİQƏTƏN oynayır (tam səhifə yenilənməsində
+  isə sadəcə son vəziyyət göstərilir, normal haldır).
+- **Splash ikon-pulse:** `.brand-mark` (loqo işarəsi) indi sözdən ƏVVƏL
+  öz-özünə "pop" edib 2 dəfə pulse edir (`splashMarkPop`+`splashMarkPulse`),
+  sonra "Birlikdə" sözü sıçrayaraq açılır (gecikmə 0→0.7s) — reference
+  video-dakı "ikon pulse, sonra mətn" ritmini təqlid edir. Ümumi splash
+  müddəti 1650ms→1900ms uzadıldı (yeni ritmə yer üçün). Köhnə istifadə
+  olunmayan `.splash-blob`/`@keyframes splashBlobBurst` CSS-i silindi.
+- `sw.js` `CACHE_VERSION` v15→v16. `php -l`/`node --check` təmiz keçdi.
+  Lokal MariaDB (müvəqqəti test DB, migrate+seed) + PHP daxili server ilə
+  Playwright vasitəsilə tam vizual test edildi (accordion açılış/bağlanış,
+  qeydiyyat forması, drawer overlay davranışı, bottom-nav aktiv vəziyyəti,
+  splash ikon-pulse mərhələsi) — müvəqqəti test faylları/`​.env` commit-ə
+  daxil deyil.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur
