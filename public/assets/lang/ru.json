@@ -64,7 +64,7 @@
   "musteri.sifaris_yarat": "Создать заказ",
   "musteri.tarixce": "История",
   "musteri.aktiv_sifaris_yoxdur": "Нет активных заказов",
-  "musteri.sikayet": "Пожаловаться",
+  "musteri.sikayet": "Предложения и жалобы",
   "musteri.dasiyici": "Перевозчик",
 
   "status.axtarisda": "В поиске",
@@ -84,6 +84,7 @@
   "kurye.musteri_adi": "Клиент",
   "kurye.sifarislerim": "Мои заказы",
   "kurye.sifarislerim_bos": "Вы ещё не приняли ни одного заказа",
+  "kurye.sikayet_teklif": "Связаться по жалобам и предложениям",
 
   "profil.basliq": "Профиль",
   "profil.erazilerim": "Мои районы",

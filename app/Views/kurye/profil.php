@@ -19,22 +19,18 @@ require __DIR__ . '/../partials/head.php';
       <strong id="tamamlananVal">—</strong>
       <span><?= htmlspecialchars($t('profil.tamamlanan')) ?></span>
     </div>
-    <div class="profil-stat-pill">
-      <strong id="abuneVal">—</strong>
-      <span><?= htmlspecialchars($t('profil.abune')) ?></span>
-    </div>
   </div>
 </div>
 
 <div class="card glass" id="abuneCard">
-  <h3><?= htmlspecialchars($t('profil.abune')) ?></h3>
+  <h3><span class="section-icon">&#128179;</span><?= htmlspecialchars($t('profil.abune')) ?></h3>
   <p><span class="badge" id="abuneBadge">—</span></p>
   <p id="qalanGunSetiri" style="display:none; color:var(--text-dim); font-size:14px;"></p>
   <button class="btn btn-primary" id="odeBtn" style="display:none;"><?= htmlspecialchars($t('profil.ode')) ?></button>
 </div>
 
 <div class="card glass">
-  <h3><?= htmlspecialchars($t('profil.erazilerim')) ?></h3>
+  <h3><span class="section-icon">&#128205;</span><?= htmlspecialchars($t('profil.erazilerim')) ?></h3>
   <p id="eraziXulase" style="color:var(--text-dim); font-size:14px;">—</p>
 
   <div class="field">
@@ -46,7 +42,7 @@ require __DIR__ . '/../partials/head.php';
 </div>
 
 <div class="card glass">
-  <button class="btn btn-ghost" id="pushBtn"><?= htmlspecialchars($t('profil.bildiris_icaze')) ?></button>
+  <button class="btn btn-ghost" id="pushBtn">&#128276;&nbsp; <?= htmlspecialchars($t('profil.bildiris_icaze')) ?></button>
 </div>
 
 <script>
@@ -114,7 +110,6 @@ var QALAN_GUN_METNI = <?= json_encode($t('profil.qalan_gun'), JSON_UNESCAPED_UNI
     badge.textContent = etiket;
     var aktivmi = d.label === 'aktiv' || d.label === 'pulsuz' || d.label === 'pulsuz_qlobal';
     badge.className = 'badge badge-' + (aktivmi ? 'tamamlandi' : 'legv');
-    document.getElementById('abuneVal').textContent = etiket;
 
     var qalanEl = document.getElementById('qalanGunSetiri');
     if (d.qalan_gun !== null) {

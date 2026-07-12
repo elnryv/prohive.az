@@ -88,7 +88,7 @@ require __DIR__ . '/../partials/head.php';
 </div>
 
 <p style="text-align:center;">
-  <a href="<?= htmlspecialchars('https://wa.me/' . $whatsappSupport . '?text=' . rawurlencode('Şikayət — ')) ?>" target="_blank" rel="noopener">
+  <a href="<?= htmlspecialchars('https://wa.me/' . $whatsappSupport . '?text=' . rawurlencode('Təklif/İrad — ')) ?>" target="_blank" rel="noopener">
     <?= htmlspecialchars($t('musteri.sikayet')) ?>
   </a>
 </p>

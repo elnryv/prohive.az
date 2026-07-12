@@ -64,7 +64,7 @@
   "musteri.sifaris_yarat": "Sifariş yarat",
   "musteri.tarixce": "Tarixçə",
   "musteri.aktiv_sifaris_yoxdur": "Aktiv sifarişiniz yoxdur",
-  "musteri.sikayet": "Şikayət et",
+  "musteri.sikayet": "Təklif və iradlar",
   "musteri.dasiyici": "Daşıyıcı",
 
   "status.axtarisda": "Axtarışda",
@@ -84,6 +84,7 @@
   "kurye.musteri_adi": "Müştəri",
   "kurye.sifarislerim": "Sifarişlərim",
   "kurye.sifarislerim_bos": "Hələ heç bir sifariş götürməmisiniz",
+  "kurye.sikayet_teklif": "Şikayət və təklif üçün müraciət",
 
   "profil.basliq": "Profil",
   "profil.erazilerim": "Ərazilərim",

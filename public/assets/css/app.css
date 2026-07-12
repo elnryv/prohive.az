@@ -611,6 +611,39 @@ a {
   margin-top: 18px;
 }
 
+/* Geniş, siyahılı pop-up (bax kurye/lovhe.php "Sifarişlərim") */
+.modal-sheet-wide {
+  max-width: 460px;
+  text-align: left;
+}
+
+.modal-sheet-wide h2 {
+  text-align: center;
+}
+
+.modal-scroll-list {
+  max-height: 54vh;
+  overflow-y: auto;
+  margin: 14px 0;
+  border-top: 1px solid var(--glass-border);
+}
+
+.modal-list-item {
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-list-item strong {
+  display: block;
+  font-size: 14.5px;
+}
+
+.modal-list-item p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
 /* Profil — sosial-şəbəkə stilli başlıq (bax kurye/profil.php) */
 .profil-hero {
   display: flex;
@@ -704,6 +737,22 @@ a {
   font-size: 11.5px;
   color: var(--text-dim);
   font-weight: 600;
+}
+
+/* Bölmə başlıqlarında kiçik rəngli ikon-nişan (bax kurye/profil.php) —
+   "çox sadə görünür" rəyindən sonra kartların bir az daha zəngin görünməsi üçün. */
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  font-size: 14px;
+  margin-right: 8px;
+  vertical-align: middle;
+  line-height: 1;
 }
 
 /* Sifariş kartlarında daşıyıcı əlaqə bloku (müştəri tarixçəsi) */

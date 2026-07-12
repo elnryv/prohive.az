@@ -65,7 +65,10 @@ final class AppPageController
     {
         $this->hazirlaDil($request);
 
-        return View::render('kurye/lovhe', $this->navParams());
+        $params = $this->navParams();
+        $params['whatsappSupport'] = Env::get('WHATSAPP_SUPPORT_NUMBER', '');
+
+        return View::render('kurye/lovhe', $params);
     }
 
     public function profil(Request $request): mixed

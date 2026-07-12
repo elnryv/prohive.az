@@ -64,7 +64,7 @@
   "musteri.sifaris_yarat": "Create order",
   "musteri.tarixce": "History",
   "musteri.aktiv_sifaris_yoxdur": "No active orders",
-  "musteri.sikayet": "Report an issue",
+  "musteri.sikayet": "Suggestions & complaints",
   "musteri.dasiyici": "Courier",
 
   "status.axtarisda": "Searching",
@@ -84,6 +84,7 @@
   "kurye.musteri_adi": "Customer",
   "kurye.sifarislerim": "My Orders",
   "kurye.sifarislerim_bos": "You haven't accepted any orders yet",
+  "kurye.sikayet_teklif": "Contact us with complaints & suggestions",
 
   "profil.basliq": "Profile",
   "profil.erazilerim": "My areas",
