@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 return <<<'HTML'
 <h2>1.1. Ümumi Müddəalar</h2>
-<p>1.1.1. Bu İstifadəçi Müqaviləsi (bundan sonra «Müqavilə») «Birlikdə» platformasından (app.birlikde.biz) istifadə şərtlərini müəyyən edir. Platformanın operatoru Azərbaycan Respublikasının qanunvericiliyinə uyğun qeydiyyatdan keçmiş fərdi sahibkardır (bundan sonra «Operator» və ya «Platforma»).</p>
+<p>1.1.1. Bu İstifadəçi Müqaviləsi (bundan sonra «Müqavilə») «Birlikdə» platformasından (app.birlikde.biz) istifadə şərtlərini müəyyən edir. Platformanın operatoru Azərbaycan Respublikasının qanunvericiliyinə uyğun qeydiyyatdan keçmiş fərdi sahibkardır (VÖEN: <strong>1406574562</strong>) (bundan sonra «Operator» və ya «Platforma»).</p>
 <p>1.1.2. Platformadan istifadə etməklə istifadəçi bu Müqavilənin bütün şərtlərini qəbul etdiyini təsdiq edir. Şərtləri qəbul etməyən şəxs platformadan istifadə edə bilməz.</p>
 <p>1.1.3. Operator bu Müqaviləni birtərəfli qaydada dəyişmək hüququnu özündə saxlayır. Dəyişikliklər platformada dərc edildiyi andan qüvvəyə minir.</p>
 <div class="legal-callout legal-callout-law"><strong>⚖ Qanuni istinad:</strong> «Elektron ticarət haqqında» Azərbaycan Respublikasının Qanunu (2005), Azərbaycan Respublikasının Mülki Məcəlləsi (müqavilə münasibətləri, maddə 389–405).</div>

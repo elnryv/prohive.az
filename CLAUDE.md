@@ -54,9 +54,9 @@
   yenə də süni intellekt tərəfindən yazılıb, lisenziyalı hüquqşünas tərəfindən
   TƏSDİQLƏNMƏYİB — bu, istifadəçinin (platforma sahibinin) məlumatlı qərarı ilə
   belədir, real istifadəçi sayı/gəlir artdıqca peşəkar hüquqi yoxlama tövsiyə olunur.
-  Operatorun rəsmi hüquqi statusu (fərdi sahibkar adı/VÖEN) hələ konkretləşdirilməyib
-  — `istifadeci-muqavilesi.php` 1.1.1-də ümumi ifadə saxlanılıb, real VÖEN daxil
-  ediləndə yenilənməlidir. Checkbox + `sozlesme_qebul`/`sozlesme_tarix` + audit
+  Operator fərdi sahibkar kimi fəaliyyət göstərir, ayrıca şirkət adı yoxdur —
+  VÖEN 1406574562 istifadəçi tərəfindən təsdiqləndi və `istifadeci-muqavilesi.php`
+  1.1.1-ə əlavə olundu (2026-07-13). Checkbox + `sozlesme_qebul`/`sozlesme_tarix` + audit
   (legal_logs) infrastrukturu Faza 2-dən bəri hazırdır.
 
 ## 2. Texnologiya Yığını
