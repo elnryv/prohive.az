@@ -74,6 +74,28 @@ final class AdminAbunelikController
         }
     }
 
+    public function qiymet(Request $request): mixed
+    {
+        $qiymet = (new AbunelikService())->qiymetiAl();
+
+        return Response::json(['status' => 'ok', 'data' => ['qiymet' => $qiymet]]);
+    }
+
+    public function qiymetTeyinEt(Request $request): mixed
+    {
+        try {
+            $adminId = (int) Session::get('admin_id');
+            $qiymet = (string) $request->input('qiymet', '');
+            $sebeb = (string) $request->input('sebeb', '');
+
+            $yeniQiymet = (new AbunelikService())->qiymetiTeyinEt($qiymet, $sebeb, $adminId, $request->ip());
+
+            return Response::json(['status' => 'ok', 'data' => ['qiymet' => $yeniQiymet]]);
+        } catch (ValidationException $e) {
+            return Response::json(['error' => $e->getMessage()], 422);
+        }
+    }
+
     public function qlobalRejim(Request $request): mixed
     {
         try {

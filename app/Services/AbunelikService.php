@@ -19,9 +19,11 @@ use App\Models\User;
 final class AbunelikService
 {
     private const GLOBAL_AYAR_ADI = 'abune_rejimi';
+    private const QIYMET_AYAR_ADI = 'abune_qiymeti';
     private const TIPLER = ['pulsuz', 'pullu'];
     private const REJIMLER = ['aktiv', 'dayandirilib'];
     private const TOPLU_KAMPANIYA_GUN = 30;
+    private const DEFAULT_QIYMET = '15.00';
 
     private Abunelik $abunelikler;
     private Ayar $ayarlar;
@@ -211,6 +213,44 @@ final class AbunelikService
         $this->legalLogs->yaz($adminId, null, 'qlobal_abune_rejimi_deyisdi', [
             'rejim' => $rejim, 'sebeb' => $sebeb,
         ], $ip);
+    }
+
+    /**
+     * Hazırkı aylıq abunə qiyməti (AZN) — bax OdenisService::basla(), hər yeni
+     * ödəniş bu dəyəri DB-dən oxuyur, ona görə admin qiyməti dəyişən kimi
+     * NÖVBƏTI ödəniş cəhdindən başlayaraq bütün kuryerlər üçün DƏRHAL tətbiq
+     * olunur (kodda hardcode edilmiş dəyər yoxdur).
+     */
+    public function qiymetiAl(): string
+    {
+        return $this->ayarlar->get(self::QIYMET_AYAR_ADI) ?? self::DEFAULT_QIYMET;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function qiymetiTeyinEt(string $qiymet, string $sebeb, int $adminId, string $ip): string
+    {
+        $this->sebebYoxla($sebeb);
+
+        if (!is_numeric($qiymet)) {
+            throw new ValidationException('Qiymət rəqəm olmalıdır.');
+        }
+
+        $eded = (float) $qiymet;
+        if ($eded < 0.01 || $eded > 9999.99) {
+            throw new ValidationException('Qiymət 0.01 ilə 9999.99 AZN arasında olmalıdır.');
+        }
+
+        $normallasdirilmis = number_format($eded, 2, '.', '');
+        $kohne = $this->qiymetiAl();
+
+        $this->ayarlar->set(self::QIYMET_AYAR_ADI, $normallasdirilmis);
+        $this->legalLogs->yaz($adminId, null, 'abune_qiymeti_deyisdi', [
+            'kohne_qiymet' => $kohne, 'yeni_qiymet' => $normallasdirilmis, 'sebeb' => $sebeb,
+        ], $ip);
+
+        return $normallasdirilmis;
     }
 
     /**

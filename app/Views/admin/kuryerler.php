@@ -10,6 +10,18 @@ require __DIR__ . '/partials/shell_head.php';
 </div>
 
 <div class="glass" style="padding:16px; margin-bottom:14px;">
+  <h3 style="margin:0 0 10px;"><?= htmlspecialchars($t('admin.qiymet_basliq')) ?></h3>
+  <p style="color:var(--text-dim); font-size:13px; margin:0 0 10px;"><?= htmlspecialchars($t('admin.qiymet_izah')) ?></p>
+  <div class="field"><label><?= htmlspecialchars($t('admin.qiymet_sebeb')) ?></label><input type="text" id="qiymetSebebInput"></div>
+  <div class="toolbar" style="margin-top:10px; align-items:center;">
+    <input type="number" id="qiymetInput" step="0.01" min="0.01" max="9999.99" style="max-width:140px;">
+    <span style="color:var(--text-dim);">AZN</span>
+    <button class="btn btn-primary btn-small" id="qiymetYaddaSaxlaBtn"><?= htmlspecialchars($t('admin.qiymet_yadda_saxla')) ?></button>
+  </div>
+  <p id="qiymetNetice" style="color:var(--text-dim); font-size:13px; margin:10px 0 0; display:none;"></p>
+</div>
+
+<div class="glass" style="padding:16px; margin-bottom:14px;">
   <h3 style="margin:0 0 10px;"><?= htmlspecialchars($t('admin.hamisi_basliq')) ?></h3>
   <div class="field"><label><?= htmlspecialchars($t('admin.sebeb')) ?></label><input type="text" id="topluSebebInput"></div>
   <div class="toolbar" style="margin-top:10px;">
@@ -47,6 +59,8 @@ var HAMISI_PULLU_TESDIQ = <?= json_encode($t('admin.hamisi_pullu_tesdiq'), JSON_
 var HAMISI_SEBEB_MECBURI = <?= json_encode($t('admin.hamisi_sebeb_mecburi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var HAMISI_NETICE_PULSUZ = <?= json_encode($t('admin.hamisi_netice_pulsuz'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 var HAMISI_NETICE_PULLU = <?= json_encode($t('admin.hamisi_netice_pullu'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var QIYMET_SEBEB_MECBURI = <?= json_encode($t('admin.qiymet_sebeb_mecburi'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+var QIYMET_NETICE_UGUR = <?= json_encode($t('admin.qiymet_netice_ugur'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
 (function () {
   var API = '/kuryerler';
@@ -211,6 +225,35 @@ var HAMISI_NETICE_PULLU = <?= json_encode($t('admin.hamisi_netice_pullu'), JSON_
   });
   document.getElementById('topluPulluBtn').addEventListener('click', function () {
     topluDeyis('pullu', HAMISI_PULLU_TESDIQ);
+  });
+
+  (async function qiymetYukle() {
+    var res = await BirlikdeAdmin.api('GET', '/abune-qiymeti');
+    if (res.ok) {
+      document.getElementById('qiymetInput').value = res.data.data.qiymet;
+    }
+  })();
+
+  document.getElementById('qiymetYaddaSaxlaBtn').addEventListener('click', async function () {
+    var qiymet = document.getElementById('qiymetInput').value;
+    var sebeb = document.getElementById('qiymetSebebInput').value;
+    var neticeEl = document.getElementById('qiymetNetice');
+
+    if (!sebeb.trim()) {
+      alert(QIYMET_SEBEB_MECBURI);
+      return;
+    }
+
+    var res = await BirlikdeAdmin.api('POST', '/abune-qiymeti', { qiymet: qiymet, sebeb: sebeb });
+    neticeEl.style.display = 'block';
+
+    if (!res.ok) {
+      neticeEl.textContent = (res.data && res.data.error) || '—';
+      return;
+    }
+
+    document.getElementById('qiymetInput').value = res.data.data.qiymet;
+    neticeEl.textContent = QIYMET_NETICE_UGUR.replace('{qiymet}', res.data.data.qiymet);
   });
 
   siyahiYukle();

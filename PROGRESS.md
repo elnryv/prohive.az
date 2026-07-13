@@ -1360,3 +1360,42 @@ commit edildi:
   "+994 501112300" düzgün göstərildi — əvvəllər bu ssenaridə səhifə tam
   sıradan çıxırdı.
 - `sw.js` `CACHE_VERSION` v21→v22 (app.css + app.js dəyişdiyi üçün).
+
+### 2026-07-13 (davam) — Admin paneldən aylıq abunə qiymətini idarə etmə
+
+- İstifadəçi tələbi: "admin panelde kuryer ayliq odenisini teyyin etmek
+  mumkun olmalidi bu zaman avtomatiknodenis deyislemlidi hamida ayliq
+  aninda" — yəni admin panelindən bütün kuryerlər üçün ümumi aylıq abunə
+  qiymətini dəyişə bilmək, dəyişikliyin DƏRHAL və HAMISI üçün tətbiq
+  olunması.
+- Kəşf: qiymət artıq `ayarlar.abune_qiymeti`-də DB-də saxlanılırdı (Faza 5-
+  dən bəri, seed default 15.00 AZN) və `OdenisService::basla()` hər ödəniş
+  cəhdində bu dəyəri TƏZƏDƏN DB-dən oxuyurdu (hardcode YOX) — deməli
+  "dərhal, hamı üçün" tələbi arxitektural olaraq artıq təmin olunurdu.
+  Boşluq yalnız bunun DƏYİŞDİRİLMƏSİ üçün admin panel UI-ının olmaması idi
+  (əvvəllər yalnız serverə SSH ilə girib əl ilə `UPDATE ayarlar SET
+  deyer=...` işlədilə bilirdi — `deploy/YERLESDIRME_SENEDI.md`/
+  `TELEFONDAN_ICRA.md`-də sənədləşdirilmiş qeyd kimi qalmışdı).
+- **Düzəliş:** `AbunelikService::qiymetiAl()` (DB-dən oxu, defolt 15.00) +
+  `qiymetiTeyinEt($qiymet, $sebeb, $adminId, $ip)` (0.01–9999.99 aralığı
+  yoxlanır, `is_numeric` yoxlaması, `number_format` ilə normallaşdırma,
+  `legal_logs`-a `abune_qiymeti_deyisdi` audit yazısı — köhnə+yeni qiymət
+  və səbəblə). `AdminAbunelikController::qiymet()` (GET) +
+  `qiymetTeyinEt()` (POST), yeni marşrutlar `GET/POST /abune-qiymeti`
+  (`AdminAuth` + `POST` üçün əlavə `CsrfGuard`). `admin/kuryerler.php`-də
+  "Bütün kuryerlər üçün toplu əməliyyat" kartının ÜSTÜNDƏ yeni "Aylıq
+  abunə qiyməti" kartı — səbəb sahəsi (digər admin əməliyyatları ilə eyni
+  audit konvensiyası), rəqəm sahəsi (AZN), "Yadda saxla" düyməsi, səhifə
+  açılanda hazırkı qiymət avtomatik yüklənir. 6 yeni i18n açarı (az/ru/en,
+  tam paritetli) əlavə olundu.
+- Real DB+HTTP+Playwright ilə test edildi: admin girişi → `/panel/
+  kuryerler` → mövcud 15.00 dəyəri düzgün yükləndi → 22.50-ə dəyişdirildi
+  → uğur mesajı göründü → səhifə yenidən yüklənəndə 22.50 saxlanıldığı
+  təsdiqləndi (DB-də birbaşa yoxlanıldı) → `legal_logs`-da düzgün
+  `detal_json` (`kohne_qiymet`, `yeni_qiymet`, `sebeb`) ilə audit yazısı
+  tapıldı → boş səbəb və qeyri-rəqəm qiymət hər ikisi `422` ilə düzgün
+  rədd edildi (uyğun xəta mesajları ilə). Test sonda DB dəyəri 15.00-ə
+  geri qaytarıldı.
+- `sw.js` `CACHE_VERSION` v22→v23 (`public/assets/lang/{az,ru,en}.json`
+  dəyişdiyi üçün — bu fayllar da `sw.js`-in `/assets/*` cache-first
+  qaydasına düşür).
