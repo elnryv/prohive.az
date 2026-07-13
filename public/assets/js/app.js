@@ -147,11 +147,14 @@ window.Birlikde = (function () {
         }, 350);
       } else {
         registerPhoneDisplay.textContent = displayPhone;
-        goToStep('register');
+        goToStep('redirecting');
         setTimeout(function () {
-          var a = document.getElementById('ad');
-          if (a) a.focus({ preventScroll: true });
-        }, 350);
+          goToStep('register');
+          setTimeout(function () {
+            var a = document.getElementById('ad');
+            if (a) a.focus({ preventScroll: true });
+          }, 350);
+        }, 1100);
       }
     });
 

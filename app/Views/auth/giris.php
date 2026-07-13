@@ -51,6 +51,17 @@ require __DIR__ . '/../partials/head.php';
     </form>
   </div>
 
+  <div class="auth-step" data-step="redirecting" hidden>
+    <div class="wizard-redirect">
+      <div class="wizard-redirect-dots">
+        <span class="wizard-redirect-dot"></span>
+        <span class="wizard-redirect-dot"></span>
+        <span class="wizard-redirect-dot"></span>
+      </div>
+      <p class="wizard-redirect-text"><?= htmlspecialchars($t('qapi.qeydiyyata_yonlendirilir')) ?></p>
+    </div>
+  </div>
+
   <div class="auth-step" data-step="register" hidden>
     <div class="wizard-phone-chip">
       <span id="registerPhoneDisplay"></span>

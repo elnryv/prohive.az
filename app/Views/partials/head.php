@@ -74,13 +74,11 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
   <?php endif; ?>
 
   <div class="drawer-bottom">
+    <a class="drawer-item" href="https://birlikde.biz"><span class="drawer-dot"></span><?= htmlspecialchars($t('drawer.esas_sayt')) ?></a>
+    <a class="drawer-item<?= $hazirkiYol === '/huquqi' || str_starts_with($hazirkiYol, '/huquqi/') ? ' active' : '' ?>" href="/huquqi"><span class="drawer-dot"></span><?= htmlspecialchars($t('huquqi.basliq')) ?></a>
     <?php if (!empty($girisEdilib)): ?>
       <div class="drawer-exit" id="navCixisBtn"><?= htmlspecialchars($t('ortaq.cixis')) ?></div>
     <?php endif; ?>
-    <div class="drawer-dock">
-      <a class="dock-icon" href="https://birlikde.biz" title="<?= htmlspecialchars($t('drawer.esas_sayt')) ?>" aria-label="<?= htmlspecialchars($t('drawer.esas_sayt')) ?>">&#127968;</a>
-      <a class="dock-icon" href="/huquqi" title="<?= htmlspecialchars($t('huquqi.basliq')) ?>" aria-label="<?= htmlspecialchars($t('huquqi.basliq')) ?>">&#128220;</a>
-    </div>
   </div>
 </nav>
 

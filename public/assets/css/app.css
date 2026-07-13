@@ -1162,42 +1162,6 @@ a {
   cursor: pointer;
 }
 
-/* Aşağı ikon-dock — "Əsas sayta qayıt" / "Hüquqi Sənədlər" (bax head.php) */
-.drawer-dock {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  padding-top: 14px;
-  border-top: 1px solid var(--glass-border);
-}
-
-.dock-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: var(--surface-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 21px;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s var(--bounce), box-shadow 0.2s ease;
-  animation: dockFloat 2.6s ease-in-out infinite;
-}
-
-.dock-icon:nth-child(2) {
-  animation-delay: 0.45s;
-}
-
-.dock-icon:active {
-  transform: scale(0.86);
-}
-
-@keyframes dockFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
 /* ---------- Aşağı naviqasiya paneli (bottom nav) — yalnız girişli
    istifadəçilər üçün, rol-əsaslı (bax head.php). Aktiv bölmənin adı
    ikonun yanında animasiya ilə "açılır" (max-width/opacity keçidi). ---------- */
@@ -1454,6 +1418,55 @@ a {
   font-size: 14.5px;
   font-weight: 700;
   color: var(--text-dim);
+}
+
+/* "Qeydiyyata yönləndirilirsiniz..." keçid addımı — yeni telefon üçün
+   birbaşa qeydiyyat formasına tullanmadan qısa, animasiyalı ara-mərhələ. */
+.wizard-redirect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 70px 20px;
+  text-align: center;
+}
+
+.wizard-redirect-dots {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 22px;
+}
+
+.wizard-redirect-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  animation: redirectDotBounce 1s ease-in-out infinite;
+}
+
+.wizard-redirect-dot:nth-child(2) {
+  background: var(--pink);
+  animation-delay: 0.15s;
+}
+
+.wizard-redirect-dot:nth-child(3) {
+  background: var(--accent);
+  animation-delay: 0.3s;
+}
+
+@keyframes redirectDotBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-11px); opacity: 1; }
+}
+
+.wizard-redirect-text {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  opacity: 0;
+  transform: scale(0.9);
+  animation: splashWordBounce 0.4s var(--bounce) forwards;
 }
 
 /* min 44px toxunma sahəsi (Apple/Google tövsiyəsi) — əvvəlki versiyada

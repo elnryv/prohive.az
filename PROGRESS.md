@@ -750,6 +750,25 @@ admin bölməsi əlavə olundu.
 - `sw.js` `CACHE_VERSION` v18→v19. `php -l`/`node --check`/JSON validasiyası
   bütün dəyişən fayllara təmiz keçdi.
 
+### 2026-07-13 (davam) — Qeydiyyata yönləndirmə animasiyası + drawer dock qismən geri qaytarıldı
+
+- **"Qeydiyyata yönləndirilirsiniz..." keçid addımı:** yeni telefon nömrəsi
+  daxil ediləndə artıq birbaşa qeydiyyat formasına keçmir — əvvəlcə yeni
+  `.auth-step[data-step="redirecting"]` göstərilir (3 rəngli sıçrayan
+  nöqtə animasiyası + bounce-in mətn, ~1.1s), sonra qeydiyyat forması
+  açılır. Playwright ilə vaxt-ölçülü test edildi: 400ms-də "redirecting"
+  addımı göstərilir, 1400ms-də "register"-ə keçib.
+- **Drawer dock qismən geri qaytarıldı:** istifadəçi bildirdi ki, aşağı
+  ikon-dock ("Əsas sayta qayıt"/"Hüquqi Sənədlər") "donma" hissi verirdi —
+  ikon-only dock (`​.drawer-dock`/`.dock-icon`) tam silindi, bu 2 keçid
+  yenidən adi mətn `.drawer-item` kimi göstərilir (əvvəlki dizayna
+  bənzər), AMMA dil bayraqları İSTİFADƏÇİNİN AÇIQ TƏLƏBİNƏ görə hazırkı
+  mövqedə (brand başlığının altında, yuxarıda) SAXLANILDI — bu, əvvəlki
+  (bayraqlar aşağıda olan) vəziyyətə tam geri dönüş DEYİL, qarışıq
+  vəziyyətdir (bayraq yeri yeni, keçid stili köhnə).
+- `sw.js` `CACHE_VERSION` v19→v20. `php -l`/`node --check`/JSON
+  validasiyası təmiz keçdi.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur
