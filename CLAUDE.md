@@ -25,13 +25,20 @@
   sıçrayışlı (bouncy, `cubic-bezier(0.34,1.56,0.64,1)`) hərəkət hər yerdə (kart
   giriş animasiyası, düymə basma, tab/toggle keçidləri). Hər tətbiqə TƏZƏ girişdə
   (kənar keçid — `document.referrer` eyni origin deyilsə; daxili keçidlərdə YOX)
-  Canvas 2D hissəcik "enerji partlayışı" splash animasiyası (mərkəzdən spiral
-  şəklində genişlənən marka-rəngli hissəciklər + puls işıq halosu + "Birlikdə"
-  sözü, bax `runSplashParticles()` app.js-də — WebGL/Three.js BİLƏRƏKDƏN
-  işlədilmir, aşağı-səviyyəli Android performansı üçün). Giriş/Qeydiyyat
-  səhifələri fanned kart karuseli ilə açılır (`#authDeck`, `Birlikde.
-  initAuthDeck()`) — kartına toxunanda forma aşağıdan sürüşərək açılır.
-  Müştəri panelində aktiv sifariş radar-puls ("axtarışda") və hərəkətli
+  tam CSS splash animasiyası: loqo işarəsi (`.brand-mark`) əvvəlcə pulse edir,
+  ətrafında radar-tipli genişlənən halqalar (`::before`/`::after`), sonra
+  "Birlikdə" sözü sıçrayaraq açılır (WebGL/Canvas BİLƏRƏKDƏN işlədilmir,
+  aşağı-səviyyəli Android performansı üçün). **Giriş/Qeydiyyat vahid telefon-
+  əsaslı ağıllı axındır (Bolt/Uber-stil, kart-karuseli/accordion konseptləri
+  ləğv edilib):** istifadəçi əvvəlcə yalnız telefon nömrəsini daxil edir
+  (dəyişdirilə bilən ölkə-kodu dropdown-u, defolt Azərbaycan), `Birlikde.
+  initAuthWizard()` `POST /telefon-yoxla` ilə mövcudluğu yoxlayır — varsa
+  "Parol" addımı, yoxdursa tam qeydiyyat sahələri eyni ekranda `[hidden]`
+  atributu ilə (JS grid/drag trikləri YOXDUR) açılır; qeydiyyatdan sonra
+  avtomatik daxil edilir. Parol sahələrində göz-ikonu (göstər/gizlət),
+  bütün sahələrdə güclü fokus halqası + boş/yanlış sahədə qırmızı sərhəd +
+  konkret köməkçi mətn (inline validasiya). Müştəri panelində aktiv sifariş
+  radar-puls ("axtarışda") və hərəkətli
   irəliləyiş zolağı ("götürülüb") animasiyaları ilə göstərilir (canlı
   GPS YOXDUR, status-əsaslı animasiya). Bütün səhifələrdə hamburger menyu
   (sürüşən drawer) — dil bayraqları da drawer-in içindədir. Admin panel

@@ -135,6 +135,23 @@ final class AuthService
     }
 
     /**
+     * Telefon-əsaslı ağıllı giriş axını üçün — mövcudluq yoxlanır ki, client
+     * "Parol" (giriş) yoxsa qeydiyyat sahələrini göstərsin (bax
+     * AuthController::telefonYoxla, POST /telefon-yoxla).
+     *
+     * @throws ValidationException
+     */
+    public function telefonMovcuddurmu(string $telefonRaw): bool
+    {
+        $telefon = self::normalisePhone($telefonRaw);
+        if ($telefon === '') {
+            throw new ValidationException('Telefon nömrəsi düzgün deyil.');
+        }
+
+        return $this->users->existsByTelefon($telefon);
+    }
+
+    /**
      * @return array{user:array, remember_token:?string}
      * @throws ValidationException
      */

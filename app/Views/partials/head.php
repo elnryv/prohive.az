@@ -71,7 +71,6 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
 
   <?php if (empty($girisEdilib)): ?>
     <a class="drawer-item<?= $hazirkiYol === '/giris' ? ' active' : '' ?>" href="/giris"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.giris')) ?></a>
-    <a class="drawer-item<?= $hazirkiYol === '/qeydiyyat' ? ' active' : '' ?>" href="/qeydiyyat"><span class="drawer-dot"></span><?= htmlspecialchars($t('ortaq.qeydiyyat')) ?></a>
   <?php endif; ?>
 
   <div class="drawer-bottom">

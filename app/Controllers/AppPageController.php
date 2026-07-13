@@ -35,14 +35,15 @@ final class AppPageController
         Response::redirect('/giris');
     }
 
+    /**
+     * Telefon-əsaslı ağıllı giriş/qeydiyyat axını — istifadəçi əvvəlcə yalnız
+     * telefon nömrəsini daxil edir (POST /telefon-yoxla ilə mövcudluq
+     * client-tərəfdə yoxlanılır), sonra ya "Parol" (giriş), ya da qeydiyyat
+     * sahələri (ad/soyad/rol və s.) eyni ekranda animasiyalı açılır — bax
+     * auth/giris.php `Birlikde.initAuthWizard()`. Bu səbəbdən qeydiyyat üçün
+     * lazım olan məlumat (ölçülər, sözləşmə mətni) da burada hazırlanır.
+     */
     public function giris(Request $request): mixed
-    {
-        $this->hazirlaDil($request);
-
-        return View::render('auth/giris', $this->navParams());
-    }
-
-    public function qeydiyyat(Request $request): mixed
     {
         $this->hazirlaDil($request);
 
@@ -50,7 +51,18 @@ final class AppPageController
         $params['olculer'] = (new YukdasimaOlcusu())->all();
         $params['sozlesmeMetni'] = $this->sozlesmeMetni();
 
-        return View::render('auth/qeydiyyat', $params);
+        return View::render('auth/giris', $params);
+    }
+
+    /**
+     * Ayrı qeydiyyat ekranı artıq yoxdur (yuxarıdakı qeydə bax) — köhnə
+     * linklər/bookmark-lar üçün /giris-ə yönləndirilir.
+     */
+    public function qeydiyyat(Request $request): mixed
+    {
+        $this->hazirlaDil($request);
+
+        Response::redirect('/giris');
     }
 
     public function panel(Request $request): mixed

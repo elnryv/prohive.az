@@ -282,13 +282,76 @@ a {
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.16);
 }
 
 .field textarea {
   resize: vertical;
   min-height: 70px;
+}
+
+/* İnline validasiya — sahə qırmızılaşır + altında konkret köməkçi mətn
+   görünür (bax istifadəçi UX Snacks istinadı: "Must be 8+ characters"
+   tərzi spesifik mesaj, ümumi "Something went wrong" yox). */
+.field input.invalid,
+.field select.invalid,
+.field textarea.invalid,
+.phone-input-group.invalid {
+  border-color: var(--danger) !important;
+}
+
+.field input.invalid:focus,
+.field select.invalid:focus,
+.field textarea.invalid:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.16);
+}
+
+.field-helper {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--danger);
+  display: none;
+}
+
+.field-helper.visible {
+  display: block;
+  animation: splashFadeUp 0.2s ease forwards;
+}
+
+/* Parol sahəsi — sol kilid ikonu + sağ göstər/gizlət düyməsi eyni anda */
+.password-field-wrap {
+  position: relative;
+}
+
+.password-field-wrap input {
+  padding-left: 42px !important;
+  padding-right: 42px !important;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 17px;
+  opacity: 0.5;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.password-toggle:active {
+  opacity: 0.85;
 }
 
 .field-check {
@@ -1331,12 +1394,13 @@ a {
   100% { opacity: 0.55; transform: translate(0, 0) scale(1.35); }
 }
 
-/* ---------- Giriş/Qeydiyyat aккордеon (bax auth/giris.php, auth/qeydiyyat.php) ----------
-   Əvvəlki kart-karuseli konsepti ləğv edildi (istifadəçi qərarı) — indi iki
-   yığcam "pill" başlıq alt-alta, toxunulan öz-səhifə açılıb formanı göstərir
-   (CSS grid `0fr → 1fr` texnikası ilə hündürlük animasiyası, JS ölçmə lazım
-   deyil), digər səhifənin başlığı toxunulanda qısa "açılma" əks-əlaqəsi
-   verib həmin səhifəyə keçir (`?open=1` ilə orada avtomatik açılır). */
+/* ---------- Telefon-əsaslı ağıllı giriş/qeydiyyat wizard-ı ----------
+   Əvvəlki kart-karuseli VƏ accordion konseptləri ləğv edildi (istifadəçi
+   qərarı — hər ikisi "donma" hissi yaradan xüsusi animasiya idi). İndi
+   Bolt/Uber tərzi: tək telefon sahəsi → POST /telefon-yoxla → mövcuddursa
+   Parol, deyilsə qeydiyyat sahələri göstərilir. Addımlar arası keçid
+   ən sadə, ən etibarlı üsulla — `[hidden]` atributu + mövcud `pageIn`
+   keyframe-i (heç bir xüsusi grid/drag/toggle məntiqi yoxdur ki, bug versin). */
 .auth-page {
   min-height: calc(100vh - 74px);
   min-height: calc(100dvh - 74px);
@@ -1346,129 +1410,117 @@ a {
   justify-content: center;
 }
 
-.auth-heading {
+.auth-wizard {
+  padding: 4px 2px;
+}
+
+.auth-step[hidden] {
+  display: none;
+}
+
+.auth-step {
+  animation: pageIn 0.4s var(--smooth);
+}
+
+.wizard-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+
+.wizard-title {
   text-align: center;
-  margin-bottom: 22px;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
 }
 
-.auth-heading .deck-brand {
-  font-size: 27px;
-}
-
-.auth-sub {
-  margin-top: 6px;
-  font-size: 13.5px;
+.wizard-sub {
+  text-align: center;
+  font-size: 14px;
   font-weight: 600;
+  color: var(--text-dim);
+  margin: 0 0 24px;
+}
+
+.wizard-phone-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 14.5px;
+  font-weight: 700;
   color: var(--text-dim);
 }
 
-.accordion-item {
-  border-radius: 22px;
-  overflow: hidden;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.3s ease;
-}
-
-.accordion-item.open {
-  box-shadow: var(--shadow-md);
-}
-
-.accordion-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 17px 20px;
+/* min 44px toxunma sahəsi (Apple/Google tövsiyəsi) — əvvəlki versiyada
+   padding:0 idi, real cihazda barmaqla dəqiq basmaq çətin olurdu. */
+.wizard-change-btn {
   border: none;
-  cursor: pointer;
-  font: inherit;
-  color: #fff;
-  text-align: left;
-  transition: transform 0.15s var(--bounce);
-}
-
-.accordion-header:active {
-  transform: scale(0.98);
-}
-
-.accordion-item[data-target="giris"] .accordion-header {
-  background: linear-gradient(120deg, var(--accent), #1c2fb0);
-}
-
-.accordion-item[data-target="qeydiyyat"] .accordion-header {
-  background: linear-gradient(120deg, var(--accent-warm), var(--pink));
-}
-
-.accordion-icon {
-  font-size: 21px;
-  line-height: 1;
-  flex: none;
-  animation: iconWiggle 2.8s ease-in-out infinite;
-}
-
-.accordion-item[data-target="qeydiyyat"] .accordion-icon {
-  animation-delay: 0.4s;
-}
-
-@keyframes iconWiggle {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-8deg) scale(1.05); }
-  75% { transform: rotate(8deg) scale(1.05); }
-}
-
-.accordion-title {
-  flex: 1;
+  background: none;
+  padding: 10px 8px;
+  margin: -10px -8px;
+  min-height: 44px;
+  color: var(--accent);
   font-weight: 800;
-  font-size: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
 }
 
-.accordion-sub {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.82);
-  margin-top: 1px;
-}
-
-.accordion-chev {
-  flex: none;
-  font-size: 14px;
-  transition: transform 0.35s var(--bounce);
-}
-
-.accordion-item.open .accordion-chev {
-  transform: rotate(180deg);
-}
-
-.accordion-item.opening .accordion-header {
-  animation: accordionPulse 0.35s var(--bounce);
-}
-
-@keyframes accordionPulse {
-  50% { transform: scale(0.97); }
-}
-
-.accordion-body-wrap {
-  display: grid;
-  grid-template-rows: 0fr;
-  background: var(--surface);
-  transition: grid-template-rows 0.45s var(--smooth);
-}
-
-.accordion-item.open .accordion-body-wrap {
-  grid-template-rows: 1fr;
-}
-
-.accordion-body {
+/* Telefon sahəsi: dəyişdirilə bilən ölkə kodu (bayraq+kod, defolt AZ) +
+   rəqəm hissəsi eyni "pill" daxilində (istifadəçi UX Snacks istinadı —
+   ölkə seçici sabit yazı deyil, əsl dropdown olmalıdır). */
+.phone-input-group {
+  display: flex;
+  align-items: stretch;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 8px;
   overflow: hidden;
-  min-height: 0;
-  padding: 0 20px;
-  transition: padding 0.45s var(--smooth);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.accordion-item.open .accordion-body {
-  padding: 20px;
+.phone-input-group:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.16);
+}
+
+.country-select {
+  flex: none;
+  border: none;
+  background: transparent;
+  border-right: 1px solid var(--glass-border);
+  padding: 0 10px 0 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  max-width: 108px;
+}
+
+.country-select:focus {
+  outline: none;
+}
+
+.phone-input-group input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 15px 16px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  min-width: 0;
+}
+
+.phone-input-group input:focus {
+  outline: none;
 }
 
 /* ---------- Sifariş izləmə animasiyası (radar + marşrut) ---------- */

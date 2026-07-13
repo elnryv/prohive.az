@@ -71,67 +71,131 @@ window.Birlikde = (function () {
     );
   }
 
-  // Giriş/Qeydiyyat aккордеon — bax auth/giris.php, auth/qeydiyyat.php
-  // (.auth-page[data-my-rol="giris|qeydiyyat"], .accordion-item[data-target]).
-  // Kart-karuseli konsepti ləğv edilib — indi iki "pill" başlıq alt-alta,
-  // toxunulan öz-səhifənin başlığı yerində açılır (CSS grid animasiyası,
-  // bax app.css `.accordion-body-wrap`), digər səhifənin başlığı qısa
-  // "açılma" əks-əlaqəsi verib (`.opening` class) həmin səhifəyə keçir.
-  function initAuthAccordion() {
-    var page = document.querySelector('.auth-page[data-my-rol]');
-    if (!page) return;
-    var myRol = page.dataset.myRol;
-    var items = page.querySelectorAll('.accordion-item');
+  // Telefon-əsaslı ağıllı giriş/qeydiyyat wizard-ı — bax auth/giris.php.
+  // Kart-karuseli VƏ accordion konseptləri ləğv edilib (hər ikisi xüsusi
+  // animasiya səbəbindən "donma" hissi yaradırdı). İndi 3 sadə addım
+  // (.auth-step[data-step], `hidden` atributu ilə göstərilib/gizlədilir —
+  // heç bir drag/grid/toggle-state riski yoxdur): telefon → POST
+  // /telefon-yoxla → mövcuddursa "login" addımı, deyilsə "register" addımı.
+  // `window.BirlikdeAuthWizard.telefon()` digər script-lərə (giris.php-də
+  // yazılan giriş/qeydiyyat form handler-lərinə) tam telefonu (994...) verir.
+  function isoToFlag(iso) {
+    return iso.toUpperCase().replace(/./g, function (c) {
+      return String.fromCodePoint(127397 + c.charCodeAt(0));
+    });
+  }
 
-    function openItem(item) {
-      items.forEach(function (i) {
-        i.classList.toggle('open', i === item);
+  function initAuthWizard(olkeKodlari) {
+    var wizard = document.getElementById('authWizard');
+    if (!wizard) return;
+
+    var phoneForm = document.getElementById('phoneForm');
+    var phoneDigits = document.getElementById('phoneDigits');
+    var phoneErrBox = document.getElementById('phoneErrBox');
+    var phoneHelper = document.getElementById('phoneHelper');
+    var phoneInputGroup = document.getElementById('phoneInputGroup');
+    var countrySelect = document.getElementById('countrySelect');
+    var loginPhoneDisplay = document.getElementById('loginPhoneDisplay');
+    var registerPhoneDisplay = document.getElementById('registerPhoneDisplay');
+    var fullPhone = '';
+
+    (olkeKodlari || []).forEach(function (olke) {
+      var opt = document.createElement('option');
+      opt.value = olke[1];
+      opt.textContent = isoToFlag(olke[0]) + ' +' + olke[1];
+      opt.title = olke[2];
+      countrySelect.appendChild(opt);
+    });
+
+    function goToStep(step) {
+      wizard.querySelectorAll('.auth-step').forEach(function (el) {
+        el.hidden = el.dataset.step !== step;
       });
     }
 
-    function closeAll() {
-      items.forEach(function (i) {
-        i.classList.remove('open');
-      });
-    }
+    phoneForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      Birlikde.hideError(phoneErrBox);
+      clearFieldError(phoneDigits, phoneHelper);
+      phoneInputGroup.classList.remove('invalid');
 
-    function focusFirstField(item) {
-      var firstInput = item.querySelector('input, select, textarea');
-      if (firstInput) firstInput.focus({ preventScroll: true });
-    }
+      var digits = phoneDigits.value.replace(/\D/g, '');
+      if (digits.length < 7) {
+        phoneInputGroup.classList.add('invalid');
+        showFieldError(phoneDigits, phoneHelper, TELEFON_YANLIS_METNI);
+        return;
+      }
+      fullPhone = countrySelect.value + digits;
 
-    items.forEach(function (item) {
-      var header = item.querySelector('.accordion-header');
-      var target = item.dataset.target;
+      var submitBtn = document.getElementById('phoneContinueBtn');
+      submitBtn.disabled = true;
+      var res = await Birlikde.api('POST', '/telefon-yoxla', { telefon: fullPhone });
+      submitBtn.disabled = false;
 
-      header.addEventListener('click', function () {
-        item.classList.add('opening');
-        setTimeout(function () { item.classList.remove('opening'); }, 350);
+      if (!res.ok) {
+        Birlikde.showError(phoneErrBox, (res.data && res.data.error) || XETA_METNI);
+        return;
+      }
 
-        if (target === myRol) {
-          if (item.classList.contains('open')) {
-            closeAll();
-          } else {
-            openItem(item);
-            setTimeout(function () { focusFirstField(item); }, 300);
-          }
-        } else {
-          openItem(item);
-          setTimeout(function () {
-            window.location.href = '/' + target + '?open=1';
-          }, 380);
-        }
+      var displayPhone = '+' + countrySelect.value + ' ' + digits;
+      if (res.data.movcuddur) {
+        loginPhoneDisplay.textContent = displayPhone;
+        goToStep('login');
+        setTimeout(function () {
+          var p = document.getElementById('parol');
+          if (p) p.focus({ preventScroll: true });
+        }, 350);
+      } else {
+        registerPhoneDisplay.textContent = displayPhone;
+        goToStep('register');
+        setTimeout(function () {
+          var a = document.getElementById('ad');
+          if (a) a.focus({ preventScroll: true });
+        }, 350);
+      }
+    });
+
+    wizard.querySelectorAll('[data-back]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        goToStep('phone');
+        setTimeout(function () { phoneDigits.focus({ preventScroll: true }); }, 350);
       });
     });
 
-    if (/[?&]open=1\b/.test(window.location.search)) {
-      var mine = page.querySelector('.accordion-item[data-target="' + myRol + '"]');
-      if (mine) {
-        setTimeout(function () {
-          openItem(mine);
-          focusFirstField(mine);
-        }, 200);
-      }
+    window.BirlikdeAuthWizard = {
+      telefon: function () { return fullPhone; }
+    };
+  }
+
+  // Parol sahələrində göz-ikonu ilə göstər/gizlət (bax auth/giris.php,
+  // `.password-field-wrap` + `.password-toggle[data-toggle-for]`).
+  function initPasswordToggles() {
+    document.querySelectorAll('.password-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var input = document.getElementById(btn.dataset.toggleFor);
+        if (!input) return;
+        var showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        btn.textContent = showing ? '\u{1F441}' : '\u{1F648}';
+      });
+    });
+  }
+
+  // Sahə-səviyyəli inline validasiya əks-əlaqəsi (qırmızı sərhəd + konkret
+  // köməkçi mətn) — bax app.css `.field-helper`/`.invalid`.
+  function showFieldError(inputEl, helperEl, message) {
+    inputEl.classList.add('invalid');
+    if (helperEl) {
+      helperEl.textContent = message;
+      helperEl.classList.add('visible');
+    }
+  }
+
+  function clearFieldError(inputEl, helperEl) {
+    inputEl.classList.remove('invalid');
+    if (helperEl) {
+      helperEl.classList.remove('visible');
+      helperEl.textContent = '';
     }
   }
 
@@ -503,7 +567,10 @@ window.Birlikde = (function () {
     redirectIfUnauthorized: redirectIfUnauthorized,
     switchLanguage: switchLanguage,
     initDrawer: initDrawer,
-    initAuthAccordion: initAuthAccordion,
+    initAuthWizard: initAuthWizard,
+    initPasswordToggles: initPasswordToggles,
+    showFieldError: showFieldError,
+    clearFieldError: clearFieldError,
     playSplashOnce: playSplashOnce,
     registerServiceWorker: registerServiceWorker,
     initInstallPrompt: initInstallPrompt,

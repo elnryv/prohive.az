@@ -698,6 +698,58 @@ admin bölməsi əlavə olundu.
   mərkəzləşmiş), həm 1s (tam loqo+tagline) anlarında təsdiqləndi.
 - `sw.js` `CACHE_VERSION` v17→v18.
 
+### 2026-07-13 (davam) — Telefon-əsaslı ağıllı giriş/qeydiyyat (Bolt-stil), accordion ləğv edildi
+
+- İstifadəçi accordion-un da "donma" hissi verdiyini bildirdi ("tam dəyişsək
+  yenə donur") və daha "ideal/super" bir yanaşma istədi. Tövsiyə edildi və
+  qəbul olundu: Bolt/Uber tərzi telefon-əsaslı ağıllı tək axın — kart/
+  accordion seçimi TAM aradan qaldırıldı.
+- **Backend:** `AuthService::telefonMovcuddurmu()` (mövcud `User::
+  existsByTelefon()`-dan istifadə edir) + `AuthController::telefonYoxla()` +
+  `POST /telefon-yoxla` route (CsrfGuard+RateLimit, digər auth endpoint-ləri
+  ilə eyni qorunma). `AppPageController::giris()` indi qeydiyyat üçün lazım
+  olan `$olculer`/`$sozlesmeMetni`-ni də hazırlayır (hər iki nəticə eyni
+  səhifədə ola bilər); `AppPageController::qeydiyyat()` sadəcə `/giris`-ə
+  redirect edir (ayrı qeydiyyat marşrutu artıq yoxdur, köhnə bookmark-lar
+  üçün saxlanılıb). `auth/qeydiyyat.php` view faylı silindi.
+- **Frontend — 3 addımlı wizard (`auth/giris.php`):** (1) telefon (ölkə kodu
+  dropdown, defolt Azərbaycan, dəyişdirilə bilər — istifadəçinin UX Snacks
+  TikTok istinadına görə, ayrı `public/assets/js/olke-kodlari.js`, ~90 ölkə,
+  bayraq ISO koddan avtomatik yaradılır) → (2a) mövcuddursa Parol, (2b)
+  deyilsə tam qeydiyyat sahələri. Addımlar arası keçid ƏN SADƏ üsulla —
+  `[hidden]` atributu + mövcud `pageIn` animasiyası (heç bir grid/drag/
+  toggle-state riski yoxdur ki, əvvəlki 2 versiyada olduğu kimi "donsun").
+  `Birlikde.initAuthWizard()` yeni — `initAuthDeck`/`initAuthAccordion`-u
+  əvəz etdi. Qeydiyyatdan keçəndə backend sessiya açmadığı üçün (yalnız
+  hesab yaradır) frontend qeydiyyatdan SONRA avtomatik `/giris`-ə eyni
+  məlumatla ikinci sorğu göndərib istifadəçini bilavasitə daxil edir —
+  əl ilə "indi gir" addımı yoxdur (Bolt-un elə etdiyi kimi).
+- **UX Snacks istinadına görə əlavə cilalanma:** (1) parol sahələrində
+  göz-ikonu göstər/gizlət düyməsi (`.password-toggle`, `Birlikde.
+  initPasswordToggles()`); (2) güclü fokus vəziyyəti — indi `outline`
+  əvəzinə həqiqi sərhəd rəngi + 2px "halo" (`box-shadow`); (3) inline
+  validasiya — boş "Ad"/"Soyad" və 6 simvoldan qısa parol üçün qırmızı
+  sərhəd + sahənin altında KONKRET köməkçi mətn (`Birlikde.showFieldError`/
+  `clearFieldError`, ümumi "xəta baş verdi" DEYİL, "Bu sahə mütləqdir" /
+  "Ən azı 6 simvol olmalıdır" kimi spesifik mesajlar).
+- **Tapılan real bug (test zamanı, Playwright real-mouse-click ilə):**
+  "Dəyiş" (geri qayıt) düyməsinin toxunma sahəsi demək olar sıfır idi
+  (`padding: 0`, ~15px hündürlük) — proqramatik `.click()` işləyirdi, amma
+  DƏQIQ koordinatda REAL siçan/barmaq klikı düyməni "keçib" valideyn
+  div-ə düşürdü (Apple/Google minimum 44px toxunma-sahəsi tövsiyəsinin
+  pozulması). Bu, real istifadəçilərin hiss etdiyi "səhifə cavab vermir"
+  problemlərinin bir mənbəyi ola bilər. Düzəliş: `padding:10px 8px;
+  margin:-10px -8px; min-height:44px` (vizual ölçü eyni qalır, toxunma
+  sahəsi genişlənir). `.password-toggle` da eyni məntiqlə 40×40px-ə
+  böyüdüldü. Real Playwright klik testi ilə düzəlişdən sonra təsdiqləndi.
+- Real MySQL+HTTP+Playwright ilə tam axın test edildi: yeni telefon →
+  qeydiyyat sahələri → uğurlu təqdim → avtomatik giriş → `/panel`; sonra
+  eyni telefonla təzə sessiyada → "Parol" addımı → uğurlu giriş → `/panel`.
+  "Dəyiş" düyməsi hər iki addımdan geri qayıdır. İnline validasiya (boş
+  sahə, qısa parol) vizual təsdiqləndi.
+- `sw.js` `CACHE_VERSION` v18→v19. `php -l`/`node --check`/JSON validasiyası
+  bütün dəyişən fayllara təmiz keçdi.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur

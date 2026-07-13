@@ -39,6 +39,7 @@ $router->get('/csrf-token', function (Request $request) {
 
 $router->post('/qeydiyyat', [AuthController::class, 'qeydiyyat'], [CsrfGuard::class, RateLimit::class]);
 $router->post('/giris', [AuthController::class, 'giris'], [CsrfGuard::class, RateLimit::class]);
+$router->post('/telefon-yoxla', [AuthController::class, 'telefonYoxla'], [CsrfGuard::class, RateLimit::class]);
 $router->post('/cixis', [AuthController::class, 'cixis'], [CsrfGuard::class, Auth::class]);
 
 // Müştəri — sifariş (bax bölmə 7.1)

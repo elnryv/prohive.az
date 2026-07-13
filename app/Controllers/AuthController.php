@@ -27,6 +27,18 @@ final class AuthController
         }
     }
 
+    public function telefonYoxla(Request $request): mixed
+    {
+        try {
+            $service = new AuthService();
+            $movcuddur = $service->telefonMovcuddurmu((string) $request->input('telefon', ''));
+
+            return Response::json(['status' => 'ok', 'movcuddur' => $movcuddur]);
+        } catch (ValidationException $e) {
+            return Response::json(['error' => $e->getMessage()], 422);
+        }
+    }
+
     public function giris(Request $request): mixed
     {
         try {
