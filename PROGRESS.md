@@ -1493,3 +1493,72 @@ commit edildi:
   isə (AZ-spesifik olmayan) qəbul edildi — beynəlxalq qeydiyyat pozulmadı.
 - `sw.js` `CACHE_VERSION` v24→v25 (`app.js` + lang JSON + `giris.php`
   dəyişdi).
+
+### 2026-07-13 (davam) — "Bənövşəyi Şəhər": tam rəng/ikon/splash redizaynı
+
+- İstifadəçi 2 referans mockup göstərdi (indiqo/bənövşəyi tema, ağ kartlar,
+  splash ekranı) və "tam formada dəyiş saytın görünüşünü, əsas funksiyalar
+  qalsın, daha mükəmməl et" dedi. Əvvəlcə aydınlaşdırıldı: rənglər/ikonlar/
+  splash — dizayn dəyişikliyi kimi tam tətbiq oluna bilər; mockup-dakı canlı
+  GPS xəritə izləmə, Google/Apple giriş, real interaktiv xəritə, reytinq —
+  bunlar YENİ FUNKSİYADIR, dizayn dəyişikliyi deyil, tətbiq olunmadı (istifadəçi
+  qəbul etdi: "qalan nə varsa olduğu kimi köçür").
+- **Təhlükəsizlik toru:** işə başlamazdan əvvəl istifadəçinin xahişi ilə
+  köhnə dizaynın tam vəziyyəti `dizayn-v1-oncesi` git branch-i kimi
+  saxlanıldı və GitHub-a push edildi (əvvəlcə annotated tag cəhd edildi,
+  proxy 403 verdi — retry-larla da alınmadı, branch-ə keçildi, bu uğurla
+  push oldu). Geri qayıtma əmri istifadəçiyə verildi: `git checkout
+  dizayn-v1-oncesi` (production serverdə, sadə/geri-dönüşlü, force push
+  YOXDUR).
+- **Rəng tokenləri** (`app.css` VƏ `admin.css` — hər ikisi öz `:root`-unu
+  saxlayır, EYNİ dəyərlərlə sinxron saxlanmalıdır): `--accent` `#3d5afe`
+  (mavi) → `#4f46e5` (indiqo), `--accent-warm` `#ff7a3d` (narıncı) →
+  `#4338ca` (tünd indiqo/bənövşəyi), `--bg`/`--surface-2` çox az tənzimləndi
+  (`#f5f3fb`→`#f5f5fc`, `#f0edf9`→`#eeecfb`, demək olar hiss olunmaz).
+  `--success`/`--danger`/`--pink`/`--warning` (semantik: onlayn, təcili,
+  xəta) TOXUNULMADI. Bütün `:root`-dan kənar hardcode edilmiş
+  `rgba(61,90,254,...)`/`rgba(255,122,61,...)` kölgə/qradient dəyərləri
+  (həm boşluqlu, həm boşluqsuz format, 13+ yer) `sed` ilə yeni rənglərə
+  köçürüldü ki, düymə kölgələri/qradientlər yeni rəngə uyğun qalsın (əks
+  halda mavi kölgə indiqo düymənin altında qalardı — vizual uyğunsuzluq).
+  `admin.css`-də stat-tile qradient ikinci dayanacaqları (`#7c8bff`→
+  `#7c72f0`, `#ffab6f`→`#6c5ce7`) də uyğunlaşdırıldı.
+- **Splash ekranı tam yenidən quruldu** (`#splashOverlay` CSS bloku,
+  `app.css`) — əvvəlki "açıq fon + kiçik mərkəzi mark" versiyası əvəzinə
+  indi tam-ekran tünd indiqo qradient fon (`linear-gradient(160deg,
+  #4f46e5, #4338ca, #372aa8)`), böyük (84px) ağ dəyirmi mark + indiqo "B"
+  hərfi (rənglər tərsinə çevrilib), ağ "Birlikdə" sözü, açıq lavanda teq
+  mətni, radar halqaları ağ/şəffaf (əvvəlki mavi/çəhrayı əvəzinə tünd fonda
+  görünsün deyə), YENİ `.splash-loadbar` elementi (alt, kiçik ağ pill,
+  doldurulma animasiyası) — mockup-un splash ekranındakı alt indikatora
+  bənzəyir. Animasiya SEKANSI (mark pulse 0.5s → radar ping 1.8s infinite →
+  söz sıçrayışı 0.6s → teq fade 0.5s) DƏYİŞMƏDİ, yalnız rənglər. `head.php`-
+  yə `.splash-loadbar` div-i əlavə olundu.
+- **Bottom-nav ikonları:** 4 emoji (🏠 ev, 📋 lövhə, 🦺 sifarişlərim,
+  👤 profil) təmiz xətt-əsaslı (stroke, 2px, round) inline SVG ikonlarla
+  əvəz olundu (`head.php`, öz əllə çəkilmiş sadə geometrik yollar — heç bir
+  xarici ikon kitabxanasından kopyalanmayıb) — `currentColor` istifadə
+  edir, ona görə aktiv/passiv rəng vəziyyəti avtomatik CSS-dən miras alınır
+  (`.bottom-nav-item` `color`-u dəyişəndə ikon da dəyişir, JS lazım deyil).
+  `.bottom-nav-icon` CSS-inə `svg { width:20px; height:20px; }` əlavə
+  olundu.
+- **PWA ikonları:** `icon-192.png`/`icon-512.png` `ffmpeg` (`color=
+  0x4F46E5` + `drawtext` DejaVu Sans Bold ağ "B") ilə yenidən yaradıldı
+  (PIL/ImageMagick/cairosvg mövcud deyildi, ffmpeg alternativ kimi
+  işlədildi — əvvəlki sessiyalarda test banner şəkilləri üçün də istifadə
+  edilmişdi). `manifest.json` `background_color` → `#4f46e5` (native
+  splash keçidi yeni overlay ilə uyğun olsun), `theme_color` → `#f5f5fc`
+  (adi istifadə zamanı brauzer status bar-ı). `head.php`/admin
+  `theme-color` meta teqi də `#f5f5fc`-ə yeniləndi.
+- Real DB+HTTP+Playwright ilə vizual test edildi: splash ekranı (tünd
+  indiqo, ağ mark, radar halqa, load bar) skrinşotla təsdiqləndi; giriş/
+  qeydiyyat formu (indiqo düymə/tab/checkbox aksentləri) skrinşotla
+  təsdiqləndi; müştəri paneli (bottom-nav SVG "Panel" ikonu ağ rəngdə
+  indiqo/çəhrayı aktiv piluğun üstündə) skrinşotla təsdiqləndi; kuryer
+  lövhə (3 bottom-nav SVG ikonu: clipboard/"Canlı Lövhə", package/
+  "Sifarişlərim", person/"Profil") skrinşotla təsdiqləndi; drawer menyusu
+  (indiqo mark, neytral linklər) skrinşotla təsdiqləndi. CSS mötərizə
+  balansı (`{`/`}` say bərabərliyi) proqramla yoxlandı, `php -l` +
+  `node --check` + JSON validasiyası hamısı təmiz keçdi.
+- `sw.js` `CACHE_VERSION` v25→v26 (`app.css`, `admin.css`, `head.php`,
+  `manifest.json`, `icon-192.png`, `icon-512.png` dəyişdi).

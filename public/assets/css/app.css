@@ -1,17 +1,18 @@
-/* Birlikdə — dizayn: "Canlı Şəhər" (bax CLAUDE.md bölmə 10.1, yenilənib 2026-07-12).
-   Açıq lavanda fon + çoxrəngli aksent sistemi (mavi=marka, narıncı=əsas əməliyyat,
-   yaşıl=onlayn/uğur, çəhrayı=təcili), iri dəyirmi künclər, sıçrayışlı hərəkət. */
+/* Birlikdə — dizayn: "Bənövşəyi Şəhər" (bax CLAUDE.md bölmə 10.1, yenilənib
+   2026-07-13). Açıq lavanda fon + indiqo/bənövşəyi marka rəngi (əsas keçidlər,
+   əsas əməliyyat düymələri, splash), yaşıl=onlayn/uğur, çəhrayı=təcili qalır,
+   iri dəyirmi künclər, sıçrayışlı hərəkət. */
 
 :root {
-  --bg: #f5f3fb;
+  --bg: #f5f5fc;
   --surface: #ffffff;
-  --surface-2: #f0edf9;
+  --surface-2: #eeecfb;
   --text: #1a1a2e;
   --text-dim: rgba(26, 26, 46, 0.62);
   --text-faint: rgba(26, 26, 46, 0.42);
-  --accent: #3d5afe;
+  --accent: #4f46e5;
   --accent-ink: #ffffff;
-  --accent-warm: #ff7a3d;
+  --accent-warm: #4338ca;
   --pink: #ff4d8f;
   --danger: #ef4444;
   --success: #22c55e;
@@ -165,7 +166,7 @@ a {
 
 .route-dot-end {
   background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(61, 90, 254, 0.18);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
 }
 
 .route-label {
@@ -238,7 +239,7 @@ a {
   color: #fff;
   flex: none;
   background: linear-gradient(135deg, var(--accent), var(--pink));
-  box-shadow: 0 0.22em 0.5em rgba(61, 90, 254, 0.35);
+  box-shadow: 0 0.22em 0.5em rgba(79, 70, 229, 0.35);
 }
 
 .brand-word {
@@ -284,7 +285,7 @@ a {
 .field textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.16);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.16);
 }
 
 .field textarea {
@@ -407,7 +408,7 @@ a {
 .btn-primary {
   background: var(--accent-warm);
   color: #fff;
-  box-shadow: 0 8px 20px rgba(255, 122, 61, 0.3);
+  box-shadow: 0 8px 20px rgba(67, 56, 202, 0.3);
 }
 
 .btn-danger {
@@ -473,7 +474,7 @@ a {
   font-weight: 800;
 }
 
-.badge-axtarisda { background: rgba(61, 90, 254, 0.12); color: var(--accent); }
+.badge-axtarisda { background: rgba(79, 70, 229, 0.12); color: var(--accent); }
 .badge-goturulub { background: rgba(255, 176, 32, 0.18); color: #a56a1f; }
 .badge-tamamlandi { background: rgba(34, 197, 94, 0.16); color: #15803d; }
 .badge-legv { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
@@ -640,8 +641,8 @@ a {
 }
 
 .legal-callout-law {
-  background: rgba(61, 90, 254, 0.08);
-  border: 1px solid rgba(61, 90, 254, 0.25);
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.25);
   color: #2b3fb0;
 }
 
@@ -860,7 +861,7 @@ a {
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
-  box-shadow: 0 3px 8px rgba(61, 90, 254, 0.3);
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3);
 }
 
 .modal-sheet .step-text {
@@ -1203,6 +1204,13 @@ a {
   line-height: 1;
   transition: transform 0.3s var(--bounce);
   flex: none;
+  display: inline-flex;
+}
+
+.bottom-nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
 .bottom-nav-label {
@@ -1228,12 +1236,16 @@ a {
   margin-left: 7px;
 }
 
-/* ---------- Açılış (splash) — yalnız sessiyada bir dəfə ---------- */
+/* ---------- Açılış (splash) — yalnız sessiyada bir dəfə ----------
+   2026-07-13: açıq fonlu kiçik-mark versiyası əvəzinə, referans mockup-a
+   uyğun tam-ekran tünd indiqo fon + böyük ağ mark (bax brand-mark override
+   aşağıda). Animasiya ritmi (mark pulse → radar halqalar → söz sıçrayışı →
+   teq) eynilə saxlanılıb, yalnız tünd fona uyğun rənglər tərsinə çevrilib. */
 #splashOverlay {
   position: fixed;
   inset: 0;
   z-index: 500;
-  background: var(--bg);
+  background: linear-gradient(160deg, #4f46e5 0%, #4338ca 65%, #372aa8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1261,7 +1273,7 @@ a {
   font-weight: 800;
   font-size: 40px;
   letter-spacing: -0.01em;
-  color: var(--text);
+  color: #ffffff;
 }
 
 /* İkon sözün ÜSTÜNDƏ, sütun şəklində — beləliklə söz hələ görünməzkən
@@ -1269,10 +1281,19 @@ a {
    `.splash-glow`/halqalar onunla düz üst-üstə düşür (bax .splash-glow). */
 .splash-word .brand-logo {
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
+/* Tünd fonda mark-ın öz gradient-i (mavi→çəhrayı) əvəzinə həlледici ağ
+   dairə + indiqo hərf istifadə olunur (bax mockup: böyük ağ "b" işarəsi). */
 .splash-word .brand-mark {
+  width: 84px;
+  height: 84px;
+  border-radius: 26%;
+  font-size: 34px;
+  background: #ffffff;
+  color: var(--accent-warm);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   opacity: 0;
   transform: scale(0.3);
   animation: splashMarkPop 0.5s var(--bounce) forwards, splashMarkPulse 0.5s ease-in-out 0.5s 2;
@@ -1299,14 +1320,14 @@ a {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid var(--accent);
+  border: 2px solid rgba(255, 255, 255, 0.85);
   opacity: 0;
   animation: splashRingPing 1.8s ease-out 0.15s infinite;
   pointer-events: none;
 }
 
 .splash-word .brand-mark::after {
-  border-color: var(--pink);
+  border-color: rgba(255, 255, 255, 0.5);
   animation-delay: 0.75s;
 }
 
@@ -1320,6 +1341,9 @@ a {
   opacity: 0;
   transform: scale(0.6);
   animation: splashWordBounce 0.6s var(--bounce) 0.7s forwards;
+  background: none;
+  -webkit-text-fill-color: #ffffff;
+  color: #ffffff;
 }
 
 @keyframes splashWordBounce {
@@ -1330,7 +1354,7 @@ a {
   margin-top: 10px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.75);
   opacity: 0;
   animation: splashFadeUp 0.5s ease 1.05s forwards;
 }
@@ -1343,11 +1367,11 @@ a {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 220px;
-  height: 220px;
-  margin: -110px 0 0 -110px;
+  width: 320px;
+  height: 320px;
+  margin: -160px 0 0 -160px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(61, 90, 254, 0.35), rgba(255, 122, 61, 0.22) 45%, transparent 72%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05) 45%, transparent 72%);
   filter: blur(6px);
   opacity: 0;
   z-index: -1;
@@ -1358,6 +1382,34 @@ a {
   0% { opacity: 0; transform: translate(0, 0) scale(0.2); }
   35% { opacity: 1; }
   100% { opacity: 0.55; transform: translate(0, 0) scale(1.35); }
+}
+
+/* Mockup-dakı alt "yüklənmə zolağı" nişanı — sadə statik pill, ekranın
+   altında, brend rəngini vurğulayır. */
+.splash-loadbar {
+  position: absolute;
+  bottom: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.splash-loadbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  transform: translateX(-100%);
+  animation: splashLoadbarFill 1.3s ease-in-out 0.2s forwards;
+}
+
+@keyframes splashLoadbarFill {
+  to { transform: translateX(0); }
 }
 
 /* ---------- Telefon-əsaslı ağıllı giriş/qeydiyyat wizard-ı ----------
@@ -1503,7 +1555,7 @@ a {
 
 .phone-input-group:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.16);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.16);
 }
 
 .country-select {
@@ -1655,7 +1707,7 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 21px;
-  box-shadow: 0 8px 20px rgba(61, 90, 254, 0.35);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
   animation: radarCoreBeat 1.4s var(--smooth) infinite;
 }
 
@@ -1697,7 +1749,7 @@ a {
   font-size: 19px;
   font-weight: 800;
   flex: none;
-  box-shadow: 0 6px 16px rgba(255, 122, 61, 0.3);
+  box-shadow: 0 6px 16px rgba(67, 56, 202, 0.3);
 }
 
 .transit-info {

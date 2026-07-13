@@ -18,12 +18,28 @@
 - **Əsas prinsiplər:** PWA (iOS+Android), SSE ilə real-time, Native PHP 8.3 (framework yox),
   MySQL 8.0, Hostinger/Hetzner VPS, çoxdilli (AZ/RU/EN), bütün əlaqə WhatsApp
   Click-to-Chat üzərindən.
-- **Dizayn sistemi — "Canlı Şəhər" (yenilənib 2026-07-12, bax bölmə 10.1):** əvvəlki
-  OLED-qara+glassmorphism tam əvəz olunub — açıq lavanda fon (`#f5f3fb`), çoxrəngli
-  aksent sistemi (mavi `#3d5afe`=marka/keçidlər, narıncı `#ff7a3d`=əsas əməliyyat
-  düymələri, yaşıl=onlayn/uğur, çəhrayı=təcili), iri dəyirmi künclər (16-28px),
-  sıçrayışlı (bouncy, `cubic-bezier(0.34,1.56,0.64,1)`) hərəkət hər yerdə (kart
-  giriş animasiyası, düymə basma, tab/toggle keçidləri). Hər tətbiqə TƏZƏ girişdə
+- **Dizayn sistemi — "Bənövşəyi Şəhər" (yenilənib 2026-07-13, bax bölmə 10.1):**
+  istifadəçinin göndərdiyi referans mockup-a (indiqo/bənövşəyi tema) uyğun tam
+  rəng dəyişikliyi — açıq lavanda fon (`#f5f5fc`) saxlanıb, əsas aksent indiqo
+  (`--accent: #4f46e5`=marka/keçidlər, `--accent-warm: #4338ca`=əsas əməliyyat
+  düymələri, iki ton bir-birini tamamlayır), yaşıl=onlayn/uğur, çəhrayı=təcili
+  DƏYİŞMƏDİ. Bütün hardcode edilmiş köhnə mavi/narıncı `rgba()` kölgə dəyərləri
+  (app.css + admin.css, `:root` xaricində, məs. buton box-shadow-ları) də uyğun
+  yeniləndi ki, rəng keçidi tam olsun. Splash ekranı TAM YENİDƏN QURULDU: əvvəlki
+  açıq-fonlu-kiçik-mark versiyası əvəzinə indi tam-ekran tünd indiqo qradient fon
+  + böyük ağ dəyirmi mark + ağ "Birlikdə" mətni + alt "yüklənmə zolağı" pill-i
+  (mockup-un splash ekranına uyğun) — animasiya ritmi (pulse→radar halqa→söz
+  sıçrayışı) DƏYİŞMƏDİ, yalnız rənglər tünd fona uyğun tərsinə çevrildi. Bottom-
+  nav-dakı emoji ikonlar (🏠📋🦺👤) təmiz xətt-əsaslı inline SVG ikonlarla
+  (`currentColor` ilə aktiv/passiv vəziyyətə uyğunlaşır) əvəz olundu. PWA
+  ikonları (`icon-192.png`/`icon-512.png`) yeni indiqo fon + ağ "B" hərfi ilə
+  yenidən yaradıldı (`ffmpeg drawtext`, DejaVu Sans Bold), `manifest.json`
+  `background_color`/`theme_color` uyğunlaşdırıldı. **Şüurlu qərar:** mockup-da
+  görünən canlı GPS xəritə izləmə, Google/Apple ilə giriş, real interaktiv
+  xəritə və reytinq sistemi TƏTBIQ OLUNMADI — bunlar dizayn dəyişikliyi deyil,
+  yeni funksiyalardır (istifadəçiyə bildirildi, ayrıca qərar tələb edir).
+  Köhnə dizayna geri qayıtmaq üçün `dizayn-v1-oncesi` git branch-i (GitHub-a
+  push edilib) istinad nöqtəsi kimi saxlanılır. Hər tətbiqə TƏZƏ girişdə
   (kənar keçid — `document.referrer` eyni origin deyilsə; daxili keçidlərdə YOX)
   tam CSS splash animasiyası: loqo işarəsi (`.brand-mark`) əvvəlcə pulse edir,
   ətrafında radar-tipli genişlənən halqalar (`::before`/`::after`), sonra
