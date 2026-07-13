@@ -769,6 +769,21 @@ admin bölməsi əlavə olundu.
 - `sw.js` `CACHE_VERSION` v19→v20. `php -l`/`node --check`/JSON
   validasiyası təmiz keçdi.
 
+### 2026-07-13 (davam) — Kuryer profili: böyük "hero" foto+ad formatı
+
+- İstifadəçi istinad şəkli göndərdi (pro-oyunçu profil kartı UI-si) və
+  "şəkil və ad belə görünsün" dedi. `kurye/profil.php` yenidən quruldu:
+  kiçik dairəvi avatar (88px) əvəzinə kartın tam eninə böyük "hero" foto
+  (230px hündürlük, `.profil-photo-wrap`), redaktə qələm-düyməsi fotonun
+  üstündə üzən dairə kimi (sağ-alt küncdə), ad indi FOTONUN ALTINDA iri
+  şriftlə (18px→25px). Qaranlıq overlay/mətn-üstə-foto YOX — Canlı Şəhər
+  açıq mövzusuna uyğunlaşdırıldı (ad aydın fonda, foto altında).
+  JS-ə toxunulmadı (yalnız CSS sinif adları dəyişdi: `profil-avatar*` →
+  `profil-photo*`, ID-lər eyni qaldı). Real qeydiyyat+giriş+profil axını
+  ilə Playwright screenshot vasitəsilə vizual təsdiqləndi (foto yoxdursa
+  qradiyent fonda baş hərf, foto varsa tam-eninə şəkil).
+- `sw.js` `CACHE_VERSION` v20→v21. `php -l` təmiz keçdi.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur

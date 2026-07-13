@@ -5,21 +5,23 @@
 require __DIR__ . '/../partials/head.php';
 ?>
 <div class="card glass profil-hero">
-  <div class="profil-avatar-wrap">
-    <img class="profil-avatar" id="avatarImg" style="display:none;" alt="">
-    <div class="profil-avatar-placeholder" id="avatarPlaceholder">?</div>
-    <div class="profil-avatar-edit" id="avatarEditBtn">&#9998;</div>
+  <div class="profil-photo-wrap">
+    <img class="profil-photo" id="avatarImg" style="display:none;" alt="">
+    <div class="profil-photo-placeholder" id="avatarPlaceholder">?</div>
+    <div class="profil-photo-edit" id="avatarEditBtn">&#9998;</div>
     <input type="file" id="avatarInput" accept="image/*" style="display:none;">
   </div>
-  <div class="profil-name" id="profilAd"><?= htmlspecialchars($t('profil.basliq')) ?></div>
-  <div class="profil-rol-badge"><span class="badge badge-tamamlandi" id="neqliyyatBadge">—</span></div>
-  <div class="error-box" id="avatarXeta" style="margin-top:10px;"></div>
+  <div class="profil-body">
+    <div class="profil-rol-badge"><span class="badge badge-tamamlandi" id="neqliyyatBadge">—</span></div>
+    <div class="profil-name" id="profilAd"><?= htmlspecialchars($t('profil.basliq')) ?></div>
+    <div class="error-box" id="avatarXeta" style="margin-top:10px;"></div>
 
-  <div class="profil-stats">
-    <a class="profil-stat-pill" href="/sifarislerim">
-      <strong id="tamamlananVal">—</strong>
-      <span><?= htmlspecialchars($t('profil.tamamlanan')) ?></span>
-    </a>
+    <div class="profil-stats">
+      <a class="profil-stat-pill" href="/sifarislerim">
+        <strong id="tamamlananVal">—</strong>
+        <span><?= htmlspecialchars($t('profil.tamamlanan')) ?></span>
+      </a>
+    </div>
   </div>
 </div>
 

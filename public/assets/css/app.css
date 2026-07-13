@@ -872,66 +872,63 @@ a {
 }
 
 /* Profil — sosial-şəbəkə stilli başlıq (bax kurye/profil.php) */
+/* Böyük "hero" foto (profil şəkli sətirdə deyil, kartın tam eninə) +
+   adın altında iri şriftlə göstərilməsi — istifadəçi istinadına görə
+   (pro-oyunçu profil kartı konsepti), Canlı Şəhər açıq mövzusuna
+   uyğunlaşdırılıb (qaranlıq overlay yox, ad foto ALTINDA aydın fonda). */
 .profil-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 0 0 16px;
+  overflow: hidden;
   text-align: center;
-  padding: 22px 16px 16px;
 }
 
-.profil-avatar-wrap {
+.profil-photo-wrap {
   position: relative;
-  width: 88px;
-  height: 88px;
-  margin-bottom: 10px;
+  width: 100%;
+  height: 230px;
+  margin-bottom: 16px;
 }
 
-.profil-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
+.profil-photo {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   background: var(--surface-2);
-  border: 3px solid var(--surface);
-  box-shadow: var(--shadow-md);
   display: block;
 }
 
-.profil-avatar-placeholder {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
+.profil-photo-placeholder {
+  width: 100%;
+  height: 100%;
   background: linear-gradient(135deg, var(--accent), var(--pink));
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: 68px;
   font-weight: 800;
-  box-shadow: var(--shadow-md);
 }
 
-.profil-avatar-edit {
+.profil-photo-edit {
   position: absolute;
-  right: -2px;
-  bottom: -2px;
-  width: 30px;
-  height: 30px;
+  right: 14px;
+  bottom: 14px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: var(--accent-warm);
   color: #fff;
-  border: 2px solid var(--surface);
+  border: 3px solid var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 17px;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   transition: transform 0.15s var(--bounce), opacity 0.15s ease;
 }
 
-.profil-avatar-edit.loading {
+.profil-photo-edit.loading {
   opacity: 0.55;
   pointer-events: none;
   animation: avatarSpin 0.8s linear infinite;
@@ -951,13 +948,18 @@ a {
   animation: avatarSpin 0.8s linear infinite;
 }
 
+.profil-body {
+  padding: 0 16px;
+}
+
 .profil-name {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .profil-rol-badge {
-  margin-top: 4px;
+  margin-bottom: 6px;
 }
 
 .profil-stats {
