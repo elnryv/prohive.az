@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AppPageController;
 use App\Controllers\AuthController;
+use App\Controllers\BannerController;
 use App\Controllers\BannerImageController;
 use App\Controllers\EraziController;
 use App\Controllers\KuryeController;
@@ -64,6 +65,7 @@ $router->get('/sehir/{sehirId}/rayonlar', [EraziController::class, 'rayonlar']);
 
 // Banner şəkli göstərmə (bax bölmə 8.4, admin panelində yüklənir, burada yayımlanır)
 $router->get('/banner-sekil/{fayl}', [BannerImageController::class, 'goster']);
+$router->get('/bannerler', [BannerController::class, 'aktivOlanlar'], [Auth::class]);
 $router->get('/kurye-sekil/{fayl}', [KuryeSekilController::class, 'goster']);
 
 // Abunə ödənişi (bax bölmə 9.1)

@@ -151,7 +151,7 @@ require __DIR__ . '/../partials/head.php';
 </div>
 <script src="<?= \App\Core\Asset::v('js/olke-kodlari.js') ?>"></script>
 <script>
-  Birlikde.initAuthWizard(OLKE_KODLARI);
+  Birlikde.initAuthWizard(typeof OLKE_KODLARI !== 'undefined' ? OLKE_KODLARI : null);
   Birlikde.initPasswordToggles();
 </script>
 <script>

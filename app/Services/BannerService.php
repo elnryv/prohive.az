@@ -99,18 +99,51 @@ final class BannerService
             throw new ValidationException('Fayl həqiqi şəkil deyil.');
         }
 
-        if (!is_dir($storageDir)) {
-            mkdir($storageDir, 0755, true);
+        if (!is_dir($storageDir) && !@mkdir($storageDir, 0755, true) && !is_dir($storageDir)) {
+            throw new ValidationException(
+                'Şəkil qovluğu yaradıla bilmədi (icazə xətası): ' . $storageDir .
+                ' — server-tərəfdə bu qovluq PHP-FPM istifadəçisi tərəfindən yazıla bilən olmalıdır.'
+            );
+        }
+        if (!is_writable($storageDir)) {
+            throw new ValidationException(
+                'Şəkil qovluğu yazıla bilən deyil: ' . $storageDir .
+                ' — serverdə "chmod/chown" ilə PHP-FPM istifadəçisinə yazma icazəsi verilməlidir.'
+            );
         }
 
         $adFayl = bin2hex(random_bytes(16)) . '.' . self::ICAZE_VERILEN_MIME[$mime];
         $hedefYol = rtrim($storageDir, '/') . '/' . $adFayl;
 
         if (!move_uploaded_file($file['tmp_name'], $hedefYol)) {
-            throw new ValidationException('Şəkil saxlanıla bilmədi.');
+            throw new ValidationException('Şəkil saxlanıla bilmədi (move_uploaded_file uğursuz oldu) — server logunu yoxlayın.');
         }
 
         return $adFayl;
+    }
+
+    /**
+     * Müştəri/kuryer/yükdaşıma tətbiqindəki karusel üçün aktiv bannerlər —
+     * bax GET /bannerler (BannerController), musteri/panel.php + kurye/lovhe.php.
+     * `$rol` 'musteri' və ya 'kurye' (yükdaşıma da 'kurye' hədəfini görür,
+     * ayrı ENUM dəyəri yoxdur — eyni Lövhə ekranını paylaşdıqları üçün).
+     *
+     * @return array<int, array{id:int, baslik:?string, sekil_url:string, link:?string}>
+     */
+    public function aktivOlanlar(string $rol): array
+    {
+        $hedef = $rol === 'musteri' ? 'musteri' : 'kurye';
+        $bannerler = $this->bannerler->aktivOlanlar($hedef);
+
+        return array_map(
+            static fn (array $b) => [
+                'id' => (int) $b['id'],
+                'baslik' => $b['baslik'],
+                'sekil_url' => '/banner-sekil/' . $b['sekil_yol'],
+                'link' => $b['link'],
+            ],
+            $bannerler
+        );
     }
 
     public function siyahi(int $page, int $limit): array

@@ -77,4 +77,23 @@ final class Banner
         $stmt = $this->db->prepare('UPDATE bannerler SET aktiv = :aktiv WHERE id = :id');
         $stmt->execute(['aktiv' => $aktiv ? 1 : 0, 'id' => $id]);
     }
+
+    /**
+     * Müştəri/kuryer tətbiqindəki karusel üçün — aktiv, tarix aralığındakı,
+     * hədəfi "hamisi" VƏ YA rola uyğun bannerlər (bax BannerService::aktivOlanlar).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function aktivOlanlar(string $hedef): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM bannerler
+             WHERE aktiv = 1 AND baslama <= CURDATE() AND bitme >= CURDATE()
+               AND (hedef = 'hamisi' OR hedef = :hedef)
+             ORDER BY sira ASC, created_at DESC"
+        );
+        $stmt->execute(['hedef' => $hedef]);
+
+        return $stmt->fetchAll();
+    }
 }

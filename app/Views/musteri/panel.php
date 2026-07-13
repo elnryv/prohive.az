@@ -6,6 +6,10 @@
  */
 require __DIR__ . '/../partials/head.php';
 ?>
+<div class="banner-carousel" id="bannerCarousel" hidden>
+  <div class="banner-dots" id="bannerDots"></div>
+</div>
+
 <div class="tabs" id="panelTabs">
   <div class="tab active" data-panel="yeni"><?= htmlspecialchars($t('musteri.yeni_sifaris')) ?></div>
   <div class="tab" data-panel="tarixce"><?= htmlspecialchars($t('musteri.tarixce')) ?></div>
@@ -313,6 +317,7 @@ var YOLDA_ALT = <?= json_encode($t('musteri.yolda_alt'), JSON_UNESCAPED_UNICODE 
   });
 
   loadTarixce();
+  Birlikde.initBannerCarousel('bannerCarousel', 'bannerDots');
 })();
 </script>
 <?php require __DIR__ . '/../partials/foot.php'; ?>

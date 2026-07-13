@@ -99,7 +99,13 @@ window.Birlikde = (function () {
     var registerPhoneDisplay = document.getElementById('registerPhoneDisplay');
     var fullPhone = '';
 
-    (olkeKodlari || []).forEach(function (olke) {
+    // olke-kodlari.js hər hansı səbəbdən (şəbəkə, keş, ad-blocker) yüklənə
+    // bilməsə belə ölkə seçimi HEÇ VAXT boş qalmamalıdır — boş qalsa
+    // countrySelect.value == '' olur və "+994" hissəsi tam yoxa çıxır
+    // (bax PROGRESS.md — real bildirilmiş bug, kök səbəbi bu idi).
+    var kodlar = (olkeKodlari && olkeKodlari.length) ? olkeKodlari : [['AZ', '994', 'Azərbaycan']];
+
+    kodlar.forEach(function (olke) {
       var opt = document.createElement('option');
       opt.value = olke[1];
       opt.textContent = isoToFlag(olke[0]) + ' +' + olke[1];
@@ -199,6 +205,61 @@ window.Birlikde = (function () {
     if (helperEl) {
       helperEl.classList.remove('visible');
       helperEl.textContent = '';
+    }
+  }
+
+  // Reklam banner karuseli (turbo.az tərzi — nə müştəriyə, nə kuryerə/
+  // yükdaşımaya mane olmayan, ölçüsü sabit, avtomatik fırlanan zolaq).
+  // Bax musteri/panel.php, kurye/lovhe.php. GET /bannerler rol-a görə
+  // (session-dan) uyğun bannerləri qaytarır — bax BannerController.
+  async function initBannerCarousel(containerId, dotsId) {
+    var container = document.getElementById(containerId);
+    var dotsEl = document.getElementById(dotsId);
+    if (!container || !dotsEl) return;
+
+    var res = await api('GET', '/bannerler');
+    if (!res.ok) return;
+    var banners = (res.data && res.data.data) || [];
+    if (banners.length === 0) return;
+
+    banners.forEach(function (b, i) {
+      var slide = document.createElement('div');
+      slide.className = 'banner-slide' + (i === 0 ? ' active' : '');
+
+      var inner = document.createElement(b.link ? 'a' : 'div');
+      if (b.link) {
+        inner.href = b.link;
+        inner.target = '_blank';
+        inner.rel = 'noopener';
+      }
+      var img = document.createElement('img');
+      img.src = b.sekil_url;
+      img.alt = b.baslik || '';
+      img.loading = 'lazy';
+      inner.appendChild(img);
+      slide.appendChild(inner);
+      container.insertBefore(slide, dotsEl);
+
+      if (banners.length > 1) {
+        var dot = document.createElement('span');
+        dot.className = 'banner-dot' + (i === 0 ? ' active' : '');
+        dotsEl.appendChild(dot);
+      }
+    });
+
+    container.hidden = false;
+
+    if (banners.length > 1) {
+      var current = 0;
+      setInterval(function () {
+        var slides = container.querySelectorAll('.banner-slide');
+        var dots = dotsEl.querySelectorAll('.banner-dot');
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+      }, 4000);
     }
   }
 
@@ -571,6 +632,7 @@ window.Birlikde = (function () {
     switchLanguage: switchLanguage,
     initDrawer: initDrawer,
     initAuthWizard: initAuthWizard,
+    initBannerCarousel: initBannerCarousel,
     initPasswordToggles: initPasswordToggles,
     showFieldError: showFieldError,
     clearFieldError: clearFieldError,

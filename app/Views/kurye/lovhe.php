@@ -18,6 +18,10 @@ require __DIR__ . '/../partials/head.php';
   </label>
 </div>
 
+<div class="banner-carousel" id="bannerCarousel" hidden>
+  <div class="banner-dots" id="bannerDots"></div>
+</div>
+
 <div class="push-warning" id="pushWarning"><?= htmlspecialchars($t('profil.bildiris_xeberdarliq')) ?></div>
 
 <div id="lovheKartlar"></div>
@@ -173,6 +177,7 @@ var TECILI_METNI = <?= json_encode($t('musteri.tecili'), JSON_UNESCAPED_UNICODE 
   })();
 
   yenileBos();
+  Birlikde.initBannerCarousel('bannerCarousel', 'bannerDots');
 })();
 </script>
 <?php require __DIR__ . '/../partials/foot.php'; ?>

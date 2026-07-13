@@ -1303,3 +1303,60 @@ commit edildi:
   HTTPS FCM-ə çatdı (410 Gone — saxta endpoint, gözlənilən), fərqli
   rayonda olan ikinci kuryer üçün isə HEÇ bir göndəriş cəhdi olmadı
   (rayon filtri düzgün işləyir, təsdiqləndi).
+
+### 2026-07-13 — Banner diaqnostikası + karusel + "+994 görünmür" bug-ı
+
+- **1) Admin banner yükləmə: "Şəkil saxlanıla bilmədi."** İstifadəçi
+  skrinşotla bildirdi. Yerli mühitdə reproduksiya edilmədi (kök,
+  root-a məxsus fayllarla, PHP root kimi işlədiyi üçün icazə problemi
+  yaranmır) — bu, çox güman ki, PRODUKSIYA serverində `storage/banners/`
+  qovluğunun PHP-FPM istifadəçisi tərəfindən yazıla bilməməsidir
+  (aaPanel-də `git pull` fərqli istifadəçi ilə işləyə bilər). Düzəliş:
+  `BannerService::sekiliYukle()`-də diaqnostika üç ayrı, konkret xəta
+  mesajına bölündü — (a) qovluq yaradıla bilmirsə, (b) qovluq mövcuddur
+  amma yazıla bilmirsə, (c) `move_uploaded_file()` özü uğursuz olursa —
+  hər biri konkret səbəbi göstərir ki, növbəti dəfə xəta mesajının özündən
+  dərhal diaqnoz qoyula bilsin. **Qeyd: bu, kodun özündəki simptomu
+  aydınlaşdırır, amma əsl kök səbəb (server icazələri) yalnız serverdə
+  `chmod`/`chown` ilə həll oluna bilər — istifadəçiyə ötürülməlidir.**
+- **2) Banner göstərimi: turbo.az-stil fırlanan karusel.** Yeni
+  `Banner::aktivOlanlar($hedef)` model metodu (aktiv + tarix aralığında +
+  `hedef IN ('hamisi', :hedef)`, `sira` sırası ilə), `BannerService::
+  aktivOlanlar($rol)` (JSON-a hazır format, `sekil_url` = `/banner-sekil/
+  {fayl}`), yeni `App\Controllers\BannerController::aktivOlanlar()` +
+  `GET /bannerler` marşrutu (Auth middleware, həm müştəri, həm kuryer/
+  yükdaşıma görə bilər). Frontend: `.banner-carousel` CSS bloku
+  (`aspect-ratio: 3.6/1` — admin formundakı mövcud "tövsiyə olunan ölçü:
+  1080×300" göstərişinə uyğun, 1080/300=3.6), `Birlikde.initBannerCarousel()`
+  (app.js) — bannerləri çəkib slaydlara render edir, 1-dən çox olduqda
+  4 saniyəlik avtomatik fade-keçidli fırlanma + nöqtə indikatoru (dot).
+  Heç bir aktiv banner yoxdursa konteyner `hidden` qalır (yer tutmur).
+  `musteri/panel.php`-də tabların ÜSTÜNDƏ, `kurye/lovhe.php`-də onlayn/
+  offline toggle-dan SONRA yerləşdirilib — istifadəçinin "nə müştəriyə,
+  nə kuryerə/yükdaşımaya mane olmasın" tələbinə uyğun, əsas idarəetmə
+  elementlərini örtmür. Playwright ilə tam axın test edildi: admin
+  yükləmə → DB sətri + fayl → müştəri panelində banner düzgün göründü
+  (skrinşotla təsdiqləndi), bottom-nav görünürlüyünə mane olmadı.
+- **3) "+994 hissəsi arada görünmür" bug-ı — kök səbəb tapıldı.** Əgər
+  `public/assets/js/olke-kodlari.js` xarici skripti hər hansı səbəbdən
+  (şəbəkə, keş, ad-blocker) yüklənmirsə, o fayl daxilində elan olunan
+  qlobal `var OLKE_KODLARI` HEÇ YARANMIR. `giris.php`-də əvvəlki kod
+  birbaşa `Birlikde.initAuthWizard(OLKE_KODLARI)` çağırırdı — elan
+  olunmamış qlobala istinad `ReferenceError` atır, bu da funksiyanın
+  özünün belə İŞƏ DÜŞMƏMƏSİNƏ səbəb olurdu, VƏ eyni `<script>` blokunun
+  növbəti sətri (`Birlikde.initPasswordToggles();`) də səssizcə heç vaxt
+  çağırılmırdı — yəni bütün telefon-daxiletmə addımı tam işləməz hala
+  düşürdü (ölkə seçimi yox, submit handler yox, göz-ikonu yox). Bu,
+  istifadəçinin "arada" (yəni skript bəzən yüklənməyəndə) yaşadığı
+  simptomla tam üst-üstə düşür. **Düzəliş iki qatlı:** (a) `app.js`
+  daxilində `initAuthWizard()`-a müdafiə xətti (boş/`falsy` siyahı üçün
+  `[['AZ','994','Azərbaycan']]` fallback) — özlüyündə kifayət ETMİR, çünki
+  çağırış nöqtəsinin özü partlayır; (b) əsl düzəliş çağırış nöqtəsində —
+  `Birlikde.initAuthWizard(typeof OLKE_KODLARI !== 'undefined' ?
+  OLKE_KODLARI : null);` — `typeof` yoxlaması JS-də elan olunmamış
+  qlobala təhlükəsiz yanaşmanın yeganə yoludur. Playwright ilə
+  `olke-kodlari.js` sorğusu bilərəkdən bloklanaraq (route abort) test
+  edildi: ölkə seçimində fallback seçim (994) mövcud oldu, telefon çipi
+  "+994 501112300" düzgün göstərildi — əvvəllər bu ssenaridə səhifə tam
+  sıradan çıxırdı.
+- `sw.js` `CACHE_VERSION` v21→v22 (app.css + app.js dəyişdiyi üçün).
