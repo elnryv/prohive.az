@@ -26,7 +26,6 @@ $hazirkiYol = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH)
 <body>
 
 <div id="splashOverlay">
-  <canvas id="splashCanvas"></canvas>
   <div class="splash-center">
     <div class="splash-glow"></div>
     <div class="splash-word"><?php require __DIR__ . '/logo.php'; ?></div>

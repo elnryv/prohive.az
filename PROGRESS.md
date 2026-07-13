@@ -675,6 +675,29 @@ admin bölməsi əlavə olundu.
   aydınlıq üçün istifadəçidən soruşuldu.
 - `sw.js` `CACHE_VERSION` v16→v17.
 
+### 2026-07-13 (davam) — Splash yenidən: radar-puls halqaları (Canvas silindi)
+
+- İstifadəçi "giriş animasiyası" dedikdə açılış (splash) ekranını nəzərdə
+  tutduğunu təsdiqlədi (AskUserQuestion ilə aydınlaşdırıldı) və əvvəllər
+  göndərilmiş kuryer-izləmə videosundakı radar-puls effektini istəyirdi.
+- Canvas hissəcik-partlayışı tam silindi (`runSplashParticles()`,
+  `#splashCanvas`) — əvəzinə tam CSS: loqo işarəsinin (`.brand-mark`)
+  ətrafında iki rəngli genişlənən/sönən halqa (`::before`/`::after`,
+  `splashRingPing`), mövcud ikon-pop/pulse + söz-bounce ritmi ilə birgə.
+  Nəticə: daha da yüngül (JS/rAF loop-u tamamilə yox), müştəri panelindəki
+  sifariş-axtarışı radar-una vizual uyğunluq yaradır.
+- **Tapılan yan-bug:** ilkin versiyada `.splash-glow` (fon işıq halosu)
+  ikonla üst-üstə düşmürdü — səbəb: `.brand-word` mətni hələ görünməzkən
+  belə öz enini "ehtiyat saxlayırdı" (`opacity:0` amma layout-da yer
+  tuturdu), bu da `.splash-center`-in üfüqi mərkəzini sözün gələcək eninə
+  görə sürüşdürürdü, ikon isə sol tərəfdə qalırdı. Düzəliş: splash
+  kontekstində `.brand-logo` sətir (row) əvəzinə sütun (column) düzülüşünə
+  keçirildi (`.splash-word .brand-logo { flex-direction: column }`) —
+  ikon və söz indi eyni üfüqi mərkəz xəttində, sözün eni fərq etmir.
+  Playwright screenshot ilə həm 0.5s (yalnız ikon+halqa+glow, tam
+  mərkəzləşmiş), həm 1s (tam loqo+tagline) anlarında təsdiqləndi.
+- `sw.js` `CACHE_VERSION` v17→v18.
+
 ## Qeydlər / Açıq Suallar (fazalar arası unudulmamalı)
 
 - Hüquqi mətnlər (Müqavilə/Məxfilik) hələ yoxdur — Faza 7-yə saxlanılıb, infrastruktur

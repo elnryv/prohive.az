@@ -312,105 +312,18 @@ window.Birlikde = (function () {
 
   // ---- Açılış (splash) animasiyası — tətbiqə TƏZƏ girəndə (yox, hər daxili
   // keçiddə) oynanılır; daxili keçid olub-olmadığı head.php-dəki sinxron
-  // referrer-yoxlaması ilə müəyyənləşir (bax orada .hide əlavəsi) ----
-  // Kanvas hissəcik "enerji partlayışı" — WebGL/Three.js əvəzinə yüngül Canvas 2D
-  // (aşağı-səviyyəli Android telefonlarda da rahat işləməsi üçün). Mərkəzdən
-  // spiral şəklində genişlənən, marka rənglərində (mavi/narıncı/çəhrayı/yaşıl)
-  // parlaq hissəciklər, sonda halqa şəklində sabitləşir və sözlə birgə sönür.
-  function runSplashParticles(canvas) {
-    var ctx = canvas.getContext('2d');
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
-
-    var cx = w / 2;
-    var cy = h / 2;
-    var colors = ['#3d5afe', '#ff7a3d', '#ff4d8f', '#22c55e', '#ffb020'];
-    var COUNT = 70;
-    var particles = [];
-    for (var i = 0; i < COUNT; i++) {
-      var angle = (Math.PI * 2 * i) / COUNT + Math.random() * 0.4;
-      particles.push({
-        angle: angle,
-        spin: (Math.random() - 0.5) * 0.03,
-        radius: 0,
-        maxRadius: 70 + Math.random() * (Math.min(w, h) * 0.32),
-        speed: 2.2 + Math.random() * 2.4,
-        size: 2 + Math.random() * 3,
-        color: colors[i % colors.length],
-      });
-    }
-
-    var start = null;
-    var DURATION = 1500;
-    var rafId = null;
-
-    function frame(ts) {
-      if (!start) start = ts;
-      var elapsed = ts - start;
-      var t = Math.min(elapsed / DURATION, 1);
-      var ease = 1 - Math.pow(1 - t, 3);
-
-      ctx.clearRect(0, 0, w, h);
-
-      particles.forEach(function (p) {
-        p.angle += p.spin;
-        var r = p.maxRadius * ease;
-        var x = cx + Math.cos(p.angle) * r;
-        var y = cy + Math.sin(p.angle) * r;
-        var fade = t < 0.75 ? 1 : Math.max(0, 1 - (t - 0.75) / 0.25);
-
-        var grad = ctx.createRadialGradient(x, y, 0, x, y, p.size * 3);
-        grad.addColorStop(0, p.color);
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.globalAlpha = fade;
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(x, y, p.size * 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.globalAlpha = fade;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(x, y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalAlpha = 1;
-
-      if (t < 1) {
-        rafId = requestAnimationFrame(frame);
-      }
-    }
-
-    rafId = requestAnimationFrame(frame);
-
-    return function stop() {
-      if (rafId) cancelAnimationFrame(rafId);
-      ctx.clearRect(0, 0, w, h);
-    };
-  }
-
+  // referrer-yoxlaması ilə müəyyənləşir (bax orada .hide əlavəsi). İstifadəçi
+  // istinad video-sundakı radar-puls ritminə uyğun — tam CSS (bax app.css
+  // `.splash-word .brand-mark::before/::after`), Canvas/JS lazım deyil.
   function playSplashOnce(splashEl) {
     if (!splashEl || splashEl.classList.contains('hide')) {
       return;
     }
 
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var stopParticles = null;
-
-    if (!reduced) {
-      var canvas = splashEl.querySelector('#splashCanvas');
-      if (canvas && canvas.getContext) {
-        stopParticles = runSplashParticles(canvas);
-      }
-    }
 
     setTimeout(function () {
       splashEl.classList.add('hide');
-      if (stopParticles) stopParticles();
     }, reduced ? 0 : 1900);
   }
 
