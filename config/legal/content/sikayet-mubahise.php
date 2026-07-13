@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 return <<<'HTML'
 <h2>9.1. Şikayət Mexanizmi</h2>
-<p>9.1.1. İstifadəçi (müştəri və ya daşıyıcı) platforma vasitəsilə «Şikayət et» funksiyası ilə şikayət edə bilər. Şikayət Operatorun dəstək kanalına (WhatsApp) yönləndirilir: <strong>[dəstək WhatsApp nömrəsi]</strong>.</p>
+<p>9.1.1. İstifadəçi (müştəri və ya daşıyıcı) platforma vasitəsilə «Şikayət et» funksiyası ilə şikayət edə bilər. Şikayət Operatorun dəstək kanalına (WhatsApp) yönləndirilir: <strong>+994 55 594 94 44</strong>.</p>
 <p>9.1.2. Operator şikayəti qəbul edir və platforma qaydaları çərçivəsində qiymətləndirir (məs. təkrar pozan istifadəçini bloklaya bilər).</p>
 
 <h2>9.2. Operatorun Rolu</h2>

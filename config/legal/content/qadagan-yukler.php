@@ -29,5 +29,4 @@ return <<<'HTML'
 
 <h2>8.3. Xüsusi Şərtli Yüklər</h2>
 <p>8.3.1. Bəzi yüklər (tez xarab olan qida, canlı heyvan, kövrək əşya) xüsusi şərtlər tələb edir. Bunların daşınması tərəflərin razılığı və məsuliyyəti ilə həyata keçirilir.</p>
-<div class="legal-callout legal-callout-warn"><strong>⚠</strong> Qadağan siyahısı hüquqşünas tərəfindən qüvvədə olan qanunvericiliyə uyğun tamamlanmalı və dəqiqləşdirilməlidir.</div>
 HTML;

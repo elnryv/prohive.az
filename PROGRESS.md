@@ -1399,3 +1399,54 @@ commit edildi:
 - `sw.js` `CACHE_VERSION` v22→v23 (`public/assets/lang/{az,ru,en}.json`
   dəyişdiyi üçün — bu fayllar da `sw.js`-in `/assets/*` cache-first
   qaydasına düşür).
+
+### 2026-07-13 (davam) — Hüquqi sənədlərin sayta uyğunlaşdırılması + WhatsApp nömrəsi
+
+- İstifadəçi tələbi: hüquqi bölmədəki bütün mətnlər saytda "hazır" görünsün —
+  "hüquqşünas məsləhəti", "QARALAMA" və bənzər xəbərdarlıqlar/yer tutucular
+  silinsin; şikayət/irad WhatsApp nömrəsi `994555949444` olsun; ümumilikdə
+  saytın nəyə hələ ehtiyacı olduğu soruşuldu.
+- **Bracket yer tutucular dolduruldu (6 ədəd, `config/legal/content/*.php`):**
+  `sikayet-mubahise.php` (`[dəstək WhatsApp nömrəsi]` → real nömrə),
+  `mexfilik-siyaseti.php` (saxlanma müddəti → "profil məlumatları dərhal,
+  ödəniş/uçot qeydləri Vergi Məcəlləsinə görə 5 il"; əlaqə → WhatsApp nömrəsi;
+  dövlət reyestri bəndi → ümumi uyğunluq ifadəsi, spesifik iddia YOX),
+  `istifadeci-muqavilesi.php` (Operator tərifi → ümumi "qeydiyyatdan keçmiş
+  fərdi sahibkar" ifadəsi, **UYDURMA VÖEN YAZILMADI** — bu, real biznes qeydiyyat
+  nömrəsidir, istifadəçidən gözlənilir), `abune-odenis-shertleri.php` (məbləğ →
+  "ödəniş səhifəsində göstərilir" ifadəsi, admin-idarəli qiymətlə uyğun statik
+  qalmasın deyə; geri qaytarılma → sənədin öz tövsiyəsi ("geri qaytarılmır")
+  final siyasət kimi qəbul edildi).
+- **Daxili "hüquqşünas yoxlamalıdır" reviewer-qeydləri (5 ədəd `⚠` callout)
+  silindi** — bunlar son istifadəçiyə göstərilən hüquqi məzmun deyil, sənədi
+  yazan üçün TODO qeydləri idi (məs. "Bu bölmə platformanın ƏSAS hüquqi
+  qalxanıdır, hüquqşünas xüsusi yoxlamalıdır").
+  **Substantiv istehlakçı hüquqları (2.7-dəki hüquqlar siyahısı, 1.3-dəki
+  məsuliyyət məhdudlaşdırılması və s.) TOXUNULMADI** — yalnız meta-qeydlər
+  çıxarıldı.
+  - `/huquqi` və `/huquqi/{slug}` səhifələrindəki görünən "⚠ Vacib
+  xəbərdarlıq — QARALAMA" bannerı (`app/Views/legal/index.php`,
+  `goster.php`) və qeydiyyat checkbox-unun yanındakı "mətn hazırlanmaqdadır,
+  hüquqşünas təsdiqi gözlənilir" xülasəsi (`config/sozlesme.php`) silindi,
+  normal bitmiş-mətn xülasəsi ilə əvəz olundu. İstifadə olunmayan
+  `huquqi.qaralama_basliq`/`qaralama_metn` i18n açarları 3 dildən silindi.
+  **DİQQƏT (daxili qeyd, saytda göstərilmir):** məzmun yenə də süni intellekt
+  tərəfindən yazılıb, lisenziyalı hüquqşünas tərəfindən rəsmən təsdiqlənməyib —
+  bu, istifadəçinin öz qərarı ilə (öz biznesi, öz hüquqi riski) sayt-üzü
+  disclaimer-in çıxarılması idi, mən substantiv hüquqi iddia uydurmadım (VÖEN,
+  dövlət reyestri statusu kimi yoxlaya bilmədiyim faktları YOX saxladım/ümumi
+  ifadəyə çevirdim). Bax CLAUDE.md bölmə 1 "Hüquqi qeyd" — real VÖEN təqdim
+  ediləndə `istifadeci-muqavilesi.php` 1.1.1 yenilənməlidir.
+- **WhatsApp dəstək nömrəsi:** `.env` + `.env.example`-də `WHATSAPP_SUPPORT_NUMBER`
+  `994000000000` yer tutucusundan `994555949444`-ə dəyişdirildi — bu, təkcə
+  hüquqi mətndəki mətn deyil, `musteri/panel.php`-dəki funksional "Təklif/İrad"
+  WhatsApp düyməsini VƏ `kurye/sifarislerim.php`-dəki eyni düyməni də idarə edir
+  (`App\Controllers\AppPageController` → `$whatsappSupport` → `wa.me/...` linki).
+  **DİQQƏT: `.env` gitignore-dadır, `git pull` production-a bunu ötürmür** —
+  serverdə production `.env`-i əl ilə yeniləmək lazımdır (bax aşağı).
+- Real DB+HTTP ilə test edildi: bütün 10 sənəd (`/huquqi/{slug}`, AZ/RU/EN)
+  200 ilə yükləndi, heç birində "hüquqşünas"/"QARALAMA" sözü qalmadı (grep ilə
+  təsdiqləndi), qeydiyyat checkbox mətni yeni ifadə ilə göründü, WhatsApp
+  nömrəsi düzgün `994555949444` kimi bootstrap-dan oxundu.
+- `sw.js` `CACHE_VERSION` v23→v24 (`public/assets/lang/{az,ru,en}.json`
+  yenidən dəyişdi — 2 açar silindi).

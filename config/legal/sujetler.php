@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 /**
  * Hüquqi sənədlər siyahısı (bax CLAUDE.md bölmə 1 "Hüquqi qeyd", Faza 7).
- * Mənbə: Birlikde_Huquqi_Paket.docx (istifadəçi tərəfindən yükləndi) — 10 sənəd,
- * QARALAMA statusunda, hüquqşünas təsdiqi gözlənilir. Hər sənədin HTML məzmunu
- * `content/{slug}.php` faylındadır, bu fayl yalnız sıra/başlıq siyahısıdır.
+ * Mənbə: Birlikde_Huquqi_Paket.docx (istifadəçi tərəfindən yükləndi) — 10 sənəd.
+ * Hər sənədin HTML məzmunu `content/{slug}.php` faylındadır, bu fayl yalnız
+ * sıra/başlıq siyahısıdır.
  */
 
 return [

@@ -46,11 +46,18 @@
   tokenləri). Köhnə sinif adları
   (`.card`, `.btn-primary`, `.glass`, `.badge-*` və s.) saxlanılıb — yalnız CSS
   dəyərləri dəyişib, view fayllarına toxunulmayıb.
-- **Hüquqi qeyd:** 10 hüquqi sənəd (Faza 7, `config/legal/`, `GET /huquqi`) QARALAMA
-  statusundadır — süni intellekt hazırlayıb, lisenziyalı hüquqşünas HƏLƏ təsdiqləməyib,
-  bracket-lə (`[VÖEN]`, `[məbləğ]` və s.) işarələnmiş yer tutucular doldurulmayıb.
-  Checkbox + `sozlesme_qebul`/`sozlesme_tarix` + audit (legal_logs) infrastrukturu
-  Faza 2-dən bəri hazırdır.
+- **Hüquqi qeyd (yenilənib 2026-07-13):** 10 hüquqi sənəd (Faza 7, `config/legal/`,
+  `GET /huquqi`) istifadəçinin qərarı ilə sayt-üzü (public-facing) "QARALAMA/
+  hüquqşünas təsdiqi gözlənilir" xəbərdarlıqları və bracket yer tutucuları (`[VÖEN]`,
+  `[məbləğ]` və s.) LƏĞV EDİLİB — sənədlər indi bitmiş mətn kimi göstərilir (bax
+  Post-launch qeydləri). **DAXİLİ QEYD (Claude üçün, saytda GÖSTƏRİLMİR):** məzmun
+  yenə də süni intellekt tərəfindən yazılıb, lisenziyalı hüquqşünas tərəfindən
+  TƏSDİQLƏNMƏYİB — bu, istifadəçinin (platforma sahibinin) məlumatlı qərarı ilə
+  belədir, real istifadəçi sayı/gəlir artdıqca peşəkar hüquqi yoxlama tövsiyə olunur.
+  Operatorun rəsmi hüquqi statusu (fərdi sahibkar adı/VÖEN) hələ konkretləşdirilməyib
+  — `istifadeci-muqavilesi.php` 1.1.1-də ümumi ifadə saxlanılıb, real VÖEN daxil
+  ediləndə yenilənməlidir. Checkbox + `sozlesme_qebul`/`sozlesme_tarix` + audit
+  (legal_logs) infrastrukturu Faza 2-dən bəri hazırdır.
 
 ## 2. Texnologiya Yığını
 
@@ -310,14 +317,13 @@ Faza 1 tamamlanınca `database/migrations/`-da olacaq.
   Fərdi Məlumat Razılığı) məzmun `config/legal/sujetler.php` + `config/legal/
   content/{slug}.php`-ə köçürüldü, `LegalController` + `Views/legal/*` +
   `GET /huquqi`, `GET /huquqi/{slug}` marşrutları ilə canlı tətbiqə bağlandı,
-  qeydiyyat sözləşmə qutusuna "tam mətni oxu" linkləri əlavə olundu. **⚠ QARALAMA
-  STATUSU:** mənbə sənəd özü açıq bildirir ki, bu mətn süni intellekt tərəfindən
-  hazırlanıb, lisenziyalı hüquqşünas TƏSDİQLƏMƏYİB və bracket-lə (`[VÖEN]`,
-  `[məbləğ]`, `[müddət]` və s.) işarələnmiş yer tutucular hələ doldurulmayıb —
-  canlıya keçmədən əvvəl hüquqşünas yoxlaması MƏCBURİDİR (bax PROGRESS.md).
-  Yalnız AZ dilində; RU/EN səhifələrində "rəsmi mətn AZ dilindədir" qeydi var
-  (uydurma tərcümə edilmədi). Real MySQL+HTTP ilə test edildi. Ətraflı: PROGRESS.md.
-  **Bütün fazalar (0-7) tamamlandı.**
+  qeydiyyat sözləşmə qutusuna "tam mətni oxu" linkləri əlavə olundu. Bracket yer
+  tutucular (`[VÖEN]`, `[məbləğ]`, `[müddət]` və s.) və sayt-üzü "QARALAMA/
+  hüquqşünas gözlənilir" xəbərdarlıqları 2026-07-13-də istifadəçinin qərarı ilə
+  ləğv edildi/dolduruldu (bax Post-launch qeydləri və bölmə 1 "Hüquqi qeyd" — daxili
+  qeyd oradadır, saytda göstərilmir). Yalnız AZ dilində; RU/EN səhifələrində "rəsmi
+  mətn AZ dilindədir" qeydi var (uydurma tərcümə edilmədi). Real MySQL+HTTP ilə test
+  edildi. Ətraflı: PROGRESS.md. **Bütün fazalar (0-7) tamamlandı.**
 - **Post-launch (canlı Hetzner/aaPanel serverə yerləşdirmə + UX/dizayn
   iterasiyaları):** layihə Faza 7-dən sonra canlıya keçirildi, real
   istifadəçi testindən gələn düzəlişlər davam edən iterasiyalarla tətbiq

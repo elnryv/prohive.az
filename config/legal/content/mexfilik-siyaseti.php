@@ -57,8 +57,7 @@ return <<<'HTML'
 <div class="legal-callout legal-callout-law"><strong>⚖ Qanuni istinad:</strong> «Fərdi məlumatlar haqqında» Qanunun tələbləri — məlumatın üçüncü tərəfə ötürülməsi yalnız qanuni əsasla.</div>
 
 <h2>2.6. Məlumatların Saxlanma Müddəti</h2>
-<p>2.6.1. Fərdi məlumatlar hesab aktiv olduğu müddətdə saxlanılır. Hesab silindikdən sonra məlumatlar <strong>[müddət — hüquqşünasla dəqiqləşdirilməli, adətən vergi/hüquqi arxiv üçün müəyyən müddət]</strong> saxlanılır, sonra silinir və ya anonimləşdirilir.</p>
-<div class="legal-callout legal-callout-warn"><strong>⚠</strong> Saxlanma müddəti (retention) hüquqşünasla dəqiqləşdirilməlidir — vergi qanunvericiliyi müəyyən sənədlərin bir neçə il saxlanmasını tələb edə bilər.</div>
+<p>2.6.1. Fərdi məlumatlar hesab aktiv olduğu müddətdə saxlanılır. İstifadəçi hesabını sildikdə profil məlumatları (ad, telefon, WhatsApp və s.) dərhal silinir və ya anonimləşdirilir. Ödəniş və uçot qeydləri isə Azərbaycan Respublikasının Vergi Məcəlləsinin tələblərinə uyğun olaraq 5 (beş) il ərzində arxivdə saxlanıla bilər, bu müddət bitdikdən sonra silinir.</p>
 
 <h2>2.7. İstifadəçinin Hüquqları</h2>
 <p>İstifadəçi aşağıdakı hüquqlara malikdir:</p>
@@ -69,7 +68,7 @@ return <<<'HTML'
   <li>Məlumatların emalına verdiyi razılığı geri götürmək;</li>
   <li>Məlumatlarını ixrac etmək (əldə etmək).</li>
 </ul>
-<p>Bu hüquqlardan istifadə üçün istifadəçi profil bölməsindən və ya <strong>[əlaqə: WhatsApp/e-poçt]</strong> vasitəsilə müraciət edə bilər.</p>
+<p>Bu hüquqlardan istifadə üçün istifadəçi profil bölməsindən və ya <strong>WhatsApp: +994 55 594 94 44</strong> vasitəsilə müraciət edə bilər.</p>
 <div class="legal-callout legal-callout-law"><strong>⚖ Qanuni istinad:</strong> «Fərdi məlumatlar haqqında» Qanun — subyektin öz məlumatları üzərində hüquqları (baxış, düzəliş, silinmə, etiraz).</div>
 
 <h2>2.8. Məlumatların Təhlükəsizliyi</h2>
@@ -82,6 +81,5 @@ return <<<'HTML'
 </ul>
 
 <h2>2.9. Fərdi Məlumatların Dövlət Reyestri</h2>
-<p>2.9.1. <strong>[Hüquqşünasla dəqiqləşdirilməli]</strong>: Fərdi məlumatları emal edən informasiya sistemlərinin müvafiq dövlət orqanında (Elektron Təhlükəsizlik Xidməti / fərdi məlumatların dövlət reyestri) qeydiyyatı tələb oluna bilər.</p>
-<div class="legal-callout legal-callout-warn"><strong>⚠</strong> Reyestr qeydiyyatının məcburiliyi və proseduru hüquqşünasla dəqiqləşdirilməlidir.</div>
+<p>2.9.1. Operator fərdi məlumatların toplanması, emalı və mühafizəsi ilə bağlı Azərbaycan Respublikasının qanunvericiliyinin («Fərdi məlumatlar haqqında» Qanun daxil olmaqla) tələblərinə əməl edir.</p>
 HTML;

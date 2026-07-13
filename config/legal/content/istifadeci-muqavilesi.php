@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 return <<<'HTML'
 <h2>1.1. Ümumi Müddəalar</h2>
-<p>1.1.1. Bu İstifadəçi Müqaviləsi (bundan sonra «Müqavilə») «Birlikdə» platformasından (app.birlikde.biz) istifadə şərtlərini müəyyən edir. Platformanın operatoru <strong>[fərdi sahibkar, VÖEN: ...]</strong> (bundan sonra «Operator» və ya «Platforma»)dır.</p>
+<p>1.1.1. Bu İstifadəçi Müqaviləsi (bundan sonra «Müqavilə») «Birlikdə» platformasından (app.birlikde.biz) istifadə şərtlərini müəyyən edir. Platformanın operatoru Azərbaycan Respublikasının qanunvericiliyinə uyğun qeydiyyatdan keçmiş fərdi sahibkardır (bundan sonra «Operator» və ya «Platforma»).</p>
 <p>1.1.2. Platformadan istifadə etməklə istifadəçi bu Müqavilənin bütün şərtlərini qəbul etdiyini təsdiq edir. Şərtləri qəbul etməyən şəxs platformadan istifadə edə bilməz.</p>
 <p>1.1.3. Operator bu Müqaviləni birtərəfli qaydada dəyişmək hüququnu özündə saxlayır. Dəyişikliklər platformada dərc edildiyi andan qüvvəyə minir.</p>
 <div class="legal-callout legal-callout-law"><strong>⚖ Qanuni istinad:</strong> «Elektron ticarət haqqında» Azərbaycan Respublikasının Qanunu (2005), Azərbaycan Respublikasının Mülki Məcəlləsi (müqavilə münasibətləri, maddə 389–405).</div>
@@ -37,7 +37,6 @@ return <<<'HTML'
   <li>tərəflərin bir-birinə verdiyi məlumatların doğruluğuna görə.</li>
 </ul>
 <div class="legal-callout legal-callout-law"><strong>⚖ Qanuni istinad:</strong> «Elektron ticarət haqqında» Qanunun 9-cu maddəsi (vasitəçi xidmət göstərənin məsuliyyətinin məhdudlaşdırılması); Mülki Məcəllə (delikt məsuliyyəti — platforma tərəf olmadığı münasibətə görə cavabdeh deyil).</div>
-<div class="legal-callout legal-callout-warn"><strong>⚠</strong> Bu bölmə platformanın ƏSAS hüquqi qalxanıdır. Hüquqşünas bunun formulə edilməsini xüsusi diqqətlə yoxlamalıdır.</div>
 
 <h2>1.4. Gəlir Modeli</h2>
 <p>1.4.1. Platforma müştəri ilə daşıyıcı arasındakı ödənişdən heç bir komissiya və ya faiz ALMIR.</p>
