@@ -25,7 +25,7 @@
   "qapi.giris_xosgeldin": "С возвращением!",
   "qapi.qeydiyyat_xosgeldin": "Создадим аккаунт",
   "qapi.qeydiyyata_yonlendirilir": "Перенаправляем на регистрацию...",
-  "qapi.telefon_yanlis": "Номер телефона некорректен",
+  "qapi.telefon_yanlis": "Введите корректный номер",
   "qapi.sahe_mecburi": "Это поле обязательно",
   "qapi.parol_qisa": "Минимум 6 символов",
 

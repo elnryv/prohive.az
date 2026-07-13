@@ -126,7 +126,13 @@ window.Birlikde = (function () {
       phoneInputGroup.classList.remove('invalid');
 
       var digits = phoneDigits.value.replace(/\D/g, '');
-      if (digits.length < 7) {
+      // Azərbaycan (994) seçilibsə operator kodu (10/50/51/55/70/77/99) + 7 rəqəm
+      // formatı tələb olunur (bax AuthService::AZ_TELEFON_REGEX — server-tərəfdə
+      // də eyni qayda). Digər ölkə kodları üçün yalnız minimal uzunluq yoxlanır.
+      var validFormat = countrySelect.value === '994'
+        ? /^(10|50|51|55|70|77|99)\d{7}$/.test(digits)
+        : digits.length >= 7;
+      if (!validFormat) {
         phoneInputGroup.classList.add('invalid');
         showFieldError(phoneDigits, phoneHelper, TELEFON_YANLIS_METNI);
         return;

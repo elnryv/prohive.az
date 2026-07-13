@@ -23,6 +23,10 @@ final class AuthService
     private const ROLLAR = ['musteri', 'kurye', 'yukdasima'];
     private const DILLER = ['az', 'ru', 'en'];
     private const WHATSAPP_TIPLERI = ['sexsi', 'business'];
+    // Azərbaycan mobil operator kodları (994-dən sonra) — 070/077 (Nar), 050/051 (Azercell),
+    // 055/099 (Bakcell), 010 (Nar). 994 ilə başlayan nömrələr bu formata uyğun olmalıdır,
+    // digər ölkə kodları ilə başlayanlar (beynəlxalq qeydiyyat dəstəklənir) yoxlanmır.
+    private const AZ_TELEFON_REGEX = '/^994(10|50|51|55|70|77|99)\d{7}$/';
     // Mövcud olmayan telefon nömrəsi üçün password_verify() çağırılmasa,
     // bcrypt hesablama vaxtının olmaması ilə mövcud/mövcud olmayan hesab
     // arasında timing side-channel yaranır — bu saxta hash həmişə eyni
@@ -66,6 +70,9 @@ final class AuthService
 
         if ($ad === '' || $soyad === '' || $telefon === '' || $whatsapp === '') {
             throw new ValidationException('Bütün məcburi sahələr doldurulmalıdır.');
+        }
+        if (!self::telefonFormatiDuzgundurmu($telefon) || !self::telefonFormatiDuzgundurmu($whatsapp)) {
+            throw new ValidationException('Düzgün nömrə daxil edin.');
         }
         if (strlen($parol) < 6) {
             throw new ValidationException('Parol ən azı 6 simvol olmalıdır.');
@@ -144,8 +151,8 @@ final class AuthService
     public function telefonMovcuddurmu(string $telefonRaw): bool
     {
         $telefon = self::normalisePhone($telefonRaw);
-        if ($telefon === '') {
-            throw new ValidationException('Telefon nömrəsi düzgün deyil.');
+        if ($telefon === '' || !self::telefonFormatiDuzgundurmu($telefon)) {
+            throw new ValidationException('Düzgün nömrə daxil edin.');
         }
 
         return $this->users->existsByTelefon($telefon);
@@ -195,5 +202,19 @@ final class AuthService
     private static function normalisePhone(string $phone): string
     {
         return (string) preg_replace('/\D/', '', $phone);
+    }
+
+    /**
+     * 994 ilə başlayan nömrələr üçün Azərbaycan operator kodu + 7 rəqəm formatını
+     * tələb edir (bax AZ_TELEFON_REGEX). Digər ölkə kodları ilə başlayan nömrələr
+     * üçün format yoxlanmır (beynəlxalq qeydiyyat dəstəklənir, bax giris.php ölkə seçimi).
+     */
+    private static function telefonFormatiDuzgundurmu(string $telefon): bool
+    {
+        if (!str_starts_with($telefon, '994')) {
+            return true;
+        }
+
+        return (bool) preg_match(self::AZ_TELEFON_REGEX, $telefon);
     }
 }

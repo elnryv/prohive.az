@@ -25,7 +25,7 @@
   "qapi.giris_xosgeldin": "Welcome back!",
   "qapi.qeydiyyat_xosgeldin": "Let's create an account",
   "qapi.qeydiyyata_yonlendirilir": "Redirecting you to registration...",
-  "qapi.telefon_yanlis": "Phone number is not valid",
+  "qapi.telefon_yanlis": "Please enter a valid phone number",
   "qapi.sahe_mecburi": "This field is required",
   "qapi.parol_qisa": "Must be at least 6 characters",
 

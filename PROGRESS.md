@@ -1450,3 +1450,46 @@ commit edildi:
   nömrəsi düzgün `994555949444` kimi bootstrap-dan oxundu.
 - `sw.js` `CACHE_VERSION` v23→v24 (`public/assets/lang/{az,ru,en}.json`
   yenidən dəyişdi — 2 açar silindi).
+
+### 2026-07-13 (davam) — Operator VÖEN-i + Azərbaycan telefon format validasiyası
+
+- İstifadəçi VÖEN-i bildirdi (1406574562, ayrıca şirkət adı yoxdur) —
+  `istifadeci-muqavilesi.php` 1.1.1-ə "fərdi sahibkardır (VÖEN: 1406574562)"
+  şəklində əlavə olundu, CLAUDE.md-dəki daxili qeyd uyğunlaşdırıldı.
+- İstifadəçi tələbi: "nömrə formatı səhv olanda göstərmir" — Azərbaycan
+  nömrələri `994` + operator kodu (`70/77/50/51/55/10/99`) + 7 rəqəm formatına
+  uyğun olmalıdır, uyğun olmadıqda "Düzgün nömrə daxil edin" xətası
+  göstərilsin. Kəşf: əvvəllər HEÇ BİR format yoxlaması yox idi —
+  `AuthService::normalisePhone()` yalnız rəqəm olmayan simvolları təmizləyirdi,
+  istənilən uzunluqda rəqəm sətri (məs. "1234") qəbul edilirdi, client-tərəfdə
+  isə yalnız "ən azı 7 rəqəm" yoxlanılırdı (operator kodunun düzgünlüyünə
+  baxılmırdı).
+- **Server-tərəf (`AuthService.php`):** yeni `AZ_TELEFON_REGEX`
+  (`/^994(10|50|51|55|70|77|99)\d{7}$/`) + `telefonFormatiDuzgundurmu()` —
+  YALNIZ `994` ilə başlayan nömrələr üçün tam formatı tələb edir, digər ölkə
+  kodları (giris.php-dəki beynəlxalq dropdown, `olke-kodlari.js`) üçün
+  yoxlanmır (kəsişməsin deyə). `qeydiyyat()` (həm `telefon`, həm `whatsapp`
+  sahəsi) və `telefonMovcuddurmu()` (`/telefon-yoxla` — ilk giriş qapısı) bu
+  yoxlamanı tətbiq edir, uyğunsuzluqda `ValidationException('Düzgün nömrə
+  daxil edin.')`.
+- **Client-tərəf:** `app.js` `initAuthWizard()` phoneForm submit-də
+  `countrySelect.value === '994'` olduqda `/^(10|50|51|55|70|77|99)\d{7}$/`
+  yoxlanır (əvvəlki sadə `length < 7` şərti əvəz olundu), digər ölkələr üçün
+  minimal uzunluq yoxlaması saxlanıldı. Qeydiyyat formundakı `whatsapp`
+  sahəsinə də eyni məntiqlə (tam nömrə, ölkə kodu daxil) blur+submit
+  validasiyası əlavə olundu — yeni `#whatsappHelper` `.field-helper` div-i
+  (`giris.php`) + `validateWhatsapp()` funksiyası, mövcud inline-validasiya
+  naxışına (qırmızı sərhəd + köməkçi mətn) uyğun. `qapi.telefon_yanlis`
+  i18n mətni "Telefon nömrəsi düzgün deyil" → "Düzgün nömrə daxil edin"
+  (və RU/EN qarşılıqları) istifadəçinin dediyi dəqiq ifadəyə uyğunlaşdırıldı.
+- Real DB+HTTP+Playwright ilə test edildi: yanlış operator kodu (60xxxxxxx)
+  → client-tərəfdə dərhal qırmızı sərhəd+"Düzgün nömrə daxil edin" (server-ə
+  sorğu getmədi); düzgün operator, qısa rəqəm sayı → eyni xəta; tam düzgün AZ
+  nömrə (99xxxxxxx) → normal qeydiyyat addımına keçdi; qeydiyyat formunda
+  WhatsApp sahəsi eyni qaydada test edildi (yanlış→xəta, düzgün→təmiz);
+  client-validasiyanı BYPASS edərək birbaşa `POST /telefon-yoxla` və
+  `POST /qeydiyyat`-a yanlış formatlı nömrə göndərildi — hər ikisi `422`
+  və "Düzgün nömrə daxil edin." ilə düzgün rədd etdi; ABŞ (`+1`) nömrəsi
+  isə (AZ-spesifik olmayan) qəbul edildi — beynəlxalq qeydiyyat pozulmadı.
+- `sw.js` `CACHE_VERSION` v24→v25 (`app.js` + lang JSON + `giris.php`
+  dəyişdi).

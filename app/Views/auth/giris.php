@@ -97,6 +97,7 @@ require __DIR__ . '/../partials/head.php';
           <span class="input-icon">&#128172;</span>
           <input type="tel" id="whatsapp" name="whatsapp" required placeholder="994501234567">
         </div>
+        <div class="field-helper" id="whatsappHelper"></div>
       </div>
       <div class="field">
         <label for="qeydParol"><?= htmlspecialchars($t('qeydiyyat.parol')) ?></label>
@@ -213,9 +214,11 @@ var PAROL_QISA_METNI = <?= json_encode($t('qapi.parol_qisa'), JSON_UNESCAPED_UNI
   var qeydErrBox = document.getElementById('qeydErrBox');
   var adInput = document.getElementById('ad');
   var soyadInput = document.getElementById('soyad');
+  var whatsappInput = document.getElementById('whatsapp');
   var qeydParolInput = document.getElementById('qeydParol');
   var adHelper = document.getElementById('adHelper');
   var soyadHelper = document.getElementById('soyadHelper');
+  var whatsappHelper = document.getElementById('whatsappHelper');
   var qeydParolHelper = document.getElementById('qeydParolHelper');
 
   function validateRequired(input, helper) {
@@ -224,6 +227,22 @@ var PAROL_QISA_METNI = <?= json_encode($t('qapi.parol_qisa'), JSON_UNESCAPED_UNI
       return false;
     }
     Birlikde.clearFieldError(input, helper);
+    return true;
+  }
+
+  // Bax Birlikde.initAuthWizard() phoneForm validasiyası + AuthService::AZ_TELEFON_REGEX
+  // (server-tərəfdə eyni qayda) — 994 ilə başlayan nömrələr operator kodu + 7 rəqəm
+  // formatına uyğun olmalıdır.
+  function validateWhatsapp() {
+    var digits = whatsappInput.value.replace(/\D/g, '');
+    var validFormat = digits.indexOf('994') === 0
+      ? /^994(10|50|51|55|70|77|99)\d{7}$/.test(digits)
+      : digits.length >= 7;
+    if (!validFormat) {
+      Birlikde.showFieldError(whatsappInput, whatsappHelper, TELEFON_YANLIS_METNI);
+      return false;
+    }
+    Birlikde.clearFieldError(whatsappInput, whatsappHelper);
     return true;
   }
 
@@ -238,6 +257,7 @@ var PAROL_QISA_METNI = <?= json_encode($t('qapi.parol_qisa'), JSON_UNESCAPED_UNI
 
   adInput.addEventListener('blur', function () { validateRequired(adInput, adHelper); });
   soyadInput.addEventListener('blur', function () { validateRequired(soyadInput, soyadHelper); });
+  whatsappInput.addEventListener('blur', validateWhatsapp);
   qeydParolInput.addEventListener('blur', validateParolUzunluq);
   qeydParolInput.addEventListener('input', function () {
     if (qeydParolInput.classList.contains('invalid')) validateParolUzunluq();
@@ -249,8 +269,9 @@ var PAROL_QISA_METNI = <?= json_encode($t('qapi.parol_qisa'), JSON_UNESCAPED_UNI
 
     var adOk = validateRequired(adInput, adHelper);
     var soyadOk = validateRequired(soyadInput, soyadHelper);
+    var whatsappOk = validateWhatsapp();
     var parolOk = validateParolUzunluq();
-    if (!adOk || !soyadOk || !parolOk) {
+    if (!adOk || !soyadOk || !whatsappOk || !parolOk) {
       return;
     }
 
