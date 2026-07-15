@@ -1,0 +1,14 @@
+.env
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+/storage/banners/*
+!/storage/banners/.gitkeep
+/storage/kurye-sekiller/*
+!/storage/kurye-sekiller/.gitkeep
+.DS_Store
+*.log
+vendor/
