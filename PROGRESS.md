@@ -229,6 +229,41 @@ Bu sandbox-da real Payriff API-yə (internet) çıxış yoxdur — `PayriffProvi
 mütləq test etməlidir (xüsusilə `createOrder`/`getOrderStatus` sorğu-cavab sahə adları Payriff-in
 faktiki sənədləşməsi ilə tam üst-üstə düşməyə bilər).
 
+## FAZA 6 — Admin paneli ✅ TAMAMLANDI
+
+- [x] Giriş (`/giris`), 5 cəhd/15 dəq kilid (Getdik 9 ilə eyni məntiq)
+- [x] Dashboard: statistik kartlar (bugünkü/aktiv elan, bugünkü qəbul, təsdiq gözləyən, MRR,
+      paid/trial/free bölgüsü), marşrut istiliyi (son 30 gün)
+- [x] Sürücülər: təsdiq növbəsi (foto+məlumat, təsdiqlə/geri göndər+səbəb), **nömrə hissəvi axtarışı**
+      (normallaşdırılmış rəqəmlərlə LIKE), sürücü kartı — iş/ödəniş tarixçəsi, **bir klik Pulsuz↔Pullu**,
+      fərdi qiymət qoy/sil, Blokla, WhatsApp linki
+- [x] Müştərilər: axtarış, sifariş tarixçəsi, Blokla
+- [x] Elanlar: filtr (status/scope), tam məlumat + təkliflər + hadisə zənciri, sil/gizlət, **şikayət
+      növbəsi** (`reports` cədvəli, həll et/rədd et)
+- [x] Parametrlər: **payments_enabled toggle** (Q-Y7), ümumi qiymət/trial/grace/avto-bağlanma/dəstək
+      nömrəsi, texniki fasilə, **lüğət CRUD-ları** (kateqoriyalar+ikon, lokasiyalar+is_baku, maşın növləri)
+- [x] Ödənişlər: tam siyahı + aylıq gəlir hesabatı
+- [x] Push kampaniya paneli (hədəf: bütün sürücülər/müştərilər/marşrut abunəçiləri)
+- [x] Loglar (`admin_logs`) — bütün yuxarıdakı əməliyyatlar `AdminAuth::log()` ilə yazılır
+
+### Özünüyoxlama nəticələri (HTTP + DB + Playwright vizual)
+- **Nömrə hissəvi axtarışı**: sürücü `+994 55 777 88 99` ilə qeydiyyatdan keçib, admin axtarışda
+  yalnız `"7778"` yazaraq onu tapdı (server-side normallaşdırma + `LIKE`). ✓
+- **Bir klik pulsuz/pullu anında**: `billing_status` `trial`→`free`→`trial` HTTP sorğusu ilə dərhal
+  dəyişdi, hər dəfə `admin_logs`-a yazıldı. ✓
+- **Toggle + qiymət dəyişimi logda**: `payments_enabled` `1`→`0` və ümumi qiymət `25→30` dəyişikliyi
+  `admin_logs`-da `{"from":...,"to":...}` formatında tam görünür. ✓
+- Sürücü təsdiqi: pending sürücü təsdiqlənəndə `driver_status=approved`, `billing_status=trial`,
+  `trial_until=bugün+30` avtomatik təyin olundu.
+- Fərdi qiymət qoyma DB-də düzgün yazıldı və admin siyahısında amber çip kimi göstərildi.
+- Lüğət CRUD: yeni kateqoriya (🎹 Pianino daşıma) əlavə edildi, slug avtomatik generasiya olundu.
+- Admin login kiliddi: 5 səhv cəhddən sonra 6-cı cəhd kilidləndi (Getdik qaydası ilə eyni).
+- **Playwright vizual test zamanı 1 real bug tapılıb düzəldilib**: `public_admin/` öz sənəd kökünə
+  malikdir və `public/assets/...`-a çıxışı yoxdur — admin panel tamamilə stilsiz (default brauzer
+  HTML-i) render olunurdu. Düzəliş: `app.css`/`admin.css` (və əsas ikon) `public_admin/assets/`-a da
+  köçürüldü. **Qeyd**: bu iki faylın gələcəkdə sinxron saxlanması lazımdır (README-də qeyd olunacaq) —
+  ya əl ilə köçürmə, ya da server-səviyyəli nginx `alias` həlli (bax FAZA 8 qeydləri).
+
 ## MÜHİT QEYDİ
 
 Bu sessiya bir git-repo daxilində (kod anbarı) işləyir, canlı VPS-ə çıxışı yoxdur. Layihə kodu spesifikasiyanın

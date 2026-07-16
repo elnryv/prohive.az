@@ -1,0 +1,97 @@
+/* Birlikdə Yük — admin ("idarəetmə mərkəzi") üzrə əlavə stillər. Eyni palitra, sıx cədvəl rejimi. */
+
+body { padding-bottom: 0; }
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-side {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--coal-2);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.admin-side nav { flex: 1; overflow-y: auto; }
+.admin-nav-link {
+  display: block;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--txt-soft);
+  border-left: 3px solid transparent;
+}
+.admin-nav-link.active { color: var(--amber); border-left-color: var(--amber); background: var(--card); }
+.admin-nav-link:hover { background: var(--card); }
+
+.admin-main {
+  flex: 1;
+  padding: 24px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.admin-login {
+  max-width: 380px;
+  margin: 10vh auto;
+  padding: 16px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.stat-card .num { font-size: 26px; color: var(--amber); }
+.stat-card .label { font-size: 12px; color: var(--txt-soft); }
+
+table.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+table.admin-table th, table.admin-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+table.admin-table th { color: var(--txt-soft); font-weight: 600; background: var(--coal-2); }
+table.admin-table tr:hover td { background: var(--card-hi); }
+.table-wrap { overflow-x: auto; margin-bottom: 16px; }
+
+.admin-toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.admin-toolbar input, .admin-toolbar select { width: auto; min-width: 160px; }
+
+.btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.toggle-switch {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 16px;
+}
+.toggle-switch.on { border-color: var(--ok); }
+.toggle-switch.off { border-color: var(--txt-soft); }
+
+@media (max-width: 720px) {
+  .admin-shell { flex-direction: column; }
+  .admin-side { width: 100%; height: auto; position: static; flex-direction: row; overflow-x: auto; }
+  .admin-side nav { display: flex; }
+  .admin-nav-link { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .admin-nav-link.active { border-left-color: transparent; border-bottom-color: var(--amber); }
+  .admin-main { padding: 12px; }
+}

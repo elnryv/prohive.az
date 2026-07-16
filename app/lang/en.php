@@ -141,6 +141,9 @@ return [
         'offer_new_title' => 'New offer received',
         'route_match_title' => 'New cargo on your route',
         'billing_reminder_title' => 'Your subscription is expiring soon',
+        'driver_approved_title' => 'Your profile was approved!',
+        'driver_approved_body' => 'You can now offer prices in the feed.',
+        'admin_campaign_title' => 'Birlikdə Yük',
     ],
     'offer' => [
         'accept_confirm' => 'Accepting this offer will close the listing and cancel other offers. Continue?',
@@ -188,5 +191,6 @@ return [
         'payment_status_failed' => 'Failed',
         'payment_status_canceled' => 'Canceled',
         'reminder_body' => 'Your subscription expires in 5 days — renew in time to keep offering prices.',
+        'system_activated_body' => 'The subscription system was activated — pay within {days} days.',
     ],
 ];

@@ -141,6 +141,9 @@ return [
         'offer_new_title' => 'Yeni təklif gəldi',
         'route_match_title' => 'Sənin marşrutuna uyğun yeni yük',
         'billing_reminder_title' => 'Abunən tezliklə bitir',
+        'driver_approved_title' => 'Profilin təsdiqləndi!',
+        'driver_approved_body' => 'İndi lentdə təklif verə bilərsən.',
+        'admin_campaign_title' => 'Birlikdə Yük',
     ],
     'offer' => [
         'accept_confirm' => 'Bu təklifi qəbul etsən, elan bağlanacaq və digər təkliflər ləğv olunacaq. Davam edilsin?',
@@ -188,5 +191,6 @@ return [
         'payment_status_failed' => 'Uğursuz',
         'payment_status_canceled' => 'Ləğv edilib',
         'reminder_body' => 'Abunən 5 gün ərzində bitir — vaxtında yenilə ki, təklif vermə hüququn dayanmasın.',
+        'system_activated_body' => 'Abunə sistemi aktivləşdi — {days} gün ərzində ödənişini et.',
     ],
 ];
