@@ -67,6 +67,13 @@ $router->get('/sahib/panel', static function (): void {
 $router->get('/sahib/abune', static function (): void {
     (new Billing())->index();
 });
+$router->post('/sahib/odenis/basla', static function (): void {
+    (new Billing())->pay();
+});
+
+$router->post('/odenis/callback', static function (): void {
+    (new PaymentCallback())->handle();
+});
 
 $router->get('/sahib/ev/yeni', static function (): void {
     (new HouseEdit())->create();

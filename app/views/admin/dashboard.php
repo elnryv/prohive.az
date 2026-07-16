@@ -5,6 +5,7 @@
 /** @var int $pendingCount */
 /** @var int $todayWaClicks */
 /** @var array<int,array<string,mixed>> $regionDemand */
+/** @var array<int,array<string,mixed>> $expiringOwners */
 ?>
 <section class="admin-dashboard">
     <h1>Dashboard</h1>
@@ -47,4 +48,23 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+
+    <?php if ($expiringOwners !== []): ?>
+    <h2>Bitməyə 5 gün qalanlar (xatırlatma göndər)</h2>
+    <table class="admin-table">
+        <thead><tr><th>Ad</th><th>Nömrə</th><th>Bitmə tarixi</th><th></th></tr></thead>
+        <tbody>
+            <?php foreach ($expiringOwners as $o):
+                $waMsg = rawurlencode('Salam ' . $o['full_name'] . ', Birlikdə Getdik abunəniz tezliklə bitir. Uzatmaq üçün panelinizə daxil olun.');
+            ?>
+                <tr>
+                    <td><a href="/owners/<?= (int) $o['id'] ?>"><?= View::e($o['full_name']) ?></a></td>
+                    <td><?= View::e($o['phone']) ?></td>
+                    <td><?= View::e($o['expires_on']) ?></td>
+                    <td><a class="btn" target="_blank" rel="noopener" href="https://wa.me/<?= View::e($o['phone']) ?>?text=<?= $waMsg ?>">Xatırlatma göndər</a></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
 </section>

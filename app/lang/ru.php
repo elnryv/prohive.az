@@ -212,6 +212,8 @@ return [
     'owner.billing_price' => 'Ежемесячная цена: %s AZN',
     'owner.billing_pay_button' => 'Оплатить',
     'owner.billing_coming_soon' => 'Онлайн-оплата скоро будет доступна. А пока свяжитесь с платформой напрямую.',
+    'owner.billing_netice_ok' => 'Оплата прошла успешно. Ваша подписка обновлена.',
+    'owner.billing_netice_error' => 'Оплата не завершена или отменена. Попробуйте ещё раз.',
     'owner.billing_active_free' => 'Ваша подписка активна (бесплатный статус).',
     'owner.billing_expired_note' => 'Ваша подписка истекла — дома скрыты с сайта. Оплатите, чтобы они сразу вернулись.',
     'owner.billing_visible_note' => 'Ваши дома видны на сайте.',

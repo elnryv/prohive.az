@@ -213,6 +213,8 @@ return [
     'owner.billing_price' => 'Monthly price: %s AZN',
     'owner.billing_pay_button' => 'Pay',
     'owner.billing_coming_soon' => 'Online payment is coming soon. In the meantime, contact the platform directly.',
+    'owner.billing_netice_ok' => 'Payment completed successfully. Your subscription has been updated.',
+    'owner.billing_netice_error' => 'Payment was not completed or was canceled. Please try again.',
     'owner.billing_active_free' => 'Your subscription is active (free status).',
     'owner.billing_expired_note' => 'Your subscription has expired — your houses are hidden from the site. Pay to bring them back instantly.',
     'owner.billing_visible_note' => 'Your houses are visible on the site.',

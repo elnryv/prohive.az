@@ -6,3 +6,4 @@
 !/storage/logs/.gitkeep
 .env
 *.log
+/public/sitemap.xml

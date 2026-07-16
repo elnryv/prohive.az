@@ -3,6 +3,7 @@
 /** @var bool $isVisible */
 /** @var float $price */
 /** @var bool $paymentsEnabled */
+/** @var string|null $netice */
 
 $statusKey = [
     'trial' => 'owner.billing_status_trial',
@@ -17,6 +18,14 @@ $until = $owner['billing_status'] === 'paid' ? $owner['paid_until'] : $owner['tr
 <section class="owner-billing">
     <h1><?= View::e(Lang::t('owner.billing_title')) ?></h1>
 
+    <?php if ($netice === 'ok'): ?>
+        <p class="notice notice--success"><?= View::e(Lang::t('owner.billing_netice_ok')) ?></p>
+    <?php elseif ($netice === 'xeta'): ?>
+        <p class="notice notice--warn"><?= View::e(Lang::t('owner.billing_netice_error')) ?></p>
+    <?php elseif ($netice === 'tezlikle'): ?>
+        <p class="notice notice--warn"><?= View::e(Lang::t('owner.billing_coming_soon')) ?></p>
+    <?php endif; ?>
+
     <div class="billing-card billing-card--large">
         <span class="badge badge--status-<?= View::e($owner['billing_status']) ?>"><?= View::e(Lang::t($statusKey)) ?></span>
         <?php if ($until): ?><p class="billing-card__until"><?= View::e(Lang::tf('owner.billing_until', date('d.m.Y', strtotime($until)))) ?></p><?php endif; ?>
@@ -30,7 +39,12 @@ $until = $owner['billing_status'] === 'paid' ? $owner['paid_until'] : $owner['tr
             <p class="billing-card__note"><?= $isVisible ? View::e(Lang::t('owner.billing_visible_note')) : View::e(Lang::t('owner.billing_hidden_note')) ?></p>
         <?php endif; ?>
 
-        <?php if ($owner['billing_status'] !== 'free'): ?>
+        <?php if ($owner['billing_status'] !== 'free' && $paymentsEnabled): ?>
+            <form method="post" action="/sahib/odenis/basla">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn btn--primary btn--large"><?= View::e(Lang::t('owner.billing_pay_button')) ?></button>
+            </form>
+        <?php elseif ($owner['billing_status'] !== 'free'): ?>
             <button type="button" class="btn btn--primary btn--large" disabled title="<?= View::e(Lang::t('owner.billing_coming_soon')) ?>">
                 <?= View::e(Lang::t('owner.billing_pay_button')) ?>
             </button>

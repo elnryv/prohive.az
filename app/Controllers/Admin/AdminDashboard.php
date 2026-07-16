@@ -15,6 +15,7 @@ final class AdminDashboard
             'pendingCount' => AdminRepository::pendingApprovalsCount(),
             'todayWaClicks' => AdminRepository::todayWaClicks(),
             'regionDemand' => AdminRepository::regionDemand30d(),
+            'expiringOwners' => AdminRepository::expiringOwners(5),
         ], 'layout');
     }
 }

@@ -73,6 +73,25 @@ final class AdminRepository
         );
     }
 
+    /** @return array<int, array<string,mixed>> Bitməyə {days} gün qalan sahiblər (12.4 p.3) */
+    public static function expiringOwners(int $days = 5): array
+    {
+        // Eyni adlı parametr bir sorğuda təkrar işlədilə bilməz (PDO native prepares) —
+        // trial/paid şərtləri üçün ayrı-ayrı :days1/:days2 istifadə olunur.
+        return DB::all(
+            "SELECT id, full_name, phone, billing_status,
+                    COALESCE(
+                        CASE WHEN billing_status = 'trial' THEN trial_until END,
+                        CASE WHEN billing_status = 'paid' THEN paid_until END
+                    ) AS expires_on
+             FROM owners
+             WHERE (billing_status = 'trial' AND trial_until BETWEEN CURDATE() AND CURDATE() + INTERVAL :days1 DAY)
+                OR (billing_status = 'paid' AND paid_until BETWEEN CURDATE() AND CURDATE() + INTERVAL :days2 DAY)
+             ORDER BY expires_on ASC",
+            [':days1' => $days, ':days2' => $days]
+        );
+    }
+
     // ===================== Loglar (9.7) =====================
 
     /** @return array{items: array<int,array<string,mixed>>, total:int} */

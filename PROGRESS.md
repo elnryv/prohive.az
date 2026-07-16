@@ -399,3 +399,104 @@ Yoxlama kriteriyaları (FAZA 4, bölmə 13.2): `PAYRIFF_SECRET_KEY` boş →
 düymə "tezliklə" rejimi, xəta yox; mock ilə approved axını `paid_until`-i
 düzgün artırır; təkrar callback ikinci dəfə artırmır (idempotent); qiymət
 dəyişimi köhnə linkə təsir etmir.
+
+## FAZA 4 — Payriff + abunə ✅ (tamamlandı)
+
+### Nə edildi
+
+- **`app/Payments/PaymentGateway.php`** (interfeys) + **`PayriffProvider.php`**
+  — bölmə 8.3-ə tam uyğun: `createOrder`/`getOrderStatus`, cURL + JSON,
+  `storage/logs/payriff.log`-a audit yazısı, `PAYRIFF_SECRET_KEY` boşdursa
+  konstruktor `RuntimeException` atır (Q7).
+- **`app/Models/PaymentRepository.php`** — `create()` məbləği YARADILAN ANDA
+  fiksə edir (Q10), `applyApproval()` atomik+idempotent (`UPDATE ... WHERE
+  status='created'` sətri kilidləyir — `rowCount()=0` olduqda təkrar
+  callback heç nə dəyişmir), `owners.paid_until = GREATEST(COALESCE(paid_until,
+  trial_until, CURDATE()), CURDATE()) + INTERVAL months MONTH` (8.4 addım 3),
+  `staleCreated()`/`expireOldCreated()` (8.5).
+- **`Owner/Billing::pay()`** — "Ödə" düyməsi: CSRF+free-status qorunması →
+  `PAYRIFF_SECRET_KEY` boşdursa `?netice=tezlikle`-yə yönləndirir (payment
+  sətri BELƏ YARADILMIR, boş "created" qeydləri yığılmır) → doludursa
+  `PaymentRepository::create()` + `PayriffProvider::createOrder()` →
+  `payment_url`-ə yönləndirmə.
+- **`Site/PaymentCallback.php`** (`POST /odenis/callback`, bölmə 8.4
+  təhlükəsizlik qaydası) — callback gövdəsinə güvənilmir, status HƏMİŞƏ
+  `getOrderStatus()` ilə yenidən yoxlanılır, nəticə fərqli olsa belə HƏMİŞƏ
+  HTTP 200 qaytarılır (Payriff təkrar cəhdlərini dayandırmaq üçün). Test
+  üçün `handle()` (HTTP giriş) və `process(string $raw)` (test edilə bilən
+  nüvə məntiq) ayrılıb, həmçinin konstruktor `?PaymentGateway` qəbul edir
+  (mock inyeksiyası üçün DI).
+- **`cron/daily.php`** (12.4): trial/paid bitmə → `expired`, `house_calendar`
+  keçmiş tarixlər + `sse_events` 7 gündən köhnə sətirlər silinir, əsas
+  `sitemap.xml` generasiyası (tam SEO cilası Faza 6-nın işidir), `storage/tmp`
+  köhnə marker fayllarının təmizlənməsi. **`cron/payriff_recheck.php`** (8.5):
+  `status='created'` və 48 saatdan gənc sətirləri yenidən yoxlayır, 48
+  saatdan köhnələri `expired` edir. **`deploy/crontab.example`** əlavə olundu.
+- Admin dashboard-a "Bitməyə 5 gün qalanlar" bölməsi əlavə olundu
+  (`AdminRepository::expiringOwners()`, 12.4 p.3 — hər sahib üçün hazır
+  WhatsApp xatırlatma linki).
+- `owner/billing.php` view yeniləndi: `paymentsEnabled=true` olduqda real
+  POST formu, `?netice=ok/xeta/tezlikle` bildirişləri (3 dildə).
+
+### Nə test olundu
+
+1. **Mock gateway ilə tam ödəniş axını** (`test_payment_flow.php`, `MockApprovedGateway
+   implements PaymentGateway`): sahib 1 (billing_status='free', paid_until=NULL) üçün
+   27.50 AZN-lik ödəniş yaradıldı → `PaymentCallback::process()` mock
+   `APPROVED` statusu ilə çağırıldı → `payments.status='approved'`,
+   `owners.billing_status='paid'`, `paid_until` düzgün `CURDATE()+1 ay`
+   oldu (`COALESCE` boş tarixləri düzgün idarə etdi).
+2. **İdempotentlik**: EYNİ callback gövdəsi İKİNCİ dəfə göndərildi —
+   `paid_until` DƏYİŞMƏDİ (2026-08-16 → 2026-08-16), sübut etdi ki, atomik
+   `UPDATE ... WHERE status='created'` kilidi təkrar tətbiqin qarşısını alır.
+3. **Q10 (qiymət dəyişimi köhnə linkə təsir etmir)**: ödəniş yaradıldıqdan
+   SONRA `default_monthly_price` 25→99 dəyişdirildi — `payments.amount`
+   27.50-də DƏYİŞMƏDİ (sütun yaradılan anda fiksələnib, sonradan heç vaxt
+   yenidən oxunmur).
+4. **`PAYRIFF_SECRET_KEY` boş rejimi** (canlı HTTP): billing səhifəsində
+   düymə deaktiv + "tezliklə" qeydi; CSRF-keçərli birbaşa `POST
+   /sahib/odenis/basla` cəhdi belə `payments` cədvəlinə HEÇ BİR sətir
+   yazmadan `?netice=tezlikle`-yə yönləndirildi (xəta yox, boş "created"
+   qeydi yaranmadı).
+5. **Callback endpoint-i real HTTP üzərindən**: mövcud olmayan `orderId`,
+   JSON olmayan gövdə, boş gövdə — hamısı `200 {"status":"ok"}` qaytardı,
+   heç bir 500/fatal yoxdur.
+6. **`cron/daily.php`**: təmiz işlədi (`sitemap_urls=21`: 6 statik + 9 aktiv
+   bölgə + 6 approved ev). Sahib 3-ün `trial_until`-i keçmişə (2020-01-01)
+   dəyişdirilib təkrar işə salındı → `trial_to_expired=1`, status `expired`
+   oldu, sitemap 21→19 URL-ə düşdü (2 evi artıq gizli) — **VƏ eyni anda
+   sayt tərəfində o evlərdən biri 200-dən 404-ə keçdi**, expiry-nin
+   görünürlüyə kaskad təsiri canlı təsdiqləndi. Sahib bərpa ediləndə ev
+   dərhal yenidən 200 oldu.
+7. **`cron/payriff_recheck.php`**: `PAYRIFF_SECRET_KEY` boş olduqda səliqəli
+   mesajla dayanır, xəta atmır.
+8. Bütün fayllar `php -l` təmiz; test zamanı əlavə bug tapılmadı (əvvəlki
+   fazalarda tapılan "təkrar adlı placeholder" pattern-i bu fazada YAZILARKƏN
+   bir daha qarşıya çıxdı — `AdminRepository::expiringOwners()`-də `:days`
+   iki dəfə istifadə olunmuşdu — amma bu dəfə testə çatmadan kod baxışı
+   zamanı tapılıb düzəldildi, canlı xətaya səbəb olmadı).
+
+### Məlum məhdudiyyətlər
+
+- Real Payriff hesabı/açarı olmadığı üçün `createOrder`/`getOrderStatus`-un
+  HƏQİQİ Payriff API-yə qarşı işləməsi test edilmədi — yalnız mock
+  interfeys vasitəsilə (spec-in özü də FAZA 4 üçün "mock ilə" test tələb
+  edir). Kod bölmə 8.3-dəki nümunə ilə hərfi eynidir.
+- `sitemap.xml` `.gitignore`-a əlavə olundu (cron-generated fayl, repo-da
+  saxlanmır).
+
+### Növbəti addım — FAZA 5 (PWA + SSE + splash)
+
+`manifest.webmanifest`/`sw.js`/`offline.html` Faza 0-da skelet kimi var —
+tam keş strategiyası (11.2: app shell cache-first, HTML network-first,
+fotolar stale-while-revalidate) yazılmalıdır. Splash animasiyası (6.1,
+yalnız PWA rejimində/ilk açılışda, ≤2s, `prefers-reduced-motion` hörməti).
+`Core/Sse.php` (11.4: `sse_events`-dən poll, Last-Event-ID, 25s ping) +
+owner panelində canlı baxış/klik sayğacı + admin dashboard-da canlı lent
+— hazırda hər ikisi səhifə-yükləmə-vaxtı statik hesablanır, bu fazada
+`sse_events` cədvəlinə yazma nöqtələri (view/wa_click/yeni-qeydiyyat/
+ödəniş/ev-təsdiq) əlavə olunmalı və SSE endpoint-i qurulmalıdır.
+
+Yoxlama kriteriyaları (FAZA 5, bölmə 13.2): Lighthouse PWA installable;
+splash ≤2s və reduced-motion-da sönür; iki brauzer pəncərəsi: birində ev
+səhifəsi baxışı → digərində owner panel sayğacı 3 saniyə içində artır.

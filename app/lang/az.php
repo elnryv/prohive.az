@@ -217,6 +217,8 @@ return [
     'owner.billing_price' => 'Aylıq qiymət: %s AZN',
     'owner.billing_pay_button' => 'Ödə',
     'owner.billing_coming_soon' => 'Onlayn ödəniş tezliklə aktivləşdiriləcək. Bu müddətdə platforma ilə əlaqə saxlayın.',
+    'owner.billing_netice_ok' => 'Ödəniş uğurla tamamlandı. Abunəniz yeniləndi.',
+    'owner.billing_netice_error' => 'Ödəniş tamamlanmadı və ya ləğv edildi. Yenidən cəhd edin.',
     'owner.billing_active_free' => 'Abunəniz aktivdir (pulsuz status).',
     'owner.billing_expired_note' => 'Abunəniz bitib — evləriniz saytda gizlədilib. Ödəniş edin, evləriniz dərhal geri qayıtsın.',
     'owner.billing_visible_note' => 'Evləriniz saytda görünür.',

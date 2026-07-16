@@ -1,0 +1,8 @@
+# Birlikdə Getdik — crontab nümunəsi (bölmə 12.4, 8.5)
+# Quraşdırma: crontab -u www-data -e   (aşağıdakı sətirləri yapışdırın, yolu düzəldin)
+
+# Hər gecə 03:00 — abunə bitmə yoxlaması, təqvim/sse_events təmizliyi, sitemap
+0 3 * * * /usr/bin/php /var/www/getdik/cron/daily.php >> /var/www/getdik/storage/logs/cron-daily.log 2>&1
+
+# Hər 15 dəqiqədə bir — yarımçıq Payriff ödənişlərinin yenidən yoxlanması
+*/15 * * * * /usr/bin/php /var/www/getdik/cron/payriff_recheck.php >> /var/www/getdik/storage/logs/cron-payriff.log 2>&1
