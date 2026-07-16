@@ -12,7 +12,7 @@ $statusChip = match ($listing['status']) {
     default => ['chip-muted', 'listing.status_active'],
 };
 ?>
-<a class="card" href="<?= e($href) ?>" style="display:block">
+<a class="card" href="<?= e($href) ?>" style="display:block" data-listing-id="<?= (int) $listing['id'] ?>">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
     <div class="route">
       <span><?= e(Lang::field($listing, 'from')) ?></span>

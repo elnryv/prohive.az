@@ -165,4 +165,11 @@ return [
         'monthly_summary' => 'Platformadan bu ay: {count} iş · {total} AZN',
         'cancel_count' => '{n} ləğv qeydi',
     ],
+    'routes' => [
+        'title' => 'Marşrut abunəliyi',
+        'description' => 'Seçdiyin xətlər üzrə yeni yük gələndə bildiriş alacaqsan (maks 5 abunə).',
+        'scope' => 'Əhatə',
+        'add' => 'Abunə ol',
+        'limit_reached' => 'Maksimum 5 abunəyə çatmısan',
+    ],
 ];

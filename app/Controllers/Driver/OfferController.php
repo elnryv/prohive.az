@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\DB;
 use App\Core\Sse;
+use App\Core\WebPush;
 
 final class OfferController
 {
@@ -86,6 +87,12 @@ final class OfferController
         $customerStmt->execute([$listingId]);
         $customerId = (int) $customerStmt->fetch()['customer_id'];
         Sse::publish('customer_' . $customerId, $event, ['listing_id' => $listingId, 'price' => $price]);
+
+        WebPush::sendToUsersLocalized([$customerId], static fn () => [
+            'title' => t('push.offer_new_title'),
+            'body' => number_format($price, 2) . ' AZN',
+            'url' => '/musteri/elan/' . $listingId,
+        ]);
 
         header('Location: /surucu/elan/' . $listingId . '?teklif=ok');
     }

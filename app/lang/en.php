@@ -165,4 +165,11 @@ return [
         'monthly_summary' => 'From the platform this month: {count} jobs · {total} AZN',
         'cancel_count' => '{n} cancellations',
     ],
+    'routes' => [
+        'title' => 'Route subscriptions',
+        'description' => "You'll be notified when new cargo appears on your selected routes (max 5 subscriptions).",
+        'scope' => 'Scope',
+        'add' => 'Subscribe',
+        'limit_reached' => 'You have reached the 5-subscription limit',
+    ],
 ];

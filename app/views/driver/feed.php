@@ -7,6 +7,7 @@
 /** @var array $categories */
 /** @var array $locations */
 /** @var array $filters */
+/** @var int $lastEventId */
 use App\Core\Lang;
 use App\Core\View;
 ?>
@@ -34,13 +35,13 @@ use App\Core\View;
     </select>
   </form>
 
+  <div id="feed-list" data-last-event-id="<?= (int) $lastEventId ?>">
   <?php if ($listings === []): ?>
-    <div class="empty-state"><p><?= e(t('common.empty_title')) ?></p></div>
+    <p class="text-soft" data-empty-placeholder><?= e(t('common.empty_title')) ?></p>
   <?php else: ?>
-    <div id="feed-list">
     <?php foreach ($listings as $listing): ?>
       <?php View::partial('partials/listing_card', ['listing' => $listing, 'href' => '/surucu/elan/' . $listing['id']]); ?>
     <?php endforeach; ?>
-    </div>
   <?php endif; ?>
+  </div>
 </div>

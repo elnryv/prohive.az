@@ -1,11 +1,13 @@
 <?php
 /** @var string $content */
 /** @var string|null $pageTitle */
+use App\Core\Csrf;
 use App\Core\Lang;
 use App\Core\Auth;
 
 $lang = Lang::current();
 $title = isset($pageTitle) ? $pageTitle . ' · ' . t('app_name') : t('app_name') . ' — ' . t('home.title');
+$user = Auth::user();
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -20,8 +22,9 @@ $title = isset($pageTitle) ? $pageTitle . ' · ' . t('app_name') : t('app_name')
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
 <link rel="stylesheet" href="/assets/css/app.css">
 <meta property="og:site_name" content="Birlikdə Yük">
+<meta name="csrf-token" content="<?= e(Csrf::token()) ?>">
 </head>
-<body>
+<body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
 <header class="top-bar">
   <a href="/" class="brand">Birlikdə <span class="amber">Yük</span></a>
   <nav class="lang-switch">

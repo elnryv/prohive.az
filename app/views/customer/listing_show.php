@@ -17,7 +17,7 @@ $statusChip = match ($listing['status']) {
 };
 $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing['public_code'];
 ?>
-<div class="container">
+<div class="container" data-listing-page="<?= (int) $listing['id'] ?>" data-last-event-id="<?= (int) $lastEventId ?>">
   <div class="route">
     <span><?= e(Lang::field($listing, 'from')) ?></span>
     <span class="arrow">→</span>

@@ -142,6 +142,57 @@ təsvir etdiyi DAVRANIŞI tam ödəyir. Əgər sahibkar əsl Getdik kodunu təqd
   tabı `l.status='completed'` olan (artıq tamamlanmış) işləri də göstərirdi — filtrə `l.status <> 'completed'`
   əlavə edildi ki, tamamlanmış işlər yalnız `/surucu/tarixce`-də görünsün.
 
+## FAZA 4 — SSE + Push ✅ TAMAMLANDI
+
+- [x] `StreamController` (`/axin/lent`, `/axin/musteri`) — `Sse::stream()` üzərində quruldu, `lastId`
+      seed edilir (aşağıdakı bug düzəlişinə bax)
+- [x] `sw.js` (Service Worker): cache-first statik fayllar + `push`/`notificationclick` hadisələri
+- [x] `app.js`: SW qeydiyyatı, Web Push abunəliyi (`/push/vapid-acar`, `/push/abune`, `/push/legv`),
+      sürücü lentində canlı DOM yeniləməsi (yeni kart daxil olma/bağlanan kart sönmə animasiyası)
+- [x] Marşrut abunəliyi (`/surucu/marsrutlar`, Q-Y12, maks 5) + yeni elanda uyğun sürücülərə
+      `route_match` push (`ListingController::notifyRouteSubscribers`)
+- [x] Bildiriş növləri tam bağlandı: `offer_new` (müştəriyə), `offer_accepted` (sürücüyə),
+      `listing_reopened` (bərpa olunan təklifçilərə) — hamısı `WebPush::sendToUsersLocalized()`
+      ilə ALICININ öz dilində (`Lang::use()`)
+- [x] `cron/vapid_keygen.php` — CLI skript, `settings.vapid_public/private`-ə yazır
+
+### Özünüyoxlama nəticələri — REAL BRAUZER (Playwright/Chromium) + HTTP
+Bu faza ən çətin test oldu, çünki yerli `php -S` inkişaf serveri təkthreadlidir və real
+`php-fpm`-dən fərqli davranır. Prosesdə **iki əsl bug tapılıb düzəldilib**:
+
+1. **Hadisə tarixçəsinin təkrar oynadılması**: yeni `EventSource` həmişə `lastId=0`-dan başladığı
+   üçün hər səhifə açılışında BÜTÜN köhnə `sse_events` sətirləri "yeni" kimi göndərilirdi (kart
+   fraqmenti üçün lazımsız fetch-lər). **Düzəliş**: server səhifəni render edərkən mövcud
+   `MAX(sse_events.id)`-i səhifəyə yazır (`data-last-event-id`), JS bu ID-dən e'tibarən abunə olur.
+2. **PHP sessiya fayl kilidi (kritik)**: PHP-nin fayl-əsaslı sessiya handler-i `session_start()`-dan
+   bağlanana qədər EXCLUSIVE lock saxlayır. `Sse::stream()` isə sessiyanı heç vaxt bağlamadan
+   ≤55 saniyə davam edən dövr işlədirdi — bu, EYNİ brauzerdən gələn istənilən DİGƏR sorğunu (məs.
+   kart fraqmenti `fetch()`-i) sessiya sərbəst buraxılana qədər bloklayırdı. Bu, yalnız test artefaktı
+   deyil — **istehsalda da** (php-fpm) eyni istifadəçinin açıq SSE tabı olarkən başqa tab/sorğu
+   göndərməsi eyni şəkildə asılı qalardı. **Düzəliş**: `StreamController::feed()/customer()`
+   auth yoxlamasından dərhal sonra `session_write_close()` çağırır.
+
+Bu iki düzəlişdən sonra, nginx (round-robin, 3 arxa `php -S` prosesi ilə həqiqi paralellik simulyasiyası)
+arxasında REAL Chromium brauzeri ilə tam ssenari test edildi:
+- **Kriteriya (məcburi): elan qoyulur → sürücü lentinə refresh-siz düşür** — Playwright ilə sürücü
+  lenti izlənildi (canlı `EventSource`), ayrı HTTP sessiyasından (müştəri) yeni elan yaradıldı →
+  kart sürücünün DOM-una **səhifə yenilənmədən** avtomatik əlavə olundu (screenshot-la təsdiqləndi,
+  `data-listing-id` selector-u ilə DOM-da tapıldı). ✓
+- **Kriteriya (məcburi): qəbul → digərində itir, ≤3 saniyə** — sürücü təklif verdi, müştəri (ayrı
+  HTTP sessiyası) təklifi qəbul etdi → kart sürücünün canlı DOM-undan **1513 ms ərzində** (server
+  yenilənmədən) söndürülərək silindi — screenshot ilə əvvəl/sonra vizual təsdiqləndi. ✓ (tələb: ≤3s)
+- Push abunəlik axını (`/push/abune`) test edildi, DB-yə düzgün yazıldı; saxta endpoint-ə göndərmə
+  cəhdi PHP tərəfdə fatal xətasız, sakit uğursuzlukla idarə olundu.
+- Bütün FAZA 1-3 funksionallığı (qeydiyyat, elan, təklif, atomik qəbul, nömrə açılışı) session-lock
+  düzəlişindən sonra təkrar regressiya testindən keçirildi — nasazlıq yoxdur.
+
+### Qeyd (mühit məhdudiyyəti)
+Real Android Chrome/iOS cihazında push çatdırılması bu sandbox mühitində fiziki test edilə bilmir
+(real cihaz/FCM/APNs girişi yoxdur) — kriptoqrafiya (RFC 8291/8292) FAZA 0-da encrypt→decrypt
+round-trip ilə düzgünlüyü sübut edilib, göndərmə məntiqi (VAPID JWT, aes128gcm payload, HTTP sorğusu)
+yuxarıdakı testlə (saxta endpoint) doğrulanıb. Sahibkar canlı serverdə real cihazla yekun yoxlamanı
+apara bilər (README-də qeyd olunacaq).
+
 ## MÜHİT QEYDİ
 
 Bu sessiya bir git-repo daxilində (kod anbarı) işləyir, canlı VPS-ə çıxışı yoxdur. Layihə kodu spesifikasiyanın

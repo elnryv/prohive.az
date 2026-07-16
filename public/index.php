@@ -19,6 +19,9 @@ use App\Controllers\Driver\ListingController as DriverListing;
 use App\Controllers\Driver\OfferController as DriverOffer;
 use App\Controllers\Driver\MyOffersController as DriverMyOffers;
 use App\Controllers\Driver\HistoryController as DriverHistory;
+use App\Controllers\Driver\RouteSubscriptionController as DriverRoutes;
+use App\Controllers\Site\StreamController;
+use App\Controllers\Site\PushController;
 
 Auth::boot();
 
@@ -100,6 +103,18 @@ $router->get('/surucu/tekliflerim', function () {
 $router->get('/surucu/tarixce', function () {
     (new DriverHistory())->index();
 });
+$router->get('/surucu/lent/kart/{id}', function ($p) {
+    (new DriverDashboard())->cardFragment($p);
+});
+$router->get('/surucu/marsrutlar', function () {
+    (new DriverRoutes())->index();
+});
+$router->post('/surucu/marsrutlar', function () {
+    (new DriverRoutes())->add();
+});
+$router->post('/surucu/marsrutlar/{id}/sil', function ($p) {
+    (new DriverRoutes())->remove($p);
+});
 $router->get('/surucu/profil', function () {
     Auth::requireRole('driver', '/giris');
     View::render('site/profile_stub', ['pageTitle' => t('nav.profile')]);
@@ -108,6 +123,25 @@ $router->get('/surucu/profil', function () {
 // --- Public paylaşım kartı (Q-Y10) ---
 $router->get('/e/{code}', function ($p) {
     (new PublicListingController())->show($p);
+});
+
+// --- SSE axını (FAZA 4, bölmə 11.5) ---
+$router->get('/axin/lent', function () {
+    (new StreamController())->feed();
+});
+$router->get('/axin/musteri', function () {
+    (new StreamController())->customer();
+});
+
+// --- Web Push (FAZA 4, bölmə 11.4) ---
+$router->get('/push/vapid-acar', function () {
+    (new PushController())->vapidPublicKey();
+});
+$router->post('/push/abune', function () {
+    (new PushController())->subscribe();
+});
+$router->post('/push/legv', function () {
+    (new PushController())->unsubscribe();
 });
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

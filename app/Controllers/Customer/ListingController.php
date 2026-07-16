@@ -14,6 +14,7 @@ use App\Core\OgImage;
 use App\Core\Sse;
 use App\Core\Upload;
 use App\Core\View;
+use App\Core\WebPush;
 
 final class ListingController
 {
@@ -160,6 +161,7 @@ final class ListingController
         );
 
         Sse::publish('feed', 'listing_new', ['listing_id' => $listingId, 'scope' => $scope]);
+        $this->notifyRouteSubscribers($listingId, $fromLocationId, $toLocationId, $scope, $fromLocation, $toLocation);
 
         header('Location: /musteri/elan/' . $listingId . '?yaradildi=1');
     }
@@ -194,11 +196,14 @@ final class ListingController
         );
         $offers->execute([$id]);
 
+        $lastEventId = (int) (DB::conn()->query('SELECT MAX(id) m FROM sse_events')->fetch()['m'] ?? 0);
+
         View::render('customer/listing_show', [
             'pageTitle' => t('nav.my_listings'),
             'listing' => $listing,
             'photos' => $photos->fetchAll(),
             'offers' => $offers->fetchAll(),
+            'lastEventId' => $lastEventId,
         ]);
     }
 
@@ -244,6 +249,33 @@ final class ListingController
         $stmt = DB::conn()->prepare('UPDATE listings SET expires_at = DATE_ADD(expires_at, INTERVAL 72 HOUR), extended = 1 WHERE id = ?');
         $stmt->execute([$id]);
         header('Location: /musteri/elan/' . $id);
+    }
+
+    /** Q-Y12: route_subscriptions üzrə uyğun (approved) sürücülərə "route_match" push. */
+    private function notifyRouteSubscribers(int $listingId, int $fromId, int $toId, string $scope, array $fromLocation, array $toLocation): void
+    {
+        $stmt = DB::conn()->prepare(
+            "SELECT DISTINCT rs.driver_id
+             FROM route_subscriptions rs
+             JOIN users u ON u.id = rs.driver_id
+             WHERE u.driver_status = 'approved'
+               AND (rs.from_location_id IS NULL OR rs.from_location_id = ?)
+               AND (rs.to_location_id IS NULL OR rs.to_location_id = ?)
+               AND (rs.scope = 'all' OR rs.scope = ?)"
+        );
+        $stmt->execute([$fromId, $toId, $scope]);
+        $driverIds = array_map('intval', array_column($stmt->fetchAll(), 'driver_id'));
+
+        if ($driverIds === []) {
+            return;
+        }
+
+        $route = \App\Core\Lang::field($fromLocation, 'name') . ' → ' . \App\Core\Lang::field($toLocation, 'name');
+        WebPush::sendToUsersLocalized($driverIds, static fn () => [
+            'title' => t('push.route_match_title'),
+            'body' => $route,
+            'url' => '/surucu/elan/' . $listingId,
+        ]);
     }
 
     private function fetchListingForCustomer(int $id, int $customerId): ?array
