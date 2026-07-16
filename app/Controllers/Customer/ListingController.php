@@ -179,8 +179,12 @@ final class ListingController
         $photos = DB::conn()->prepare('SELECT * FROM listing_photos WHERE listing_id = ? ORDER BY sort_order');
         $photos->execute([$id]);
 
+        // Q-Y3: u.phone yalnız BURADA seçilir çünki bu metod artıq yuxarıda
+        // fetchListingForCustomer() ilə elanın MƏHZ bu müştəriyə aid olduğunu
+        // təsdiqləyib — view isə telefonu yalnız status==='accepted' olan
+        // təklif üçün render edir (digərlərində sıra var, amma göstərilmir).
         $offers = DB::conn()->prepare(
-            "SELECT o.*, u.full_name, u.jobs_done, u.cancel_count, u.vehicle_photo, u.created_at as driver_since,
+            "SELECT o.*, u.full_name, u.phone, u.jobs_done, u.cancel_count, u.vehicle_photo, u.created_at as driver_since,
                     vt.name_az as vt_name_az, vt.name_ru as vt_name_ru, vt.name_en as vt_name_en
              FROM offers o
              JOIN users u ON u.id = o.driver_id

@@ -4,6 +4,7 @@
 /** @var bool $isActive */
 /** @var string $driverStatus */
 /** @var array|null $myOffer */
+use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <div class="container">
@@ -35,13 +36,43 @@ use App\Core\Lang;
     <div class="banner"><?= e(t('listing.driver_pending_locked')) ?></div>
   <?php elseif (!$isActive): ?>
     <div class="banner"><?= e(t('listing.driver_inactive_locked')) ?> <a href="/surucu/odenis" style="color:var(--amber)">→</a></div>
-  <?php elseif ($myOffer !== null): ?>
+  <?php elseif ($myOffer !== null && $myOffer['status'] !== 'withdrawn'): ?>
     <div class="card">
-      <span class="num" style="font-size:22px"><?= number_format((float) $myOffer['price'], 2) ?> AZN</span>
-      <span class="chip <?= $myOffer['status'] === 'accepted' ? 'chip-ok' : 'chip-warn' ?>"><?= e(t('offer.status_' . $myOffer['status'])) ?></span>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="num" style="font-size:22px"><?= number_format((float) $myOffer['price'], 2) ?> AZN</span>
+        <span class="chip <?= $myOffer['status'] === 'accepted' ? 'chip-ok' : 'chip-warn' ?>"><?= e(t('offer.status_' . $myOffer['status'])) ?></span>
+      </div>
     </div>
+    <?php if ($myOffer['status'] === 'pending'): ?>
+      <form method="post" action="/surucu/elan/<?= (int) $listing['id'] ?>/teklif" style="margin-top:8px">
+        <?= Csrf::field() ?>
+        <div class="field">
+          <label><?= e(t('offer.price_label')) ?></label>
+          <input type="number" name="price" step="0.01" min="0.01" value="<?= e((string) $myOffer['price']) ?>" required>
+        </div>
+        <div class="field">
+          <label><?= e(t('offer.note_label')) ?></label>
+          <textarea name="note" maxlength="300"><?= e((string) ($myOffer['note'] ?? '')) ?></textarea>
+        </div>
+        <button type="submit" class="btn btn-amber btn-block"><?= e(t('offer.update_submit')) ?></button>
+      </form>
+      <form method="post" action="/surucu/elan/<?= (int) $listing['id'] ?>/teklif/geri" style="margin-top:8px">
+        <?= Csrf::field() ?>
+        <button type="submit" class="btn btn-outline btn-block"><?= e(t('offer.withdraw')) ?></button>
+      </form>
+    <?php endif; ?>
   <?php else: ?>
-    <!-- Təklif vermə forması FAZA 3-də əlavə olunur (bölmə 7.3). -->
-    <div class="card text-soft"><?= e(t('offer.form_coming_soon')) ?></div>
+    <form method="post" action="/surucu/elan/<?= (int) $listing['id'] ?>/teklif">
+      <?= Csrf::field() ?>
+      <div class="field">
+        <label><?= e(t('offer.price_label')) ?></label>
+        <input type="number" name="price" step="0.01" min="0.01" required autofocus>
+      </div>
+      <div class="field">
+        <label><?= e(t('offer.note_label')) ?></label>
+        <textarea name="note" maxlength="300" placeholder="bu axşam edərəm, 2 fəhlə ilə"></textarea>
+      </div>
+      <button type="submit" class="btn btn-amber btn-block"><?= e(t('offer.submit')) ?></button>
+    </form>
   <?php endif; ?>
 </div>

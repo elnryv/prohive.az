@@ -5,6 +5,7 @@
 use App\Core\Csrf;
 use App\Core\Lang;
 use App\Core\Config;
+use App\Core\Phone;
 
 $statusChip = match ($listing['status']) {
     'active' => ['chip-active', 'listing.status_active'],
@@ -58,6 +59,41 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
       </form>
       <?php endif; ?>
     </div>
+  <?php elseif ($listing['status'] === 'accepted'): ?>
+    <?php
+      $acceptedOffer = null;
+      foreach ($offers as $o) {
+          if ((int) $o['id'] === (int) $listing['accepted_offer_id']) {
+              $acceptedOffer = $o;
+              break;
+          }
+      }
+    ?>
+    <?php if ($acceptedOffer !== null): ?>
+      <div class="card" style="border-color:var(--ok)">
+        <p class="text-soft"><?= e(t('listing.status_accepted')) ?></p>
+        <p class="num" style="font-size:20px"><?= e($acceptedOffer['full_name']) ?></p>
+        <p class="num" style="font-size:24px;color:var(--amber)"><?= e(Phone::display($acceptedOffer['phone'])) ?></p>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <a class="btn btn-amber" style="flex:1" target="_blank" rel="noopener"
+             href="https://wa.me/<?= e($acceptedOffer['phone']) ?>?text=<?= urlencode(t('whatsapp.template', ['route' => Lang::field($listing, 'from') . ' → ' . Lang::field($listing, 'to')])) ?>">
+            WhatsApp
+          </a>
+          <a class="btn btn-outline" style="flex:1" href="tel:+<?= e($acceptedOffer['phone']) ?>"><?= e(t('common.call')) ?></a>
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <form method="post" action="/musteri/elan/<?= (int) $listing['id'] ?>/legv" style="margin:12px 0" onsubmit="return confirm('<?= e(t('listing.cancel_confirm')) ?>')">
+      <?= Csrf::field() ?>
+      <label><?= e(t('listing.cancel_reason')) ?></label>
+      <select name="reason">
+        <option value="driver_no_show"><?= e(t('listing.reason_no_show')) ?></option>
+        <option value="price_changed"><?= e(t('listing.reason_price_changed')) ?></option>
+        <option value="changed_mind"><?= e(t('listing.reason_changed_mind')) ?></option>
+      </select>
+      <button type="submit" class="btn btn-outline btn-block" style="margin-top:8px"><?= e(t('listing.cancel_reopen')) ?></button>
+    </form>
   <?php endif; ?>
 
   <div class="card">
@@ -65,6 +101,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
     <a href="<?= e($publicUrl) ?>" style="color:var(--amber);word-break:break-all"><?= e($publicUrl) ?></a>
   </div>
 
+  <?php if ($listing['status'] === 'active'): ?>
   <h2 style="margin-top:24px">💬 <?= e(t('listing.offers_count', ['n' => count($offers)])) ?></h2>
   <?php if ($offers === []): ?>
     <div class="empty-state"><p><?= e(t('listing.offers_none')) ?></p></div>
@@ -88,9 +125,8 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
             <button type="submit" class="btn btn-amber btn-block"><?= e(t('listing.accept')) ?></button>
           </form>
         <?php endif; ?>
-        <!-- Nömrə açılışı (Q-Y3/Q-Y4) FAZA 3-də əlavə olunur: yalnız accepted_offer_id === bu təklif
-             VƏ giriş edən istifadəçi customer_id/accepted_driver_id-dən biridirsə göstərilir. -->
       </div>
     <?php endforeach; ?>
+  <?php endif; ?>
   <?php endif; ?>
 </div>

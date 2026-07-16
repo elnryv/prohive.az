@@ -302,4 +302,41 @@ final class WebPush
             }
         }
     }
+
+    /**
+     * sendToUsers-in eyni davranışı, lakin hər alıcı üçün mətn onun ÖZ dilində (`users.lang`)
+     * qurulur — cron/kütləvi bildirişlərdə (məs. billing_reminder) fərqli dilli istifadəçilər
+     * üçün lazımdır. $payloadBuilder(array $user): array formatındadır.
+     * @param int[] $userIds
+     */
+    public static function sendToUsersLocalized(array $userIds, callable $payloadBuilder, string $urgency = 'normal'): void
+    {
+        if ($userIds === [] || !self::isConfigured()) {
+            return;
+        }
+        $previousLang = Lang::current();
+
+        $chunks = array_chunk($userIds, 50);
+        foreach ($chunks as $chunk) {
+            $placeholders = implode(',', array_fill(0, count($chunk), '?'));
+            $stmt = \App\Core\DB::conn()->prepare(
+                "SELECT ps.id, ps.user_id, ps.endpoint, ps.p256dh, ps.auth_key, u.lang
+                 FROM push_subscriptions ps JOIN users u ON u.id = ps.user_id
+                 WHERE ps.user_id IN ({$placeholders})"
+            );
+            $stmt->execute($chunk);
+            foreach ($stmt->fetchAll() as $sub) {
+                Lang::use($sub['lang']);
+                $payload = $payloadBuilder($sub);
+                $result = self::send($sub, $payload, $urgency);
+                if (($result['expired'] ?? false) === true) {
+                    $del = \App\Core\DB::conn()->prepare('DELETE FROM push_subscriptions WHERE id = ?');
+                    $del->execute([$sub['id']]);
+                }
+                usleep(50000);
+            }
+        }
+
+        Lang::use($previousLang);
+    }
 }

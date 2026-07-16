@@ -13,8 +13,12 @@ use App\Controllers\Site\PublicListingController;
 use App\Controllers\Customer\DashboardController as CustomerDashboard;
 use App\Controllers\Customer\ListingController as CustomerListing;
 use App\Controllers\Customer\HistoryController as CustomerHistory;
+use App\Controllers\Customer\OfferActionController as CustomerOfferAction;
 use App\Controllers\Driver\DashboardController as DriverDashboard;
 use App\Controllers\Driver\ListingController as DriverListing;
+use App\Controllers\Driver\OfferController as DriverOffer;
+use App\Controllers\Driver\MyOffersController as DriverMyOffers;
+use App\Controllers\Driver\HistoryController as DriverHistory;
 
 Auth::boot();
 
@@ -66,6 +70,12 @@ $router->get('/musteri/tarixce', function () {
 $router->get('/musteri/tarixce/{id}/yenidenSifaris', function ($p) {
     (new CustomerHistory())->reorderForm($p);
 });
+$router->post('/musteri/elan/{id}/teklif/{offerId}/qebul', function ($p) {
+    (new CustomerOfferAction())->accept($p);
+});
+$router->post('/musteri/elan/{id}/legv', function ($p) {
+    (new CustomerOfferAction())->cancel($p);
+});
 $router->get('/musteri/profil', function () {
     Auth::requireRole('customer', '/giris');
     View::render('site/profile_stub', ['pageTitle' => t('nav.profile')]);
@@ -77,6 +87,18 @@ $router->get('/surucu/lent', function () {
 });
 $router->get('/surucu/elan/{id}', function ($p) {
     (new DriverListing())->show($p);
+});
+$router->post('/surucu/elan/{id}/teklif', function ($p) {
+    (new DriverOffer())->submit($p);
+});
+$router->post('/surucu/elan/{id}/teklif/geri', function ($p) {
+    (new DriverOffer())->withdraw($p);
+});
+$router->get('/surucu/tekliflerim', function () {
+    (new DriverMyOffers())->index();
+});
+$router->get('/surucu/tarixce', function () {
+    (new DriverHistory())->index();
 });
 $router->get('/surucu/profil', function () {
     Auth::requireRole('driver', '/giris');

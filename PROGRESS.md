@@ -102,6 +102,46 @@ təsvir etdiyi DAVRANIŞI tam ödəyir. Əgər sahibkar əsl Getdik kodunu təqd
      `flex:0 0 44px` əlavə edilərək dairəvi формасы bərpa olundu.
   Hər iki düzəlişdən sonra təkrar screenshot ilə vizual təsdiqləndi.
 
+## FAZA 3 — Təklif + atomik qəbul ✅ TAMAMLANDI (layihənin "ürəyi")
+
+- [x] Sürücü təklif ver/yenilə/geri çək (`/surucu/elan/{id}/teklif`, bölmə 7.3): 1 sürücü = 1 təklif
+      (yenilənə bilər), anti-spam saatda maks 20, yalnız `active` elana
+- [x] Müştəridə canlı təklif siyahısı (`listing_show.php`) — hələ SSE deyil (FAZA 4), amma server-side
+      tam işlək; sürücü profili (ad, maşın növü, jobs_done, cancel_count)
+- [x] **ATOMİK qəbul** (`OfferActionController::accept`, Q-Y4) — bölmə 6.4-dəki tranzaksiya BİRƏ-BİR:
+      `SELECT ... FOR UPDATE` + şərtli `UPDATE ... WHERE status='active'` + `rowCount()` yoxlaması.
+      Spec-in sadələşdirilmiş SQL-inə əlavə qoruma: offer UPDATE-i də `listing_id`+`status='pending'`
+      şərti ilə məhdudlaşdırılıb (defensiv, yarış zamanı səhv sətrin yenilənməsinin qarşısını alır).
+- [x] **Nömrə açılışı (Q-Y3)**: telefon sütunu YALNIZ elan sahibinin öz sorğusunda (müştəri
+      `listing_show`) və sürücünün öz təklifləri sorğusunda (`MyOffersController`) seçilir; view
+      isə əlavə olaraq yalnız `status==='accepted'` halında göstərir. Üçüncü şəxs heç bir mərhələdə
+      görmür (aşağıdakı testlə təsdiqlənib).
+- [x] Ləğv/yenidən açılma (`OfferActionController::cancel`, Q-Y5): səbəb seçimi, `lost`→`pending` bərpa,
+      `driver_no_show`→`cancel_count+1`, maks 2 dəfə yenidən açılma limiti
+- [x] `cron/hourly.php`: `active`→`expired`, `accepted`→`completed` (+ `jobs_done+1`), köhnə OG təmizliyi
+- [x] Sürücü "Təkliflərim" (`/surucu/tekliflerim`): Gözləyir/Qəbul edildi/Yük götürüldü/Geri çəkdim tabları
+- [x] Sürücü iş tarixçəsi (`/surucu/tarixce`, bölmə 7.5): tamamlanmış işlər + aylıq qazanc cəmi
+- [x] `Lang::use()` + `WebPush::sendToUsersLocalized()` — push mətni hər alıcının ÖZ `users.lang`
+      dəyərində qurulur (kütləvi bildirişlərdə dil qarışmasının qarşısı)
+
+### Özünüyoxlama nəticələri (real server + MySQL, HTTP + DB səviyyəsində)
+- **Yarış vəziyyəti testi (məcburi kriteriya)**: eyni elana 2 sürücüdən təklif → müştəri sessiyasından
+  **10 tam paralel** (`curl ... &` + `wait`) qəbul sorğusu göndərildi → `listing_events`-də cəmi **1**
+  `accepted` qeydi, DB-də düz 1 təklif `accepted`, elan `accepted` statusunda. Əvvəlki 2-sorğuluq testdə
+  də eyni nəticə: 1-i uğurlu (`Location: /musteri/elan/{id}`), qalanı `?xeta=artiq_qebul_edilib`. ✓
+- **Nömrə məxfiliyi (məcburi kriteriya)**: qəbuldan sonra — qəbul edən sürücü müştəri nömrəsini,
+  müştəri qəbul edən sürücünün nömrəsini görür; **uduzan (2-ci) sürücü** öz "Təkliflərim" səhifəsində
+  (Yük götürüldü tabı) heç bir nömrə görmür (grep ilə təsdiqləndi) — həm public səhifədə, həm elan
+  aktiv ikən heç bir mərhələdə nömrə sızmır. ✓
+- Ləğv/yenidən açılma: "Sürücü gəlmədi" səbəbi ilə ləğv → sürücünün `cancel_count` 0→1; lost olan digər
+  təklif `pending`-ə bərpa oldu; `reopen_count` 1→2; 3-cü cəhd `?xeta=limit_yenidenachma` ilə bloklandı. ✓
+- Geri çəkmə: `pending` təklif → `withdrawn`, elanın təklif siyahısından itdi. ✓
+- Cron: `accepted_at`-i 80 saat geriyə çəkilmiş elan `cron/hourly.php` işlədildikdən sonra `completed`
+  oldu, sürücünün `jobs_done` 0→1. ✓
+- Playwright vizual yoxlamasında 1 real bug tapılıb düzəldilib: `MyOffersController`-in "Qəbul edildi"
+  tabı `l.status='completed'` olan (artıq tamamlanmış) işləri də göstərirdi — filtrə `l.status <> 'completed'`
+  əlavə edildi ki, tamamlanmış işlər yalnız `/surucu/tarixce`-də görünsün.
+
 ## MÜHİT QEYDİ
 
 Bu sessiya bir git-repo daxilində (kod anbarı) işləyir, canlı VPS-ə çıxışı yoxdur. Layihə kodu spesifikasiyanın

@@ -55,6 +55,20 @@ final class Lang
         ]);
     }
 
+    /**
+     * Cookie/sessiyaya toxunmadan strings-i dəyişir — backend/cron kontekstində
+     * (push bildirişi mətnini alıcının öz `users.lang` dəyərində qurmaq üçün) istifadə olunur.
+     */
+    public static function use(string $lang): void
+    {
+        $supported = Config::get('app.supported_langs', ['az', 'ru', 'en']);
+        if (!in_array($lang, $supported, true)) {
+            $lang = Config::get('app.default_lang', 'az');
+        }
+        self::$current = $lang;
+        self::$strings = require dirname(__DIR__) . "/lang/{$lang}.php";
+    }
+
     public static function t(string $key, array $params = []): string
     {
         $segments = explode('.', $key);
