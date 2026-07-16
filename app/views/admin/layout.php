@@ -26,5 +26,8 @@
 </header>
 <?php endif; ?>
 <main class="admin-main"><?= $content ?></main>
+<?php if ($loggedIn): ?>
+<script src="/assets/admin.js"></script>
+<?php endif; ?>
 </body>
 </html>

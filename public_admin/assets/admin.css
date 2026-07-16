@@ -74,3 +74,10 @@ table{border-collapse:collapse;width:100%}
 .admin-price-form{display:flex;gap:6px;align-items:center}
 .admin-price-form input{width:110px;border:1px solid var(--line);border-radius:8px;padding:7px 9px}
 .admin-meta{color:var(--ink-soft)}
+
+.admin-live-lent{list-style:none;margin:0 0 24px;padding:0;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);max-height:320px;overflow-y:auto}
+.admin-live-lent__item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:.88rem;animation:liveLentIn .3s ease}
+.admin-live-lent__item:last-child{border-bottom:none}
+.admin-live-lent__time{color:var(--ink-soft);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.admin-live-lent__empty{padding:14px;color:var(--ink-soft);font-size:.88rem}
+@keyframes liveLentIn{from{background:#E4F1E8}to{background:transparent}}

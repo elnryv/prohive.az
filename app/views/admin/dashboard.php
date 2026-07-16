@@ -33,7 +33,10 @@
         </div>
     </div>
 
-    <p class="admin-note">Canlı lent (SSE) Faza 5-də aktivləşəcək — hazırda statistika səhifə yükləndikdə hesablanır.</p>
+    <h2>Canlı lent</h2>
+    <ul id="admin-live-lent" class="admin-live-lent" data-sse-url="/sse">
+        <li class="admin-live-lent__empty">Yeni hadisələr burada canlı görünəcək...</li>
+    </ul>
 
     <h2>Bölgələr üzrə tələb (son 30 gün)</h2>
     <table class="admin-table">

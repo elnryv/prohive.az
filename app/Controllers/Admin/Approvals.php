@@ -36,6 +36,7 @@ final class Approvals
 
         HouseRepository::approve((int) $house['id']);
         AdminLog::write('house.approve', (int) $house['id'], $house['title']);
+        Sse::emit('owner_' . $house['owner_id'], 'house_approved', ['house_id' => (int) $house['id'], 'title' => $house['title']]);
 
         header('Location: /tesdiq?tesdiqlendi=1');
         exit;
@@ -55,6 +56,7 @@ final class Approvals
 
         HouseRepository::reject((int) $house['id'], $reason);
         AdminLog::write('house.reject', (int) $house['id'], $reason);
+        Sse::emit('owner_' . $house['owner_id'], 'house_rejected', ['house_id' => (int) $house['id'], 'title' => $house['title'], 'reason' => $reason]);
 
         header('Location: /tesdiq?geri_gonderildi=1');
         exit;

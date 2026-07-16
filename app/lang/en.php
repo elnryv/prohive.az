@@ -15,6 +15,14 @@ return [
     'footer.rights' => 'All rights reserved.',
     'footer.add_house' => 'List your house — first month free',
 
+    'pwa.install_title' => 'Add to your phone',
+    'pwa.install_body' => 'Install Birlikdə Getdik as an app for faster access.',
+    'pwa.install_button' => 'Install',
+    'pwa.install_dismiss' => 'Maybe later',
+    'pwa.install_ios_body' => 'In Safari, tap Share → "Add to Home Screen".',
+    'pwa.install_owner_title' => 'Add your dashboard to your phone',
+    'pwa.install_owner_body' => 'Install to reach your host dashboard faster.',
+
     'home.hero_title' => 'Pick a house in your favorite region',
     'home.hero_subtitle' => 'Browse guesthouses across the regions of Azerbaijan and message the owner directly on WhatsApp in one tap.',
     'home.search_region' => 'Region',
@@ -228,4 +236,8 @@ return [
     'owner.calendar_range_mark_free' => 'Mark range free',
     'owner.calendar_apply' => 'Apply',
     'owner.calendar_no_houses' => 'Add a house first to manage its calendar.',
+
+    'owner.toast_house_approved' => '"%s" was approved and published on the site.',
+    'owner.toast_house_rejected' => '"%s" was sent back for changes.',
+    'owner.toast_payment_ok' => 'Payment completed successfully, your subscription is updated.',
 ];

@@ -207,12 +207,24 @@ final class HouseRepository
     {
         DB::query('UPDATE houses SET views_total = views_total + 1 WHERE id = :id', [':id' => $houseId]);
         self::bumpDailyStat($houseId, 'views');
+        self::emitStatEvent($houseId, 'view');
     }
 
     public static function incrementWaClick(int $houseId): void
     {
         DB::query('UPDATE houses SET wa_clicks_total = wa_clicks_total + 1 WHERE id = :id', [':id' => $houseId]);
         self::bumpDailyStat($houseId, 'wa_clicks');
+        self::emitStatEvent($houseId, 'wa_click');
+    }
+
+    /** Owner panelinin canlı sayğacı üçün (11.4) */
+    private static function emitStatEvent(int $houseId, string $eventType): void
+    {
+        $house = DB::one('SELECT owner_id, title FROM houses WHERE id = :id', [':id' => $houseId]);
+        if ($house === null) {
+            return;
+        }
+        Sse::emit('owner_' . $house['owner_id'], $eventType, ['house_id' => $houseId, 'title' => $house['title']]);
     }
 
     private static function bumpDailyStat(int $houseId, string $column): void

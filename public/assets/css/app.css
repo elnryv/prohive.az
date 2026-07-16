@@ -227,3 +227,38 @@ section.description,section.calendar,section.map,section.owner-card,section.amen
 .calendar-range-form input{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:40px}
 
 @media (max-width:640px){.wizard-form__row{grid-template-columns:1fr}.owner-house-row{flex-direction:column}.owner-house-row__photo{width:100%;height:160px}}
+
+/* ===== Toast bildirişləri (SSE, Faza 5) ===== */
+.toast-container{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:100%;padding:0 16px}
+.toast{background:var(--pine);color:#fff;padding:12px 20px;border-radius:999px;box-shadow:var(--shadow);font-size:.9rem;font-weight:600;opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;max-width:420px;text-align:center}
+.toast--visible{opacity:1;transform:translateY(0)}
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+
+/* ===== PWA quraşdırma təklifi ===== */
+.install-sheet{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -6px 20px rgba(20,51,42,.15);padding:18px 20px calc(18px + env(safe-area-inset-bottom));z-index:1001;transform:translateY(110%);transition:transform .3s ease}
+.install-sheet.is-visible{transform:translateY(0)}
+.install-sheet__body{display:flex;align-items:center;gap:14px}
+.install-sheet__icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--moss),var(--leaf));flex:0 0 auto}
+.install-sheet__text{flex:1}
+.install-sheet__text h3{margin:0 0 2px;font-size:1rem}
+.install-sheet__text p{margin:0;color:var(--ink-soft);font-size:.85rem}
+.install-sheet__actions{display:flex;gap:10px;margin-top:14px}
+.install-sheet__actions .btn{flex:1;text-align:center}
+@media (prefers-reduced-motion: reduce){.install-sheet{transition:none}}
+
+/* ===== Splash (bölmə 6.1) ===== */
+#splash{position:fixed;inset:0;background:#14332A;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#splash .splash-word{font-family:'Fraunces',serif;font-size:2.2rem;color:#fff;opacity:0;display:flex;gap:.35em}
+#splash .splash-word--birlikde{animation:splashFadeIn .4s ease forwards}
+#splash .splash-word--getdik{opacity:0;transform:translateX(24px);animation:splashSlideIn .6s .4s ease forwards}
+#splash svg{margin-top:18px;width:120px;height:40px;opacity:0;animation:splashFadeIn .4s .9s ease forwards}
+#splash svg path{stroke-dasharray:200;stroke-dashoffset:200;animation:splashDraw .5s .9s ease forwards}
+#splash.is-hiding{animation:splashFadeOut .4s ease forwards}
+@keyframes splashFadeIn{to{opacity:1}}
+@keyframes splashSlideIn{to{opacity:1;transform:translateX(0)}}
+@keyframes splashDraw{to{stroke-dashoffset:0}}
+@keyframes splashFadeOut{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion: reduce){
+    #splash .splash-word,#splash svg,#splash svg path{animation:none !important;opacity:1 !important;transform:none !important;stroke-dashoffset:0 !important}
+    #splash.is-hiding{animation:none !important;opacity:0;visibility:hidden}
+}

@@ -60,10 +60,13 @@ $sparkline = static function (array $days, string $key): string {
             <a class="btn btn--primary btn--large" href="/sahib/ev/yeni"><?= View::e(Lang::t('owner.dashboard_add_house')) ?></a>
         </div>
     <?php else: ?>
-        <div class="owner-house-list">
+        <div class="owner-house-list" id="owner-house-list"
+             data-label-approved="<?= View::e(Lang::t('owner.house_status_approved')) ?>"
+             data-label-rejected="<?= View::e(Lang::t('owner.house_status_rejected')) ?>"
+             data-label-reject-reason="<?= View::e(Lang::t('owner.house_reject_reason')) ?>">
             <?php foreach ($houses as $h): ?>
                 <?php $days = $stats[(int) $h['id']] ?? []; ?>
-                <div class="owner-house-row">
+                <div class="owner-house-row" data-house-id="<?= (int) $h['id'] ?>">
                     <div class="owner-house-row__photo">
                         <?php if ($h['cover_photo']): ?>
                             <img src="/uploads/houses/<?= (int) $h['id'] ?>/<?= View::e($h['cover_photo']) ?>" alt="">
@@ -77,20 +80,18 @@ $sparkline = static function (array $days, string $key): string {
                             <?= View::e($h['region_name_az']) ?><?= $h['village'] ? ' · ' . View::e($h['village']) : '' ?>
                             · <?= (int) $h['photo_count'] ?> foto
                         </p>
-                        <span class="badge badge--house-<?= View::e($h['status']) ?>"><?= View::e(Lang::t($houseStatusKey[$h['status']] ?? 'owner.house_status_draft')) ?></span>
-                        <?php if ($h['status'] === 'rejected' && $h['reject_reason']): ?>
-                            <p class="owner-house-row__reject"><?= View::e(Lang::tf('owner.house_reject_reason', $h['reject_reason'])) ?></p>
-                        <?php endif; ?>
+                        <span class="badge badge--house-<?= View::e($h['status']) ?>" data-status-badge><?= View::e(Lang::t($houseStatusKey[$h['status']] ?? 'owner.house_status_draft')) ?></span>
+                        <p class="owner-house-row__reject" data-reject-reason<?= ($h['status'] === 'rejected' && $h['reject_reason']) ? '' : ' hidden' ?>>
+                            <?= ($h['status'] === 'rejected' && $h['reject_reason']) ? View::e(Lang::tf('owner.house_reject_reason', $h['reject_reason'])) : '' ?>
+                        </p>
 
-                        <?php if ($days !== []): ?>
-                        <div class="stats-mini">
+                        <div class="stats-mini"<?= $days === [] ? ' hidden' : '' ?>>
                             <svg viewBox="0 0 120 28" class="sparkline" preserveAspectRatio="none">
                                 <polyline points="<?= $sparkline($days, 'views') ?>" fill="none" stroke="#3E7C4F" stroke-width="2"></polyline>
                             </svg>
-                            <span><?= (int) $h['views_total'] ?> <?= View::e(Lang::t('owner.stats_total_views')) ?></span>
-                            <span><?= (int) $h['wa_clicks_total'] ?> <?= View::e(Lang::t('owner.stats_total_wa_clicks')) ?></span>
+                            <span><span class="stat-value" data-stat="views"><?= (int) $h['views_total'] ?></span> <?= View::e(Lang::t('owner.stats_total_views')) ?></span>
+                            <span><span class="stat-value" data-stat="wa_clicks"><?= (int) $h['wa_clicks_total'] ?></span> <?= View::e(Lang::t('owner.stats_total_wa_clicks')) ?></span>
                         </div>
-                        <?php endif; ?>
 
                         <div class="owner-house-row__actions">
                             <a class="btn" href="/sahib/ev/<?= (int) $h['id'] ?>/redakte?addim=1"><?= View::e(Lang::t('owner.action_edit')) ?></a>

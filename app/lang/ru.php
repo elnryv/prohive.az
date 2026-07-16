@@ -15,6 +15,14 @@ return [
     'footer.rights' => 'Все права защищены.',
     'footer.add_house' => 'Добавьте свой дом — первый месяц бесплатно',
 
+    'pwa.install_title' => 'Добавить на телефон',
+    'pwa.install_body' => 'Установите Birlikdə Getdik как приложение для более быстрого доступа.',
+    'pwa.install_button' => 'Установить',
+    'pwa.install_dismiss' => 'Может позже',
+    'pwa.install_ios_body' => 'В Safari нажмите «Поделиться» → «На экран «Домой»».',
+    'pwa.install_owner_title' => 'Добавьте панель на телефон',
+    'pwa.install_owner_body' => 'Установите, чтобы быстро открывать панель владельца.',
+
     'home.hero_title' => 'Выберите дом в любимом регионе',
     'home.hero_subtitle' => 'Просмотрите гостевые дома в регионах Азербайджана и напишите владельцу понравившегося дома в один клик.',
     'home.search_region' => 'Регион',
@@ -227,4 +235,8 @@ return [
     'owner.calendar_range_mark_free' => 'Отметить свободным',
     'owner.calendar_apply' => 'Применить',
     'owner.calendar_no_houses' => 'Чтобы управлять календарём, сначала добавьте дом.',
+
+    'owner.toast_house_approved' => 'Дом «%s» одобрен и опубликован на сайте.',
+    'owner.toast_house_rejected' => 'Дом «%s» возвращён на доработку.',
+    'owner.toast_payment_ok' => 'Оплата прошла успешно, подписка обновлена.',
 ];

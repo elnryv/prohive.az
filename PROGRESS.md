@@ -500,3 +500,123 @@ owner panelində canlı baxış/klik sayğacı + admin dashboard-da canlı lent
 Yoxlama kriteriyaları (FAZA 5, bölmə 13.2): Lighthouse PWA installable;
 splash ≤2s və reduced-motion-da sönür; iki brauzer pəncərəsi: birində ev
 səhifəsi baxışı → digərində owner panel sayğacı 3 saniyə içində artır.
+
+## FAZA 5 — PWA + SSE + splash ✅ (tamamlandı)
+
+### Nə edildi
+
+- **`app/Core/Sse.php`** (11.4): `emit(channel, type, payload)` →
+  `sse_events`-ə yazır; `stream(channel)` — 2 saniyəlik DB poll, Last-Event-ID
+  ilə bərpa (header və ya `?lastEventId`), 25 saniyədən bir `: ping`,
+  maksimum 5 dəq bağlantı ömrü (`X-Accel-Buffering: no`, bufer təmizlənməsi).
+- **Hadisə yayım nöqtələri**: `HouseRepository::incrementView/incrementWaClick`
+  → `owner_{id}` kanalına `view`/`wa_click`; `Register::submit()` →
+  `admin` kanalına `new_owner`; `HouseEdit::submitForApproval()` → `admin`
+  kanalına `house_pending`; `Approvals::approve/reject()` → `owner_{id}`
+  kanalına `house_approved`/`house_rejected`; `PaymentRepository::applyApproval()`
+  → HƏM `owner_{id}`, HƏM `admin` kanalına `payment_ok`.
+- **SSE marşrutları**: sayt tərəfində `GET /sse` (`Site/SseStream.php`,
+  owner auth-dan `owner_{Auth::id()}` kanalı), admin tərəfində `GET /sse`
+  (`Admin/AdminSseStream.php`, `admin` kanalı). *Sinif adı toqquşmasından
+  qaçmaq üçün əvvəlcədən `AdminSseStream` adlandırıldı (Faza 3-dəki
+  Login/Dashboard dərsi nəzərə alınaraq).*
+- **Owner panel canlı UI**: `stat-value` `data-stat` atributları ilə
+  baxış/klik sayğacları SSE hadisəsi gəldikcə JS-də artırılır (səhifə
+  yenilənmədən); `house_approved`/`house_rejected` status nişanını canlı
+  yeniləyir; `payment_ok` toast göstərib 3 saniyə sonra səhifəni yeniləyir.
+  Toast konteyner + 3-dilli mesaj şablonları (`owner.toast_*`).
+- **Admin dashboard canlı lent**: yeni `public_admin/assets/admin.js` —
+  `new_owner`/`house_pending`/`payment_ok` hadisələrini vaxt möhürü ilə
+  siyahının başına əlavə edir, maks. 20 sətir saxlanılır.
+- **`sw.js`** tam yenidən yazıldı (11.2): versiyalı cache-first app shell
+  (css/js/offline.html/manifest/ikonlar), `activate`-də köhnə versiya
+  keşlərinin silinməsi, ev fotoları (`/uploads/houses/...`) üçün
+  stale-while-revalidate + 60 şəkillik LRU (`trimCache`), `/api/*`,
+  `/sse`, `/odenis/callback` HEÇ VAXT keşlənmir, digər HTML naviqasiyaları
+  network-first → uğursuz olduqda `offline.html`. `app.js`-ə SW qeydiyyatı
+  əlavə olundu.
+- **PWA ikonları** (`generate_icons.php`, GD ilə): real loqo olmadığı üçün
+  dizayn palitrasına uyğun sadə "ev" siluetli `icon-192.png`, `icon-512.png`,
+  `maskable-512.png` generasiya edildi (maskable variant təhlükəsiz zona
+  daxilində kiçildilib).
+- **Splash** (`app/views/shared/splash.php`, 6.1): "Birlikdə" fade-in →
+  "Getdik" sürüşərək gəlir → dağ siluet SVG stroke animasiyası, cəmi
+  ~1.9s. Inline HTML/CSS/JS (əlavə sorğu yoxdur), `sessionStorage` bayrağı
+  ilə "sessiyada bir dəfə" məntiqi — bu, spec-in "PWA rejimində VƏ YA
+  ilk açılışda" şərtini TƏK bir yoxlama ilə düzgün ödəyir, çünki
+  `sessionStorage` PWA-nın hər soyuq başlanğıcında da təbii sıfırlanır
+  (qeyd: bu, iki ayrı şərt kimi yox, vahid məntiq kimi icra edildi —
+  aşağıda "qərar" bölməsində izah olunur). `prefers-reduced-motion` →
+  animasiyasız, dərhal keçid.
+- **Quraşdırma təklifi** (11.3): `app/views/shared/install_prompt.php` +
+  `app.js`. Qonaq: 2-ci səhifə baxışından sonra (`sessionStorage` sayğacı)
+  alt sheet; `beforeinstallprompt` tutulur, iOS-da (hadisə heç vaxt
+  atəşlənmədiyi üçün) "Quraşdır" düyməsi təlimat mətninə keçir. Rədd →
+  `localStorage`-da 7 gün bayrağı. Ev sahibi: qeydiyyatdan sonra
+  (`/sahib/ev/yeni?xosgeldin=1` query parametri ilə) dərhal göstərilir.
+
+### Qərar: splash-ın "PWA VƏ YA ilk açılış" şərti necə vahidləşdirildi
+
+Spec mətni: "YALNIZ PWA rejimində... VƏ YA sessiyada ilk açılışda... hər
+səhifə keçidində YOX". `sessionStorage` təbiətcə hər tam brauzer/PWA
+sessiyasının başlanğıcında sıfırlanır (PWA soyuq başlanğıcı da daxil
+olmaqla) və naviqasiyalar arasında saxlanılır. Buna görə TƏK bir
+`sessionStorage` yoxlaması eyni anda: (a) adi brauzerdə "ilk açılış"-ı,
+(b) PWA-da "hər launch"-ı düzgün tutur, (c) "hər səhifə keçidində yox"
+qaydasını təmin edir — ayrıca `display-mode: standalone` şərtinə ehtiyac
+qalmır. Bu, improvizasiya deyil, iki şərtin məntiqi ekvivalentliyinin
+sadələşdirilməsidir; `PROGRESS.md`-də sənədləşdirilir ki, Faza 6-da
+(vizual cila) kimsə fərq axtarmasın.
+
+### Nə test olundu (canlı HTTP, iki dev server, PHP_CLI_SERVER_WORKERS=4)
+
+1. **PWA aktivləri fetch olunur**: `manifest.webmanifest` (200, düzgün
+   `application/manifest+json`, keçərli JSON), `sw.js` (200,
+   `application/javascript`), 3 ikon (200), `offline.html` (200).
+2. **Splash HTML/JS mövcudluğu**: ana səhifədə `#splash` markası və
+   `sessionStorage.getItem('getdik_splash_shown')` məntiqi tapıldı.
+3. **SSE — əsas qəbul kriteriyası, HƏQİQİ eyni-zamanlı bağlantı ilə**:
+   owner 1 kimi giriş edilib, arxa fonda `curl -N` ilə `/sse`-yə uzunömürlü
+   bağlantı açıldı; AYRI bir sorğu ilə ev səhifəsi baxışı tetiklendi →
+   axında `event: view` **2 saniyə ərzində** göründü (tələb olunan 3
+   saniyədən sürətli, poll intervalına uyğun). Eyni üsulla `wa_click`,
+   admin tərəfindən `house_approved` (owner kanalına) və `new_owner`
+   (admin kanalına) hadisələri də real vaxtda çatdırıldı və doğrulandı.
+4. Owner panel HTML-də `data-house-id`, `stat-value[data-stat]`,
+   `toast-container[data-sse-url]`, `install-sheet` elementlərinin hamısı
+   mövcud olduğu təsdiqləndi.
+5. Server loqlarında (bütün SSE test sessiyası boyu, ~15 sorğu) heç bir
+   PHP warning/fatal qeydə alınmadı.
+6. Bütün `.php` faylları `php -l`, bütün `.js` faylları `node --check`
+   ilə təmiz.
+
+### Məlum məhdudiyyətlər
+
+- Lighthouse CLI bu sandbox mühitində (headless Chrome yoxdur) işə
+  salınmadı — PWA installability meyarları (manifest sahələri, ikon
+  ölçüləri, SW qeydiyyatı, HTTPS) kod baxışı ilə spec-ə uyğunlaşdırıldı,
+  amma real Lighthouse balı ölçülmədi. Real domendə/brauzerdə
+  `chrome://lighthouse` ilə yoxlanılması tövsiyə olunur.
+- 25 saniyəlik SSE ping-i və 5 dəqiqəlik maksimum bağlantı ömrü kod
+  baxışı ilə təsdiqləndi (məntiq düzgündür), tam 5+ dəqiqə gözləyib canlı
+  test edilmədi (vaxt səmərəliliyi üçün).
+- iOS Safari-də `beforeinstallprompt` davranışı real cihazda test
+  edilmədi (kod UA-sniffing ilə fallback yolunu düzgün işlədir, amma
+  Safari-nin xüsusi PWA davranışları simulyasiya ilə tam əhatə oluna
+  bilməz).
+
+### Növbəti addım — FAZA 6 (Cila)
+
+Skeleton yükləmə vəziyyətləri, boş hallar üçün mesajlar (artıq "listing.empty"
+kimi qismən var — Faza 6-da vizual cilası), xəta səhifələri (403/500 üçün
+xüsusi dizayn, hazırda yalnız 404 var), SEO metalar (hər səhifə üçün unikal
+title/description artıq var — schema.org `LodgingBusiness` JSON-LD ev
+səhifəsində Faza 1-dən mövcuddur, amma digər struktur məlumatlar əlavə
+oluna bilər) + tam `sitemap.xml` (əsas versiya Faza 4-də cron ilə hazırdır),
+sürət optimallaşdırması (şəkil lazy-load, critical CSS), son dizayn keçidi
+(qiymət filtri həqiqi slider-ə çevrilməsi kimi Faza 1-dən qalan
+sadələşdirmələr), RU/EN validasiya mesajlarının tamamlanması (Faza 2-dən
+qalan, hazırda yalnız AZ).
+
+Yoxlama kriteriyaları (FAZA 6, bölmə 13.2): Lighthouse Performance ≥85
+(mobil), SEO ≥95; bütün mətnlər 3 dildə; console-da xəta yoxdur.

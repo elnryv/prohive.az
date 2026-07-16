@@ -111,4 +111,9 @@ $router->post('/sahib/teqvim/{id}/aralig', static function (array $params): void
     (new Calendar())->toggleRange($params);
 });
 
+// ===================== SSE (bölmə 11.4) =====================
+$router->get('/sse', static function (): void {
+    (new SseStream())->handle();
+});
+
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');

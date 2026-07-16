@@ -115,4 +115,9 @@ $router->get('/logs', static function (): void {
     (new Logs())->index();
 });
 
+// ===================== SSE (bölmə 11.4) =====================
+$router->get('/sse', static function (): void {
+    (new AdminSseStream())->handle();
+});
+
 $router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');

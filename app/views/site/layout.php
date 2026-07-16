@@ -20,6 +20,7 @@ $__langUrl = static function (string $lang) use ($__path): string {
 <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
+<?php include APP_ROOT . '/app/views/shared/splash.php'; ?>
 <header class="site-header">
     <a class="brand" href="/"><?= View::e(Lang::t('app.name')) ?></a>
     <nav class="main-nav">
@@ -45,6 +46,7 @@ $__langUrl = static function (string $lang) use ($__path): string {
     </nav>
     <p>&copy; <?= date('Y') ?> <?= View::e(Lang::t('app.name')) ?>. <?= View::e(Lang::t('footer.rights')) ?></p>
 </footer>
+<?php include APP_ROOT . '/app/views/shared/install_prompt.php'; ?>
 <script src="/assets/js/app.js"></script>
 </body>
 </html>

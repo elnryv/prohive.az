@@ -95,6 +95,7 @@ final class HouseEdit
         }
 
         HouseRepository::submitForApproval((int) $house['id']);
+        Sse::emit('admin', 'house_pending', ['house_id' => (int) $house['id'], 'title' => $house['title']]);
         header('Location: /sahib/panel?gonderildi=1');
         exit;
     }

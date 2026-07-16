@@ -76,8 +76,9 @@ final class Register
             $trialDays
         );
 
+        Sse::emit('admin', 'new_owner', ['owner_id' => $ownerId, 'full_name' => $fullName, 'phone' => (string) $phone]);
         Auth::login($ownerId, true);
-        header('Location: /sahib/ev/yeni');
+        header('Location: /sahib/ev/yeni?xosgeldin=1');
         exit;
     }
 

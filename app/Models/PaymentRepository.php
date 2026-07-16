@@ -73,6 +73,14 @@ final class PaymentRepository
             );
 
             DB::commit();
+
+            $payment = self::findById($paymentId);
+            if ($payment !== null) {
+                $payload = ['payment_id' => $paymentId, 'amount' => $payment['amount']];
+                Sse::emit('owner_' . $payment['owner_id'], 'payment_ok', $payload);
+                Sse::emit('admin', 'payment_ok', $payload + ['owner_id' => (int) $payment['owner_id']]);
+            }
+
             return true;
         } catch (Throwable $e) {
             DB::rollBack();

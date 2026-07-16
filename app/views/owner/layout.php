@@ -21,6 +21,7 @@ $__loggedIn = Auth::check();
 <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body class="owner-body">
+<?php include APP_ROOT . '/app/views/shared/splash.php'; ?>
 <header class="site-header">
     <a class="brand" href="/"><?= View::e(Lang::t('app.name')) ?></a>
     <?php if ($__loggedIn): ?>
@@ -43,6 +44,16 @@ $__loggedIn = Auth::check();
     </nav>
 </header>
 <main class="owner-main"><?= $content ?></main>
+
+<?php if ($__loggedIn): ?>
+<div id="toast-container" class="toast-container" aria-live="polite"
+     data-sse-url="/sse"
+     data-t-house-approved="<?= View::e(Lang::t('owner.toast_house_approved')) ?>"
+     data-t-house-rejected="<?= View::e(Lang::t('owner.toast_house_rejected')) ?>"
+     data-t-payment-ok="<?= View::e(Lang::t('owner.toast_payment_ok')) ?>"></div>
+<?php endif; ?>
+
+<?php $installMode = 'owner'; include APP_ROOT . '/app/views/shared/install_prompt.php'; ?>
 <script src="/assets/js/app.js"></script>
 </body>
 </html>

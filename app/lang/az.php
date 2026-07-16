@@ -15,6 +15,15 @@ return [
     'footer.rights' => 'Bütün hüquqlar qorunur.',
     'footer.add_house' => 'Evinizi əlavə edin — ilk ay pulsuz',
 
+    // PWA quraşdırma təklifi (bölmə 11.3)
+    'pwa.install_title' => 'Telefonuna əlavə et',
+    'pwa.install_body' => 'Birlikdə Getdik-i tətbiq kimi quraşdırıb daha sürətli istifadə edin.',
+    'pwa.install_button' => 'Quraşdır',
+    'pwa.install_dismiss' => 'Bəlkə sonra',
+    'pwa.install_ios_body' => 'Safari-də paylaş düyməsinə → "Ana ekrana əlavə et" seçin.',
+    'pwa.install_owner_title' => 'Panelini telefonuna əlavə et',
+    'pwa.install_owner_body' => 'Ev sahibi panelinə tətbiq kimi tez çatmaq üçün quraşdırın.',
+
     // Ana səhifə
     'home.hero_title' => 'Sevdiyin bölgədə evini seç',
     'home.hero_subtitle' => 'Azərbaycanın bölgələrindəki qonaq evlərini vitrində gəz, bəyəndiyini bir toxunuşla ev sahibinə yaz.',
@@ -232,4 +241,9 @@ return [
     'owner.calendar_range_mark_free' => 'Aralığı boş et',
     'owner.calendar_apply' => 'Tətbiq et',
     'owner.calendar_no_houses' => 'Təqvimi idarə etmək üçün əvvəlcə ev əlavə edin.',
+
+    // Canlı bildirişlər (SSE, bölmə 11.4)
+    'owner.toast_house_approved' => '"%s" təsdiqləndi və saytda yayımlandı.',
+    'owner.toast_house_rejected' => '"%s" geri göndərildi.',
+    'owner.toast_payment_ok' => 'Ödəniş uğurla tamamlandı, abunəniz yeniləndi.',
 ];

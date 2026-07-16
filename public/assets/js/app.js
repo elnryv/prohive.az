@@ -2,6 +2,15 @@
 (function () {
     'use strict';
 
+    // ---------- Service Worker qeydiyyatı (bölmə 11.2) ----------
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {
+                // sw.js əlçatan deyilsə səssizcə davam edir
+            });
+        });
+    }
+
     // ---------- "Daha çox göstər" (AJAX pagination, bölmə 6.3) ----------
     document.addEventListener('click', function (e) {
         var btn = e.target.closest('#load-more');
@@ -315,5 +324,187 @@
                     }
                 });
         });
+    }
+
+    // ---------- Ev sahibi: canlı SSE (bölmə 11.4) ----------
+    var toastContainer = document.getElementById('toast-container');
+    if (toastContainer && typeof EventSource !== 'undefined') {
+        function showToast(message) {
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(function () {
+                toast.classList.add('toast--visible');
+            }, 10);
+            setTimeout(function () {
+                toast.classList.remove('toast--visible');
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 5000);
+        }
+
+        function bumpStat(houseId, statKey) {
+            var row = document.querySelector('.owner-house-row[data-house-id="' + houseId + '"]');
+            if (!row) {
+                return;
+            }
+            var el = row.querySelector('.stat-value[data-stat="' + statKey + '"]');
+            if (el) {
+                el.textContent = String((parseInt(el.textContent, 10) || 0) + 1);
+                el.closest('.stats-mini').hidden = false;
+            }
+        }
+
+        function updateHouseStatus(houseId, status, reason) {
+            var list = document.getElementById('owner-house-list');
+            var row = document.querySelector('.owner-house-row[data-house-id="' + houseId + '"]');
+            if (!row || !list) {
+                return;
+            }
+            var badge = row.querySelector('[data-status-badge]');
+            if (badge) {
+                badge.className = 'badge badge--house-' + status;
+                badge.textContent = status === 'approved'
+                    ? list.getAttribute('data-label-approved')
+                    : list.getAttribute('data-label-rejected');
+            }
+            var reasonEl = row.querySelector('[data-reject-reason]');
+            if (reasonEl) {
+                if (status === 'rejected' && reason) {
+                    reasonEl.textContent = (list.getAttribute('data-label-reject-reason') || '%s').replace('%s', reason);
+                    reasonEl.hidden = false;
+                } else {
+                    reasonEl.hidden = true;
+                }
+            }
+        }
+
+        var es = new EventSource(toastContainer.getAttribute('data-sse-url'));
+        es.addEventListener('view', function (e) {
+            var data = JSON.parse(e.data);
+            bumpStat(data.house_id, 'views');
+        });
+        es.addEventListener('wa_click', function (e) {
+            var data = JSON.parse(e.data);
+            bumpStat(data.house_id, 'wa_clicks');
+        });
+        es.addEventListener('house_approved', function (e) {
+            var data = JSON.parse(e.data);
+            updateHouseStatus(data.house_id, 'approved', null);
+            showToast((toastContainer.getAttribute('data-t-house-approved') || '').replace('%s', data.title));
+        });
+        es.addEventListener('house_rejected', function (e) {
+            var data = JSON.parse(e.data);
+            updateHouseStatus(data.house_id, 'rejected', data.reason);
+            showToast((toastContainer.getAttribute('data-t-house-rejected') || '').replace('%s', data.title));
+        });
+        es.addEventListener('payment_ok', function () {
+            showToast(toastContainer.getAttribute('data-t-payment-ok') || '');
+            setTimeout(function () { window.location.reload(); }, 3000);
+        });
+        es.onerror = function () {
+            // EventSource brauzer tərəfindən avtomatik reconnect edir; əlavə iş lazım deyil.
+        };
+    }
+})();
+
+// ---------- PWA quraşdırma təklifi (bölmə 11.3) ----------
+(function () {
+    var sheet = document.getElementById('install-sheet');
+    var acceptBtn = document.getElementById('install-accept');
+    var dismissBtn = document.getElementById('install-dismiss');
+    if (!sheet || !acceptBtn || !dismissBtn) {
+        return;
+    }
+
+    var DISMISS_KEY = 'getdik_install_dismissed_until';
+    var VIEWS_KEY = 'getdik_page_views';
+    var SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+    function isStandalone() {
+        return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    }
+
+    function isDismissed() {
+        try {
+            var until = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10);
+            return until > Date.now();
+        } catch (e) {
+            return false;
+        }
+    }
+
+    if (isStandalone() || isDismissed()) {
+        return;
+    }
+
+    function hide() {
+        sheet.classList.remove('is-visible');
+    }
+
+    function show() {
+        sheet.classList.add('is-visible');
+    }
+
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    var deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    acceptBtn.addEventListener('click', function () {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function () {
+                deferredPrompt = null;
+                hide();
+            });
+            return;
+        }
+        if (isIOS) {
+            var iosText = document.getElementById('install-ios-body-text');
+            var bodyEl = document.getElementById('install-sheet-body');
+            if (iosText && bodyEl) {
+                bodyEl.textContent = iosText.content ? iosText.content.textContent : iosText.textContent;
+            }
+            var actions = sheet.querySelector('.install-sheet__actions');
+            if (actions) {
+                actions.style.display = 'none';
+            }
+            return;
+        }
+        hide();
+    });
+
+    dismissBtn.addEventListener('click', function () {
+        try {
+            localStorage.setItem(DISMISS_KEY, String(Date.now() + SEVEN_DAYS_MS));
+        } catch (e) {
+            // localStorage əlçatan deyilsə sadəcə bu sessiyada gizlədilir
+        }
+        hide();
+    });
+
+    var mode = sheet.getAttribute('data-mode');
+    var justRegistered = location.search.indexOf('xosgeldin=1') !== -1;
+
+    if (mode === 'owner') {
+        if (justRegistered) {
+            setTimeout(show, 800);
+        }
+        return;
+    }
+
+    var views = 2;
+    try {
+        views = parseInt(sessionStorage.getItem(VIEWS_KEY) || '0', 10) + 1;
+        sessionStorage.setItem(VIEWS_KEY, String(views));
+    } catch (e) {
+        // sessionStorage əlçatan deyilsə 2-ci baxış fərziyyəsi ilə davam edilir
+    }
+    if (views >= 2) {
+        setTimeout(show, 800);
     }
 })();
