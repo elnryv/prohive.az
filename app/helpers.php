@@ -19,3 +19,18 @@ function e(?string $value): string
 {
     return View::e($value);
 }
+
+function time_ago(string $datetime): string
+{
+    $diff = time() - strtotime($datetime);
+    if ($diff < 60) {
+        return t('common.just_now');
+    }
+    if ($diff < 3600) {
+        return t('common.minutes_ago', ['n' => intdiv($diff, 60)]);
+    }
+    if ($diff < 86400) {
+        return t('common.hours_ago', ['n' => intdiv($diff, 3600)]);
+    }
+    return t('common.days_ago', ['n' => intdiv($diff, 86400)]);
+}

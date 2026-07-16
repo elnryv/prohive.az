@@ -164,14 +164,19 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
 }
 .bottom-nav a.active { color: var(--amber); }
 .bottom-nav .fab {
+  flex: 0 0 44px;
   background: var(--amber);
   color: #16130E;
   border-radius: 50%;
   width: 44px; height: 44px;
   display: flex; align-items: center; justify-content: center;
   margin-top: -18px;
-  font-size: 22px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
 }
+.bottom-nav .fab.active { color: #16130E; }
 
 .empty-state, .error-state {
   text-align: center;

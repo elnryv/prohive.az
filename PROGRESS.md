@@ -65,6 +65,43 @@ təsvir etdiyi DAVRANIŞI tam ödəyir. Əgər sahibkar əsl Getdik kodunu təqd
 - Eyni nömrə fərqli formatda (050-123-45-67) təkrar qeydiyyatda "artıq qeydiyyat var" xətası verir. ✓
 - CSRF token olmadan POST → HTTP 419. ✓
 
+## FAZA 2 — Elan + lent ✅ TAMAMLANDI
+
+- [x] `/musteri/elan/yeni` — kateqoriya kartları (ikon+hint-hazır sxem), haradan/hara + detal xəbərdarlığı,
+      tarix rejimi (razılaşma/konkret) + təcili çipi, təsvir, foto (maks 6). Qiymət sahəsi YOXDUR (Q-Y2).
+- [x] Yaradılışda: `scope` avtomatik (`ListingRules::scopeFor`), `expires_at` hesablanır, unikal `public_code`,
+      `listing_events` "created" qeydi, `sse_events`-ə `listing_new` yazılır (FAZA 4-də real yayım),
+      OG şəkli bir dəfə render olunur (`OgImage::saveForListing`)
+- [x] Müştəri elan idarəsi (`/musteri/elan/{id}`): status paneli, foto, sil/uzat (1 dəfə), paylaşım linki,
+      təkliflər bölməsi (boş — FAZA 3-də dolacaq)
+- [x] Sürücü lenti (`/surucu/lent`): Bakı/Bölgələrarası tab, kateqoriya filtri, təcili üstdə, kart dizaynı
+- [x] Sürücü elan səhifəsi (`/surucu/elan/{id}`): pending/inaktiv üçün kilid banner-i, aktiv sürücüyə
+      "təklif forması tezliklə" (FAZA 3 üçün yer saxlanılıb)
+- [x] Public paylaşım kartı `/e/{code}` (Q-Y10): loginsiz, marşrut/kateqoriya/tarix/təsvir/foto/təklif SAYI —
+      nömrə və qiymət YOXDUR, OG meta teqləri (`layouts/public.php`)
+- [x] Müştəri tarixçəsi (`/musteri/tarixce`, Q-Y11): tamamlanmış/bitmiş/silinmiş elanlar + "Yenidən sifariş"
+      (köhnə elanın kopyası ilə doldurulmuş forma)
+- [x] Gündə maks 5 aktiv elan limiti (bölmə 12.1)
+
+### Özünüyoxlama nəticələri (real server + MySQL + Playwright)
+- Elan yaratma HTTP round-trip **0.046 saniyə** (tələb: ≤60 saniyə). ✓
+- Scope hesablanması: Yasamal(Bakı)→Gəncə(bölgə) → `intercity` DB-də düzgün yazılıb. ✓
+- **Tablar düzgün ayırır**: Bakı-daxili tab boş qayıtdı, Bölgələrarası tab elanı göstərdi (server-side
+  filtr, DB sorğusu ilə təsdiqləndi). ✓
+- **Public səhifədə nömrə YOXDUR**: `/e/{code}` HTML-i `994`/`+994`/`phone` pattern-lərinə qarşı grep
+  edildi — heç bir uyğunluq tapılmadı; eyni şəkildə qiymət/AZN də yoxdur (sorğu səviyyəsində belə
+  seçilmir, yalnız `COUNT(*)` təklif sayı). ✓
+- OG şəkli avtomatik generasiya olunub (`storage/og/{code}.png`, 1200×630 PNG, GD ilə). ✓
+- Pending sürücü elan səhifəsində kilid banner-i görür, approved+trial sürücü təklif yerini görür
+  (offer forması FAZA 3-də aktivləşəcək). ✓
+- Playwright vizual test zamanı **2 real bug tapılıb və düzəldilib**:
+  1. Bottom-nav-ın mərkəzi "+" düyməsində PHP kodu səhvən düymənin GÖRÜNƏN mətninə yazılmışdı
+     (`class="fab"><?= $active(...) ?>+` → ekранда hərfi ilə "active+" mətni çıxırdı) — CSS class
+     atributuna köçürüldü.
+  2. `.fab` düyməsi `.bottom-nav a`-nın ümumi `flex:1` qaydasını miras alıb oval şəklə düşmüşdü —
+     `flex:0 0 44px` əlavə edilərək dairəvi формасы bərpa olundu.
+  Hər iki düzəlişdən sonra təkrar screenshot ilə vizual təsdiqləndi.
+
 ## MÜHİT QEYDİ
 
 Bu sessiya bir git-repo daxilində (kod anbarı) işləyir, canlı VPS-ə çıxışı yoxdur. Layihə kodu spesifikasiyanın

@@ -202,6 +202,7 @@ CREATE TABLE listings (
   completed_at TIMESTAMP NULL DEFAULT NULL,
   expires_at TIMESTAMP NOT NULL,
   reopen_count INT UNSIGNED NOT NULL DEFAULT 0,
+  extended TINYINT(1) NOT NULL DEFAULT 0,
   offers_count INT UNSIGNED NOT NULL DEFAULT 0,
   views_count INT UNSIGNED NOT NULL DEFAULT 0,
   removed_by ENUM('customer','admin') DEFAULT NULL,
