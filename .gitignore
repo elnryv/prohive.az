@@ -1,0 +1,8 @@
+/storage/uploads/houses/*
+!/storage/uploads/houses/.gitkeep
+/storage/tmp/*
+!/storage/tmp/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+.env
+*.log

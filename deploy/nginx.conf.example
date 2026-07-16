@@ -1,0 +1,143 @@
+# =====================================================================
+# Birlikdə Getdik — nginx nümunə konfiqi (bölmə 3)
+# İki subdomain EYNİ kod bazasını (/var/www/getdik/app) paylaşır,
+# giriş nöqtələri ayrıdır. Real serverdə:
+#   - PHP-FPM socket yolunu (fastcgi_pass) öz quraşdırmanıza uyğunlaşdırın
+#   - SSL sertifikat yollarını certbot (Let's Encrypt) ilə doldurun
+#   - /etc/nginx/sites-available/ altına qoyub sites-enabled-ə symlink edin
+# =====================================================================
+
+upstream php_fpm_getdik {
+    server unix:/run/php/php8.3-fpm.sock;
+}
+
+# ---------------------------------------------------------------------
+# getdik.birlikde.biz — qonaq + ev sahibi tərəfi
+# ---------------------------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name getdik.birlikde.biz;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name getdik.birlikde.biz;
+
+    root /var/www/getdik/public;
+    index index.php;
+
+    ssl_certificate     /etc/letsencrypt/live/getdik.birlikde.biz/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/getdik.birlikde.biz/privkey.pem;
+
+    client_max_body_size 25M;
+
+    add_header X-Content-Type-Options nosniff always;
+
+    access_log /var/log/nginx/getdik.access.log;
+    error_log  /var/log/nginx/getdik.error.log;
+
+    # Yüklənmiş fotolar/video (storage/uploads-a symlink, yalnız oxu)
+    location /uploads/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+    }
+
+    location /assets/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # SSE: uzun ömürlü bağlantı, buferləşmə söndürülür (bölmə 11.4)
+    location = /sse {
+        fastcgi_pass php_fpm_getdik;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        include fastcgi_params;
+        fastcgi_buffering off;
+        fastcgi_read_timeout 300s;
+        proxy_buffering off;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # upload_max_filesize=20M və post_max_size=25M PHP-FPM pool konfiqində
+    # (php_admin_value) və ya php.ini-də təyin olunur — nginx-dən deyil.
+    location ~ \.php$ {
+        fastcgi_pass php_fpm_getdik;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        include fastcgi_params;
+    }
+
+    # storage/ birbaşa http ilə əlçatan olmamalıdır (yalnız /uploads symlink-i istisna)
+    location ^~ /storage/ {
+        deny all;
+    }
+
+    location = /favicon.ico { log_not_found off; access_log off; }
+}
+
+# ---------------------------------------------------------------------
+# getdikadmin.birlikde.biz — yalnız admin
+# ---------------------------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name getdikadmin.birlikde.biz;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name getdikadmin.birlikde.biz;
+
+    root /var/www/getdik/public_admin;
+    index index.php;
+
+    ssl_certificate     /etc/letsencrypt/live/getdikadmin.birlikde.biz/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/getdikadmin.birlikde.biz/privkey.pem;
+
+    client_max_body_size 25M;
+
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+
+    access_log /var/log/nginx/getdikadmin.access.log;
+    error_log  /var/log/nginx/getdikadmin.error.log;
+
+    location /assets/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    location = /sse {
+        fastcgi_pass php_fpm_getdik;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        include fastcgi_params;
+        fastcgi_buffering off;
+        fastcgi_read_timeout 300s;
+        proxy_buffering off;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass php_fpm_getdik;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        include fastcgi_params;
+    }
+
+    location ^~ /storage/ {
+        deny all;
+    }
+}

@@ -1,0 +1,21 @@
+; Birlikdə Getdik — PHP-FPM pool nümunəsi (bölmə 3)
+; /etc/php/8.3/fpm/pool.d/getdik.conf altına qoyulmalıdır
+
+[getdik]
+user = www-data
+group = www-data
+listen = /run/php/php8.3-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+
+pm = dynamic
+pm.max_children = 10
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 4
+
+php_admin_value[upload_max_filesize] = 20M
+php_admin_value[post_max_size] = 25M
+php_admin_value[memory_limit] = 128M
+php_admin_value[error_log] = /var/www/getdik/storage/logs/php-fpm-error.log
+php_admin_flag[log_errors] = on
