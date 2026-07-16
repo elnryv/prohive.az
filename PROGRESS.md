@@ -193,6 +193,42 @@ round-trip ilə düzgünlüyü sübut edilib, göndərmə məntiqi (VAPID JWT, a
 yuxarıdakı testlə (saxta endpoint) doğrulanıb. Sahibkar canlı serverdə real cihazla yekun yoxlamanı
 apara bilər (README-də qeyd olunacaq).
 
+## FAZA 5 — Abunə + Payriff ✅ TAMAMLANDI
+
+- [x] `app/Payments/PayriffProvider.php` — Payriff API v3 (createOrder/getOrderStatus), config boş
+      olduqda `isConfigured()===false`, sistem yıxılmadan "tezliklə" vəziyyətinə düşür
+- [x] `Core/Billing.php`: `amountFor()` (fərdi/ümumi qiymət, Q-Y8), `applyGraceOnEnable()` (Q-Y7,
+      TƏMİZ HƏLL — trial_until=CURDATE()+grace_days), `extendPaidUntil()` (ardıcıl ödənişlər üst-üstə
+      düşmür)
+- [x] `/surucu/odenis`: status (trial/paid/free/expired), Payriff konfiqurasiya olunmayıbsa "tezliklə"
+      mesajı, ödəniş tarixçəsi
+- [x] `PaymentCallbackController` — TƏHLÜKƏSİZLİK: callback body-yə etibar edilmir, status Payriff-dən
+      YENİDƏN sorğulanır, `FOR UPDATE` ilə idempotent emal
+- [x] `cron/payriff_recheck.php` (15 dəq) + `cron/daily.php` (trial/paid expiry, 5-gün xatırlatma push,
+      sse_events təmizliyi, sitemap.xml)
+
+### Özünüyoxlama nəticələri (DB + HTTP səviyyəsində)
+- `payments_enabled='0'` → `Auth::isActiveDriver()` `billing_status='expired'` olan sürücü üçün belə
+  `true` qaytarır; billing səhifəsi "Hazırda platforma tam pulsuzdur" göstərir. ✓
+- `applyGraceOnEnable()`: `expired` sürücü → `trial`, `trial_until=bugün+7`; HƏMİN ANDA aktiv olan
+  trial/paid sürücülərə TOXUNULMADI (DB-də təsdiqləndi, 2 nəzarət sürücüsü ilə). ✓
+- Q-Y8 fərdi qiymət: `custom_price=15` olan sürücü üçün `amountFor()`→15, digəri üçün ümumi (25) qiymət
+  qaytarır; **yaradılmış ödəniş sətri (payments.amount) sonradan qiymət dəyişsə belə öz məbləğində
+  qalır** (DB-də təsdiqləndi: qiymət 25→40 dəyişəndən sonra köhnə `payments` sətri 25.00 saxladı). ✓
+- Callback idempotentliyi: artıq `status='paid'` olan ödənişə təkrar callback göndərildi →
+  `paid_until` DƏYİŞMƏDİ (erkən `return` işlədi). ✓
+- Real Payriff kalkulyatoruna qoşulma (saxta test açarları ilə) API sorğusu uğursuz olanda `pay()`
+  metodu sakit şəkildə `status='failed'` yazdı, istifadəçini xəta mesajı ilə geri yönləndirdi —
+  PHP fatal xəta YOXDUR.
+- `cron/daily.php` və `cron/payriff_recheck.php` konfiqurasiyasız Payriff mühitində xətasız işlədi.
+
+### Qeyd (mühit məhdudiyyəti)
+Bu sandbox-da real Payriff API-yə (internet) çıxış yoxdur — `PayriffProvider` PROGRESS.md-nin əvvəlki
+"SUAL" qeydində izah olunduğu kimi Getdik-in əsl kodu olmadan, Payriff-in ictimai API v3 nümunələrinə
+əsasən yazılıb. Sahibkar canlıya keçmədən əvvəl bunu öz Payriff kabinetindəki sandbox açarları ilə
+mütləq test etməlidir (xüsusilə `createOrder`/`getOrderStatus` sorğu-cavab sahə adları Payriff-in
+faktiki sənədləşməsi ilə tam üst-üstə düşməyə bilər).
+
 ## MÜHİT QEYDİ
 
 Bu sessiya bir git-repo daxilində (kod anbarı) işləyir, canlı VPS-ə çıxışı yoxdur. Layihə kodu spesifikasiyanın

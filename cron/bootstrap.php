@@ -15,7 +15,11 @@ spl_autoload_register(static function (string $class): void {
     }
 });
 
+require dirname(__DIR__) . '/app/helpers.php';
+
 use App\Core\Config;
+use App\Core\Lang;
 
 Config::load();
 date_default_timezone_set((string) Config::get('app.timezone', 'Asia/Baku'));
+Lang::use(Config::get('app.default_lang', 'az'));

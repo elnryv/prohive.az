@@ -22,6 +22,8 @@ use App\Controllers\Driver\HistoryController as DriverHistory;
 use App\Controllers\Driver\RouteSubscriptionController as DriverRoutes;
 use App\Controllers\Site\StreamController;
 use App\Controllers\Site\PushController;
+use App\Controllers\Driver\BillingController as DriverBilling;
+use App\Controllers\Site\PaymentCallbackController;
 
 Auth::boot();
 
@@ -119,6 +121,12 @@ $router->get('/surucu/profil', function () {
     Auth::requireRole('driver', '/giris');
     View::render('site/profile_stub', ['pageTitle' => t('nav.profile')]);
 });
+$router->get('/surucu/odenis', function () {
+    (new DriverBilling())->show();
+});
+$router->post('/surucu/odenis/ode', function () {
+    (new DriverBilling())->pay();
+});
 
 // --- Public paylaşım kartı (Q-Y10) ---
 $router->get('/e/{code}', function ($p) {
@@ -142,6 +150,11 @@ $router->post('/push/abune', function () {
 });
 $router->post('/push/legv', function () {
     (new PushController())->unsubscribe();
+});
+
+// --- Payriff callback (bölmə 8) ---
+$router->post('/odenis/callback', function () {
+    (new PaymentCallbackController())->handle();
 });
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

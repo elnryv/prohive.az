@@ -5,3 +5,4 @@
 !/public/storage/og/.gitkeep
 *.log
 .DS_Store
+/public/sitemap.xml
