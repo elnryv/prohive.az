@@ -1,3 +1,4 @@
+<?php $loggedIn = AdminAuth::check(); ?>
 <!doctype html>
 <html lang="az">
 <head>
@@ -8,6 +9,22 @@
 <link rel="stylesheet" href="/assets/admin.css">
 </head>
 <body>
-<?= $content ?>
+<?php if ($loggedIn): ?>
+<header class="admin-header">
+    <a class="admin-brand" href="/">Birlikdə Getdik — Admin</a>
+    <nav class="admin-nav">
+        <a href="/">Dashboard</a>
+        <a href="/tesdiq">Təsdiq növbəsi</a>
+        <a href="/owners">Ev sahibləri</a>
+        <a href="/payments">Ödənişlər</a>
+        <a href="/regions">Bölgələr</a>
+        <a href="/amenities">Şəraitlər</a>
+        <a href="/settings">Parametrlər</a>
+        <a href="/logs">Loglar</a>
+        <a href="/cixis" class="admin-nav__logout">Çıxış</a>
+    </nav>
+</header>
+<?php endif; ?>
+<main class="admin-main"><?= $content ?></main>
 </body>
 </html>

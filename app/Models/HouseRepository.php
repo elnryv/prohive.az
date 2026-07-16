@@ -323,6 +323,82 @@ final class HouseRepository
         return $stmt->rowCount() > 0;
     }
 
+    // ===================== Admin təsdiq növbəsi (9.2) =====================
+
+    /** @return array<int, array<string,mixed>> */
+    public static function pendingHouses(): array
+    {
+        return DB::all(
+            "SELECT h.*, o.full_name AS owner_name, o.phone AS owner_phone, r.name_az AS region_name_az
+             FROM houses h
+             JOIN owners o ON o.id = h.owner_id
+             JOIN regions r ON r.id = h.region_id
+             WHERE h.status = 'pending'
+             ORDER BY h.created_at ASC"
+        );
+    }
+
+    /** Status/görünürlükdən asılı olmadan (admin baxışı üçün) tam ev məlumatı */
+    public static function findByIdAdmin(int $houseId): ?array
+    {
+        return DB::one(
+            'SELECT h.*, o.full_name AS owner_name, o.phone AS owner_phone, r.name_az AS region_name_az
+             FROM houses h
+             JOIN owners o ON o.id = h.owner_id
+             JOIN regions r ON r.id = h.region_id
+             WHERE h.id = :id',
+            [':id' => $houseId]
+        );
+    }
+
+    public static function approve(int $houseId): void
+    {
+        DB::query(
+            "UPDATE houses SET status = 'approved', reject_reason = NULL, updated_at = NOW() WHERE id = :id",
+            [':id' => $houseId]
+        );
+        DB::query(
+            'UPDATE house_photos SET is_approved = 1 WHERE house_id = :id',
+            [':id' => $houseId]
+        );
+    }
+
+    public static function reject(int $houseId, string $reason): void
+    {
+        DB::query(
+            "UPDATE houses SET status = 'rejected', reject_reason = :reason, updated_at = NOW() WHERE id = :id",
+            [':id' => $houseId, ':reason' => $reason]
+        );
+    }
+
+    /** @return array<int, array<string,mixed>> approved ev üzərinə sonradan əlavə olunub hələ təsdiqlənməmiş fotolar */
+    public static function pendingPhotos(): array
+    {
+        return DB::all(
+            "SELECT hp.*, h.title AS house_title, h.slug AS house_slug
+             FROM house_photos hp
+             JOIN houses h ON h.id = hp.house_id
+             WHERE hp.is_approved = 0
+             ORDER BY hp.created_at ASC"
+        );
+    }
+
+    public static function approvePhoto(int $photoId): void
+    {
+        DB::query('UPDATE house_photos SET is_approved = 1 WHERE id = :id', [':id' => $photoId]);
+    }
+
+    /** @return array<string,mixed>|null silinmədən əvvəl fayl yolu üçün sətir qaytarır */
+    public static function findPhotoById(int $photoId): ?array
+    {
+        return DB::one('SELECT * FROM house_photos WHERE id = :id', [':id' => $photoId]);
+    }
+
+    public static function deletePhotoById(int $photoId): void
+    {
+        DB::query('DELETE FROM house_photos WHERE id = :id', [':id' => $photoId]);
+    }
+
     /** Owner-in gördüyü bütün fotolar (təsdiqlənməmişlər daxil) */
     public static function allPhotos(int $houseId): array
     {

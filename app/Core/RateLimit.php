@@ -60,6 +60,12 @@ final class RateLimit
         self::write($bucket, $identifier, $windowSeconds, true);
     }
 
+    /** Cəhd sayını qaytarır (məs. admin login-də 2-ci cəhddən sonra gecikmə tətbiq etmək üçün) */
+    public static function count(string $bucket, string $identifier, int $windowSeconds): int
+    {
+        return count(self::read($bucket, $identifier, $windowSeconds));
+    }
+
     /** Bucket üçün bütün cəhd tarixçəsini sıfırlayır (məs. uğurlu logindən sonra) */
     public static function clear(string $bucket, string $identifier): void
     {

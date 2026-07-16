@@ -281,3 +281,121 @@ axtarışı `Phone::digitsOnly()` + LIKE, artıq Core/Phone.php-də hazırdır).
 Yoxlama kriteriyaları (FAZA 3, bölmə 13.2): pending ev təsdiqlənir və saytda
 görünür; nömrə hissəvi axtarışı ("50 123") tapır; pulsuz/pullu keçid anında
 görünürlüyə təsir edir; hər əməliyyat admin_logs-a düşür.
+
+## FAZA 3 — Admin ✅ (tamamlandı)
+
+### Nə edildi
+
+- **`app/Core/AdminAuth.php`** — admin sessiyası, 30 dəq hərəkətsizlik → avtomatik
+  çıxış, 2 uğursuz cəhddən sonra captcha əvəzinə 30 saniyəlik süni gecikmə,
+  5 uğursuz cəhd → 15 dəq IP kilidi (RateLimit-in `tooMany/count/hit`
+  metodları üzərindən).
+- **`app/Core/AdminLog.php`** — bütün admin əməliyyatları `admin_logs`-a yazır
+  (səbəb tələb olunmur, Q9).
+- **Ayrı sessiya konteksti**: `APP_CONTEXT` sabiti (`public_admin/index.php`
+  `'admin'` təyin edir) + `ADMIN_SESSION_NAME` — admin və ev sahibi
+  sessiyaları fərqli cookie adları ilə tamamilə izolyasiya olunub (eyni
+  hostda/portda test edərkən belə toqquşmur, real deploy-da ayrı subdomain
+  olduğu üçün bu, əlavə təhlükəsizlik qatıdır).
+- **`AdminRepository`**: dashboard statistikası (bugünkü baxış/klik,
+  aktiv abunə sayı, MRR, pending sayı, 30-günlük bölgə tələbi cədvəli),
+  admin_logs filtrli sorğusu.
+- **`OwnerRepository`, `RegionRepository`, `AmenityRepository`** admin-scope
+  metodlarla genişləndirildi: telefon-hissəvi + ad/ev-adı axtarışı (Q11),
+  `setFree/makeBillable/clearCustomPrice/block/activate` (Q9 — status
+  ANINDA effektiv olur, ayrı keş/onay addımı yoxdur), region/amenity CRUD
+  (silinmə yalnız bağlı qeyd yoxdursa).
+- **`HouseRepository`** genişləndirildi: `pendingHouses`, `findByIdAdmin`,
+  `approve` (ev + bütün fotolarını təsdiqləyir), `reject` (səbəblə),
+  `pendingPhotos`/`approvePhoto`/`declinePhoto` (artıq yayımda olan evə
+  sonradan əlavə olunan fotolar üçün).
+- **Admin kontrollerləri**: `AdminLogin`, `AdminDashboard`, `Approvals`,
+  `Owners`, `OwnerCard`, `Settings`, `Regions`, `Amenities`, `Payments`
+  (Faza 4-ə qədər oxu-yalnız stub), `Logs`.
+- Admin view qatı (ayrı, yüngül `admin.css` — 3-dilli deyil, tək dil AZ,
+  spec-in "ayrıca, yüngül" tələbinə uyğun) + `public_admin/uploads` simlink
+  (foto icmalı üçün).
+
+### ⚠️ Test zamanı tapılan və düzəldilən İKİ real bug
+
+1. **Sinif adı toqquşması**: `Controllers/Owner/Login.php` və
+   `Controllers/Owner/Dashboard.php` ilə `Controllers/Admin/Login.php` və
+   `Controllers/Admin/Dashboard.php` eyni sinif adlarını (`Login`,
+   `Dashboard`) bölüşürdü. Layihə PHP namespace istifadə etmədiyi üçün
+   (spec: "framework YOX"), avtoloader qovluqları sırayla axtardığından
+   (`Core → Models → Payments → Site → Owner → Admin`) admin-in `Login`/
+   `Dashboard` sinifləri HEÇ VAXT yüklənmirdi — admin girişi səssizcə
+   ev sahibi `Login` sinfini işə salırdı (səhv mesajları admin
+   kontekstində "Telefon nömrəsi..." kimi göstərirdi). Fix: admin
+   kontrollerləri `AdminLogin`/`AdminDashboard` adına köçürüldü, bütün
+   layihə üzrə digər kontroller adları toqquşma üçün proqramla
+   yoxlanıldı (təkrar yoxdur).
+2. **PDO təkrar adlı parametr**: `OwnerRepository::search()`-də eyni
+   `:text_like` placeholder-i bir SQL sorğusunda İKİ dəfə istifadə
+   olunurdu (`o.full_name LIKE :text_like OR h.title LIKE :text_like`).
+   `DB.php` `PDO::ATTR_EMULATE_PREPARES=false` ilə işlədiyi üçün bu,
+   canlı testdə `SQLSTATE[HY093]: Invalid parameter number` fatal
+   xətası ilə nəticələndi (500). Fix: hər occurrence üçün ayrı ad
+   (`:text_like1`, `:text_like2`). Bütün Models/Controllers faylları
+   proqramla (regex skript) təkrar-placeholder pattern-i üçün
+   yenidən yoxlanıldı — başqa hal tapılmadı.
+
+### Nə test olundu (canlı HTTP, iki ayrı dev server — sayt 8150, admin 8151)
+
+1. **Tam təsdiq axını**: ev `pending` statusda ikən sayt tərəfində `/ev/{slug}`
+   404 qaytardı → admin `/tesdiq`-də görünüb təsdiqləndi → DB-də status
+   `approved` oldu → EYNİ ANDA sayt tərəfində 200 + bölgə siyahısında göründü.
+   `admin_logs`-a `house.approve` yazıldığı təsdiqləndi.
+2. **Telefon hissəvi axtarışı (Q11)**: `551000002` → Aygün Hüseynovanı tapdı;
+   ad üzrə (`Elvin`) və ev adı üzrə (`Yaşıl vadi`) axtarış da ayrı-ayrı
+   düzgün nəticə verdi.
+3. **Pulsuz/pullu keçid ANINDA (Q9)**: sahib bloklanan kimi evi sayt tərəfində
+   dərhal 404 oldu; "Pulsuz et" edilən kimi eyni sorğuda dərhal 200-ə qayıtdı
+   (aralıq/keş yoxdur — hər sorğuda canlı hesablanır). "Pullu et" fərdi
+   qiymətlə (`custom_price=15`) tətbiq edildi, sonra silindi — hər addım
+   `admin_logs`-da izlənildi (`owner.block`, `owner.set_free`,
+   `owner.set_paid`, `owner.clear_custom_price`).
+4. **Admin login qorunması**: cəhd 1-2 gecikməsiz, cəhd 3 ~30 saniyə gecikmə
+   ilə cavab verdi (ölçüldü: 0s, 1s, 30s) — captcha əvəzi süni gecikmə
+   təsdiqləndi.
+5. **Sessiya izolyasiyası**: admin cookie adı `getdik_admin_sess` (sayt/ev
+   sahibinin `getdik_sess`-dən fərqli) təsdiqləndi.
+6. **Region/Amenity CRUD**: yeni şərait yaradıldı; bağlı evi olan bölgənin
+   silinmə cəhdi bloklandı (`xeta=bagli_ev`), evi olmayan bölgə uğurla silindi;
+   istifadədə olan şərait (Wi-Fi) silinmə cəhdi bloklandı.
+7. **Yeni foto təsdiq axını**: onsuz da `approved` evə sahib tərəfindən əlavə
+   olunan foto `is_approved=0` ilə gəldi, admin `/tesdiq`-in "Yeni fotolar"
+   bölməsində göründü, təsdiqləndikdən sonra dərhal sayt tərəfində göründü.
+8. **Settings yenilənməsi**: ümumi qiymət 25→30, dəstək nömrəsi normallaşaraq
+   saxlanıldı.
+9. Server loqlarında (hər iki bug düzəldildikdən sonra) heç bir PHP
+   warning/fatal qalmadı. Bütün fayllar `php -l` təmiz.
+
+### Məlum məhdudiyyətlər
+
+- Admin paneli tək dildə (AZ) — spec 9-cu bölmə admin üçün 3-dillilik tələb
+  etmir (yalnız qonaq/ev sahibi tərəfləri 3-dilli, Q13).
+- SSE canlı lent (9.1) Faza 5-ə saxlanılıb; dashboard statistikası hazırda
+  səhifə yükləndikdə server-side hesablanır (statik snapshot).
+- `/payments` siyahısı oxu-yalnızdır və hazırda boşdur — real ödəniş yaradan
+  axın Faza 4-ün (Payriff inteqrasiyası) işidir.
+- 30 dəqiqəlik sessiya timeout-u kod baxışı ilə təsdiqləndi (`AdminAuth::check()`
+  məntiqi), real vaxtda 30 dəqiqə gözləyib canlı test edilmədi.
+
+### Növbəti addım — FAZA 4 (Payriff + abunə)
+
+`PayriffProvider` (bölmə 8-də artıq tam yazılıb, PAYRIFF_SECRET_KEY
+doldurulmayanda "tezliklə" rejimi), `/sahib/odenis` ödəniş axını (Billing
+kontrolleri artıq mövcuddur, yalnız "Ödə" düyməsini real axına qoşmaq
+lazımdır), `/odenis/callback` (status re-check ilə, Payriff cavabına
+etibar edilmir — bölmə 8.4), `cron/payriff_recheck.php`, `cron/daily.php`
+(abunə bitmə yoxlaması, təqvim təmizliyi, sitemap), expired gizlətmə
+məntiqi (artıq `OwnerRepository::isVisible()`-da var, yalnız cron ilə
+`billing_status` avtomatik `expired`-ə keçməlidir), Q10 qaydası (mövcud
+ödəniş linki öz məbləğində qalır — artıq `payments.amount` sütunu
+yaradılan anda fiksə olunur, `PayriffProvider::createOrder` bunu təmin edir).
+
+Yoxlama kriteriyaları (FAZA 4, bölmə 13.2): `PAYRIFF_SECRET_KEY` boş →
+düymə "tezliklə" rejimi, xəta yox; mock ilə approved axını `paid_until`-i
+düzgün artırır; təkrar callback ikinci dəfə artırmır (idempotent); qiymət
+dəyişimi köhnə linkə təsir etmir.

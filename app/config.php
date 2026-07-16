@@ -21,6 +21,7 @@ define('DB_CHARSET', 'utf8mb4');
 
 // ================== SESSİYA / TƏHLÜKƏSİZLİK ==================
 define('SESSION_NAME', 'getdik_sess');
+define('ADMIN_SESSION_NAME', 'getdik_admin_sess');
 define('REMEMBER_COOKIE_NAME', 'getdik_remember');
 define('REMEMBER_SECRET', getenv('REMEMBER_SECRET') ?: 'CHANGE_ME_IN_PRODUCTION');
 

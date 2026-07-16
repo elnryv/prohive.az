@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 
+if (!defined('APP_CONTEXT')) {
+    define('APP_CONTEXT', 'site'); // 'site'|'admin' — public_admin/index.php 'admin' təyin edir
+}
+
 date_default_timezone_set(APP_TIMEZONE);
 
 if (APP_ENV === 'local') {
@@ -36,7 +40,7 @@ spl_autoload_register(static function (string $class): void {
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 
-session_name(SESSION_NAME);
+session_name(APP_CONTEXT === 'admin' ? ADMIN_SESSION_NAME : SESSION_NAME);
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
