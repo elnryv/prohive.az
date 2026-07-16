@@ -37,6 +37,34 @@ təsvir etdiyi DAVRANIŞI tam ödəyir. Əgər sahibkar əsl Getdik kodunu təqd
 | 7 | PWA + dizayn cilası | ⏳ |
 | 8 | Buraxılış | ⏳ |
 
+## FAZA 1 — Auth + rollar ✅ TAMAMLANDI
+
+- [x] `/qeydiyyat` — rol seçimi (2 böyük kart), müştəri forması, sürücü forması (maşın növü/qeyd/foto)
+- [x] Müştəri qeydiyyatı → dərhal aktiv + avtomatik giriş (Q-Y16)
+- [x] Sürücü qeydiyyatı → `driver_status='pending'`, `billing_status='trial'`, foto WebP-ə kodlanır,
+      avtomatik giriş + "Profilin yoxlanılır" banner-i lentdə (stub)
+- [x] `/giris`, `/cixis` — 5 cəhd/15 dəq kilid, "yadda saxla" (HMAC remember-cookie, 30 gün)
+- [x] `Phone::normalize()` — bax FAZA 0 test nəticələri, 994XXXXXXXXX formatı
+- [x] CSRF token bütün POST formalarında
+- [x] Müştəri/sürücü stub dashboard-ları (tam funksionallıq FAZA 2/3-də)
+
+### Özünüyoxlama nəticələri (HTTP səviyyəsində, real server + MySQL)
+- Müştəri qeydiyyatı → DB-də düzgün sətir, dərhal `/musteri/elanlarim`-a yönləndirilir. ✓
+- Sürücü qeydiyyatı (multipart foto ilə) → foto real WebP-ə kodlanıb saxlanılıb, `driver_status=pending`,
+  `trial_until` = bugün+30, lentdə "Profilin yoxlanılır" banner-i göstərilir. ✓
+- **Pending sürücü təklif verə bilmir**: `Auth::isActiveDriver()` pending üçün `false`, `approved`-a
+  keçiriləndə `true` qaytarır (DB-səviyyəsində unit-test edilib). Tam UI/endpoint enforcement (təklif
+  düyməsinin kilidli overlay-i) FAZA 3-də təklif endpoint-i yaradılanda YENİDƏN yoxlanılacaq.
+- **5 format nömrə testi**: FAZA 0-da 8 fərqli format (0501234567, +994501234567, 994501234567,
+  501234567, boşluqlu, tire-li, 00994 prefiksli, mötərizəli) → hamısı `994501234567`-ə normallaşdı;
+  2 yanlış format düzgün rədd edildi.
+- Login kilidi: 5 səhv cəhddən sonra 6-cı cəhd (düzgün şifrə ilə belə) kilidlənmə mesajı verir;
+  kilid silinəndən sonra düzgün şifrə ilə giriş uğurlu. ✓
+- Remember-cookie: sessiya cookie-si silinəndə belə (brauzer bağlanma simulyasiyası) HMAC remember-cookie
+  ilə avtomatik giriş işləyir; manipulyasiya olunmuş (imza uyğunsuz) cookie rədd edilir. ✓
+- Eyni nömrə fərqli formatda (050-123-45-67) təkrar qeydiyyatda "artıq qeydiyyat var" xətası verir. ✓
+- CSRF token olmadan POST → HTTP 419. ✓
+
 ## MÜHİT QEYDİ
 
 Bu sessiya bir git-repo daxilində (kod anbarı) işləyir, canlı VPS-ə çıxışı yoxdur. Layihə kodu spesifikasiyanın
