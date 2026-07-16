@@ -21,4 +21,10 @@ php -S 127.0.0.1:8001 -t public_admin public_admin/index.php
 
 Dev seed admin: `admin` / `ChangeMe!2026` — istehsalat serverində dərhal dəyişin.
 
+Nümunə vitrin məlumatları (6 ev, 3 sahibkar, placeholder fotolar) üçün, `install.sql`-dən sonra:
+
+```bash
+php seed_demo.php
+```
+
 Serverə yerləşdirmə üçün nümunə konfiqlər `deploy/` qovluğundadır (nginx, PHP-FPM pool).

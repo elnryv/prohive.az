@@ -36,4 +36,10 @@ final class Lang
     {
         return self::$dict[$key] ?? $fallback ?? $key;
     }
+
+    /** sprintf formatlı açar üçün: Lang::tf('listing.house_count', 5) */
+    public static function tf(string $key, mixed ...$args): string
+    {
+        return vsprintf(self::t($key), $args);
+    }
 }

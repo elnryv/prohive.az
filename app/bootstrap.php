@@ -17,6 +17,7 @@ if (APP_ENV === 'local') {
 spl_autoload_register(static function (string $class): void {
     $dirs = [
         APP_ROOT . '/app/Core/',
+        APP_ROOT . '/app/Models/',
         APP_ROOT . '/app/Payments/',
         APP_ROOT . '/app/Controllers/Site/',
         APP_ROOT . '/app/Controllers/Owner/',
