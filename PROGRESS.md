@@ -185,3 +185,99 @@ Yoxlama kriteriyaları (FAZA 2, bölmə 13.2): yeni sahib ev yaradıb təsdiqə 
 4 fotodan az → göndərmə bloklanır; nömrə normalizasiyası 5 fərqli formatda test
 (bu, Core/Phone.php üçün Faza 0-da artıq edilib — Faza 2-də qeydiyyat axınında
 təkrar doğrulanacaq).
+
+## FAZA 2 — Ev sahibi ✅ (tamamlandı)
+
+### Nə edildi
+
+- **`app/Core/Auth.php`** — owner sessiyası: `login/logout/check/id/user/requireLogin`,
+  imzalı (HMAC) remember-cookie (12.1, cədvəlsiz), 30 gün.
+- **`app/Core/RateLimit.php`** genişləndirildi: `tooMany()`/`hit()`/`clear()` —
+  login yalnız UĞURSUZ cəhdləri sayır (uğurlu login limitə təsir etmir),
+  qeydiyyat hər cəhdi sayır (3/saat/IP).
+- **`app/Core/Upload.php`** (12.2 tam): finfo MIME sniffing (uzantıya güvənilmir),
+  GD ilə yenidən render (EXIF təmizlənir) → WebP maks 1600px, keyfiyyət 80;
+  video: MP4 MIME yoxlaması + 30MB limit, ffmpeg varsa 720p re-encode, yoxdursa
+  olduğu kimi saxlanılır; fayl adları random hash.
+- **`app/Models/OwnerRepository.php`**, **`SettingsRepository.php`** — qeydiyyat,
+  görünürlük qaydası (`isVisible`), effektiv qiymət hesablama (Q8: custom_price
+  NULL-dursa ümumi qiymət).
+- **`HouseRepository`** genişləndirildi: sahib-scope sorğular (`forOwner`,
+  `findOwnedById`), `createDraft`/`updateFields` (whitelist sütunlar),
+  `setAmenities`, `submitForApproval` (yalnız draft/rejected → pending —
+  redaktə qaydası, 4.5), foto CRUD, təqvim `toggleBusyDay`/`markRange`,
+  `stats30d`.
+- **Owner kontrollerləri**: `Register`, `Login` (+ logout), `Dashboard`,
+  `Billing` (Faza 4-ə qədər "tezliklə" stub-u ilə), `HouseEdit` (4 addımlı
+  sehrbaz: addım 1 draft yaradır, 2/3 AJAX-sız POST ilə yenilənir, 4-də
+  foto+təsdiqə göndər), `Photos` (AJAX upload/sil/üz qabığı), `Calendar`
+  (gün/aralıq AJAX).
+- **Owner view qatı** + `app.css`/`app.js` genişləndirilməsi (wizard, foto
+  grid, redaktə oluna bilən təqvim, sparkline-lı panel).
+- Bütün owner.* açarları 3 dildə (`az/ru/en`) əlavə olundu; **validasiya xəta
+  mesajları hələlik yalnız AZ-dır** (bax aşağıda, bilinən sadələşdirmə).
+
+### Nə test olundu (canlı HTTP + DB üzərindən, cookie-jar ilə sessiya saxlanaraq)
+
+1. **Qeydiyyat, 5 fərqli telefon formatı**: `0501234601`, `+994501234602`,
+   `994501234603`, `501234604`, `050-123-46-05` — hamısı `9945012346XX`-ə
+   normallaşdı və verilənlər bazasında düz formatda saxlanıldı.
+2. **Qeydiyyat rate limit** (3/saat/IP): 4-cü ardıcıl cəhd düzgün bloklandı;
+   limiti sıfırlayıb qalan 2 format da testdən keçdi.
+3. **Login lockout** (5/15dəq, yalnız uğursuz cəhdlər): 5 səhv şifrə cəhdi
+   keçdi, 6-cı bloklandı; blok aktivkən DÜZGÜN şifrə ilə belə giriş rədd
+   edildi (gözlənilən davranış).
+4. **CSRF qorunması**: saxta/köhnə tokenlə qeydiyyat cəhdi rədd edildi, heç
+   bir sətir yaradılmadı.
+5. **Remember-me**: giriş zamanı imzalı cookie qoyuldu; sessiya cookie-si
+   silinəndən sonra da (yeni brauzer sessiyası simulyasiyası) remember-cookie
+   ilə `/sahib/panel`-ə avtomatik giriş baş tutdu.
+6. **Tam 4-addım sehrbaz**: addım 1 (əsas məlumat) → draft ev yaradıldı →
+   addım 2 (qiymət/əlaqə, whatsapp nömrəsi normallaşdı) → addım 3 (2 şərait
+   bağlandı) → addım 4-də 4 real şəkil (jpg/png/webp qarışıq) yükləndi —
+   hamısı WebP-ə re-encode olundu (`getimagesize` ilə təsdiqləndi, MIME
+   `image/webp`), ilk foto avtomatik üz qabığı oldu, `is_approved=0`.
+7. **Min 4 foto qaydası**: 0 fotoyla "Təsdiqə göndər" server tərəfdə
+   bloklandı (müvafiq xəta mesajı ilə); 4 foto olduqda təqdim uğurla keçdi,
+   `houses.status` `draft` → `pending` oldu.
+8. **Zərərli fayl testi**: `.php` faylı `.jpg` adı ilə yükləndi — finfo MIME
+   sniffing həqiqi məzmuna görə rədd etdi (uzantıya baxmadı); mətn məzmunlu
+   saxta `.mp4` də həm video, həm şəkil kimi rədd edildi.
+9. **Sahiblik yoxlaması**: bir sahibin başqasının evini redaktəyə cəhdi 404
+   ilə bloklandı.
+10. **Redaktə qaydası (4.5)**: `approved` statuslu evin başlığı dəyişdirildi
+    — status `approved` olaraq QALDI (pending-ə qayıtmadı), yalnız yeni foto
+    `is_approved=0` ilə gəlir (artıq addım 6-da təsdiqlənib).
+11. **Təqvim**: bir günə iki dəfə toxunma düzgün busy→free keçidi verdi;
+    aralıq (4 gün) düzgün hamısı busy işarələndi.
+12. Server loqunda bütün test sessiyası boyu heç bir PHP warning/notice/
+    fatal qeydə alınmadı. Bütün dəyişdirilmiş fayllar `php -l` təmiz.
+
+### Məlum məhdudiyyətlər / sonrakı fazalara saxlanılan
+
+- Validasiya xəta mesajları (Register/Login/HouseEdit) hələlik yalnız AZ-dır
+  — UI xromu (düymələr, etiketlər) tam 3-dillidir, server mesajları Faza 6-da
+  tərcümə oluna bilər.
+- Video yükləmə yolu MIME-rədd testi ilə yoxlanıldı, amma sandbox-da ffmpeg
+  olmadığı üçün real MP4 ilə end-to-end test edilmədi (kod nəzərdən keçirilib;
+  ffmpeg yoxdursa spec-in özü "olduğu kimi saxla" fallback-ını tələb edir).
+- "Qiymət/əlaqə" addımında xəritə koordinatları (lat/lng) sehrbazın 2-ci
+  addımına əlavə edildi — sxemin mövcud sütunlarına uyğun, spec-in 4-addım
+  cədvəlində açıq yer göstərilməyib, lakin təbii yeri budur.
+- Abunə/ödəniş kartı (7.6) yalnız GÖRÜNTÜ səviyyəsində hazırdır — "Ödə"
+  düyməsi Faza 4-ə qədər deaktiv, "tezliklə" qeydi ilə.
+
+### Növbəti addım — FAZA 3 (Admin)
+
+Giriş (username+şifrə, 2 uğursuz→30san gecikmə, 5 uğursuz→15dəq IP kilidi),
+dashboard (kartlar+SSE canlı lent Faza 5-ə qədər statik), təsdiq növbəsi
+(pending evlər + yeni fotolar), owners (axtarış — Q11 telefon hissəvi axtarış,
+status/qiymət idarəsi — Q9/Q10), settings (ümumi qiymət — Q8), regions/
+amenities CRUD, admin_logs. Qərarlar reyestrinə zidd: Q9 (admin bir kliklə,
+səbəbsiz status keçidi, ANINDA qüvvəyə minir), Q10 (mövcud ödəniş linki öz
+məbləğində qalır — Faza 4 ilə birlikdə tam mənalanacaq), Q11 (telefon
+axtarışı `Phone::digitsOnly()` + LIKE, artıq Core/Phone.php-də hazırdır).
+
+Yoxlama kriteriyaları (FAZA 3, bölmə 13.2): pending ev təsdiqlənir və saytda
+görünür; nömrə hissəvi axtarışı ("50 123") tapır; pulsuz/pullu keçid anında
+görünürlüyə təsir edir; hər əməliyyat admin_logs-a düşür.

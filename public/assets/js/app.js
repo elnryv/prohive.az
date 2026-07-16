@@ -131,4 +131,189 @@
             });
         });
     });
+
+    // ---------- Ev sahibi: foto yükləmə/sil/üz qabığı (bölmə 7.3 addım 4) ----------
+    var photoGrid = document.getElementById('photo-grid');
+    var photoInput = document.getElementById('photo-input');
+
+    function updateSubmitButtonState() {
+        var submitBtn = document.getElementById('submit-for-approval-btn');
+        if (!submitBtn || !photoGrid) {
+            return;
+        }
+        var photoCount = photoGrid.querySelectorAll('.photo-tile img').length;
+        submitBtn.disabled = photoCount < 4;
+    }
+
+    function makePhotoTile(data, grid) {
+        var tile = document.createElement('div');
+        tile.className = 'photo-tile';
+        tile.setAttribute('data-photo-id', data.id);
+
+        var media = document.createElement(data.is_video ? 'video' : 'img');
+        media.src = data.url;
+        if (data.is_video) {
+            media.muted = true;
+        }
+        tile.appendChild(media);
+
+        if (data.is_cover) {
+            var coverBadge = document.createElement('span');
+            coverBadge.className = 'badge badge--verified photo-tile__cover-badge';
+            coverBadge.textContent = grid.getAttribute('data-label-cover') || '';
+            tile.appendChild(coverBadge);
+        }
+
+        var pendingBadge = document.createElement('span');
+        pendingBadge.className = 'badge badge--warn photo-tile__pending-badge';
+        pendingBadge.textContent = grid.getAttribute('data-label-pending') || '';
+        tile.appendChild(pendingBadge);
+
+        var actions = document.createElement('div');
+        actions.className = 'photo-tile__actions';
+        if (!data.is_video) {
+            var coverBtn = document.createElement('button');
+            coverBtn.type = 'button';
+            coverBtn.className = 'photo-set-cover';
+            coverBtn.setAttribute('data-photo-id', data.id);
+            coverBtn.textContent = grid.getAttribute('data-label-cover') || '';
+            actions.appendChild(coverBtn);
+        }
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'photo-delete';
+        delBtn.setAttribute('data-photo-id', data.id);
+        delBtn.textContent = grid.getAttribute('data-label-delete') || '';
+        actions.appendChild(delBtn);
+        tile.appendChild(actions);
+
+        return tile;
+    }
+
+    if (photoInput && photoGrid) {
+        photoInput.addEventListener('change', function () {
+            var file = photoInput.files[0];
+            if (!file) {
+                return;
+            }
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('csrf_token', photoGrid.getAttribute('data-csrf'));
+
+            fetch(photoGrid.getAttribute('data-upload-url'), { method: 'POST', body: formData })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data.ok) {
+                        alert(data.error || 'Yükləmə uğursuz oldu.');
+                        return;
+                    }
+                    photoGrid.appendChild(makePhotoTile(data, photoGrid));
+                    updateSubmitButtonState();
+                    photoInput.value = '';
+                })
+                .catch(function () {
+                    alert('Yükləmə uğursuz oldu.');
+                    photoInput.value = '';
+                });
+        });
+
+        photoGrid.addEventListener('click', function (e) {
+            var delBtn = e.target.closest('.photo-delete');
+            var coverBtn = e.target.closest('.photo-set-cover');
+            var csrf = photoGrid.getAttribute('data-csrf');
+            var baseUrl = photoGrid.getAttribute('data-upload-url');
+
+            if (delBtn) {
+                var photoId = delBtn.getAttribute('data-photo-id');
+                fetch(baseUrl + '/' + photoId + '/sil', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'csrf_token=' + encodeURIComponent(csrf),
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data.ok) {
+                            var tile = photoGrid.querySelector('[data-photo-id="' + photoId + '"]');
+                            if (tile) {
+                                tile.remove();
+                            }
+                            updateSubmitButtonState();
+                        }
+                    });
+            }
+
+            if (coverBtn) {
+                var coverId = coverBtn.getAttribute('data-photo-id');
+                fetch(baseUrl + '/' + coverId + '/cover', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'csrf_token=' + encodeURIComponent(csrf),
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data.ok) {
+                            photoGrid.querySelectorAll('.photo-tile__cover-badge').forEach(function (b) { b.remove(); });
+                            var tile = photoGrid.querySelector('[data-photo-id="' + coverId + '"]');
+                            if (tile) {
+                                var badge = document.createElement('span');
+                                badge.className = 'badge badge--verified photo-tile__cover-badge';
+                                badge.textContent = photoGrid.getAttribute('data-label-cover') || '';
+                                tile.insertBefore(badge, tile.firstChild.nextSibling);
+                            }
+                        }
+                    });
+            }
+        });
+
+        updateSubmitButtonState();
+    }
+
+    // ---------- Ev sahibi: təqvim (bölmə 7.4) ----------
+    var ownerCal = document.getElementById('owner-cal');
+    if (ownerCal) {
+        ownerCal.addEventListener('click', function (e) {
+            var day = e.target.closest('.cal-day');
+            if (!day || day.disabled) {
+                return;
+            }
+            var csrf = ownerCal.getAttribute('data-csrf');
+            fetch(ownerCal.getAttribute('data-toggle-url'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'csrf_token=' + encodeURIComponent(csrf) + '&date=' + encodeURIComponent(day.getAttribute('data-date')),
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        day.classList.toggle('is-busy', data.busy);
+                    }
+                });
+        });
+    }
+
+    var rangeForm = document.getElementById('calendar-range-form');
+    if (rangeForm) {
+        rangeForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var busy = (e.submitter && e.submitter.getAttribute('data-busy')) || '1';
+            var from = rangeForm.querySelector('[name="from"]').value;
+            var to = rangeForm.querySelector('[name="to"]').value;
+            if (!from || !to) {
+                return;
+            }
+            var csrf = rangeForm.getAttribute('data-csrf');
+            fetch(rangeForm.getAttribute('data-range-url'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'csrf_token=' + encodeURIComponent(csrf) + '&from=' + encodeURIComponent(from)
+                    + '&to=' + encodeURIComponent(to) + '&busy=' + encodeURIComponent(busy),
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        window.location.reload();
+                    }
+                });
+        });
+    }
 })();

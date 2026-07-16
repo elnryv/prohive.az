@@ -137,3 +137,93 @@ section.description,section.calendar,section.map,section.owner-card,section.amen
 .site-footer p{margin-top:14px;font-size:.85rem}
 
 @media (prefers-reduced-motion: reduce){.btn,.house-card{transition:none}}
+
+/* ===================== Ev sahibi tərəfi (Faza 2) ===================== */
+
+.owner-main{max-width:760px;margin:0 auto;padding:32px 20px 80px}
+
+/* forms */
+.form-errors{background:#FDECEC;border:1px solid #F5B5B5;color:#8A2C2C;border-radius:12px;padding:12px 16px;margin:0 0 18px;list-style:none}
+.form-errors li{margin:2px 0}
+.notice{border-radius:12px;padding:12px 16px;margin:0 0 18px}
+.notice--success{background:#E4F1E8;color:var(--moss)}
+.notice--warn{background:#FFF3DA;color:#9A6B12}
+
+.auth-page{max-width:420px;margin:20px auto}
+.auth-form{display:flex;flex-direction:column;gap:14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.auth-form label{display:flex;flex-direction:column;gap:5px;font-size:.85rem;font-weight:600;color:var(--ink-soft)}
+.auth-form input[type=text],.auth-form input[type=tel],.auth-form input[type=password]{border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;font-weight:400;color:var(--ink)}
+.checkbox-field{flex-direction:row !important;align-items:center;gap:8px !important}
+.auth-switch{text-align:center;margin-top:16px;color:var(--ink-soft)}
+
+/* wizard */
+.wizard{max-width:640px;margin:0 auto}
+.wizard__steps{display:flex;gap:8px;margin-bottom:24px}
+.wizard__step{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);text-decoration:none;color:var(--ink-soft);font-weight:700}
+.wizard__step.is-active{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.wizard__step--disabled{opacity:.4}
+.wizard-form{display:flex;flex-direction:column;gap:16px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.wizard-form label{display:flex;flex-direction:column;gap:5px;font-size:.85rem;font-weight:600;color:var(--ink-soft)}
+.wizard-form input,.wizard-form select,.wizard-form textarea{border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;font-weight:400;color:var(--ink);font-family:inherit}
+.wizard-form textarea{min-height:90px;resize:vertical}
+.wizard-form__row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.wizard-optional-langs{border:1px dashed var(--line);border-radius:12px;padding:10px 14px}
+.wizard-optional-langs summary{cursor:pointer;font-weight:600;font-size:.85rem;color:var(--ink-soft)}
+.wizard-optional-langs label{margin-top:10px}
+.wizard-amenities{background:transparent;box-shadow:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+
+/* photo wizard step */
+.wizard-photos__note{color:var(--ink-soft);font-size:.9rem}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:16px 0}
+.photo-tile{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--moss)}
+.photo-tile img,.photo-tile video{width:100%;height:100%;object-fit:cover}
+.photo-tile__cover-badge{position:absolute;top:6px;left:6px}
+.photo-tile__pending-badge{position:absolute;top:6px;right:6px}
+.photo-tile__actions{position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;padding:6px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);opacity:0;transition:opacity .15s}
+.photo-tile:hover .photo-tile__actions,.photo-tile:focus-within .photo-tile__actions{opacity:1}
+.photo-tile__actions button{flex:1;font-size:.72rem;border:none;border-radius:6px;padding:5px 4px;background:rgba(255,255,255,.9);cursor:pointer}
+.photo-upload-btn{cursor:pointer;display:inline-block}
+.wizard-photos__submit{display:flex;gap:12px;margin-top:20px}
+
+/* dashboard */
+.owner-dashboard h1,.owner-billing h1,.owner-calendar h1{margin-bottom:20px}
+.billing-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:28px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.billing-card--large{padding:28px;max-width:420px}
+.billing-card__price{font-weight:800;font-size:1.1rem;margin:0}
+.billing-card__note,.billing-card__until{color:var(--ink-soft);margin:0;font-size:.9rem}
+.badge--status-trial{background:#E8F0FF;color:#2A5CAA}
+.badge--status-paid{background:#E4F1E8;color:var(--moss)}
+.badge--status-free{background:#EFEAFB;color:#5B3FA8}
+.badge--status-expired,.badge--status-blocked{background:#FDECEC;color:#8A2C2C}
+.badge--house-draft{background:#EEE;color:#555}
+.badge--house-pending{background:#FFF3DA;color:#9A6B12}
+.badge--house-approved{background:#E4F1E8;color:var(--moss)}
+.badge--house-rejected{background:#FDECEC;color:#8A2C2C}
+
+.empty-state{text-align:center;padding:60px 20px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.empty-state .btn{margin-top:14px}
+
+.owner-house-list{display:flex;flex-direction:column;gap:16px}
+.owner-house-row{display:flex;gap:16px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.owner-house-row__photo{width:120px;height:90px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:var(--moss)}
+.owner-house-row__photo img{width:100%;height:100%;object-fit:cover}
+.owner-house-row__body{flex:1;display:flex;flex-direction:column;gap:4px}
+.owner-house-row__meta{color:var(--ink-soft);font-size:.85rem;margin:0}
+.owner-house-row__reject{color:#8A2C2C;font-size:.85rem;margin:2px 0}
+.owner-house-row__actions{display:flex;gap:8px;margin-top:8px}
+.stats-mini{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:.8rem;color:var(--ink-soft)}
+.sparkline{width:90px;height:22px}
+
+/* calendar (owner, editable) */
+.calendar-hint{color:var(--ink-soft);margin-bottom:12px}
+.calendar-house-select{margin-bottom:16px}
+.calendar-house-select select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:40px}
+.owner-cal-grid{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px}
+.cal-month--editable .cal-day{cursor:pointer;border:1px solid var(--line);background:var(--card)}
+.cal-month--editable .cal-day.is-busy{background:var(--pine);color:#fff;border-color:var(--pine)}
+.cal-month--editable .cal-day:disabled{cursor:not-allowed}
+.calendar-range-form{display:flex;gap:10px;flex-wrap:wrap;align-items:end;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.calendar-range-form label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--ink-soft);font-weight:600}
+.calendar-range-form input{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:40px}
+
+@media (max-width:640px){.wizard-form__row{grid-template-columns:1fr}.owner-house-row{flex-direction:column}.owner-house-row__photo{width:100%;height:160px}}
