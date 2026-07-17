@@ -203,7 +203,12 @@ return [
         'ios_step3' => 'Yuxarıda "Əlavə et"ə bas',
         'reminder_text' => 'Bildirişlər üçün tətbiqi quraşdır',
         'reminder_cta' => 'Qur',
-        'ios_enable_push_text' => 'Yeni sifariş/təklif gələndə xəbərin olsun',
-        'ios_enable_push_cta' => 'Bildirişləri aç',
+    ],
+
+    'profile_push' => [
+        'btn' => 'Bildirişləri aç',
+        'success' => 'Bildirişlər aktivləşdirildi.',
+        'denied' => 'İcazə verilmədi. Bildirişləri açmaq üçün telefonun Ayarlar bölməsindən icazə vermək lazımdır.',
+        'unsupported' => 'Bu brauzer/cihaz bildirişləri dəstəkləmir.',
     ],
 ];

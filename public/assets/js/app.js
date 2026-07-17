@@ -152,43 +152,35 @@
 
   window.YukPush = { subscribe: subscribeToPush };
 
-  if (Notification && Notification.permission === 'granted') {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     subscribeToPush();
   }
 
-  // iOS Safari-də "Ana ekrana əlavə et" beforeinstallprompt-u atəşləmir, ona görə
-  // Android-in "Quraşdır" düyməsindəki icazə axını iOS-a heç vaxt çatmır — tətbiq
-  // artıq standalone rejimdə açılıbsa (əl ilə əlavə edilib) və icazə hələ soruşulmayıbsa,
-  // ayrıca bir banner göstərib toxunma ilə (iOS tələb edir) icazəni soruşuruq.
-  const iosPushBanner = document.getElementById('ios-push-banner');
-  // MÜVƏQQƏTİ DİAQNOSTİKA — problem həll olunandan sonra silinəcək.
-  if (body.dataset.role === 'driver') {
-    alert(
-      'standalone=' + isStandalone()
-      + ' auth=' + body.dataset.auth
-      + ' role=' + body.dataset.role
-      + ' notif=' + (typeof Notification === 'undefined' ? 'undefined' : Notification.permission)
-      + ' banner=' + (iosPushBanner ? 'found' : 'MISSING')
-    );
-  }
-  if (
-    iosPushBanner
-    && isStandalone()
-    && body.dataset.auth === '1'
-    && typeof Notification !== 'undefined'
-    && Notification.permission === 'default'
-  ) {
-    iosPushBanner.hidden = false;
-  }
-  document.getElementById('ios-push-btn')?.addEventListener('click', async () => {
-    const perm = await Notification.requestPermission();
-    if (perm === 'granted') {
-      subscribeToPush();
+  // Profil səhifəsindəki "Bildirişləri aç" düyməsi — iOS toxunma-tələbini
+  // ödəmək üçün ancaq real klik daxilində Notification.requestPermission()
+  // çağırılır (avtomatik banner/aşkarlama etibarsız çıxdı, bax PROGRESS.md).
+  const pushBtn = document.getElementById('profile-push-btn');
+  const pushSuccessEl = document.getElementById('profile-push-success');
+  const pushErrorEl = document.getElementById('profile-push-error');
+  pushBtn?.addEventListener('click', async () => {
+    if (pushSuccessEl) pushSuccessEl.hidden = true;
+    if (pushErrorEl) pushErrorEl.hidden = true;
+    pushBtn.disabled = true;
+    try {
+      if (typeof Notification === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+        if (pushErrorEl) { pushErrorEl.hidden = false; pushErrorEl.textContent = pushBtn.dataset.msgUnsupported; }
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        if (pushErrorEl) { pushErrorEl.hidden = false; pushErrorEl.textContent = pushBtn.dataset.msgDenied; }
+        return;
+      }
+      await subscribeToPush();
+      if (pushSuccessEl) pushSuccessEl.hidden = false;
+    } finally {
+      pushBtn.disabled = false;
     }
-    if (iosPushBanner) iosPushBanner.hidden = true;
-  });
-  document.getElementById('ios-push-close')?.addEventListener('click', () => {
-    if (iosPushBanner) iosPushBanner.hidden = true;
   });
 
   // ---------------------------------------------------------------

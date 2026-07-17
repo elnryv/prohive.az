@@ -27,9 +27,3 @@
   <button type="button" id="install-reminder-btn" class="btn btn-sm btn-amber"><?= e(t('install.reminder_cta')) ?></button>
   <button type="button" id="install-reminder-close" class="install-close" aria-label="<?= e(t('common.close')) ?>">✕</button>
 </div>
-
-<div id="ios-push-banner" class="install-reminder" hidden>
-  <span><?= e(t('install.ios_enable_push_text')) ?></span>
-  <button type="button" id="ios-push-btn" class="btn btn-sm btn-amber"><?= e(t('install.ios_enable_push_cta')) ?></button>
-  <button type="button" id="ios-push-close" class="install-close" aria-label="<?= e(t('common.close')) ?>">✕</button>
-</div>

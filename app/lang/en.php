@@ -203,7 +203,12 @@ return [
         'ios_step3' => 'Tap "Add" at the top',
         'reminder_text' => 'Install the app for notifications',
         'reminder_cta' => 'Install',
-        'ios_enable_push_text' => 'Get notified about new orders/offers',
-        'ios_enable_push_cta' => 'Enable notifications',
+    ],
+
+    'profile_push' => [
+        'btn' => 'Enable notifications',
+        'success' => 'Notifications enabled.',
+        'denied' => 'Permission was not granted. Enable notifications from your phone Settings to use this.',
+        'unsupported' => 'This browser/device does not support notifications.',
     ],
 ];
