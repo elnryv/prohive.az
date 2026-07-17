@@ -4,6 +4,24 @@
   src: local('DejaVu Sans');
 }
 
+/* FAZA 15: səhifələr arası keçid nativ tətbiq kimi hiss olunsun (bütün tab/link
+   naviqasiyaları, tam sənəd yenilənməsi daxil olmaqla) — dəstəkləməyən brauzerlərdə
+   sadəcə e'tibarsız qalır, heç bir JS/kitabxana lazım deyil, köhnə davranışa geri düşür. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: 160ms ease-out both by-view-out;
+}
+::view-transition-new(root) {
+  animation: 220ms ease-out both by-view-in;
+}
+@keyframes by-view-out { to { opacity: 0; transform: scale(.985); } }
+@keyframes by-view-in { from { opacity: 0; transform: scale(1.01); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
+
 :root {
   --bg: #F2F5FC;
   --bg-alt: #FFFFFF;
@@ -745,25 +763,141 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
 }
 .install-reminder .install-close { color: var(--on-primary); position: static; margin-left: auto; }
 
-/* Splash (bölmə 10.2): açıq fon -> "Birlikdə" sakit -> "Yük" mavi + yük maşını xətti -> içəri, ≤2s */
+/* Splash (bölmə 10.2 + FAZA 15): kinematik açılış — hissəciklər, sürət-xətləri, glow,
+   loqo "pop", mətn ardıcıllığı, loading bar + faiz, sonra fade+scale ilə çıxış (JS-dən
+   idarə olunur, bax splash.js — .splash-hide class-ı). Tünd fon qəsdən solid görünür
+   (fade YOXDUR) ki, altdakı açıq mövzulu səhifədən keçid zamanı "flaş" olmasın. */
 .splash {
   position: fixed; inset: 0; z-index: 200;
-  background: var(--bg);
+  background: radial-gradient(ellipse at 50% 85%, #10192e 0%, #060a14 70%);
   display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 12px;
-  animation: splash-out .3s ease 1.5s forwards;
+  overflow: hidden;
+  transition: opacity .5s ease, transform .5s ease;
 }
-.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.splash.splash-hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
+
+.splash-particles { position: absolute; inset: 0; pointer-events: none; }
+.splash-particle {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #6fa8ff;
+  opacity: 0;
+  animation: splash-particle-drift var(--dur, 3.5s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+@keyframes splash-particle-drift {
+  0% { opacity: 0; transform: translateY(0); }
+  50% { opacity: var(--peak, .55); }
+  100% { opacity: 0; transform: translateY(var(--dy, -36px)); }
+}
+
+.splash-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+.splash-logo-wrapper { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
+.splash-glow {
+  position: absolute; width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 111, 237, .55) 0%, rgba(47, 111, 237, 0) 70%);
+  filter: blur(6px);
+  opacity: 0;
+  transform: scale(.6);
+  animation: splash-glow-in .7s ease .4s forwards;
+}
+@keyframes splash-glow-in { to { opacity: 1; transform: scale(1); } }
+
+.splash-streak {
+  position: absolute;
+  left: -40%;
+  width: 60%; height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #6fa8ff, transparent);
+  opacity: 0;
+  animation: splash-streak-sweep .7s ease-out forwards;
+}
+.splash-streak-1 { top: 38%; animation-delay: .1s; }
+.splash-streak-2 { top: 52%; animation-delay: .2s; }
+.splash-streak-3 { top: 66%; animation-delay: .3s; }
+@keyframes splash-streak-sweep {
+  0% { opacity: 0; transform: translateX(0); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(260%); }
+}
+
 .splash-logo {
+  position: relative;
   width: 128px; height: 128px;
   border-radius: 28px;
   opacity: 0;
-  transform: scale(.85);
-  animation: splash-logo-in .5s ease .1s forwards;
+  transform: scale(.55);
+  animation: splash-logo-pop .6s cubic-bezier(.34, 1.56, .64, 1) .5s forwards;
 }
-@keyframes splash-logo-in { to { opacity: 1; transform: scale(1); } }
-@keyframes splash-out { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+@keyframes splash-logo-pop { to { opacity: 1; transform: scale(1); } }
+
+.splash-text-wrapper { margin-top: 14px; text-align: center; }
+.splash-title, .splash-subtitle, .splash-slogan {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: splash-rise .5s ease forwards;
+}
+.splash-title {
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 700;
+  color: #f2f5fc;
+  animation-delay: 1.15s;
+}
+.splash-subtitle {
+  font-family: var(--font-head);
+  font-size: 30px;
+  font-weight: 700;
+  color: #6fa8ff;
+  margin-top: -4px;
+  animation-delay: 1.35s;
+}
+.splash-slogan {
+  font-size: 12.5px;
+  color: rgba(242, 245, 252, .55);
+  max-width: 240px;
+  margin: 6px auto 0;
+  animation-delay: 1.55s;
+}
+@keyframes splash-rise { to { opacity: 1; transform: translateY(0); } }
+
+.splash-loader-wrapper {
+  margin-top: 26px;
+  width: 70%; max-width: 240px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: splash-rise .4s ease 1.85s forwards;
+}
+.splash-loader {
+  width: 100%; height: 5px;
+  background: rgba(255, 255, 255, .12);
+  border-radius: 50px;
+  overflow: hidden;
+}
+.splash-loader-bar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #2F6FED, #7fb1ff);
+  box-shadow: 0 0 12px rgba(47, 111, 237, .7);
+  border-radius: inherit;
+}
+.splash-loader-text {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(242, 245, 252, .5);
+  margin-top: 8px;
+  opacity: 0;
+  animation: splash-rise .3s ease 1.85s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .splash { animation: splash-out .01s linear 1.5s forwards; }
-  .splash-logo { animation: none; opacity: 1; transform: scale(1); }
+  .splash-particle, .splash-glow, .splash-streak, .splash-logo,
+  .splash-title, .splash-subtitle, .splash-slogan, .splash-loader-wrapper, .splash-loader-text {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .splash-streak { display: none; }
 }

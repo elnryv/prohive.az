@@ -496,3 +496,39 @@ bölmə 3 (chat/reytinq/xəritə) açıq şəkildə xaric edilib.
   yoxlama: giriş (müştəri + sürücü + admin), splash ekranı, paylaşılan elan səhifəsi, boş tarixçə
   vəziyyəti, sürücü lenti (yeni salamlama/statistika), foto thumbnail önbaxışı, admin trend qrafiki —
   hamısında sıfır konsol xətası, ekran görüntüləri ilə vizual təsdiq.
+
+---
+
+## FAZA 15 — Kinematik splash ekranı + app-kimi səhifə keçidləri ✅ TAMAMLANDI
+
+Sahibkar splash ekranı üçün hazır GSAP-əsaslı animasiya ssenarisi (screenshot + mətn kod) göndərdi.
+SVG-dəki loqo path koordinatları (truck-body/cabin/b-letter/wheel) şəkil sıxılması səbəbindən
+etibarlı oxunmadı (istifadəçiyə bu açıq şəkildə bildirildi, "oxunmursa de mənə" tələbinə uyğun) —
+həll: mövcud real loqo PNG-si (`icon-512.png`) hərəkətin mərkəzi elementi kimi istifadə olundu,
+GSAP-ın timeline strukturu (fon → sürət-xətləri → glow → loqo "pop" → mətn ardıcıllığı → loading
+bar+faiz → çıxış) isə GSAP-sız, saf CSS keyframe + minimal JS ilə bərpa olundu (CSP `script-src
+'self'` GSAP CDN-ni bloklayacaqdı).
+
+### Nə edildi
+- **`partials/splash.php`** — tam yeni tərtibat: hissəcik konteyneri, 3 sürət-xətti, glow həlqəsi,
+  real loqo, başlıq/alt-başlıq/slogan (mövcud `home.subtitle` açarından, 3 dildə artıq tərcümə
+  olunub), loading bar + canlı faiz mətni.
+- **`app.css`** — `.splash-*` bloku sıfırdan yazıldı: tünd fon (`radial-gradient`) DƏRHAL solid
+  görünür (fade yoxdur — açıq mövzulu səhifədən keçiddə "flaş" olmasın), hər elementin öz
+  `animation-delay`-i ilə ardıcıl "teatr" effekti (~4.2s), `prefers-reduced-motion` üçün tam bypass.
+- **`splash.js`** — bərpa olundu: hissəciklər CSS custom property-lərlə (`--dur/--delay/--dy/--peak`)
+  generasiya olunur (JS animasiya loop-u yoxdur, GPU-dostu), loading bar faizi `requestAnimationFrame`
+  ilə power4-out bənzəri easing-lə hesablanır, sonda `.splash-hide` class-ı ilə fade+scale çıxış və
+  element silinməsi.
+- **App-kimi səhifə keçidləri** — `app.css`-ə `@view-transition { navigation: auto; }` +
+  `::view-transition-old/new(root)` üçün yüngül fade+scale keyframe-ləri əlavə olundu. Bu, brauzerin
+  doğma Cross-Document View Transitions API-sidir: JS/kitabxana lazım deyil, bütün sayt naviqasiyasına
+  (aşağı naviqasiya tabları, link keçidləri) tətbiq olunur, dəstəkləməyən brauzerlərdə sadəcə
+  e'tibarsız qalır (proqressiv təkmilləşdirmə, reqressiya riski yoxdur).
+
+### Özünüyoxlama nəticələri
+- `php -l`, `node --check` — xətasız.
+- Playwright ilə addım-addım screenshot seriyası (t≈0.15s/0.85s/1.55s/2.55s/4.05s/5.05s) çəkilib:
+  fon dərhal solid, sürət-xətti + glow + loqo "pop" ardıcıllığı, başlıq/alt-başlıq/slogan sırayla
+  görünür, loading bar 0%→100% canlı faizlə dolur, ~4.2s-də splash `#splash` DOM-dan tam silinir —
+  sıfır konsol xətası.
