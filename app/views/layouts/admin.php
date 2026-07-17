@@ -8,20 +8,18 @@ $title = isset($pageTitle) ? $pageTitle . ' · İdarəetmə mərkəzi' : 'İdar�
 $admin = AdminAuth::admin();
 $path = rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/') ?: '/';
 
-// İlk 4-ü alt naviqasiyada sabit görünür, qalanı "Daha" menyusuna düşür.
-$primaryNav = [
+// Bütün admin bölmələri tək yandan açılan drawer-də (bölmə: admin naviqasiya v2).
+$nav = [
     '/dashboard' => ['home', 'Dashboard'],
     '/surucular' => ['truck', 'Sürücülər'],
     '/elanlar' => ['box', 'Elanlar'],
     '/odenisler' => ['wallet', 'Ödənişlər'],
-];
-$moreNav = [
     '/musteriler' => ['user', 'Müştərilər'],
     '/parametrler' => ['settings', 'Parametrlər'],
     '/kampaniya' => ['bell', 'Push kampaniya'],
     '/loglar' => ['list', 'Loglar'],
 ];
-$isMoreActive = array_key_exists($path, $moreNav);
+$currentLabel = $nav[$path][1] ?? 'Dashboard';
 ?>
 <!doctype html>
 <html lang="az">
@@ -36,32 +34,35 @@ $isMoreActive = array_key_exists($path, $moreNav);
 <body data-auth="0">
 <?php if ($admin !== null): ?>
 <div class="admin-shell">
+  <input type="checkbox" id="admin-drawer-toggle" class="admin-drawer-toggle">
+
   <header class="admin-topbar">
-    <span class="brand">Birlikdə <span class="amber">Yük</span></span>
-    <span class="text-soft" style="font-size:12px">idarəetmə mərkəzi</span>
+    <label for="admin-drawer-toggle" class="admin-hamburger-btn" aria-label="Menyu"><?= icon('list', 'icon', 22) ?></label>
+    <span class="admin-topbar-title"><?= e($currentLabel) ?></span>
   </header>
+
+  <label for="admin-drawer-toggle" class="admin-drawer-backdrop" aria-hidden="true"></label>
+
+  <aside class="admin-drawer">
+    <div class="admin-drawer-header">
+      <span class="brand">Birlikdə <span class="amber">Yük</span></span>
+      <label for="admin-drawer-toggle" class="admin-drawer-close" aria-label="Bağla"><?= icon('close', 'icon', 18) ?></label>
+    </div>
+    <p class="text-soft" style="padding:0 16px 12px;font-size:12px">İdarəetmə mərkəzi</p>
+    <nav class="admin-drawer-nav">
+      <?php foreach ($nav as $href => [$iconName, $label]): ?>
+        <a href="<?= $href ?>" class="<?= $path === $href ? 'active' : '' ?>"><?= icon($iconName, 'icon', 18) ?> <span><?= e($label) ?></span></a>
+      <?php endforeach; ?>
+    </nav>
+    <form method="post" action="/cixis" class="admin-drawer-logout">
+      <?= Csrf::field() ?>
+      <button type="submit"><?= icon('logout', 'icon', 18) ?> <span>Çıxış</span></button>
+    </form>
+  </aside>
 
   <main class="admin-main">
     <?= $content ?>
   </main>
-
-  <nav class="bottom-nav admin-bottom-nav">
-    <?php foreach ($primaryNav as $href => [$iconName, $label]): ?>
-      <a href="<?= $href ?>" class="<?= $path === $href ? 'active' : '' ?>"><?= icon($iconName) ?><span><?= e($label) ?></span></a>
-    <?php endforeach; ?>
-    <details class="admin-more">
-      <summary class="<?= $isMoreActive ? 'active' : '' ?>"><span class="admin-more-inner"><?= icon('dots') ?><span>Daha</span></span></summary>
-      <div class="admin-more-sheet">
-        <?php foreach ($moreNav as $href => [$iconName, $label]): ?>
-          <a href="<?= $href ?>" class="<?= $path === $href ? 'active' : '' ?>"><?= icon($iconName) ?> <?= e($label) ?></a>
-        <?php endforeach; ?>
-        <form method="post" action="/cixis">
-          <?= Csrf::field() ?>
-          <button type="submit"><?= icon('logout') ?> Çıxış</button>
-        </form>
-      </div>
-    </details>
-  </nav>
 </div>
 <?php else: ?>
   <?= $content ?>

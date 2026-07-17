@@ -1,6 +1,6 @@
 /* Birlikdə Yük — admin ("idarəetmə mərkəzi") üzrə əlavə stillər. Mobil-öncə, kompakt kart-əsaslı görünüş. */
 
-body { padding-bottom: 76px; }
+body { padding-bottom: 0; }
 
 .admin-shell { min-height: 100vh; }
 
@@ -9,12 +9,22 @@ body { padding-bottom: 76px; }
   top: 0;
   z-index: 30;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
   padding: 14px 16px;
   background: var(--bg-alt);
   border-bottom: 1px solid var(--line);
 }
+.admin-hamburger-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  color: var(--txt);
+  cursor: pointer;
+  flex: none;
+}
+.admin-hamburger-btn:active { background: var(--card-hi); }
+.admin-topbar-title { font-family: var(--font-head); font-weight: 700; font-size: 16px; }
 
 .admin-main {
   padding: 16px;
@@ -28,58 +38,74 @@ body { padding-bottom: 76px; }
   padding: 16px;
 }
 
-/* --- Alt naviqasiya (əsas saytın .bottom-nav-i ilə eyni sinif, admin üçün "Daha" əlavəsi) --- */
-.admin-bottom-nav { position: relative; }
-.admin-more { flex: 1; position: static; }
-.admin-more summary {
-  list-style: none;
+/* --- Yandan açılan naviqasiya drawer-i (checkbox-hack, JS-siz) --- */
+.admin-drawer-toggle { display: none; }
+.admin-drawer-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(20, 22, 27, .45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: 190;
   display: block;
-  cursor: pointer;
-  padding: 4px 0;
-  -webkit-appearance: none;
-  appearance: none;
 }
-.admin-more summary::-webkit-details-marker { display: none !important; }
-.admin-more summary::marker { content: none !important; font-size: 0; }
-.admin-more-inner {
+.admin-drawer {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  width: 272px;
+  max-width: 82vw;
+  background: var(--card);
+  box-shadow: 6px 0 28px rgba(20, 22, 27, .14);
+  z-index: 200;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  font-size: 11px;
+  transform: translateX(-100%);
+  transition: transform .22s ease;
+  overflow-y: auto;
+}
+.admin-drawer-toggle:checked ~ .admin-drawer-backdrop { opacity: 1; pointer-events: auto; }
+.admin-drawer-toggle:checked ~ .admin-drawer { transform: translateX(0); }
+.admin-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 4px;
+}
+.admin-drawer-close {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
   color: var(--txt-soft);
+  cursor: pointer;
 }
-.admin-more summary.active .admin-more-inner,
-.admin-more[open] summary .admin-more-inner { color: var(--primary); }
-.admin-more-sheet {
-  position: absolute;
-  right: 8px;
-  bottom: 64px;
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 -8px 24px rgba(0,0,0,.4);
-  min-width: 200px;
-  overflow: hidden;
-}
-.admin-more-sheet a, .admin-more-sheet button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+.admin-drawer-close:active { background: var(--card-hi); }
+.admin-drawer-nav { display: flex; flex-direction: column; padding: 4px 8px; gap: 2px; }
+.admin-drawer-nav a {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 12px;
+  border-radius: var(--radius-sm);
   color: var(--txt);
   font-size: 14px;
+  font-weight: 500;
+}
+.admin-drawer-nav a.active { background: var(--primary-tint); color: var(--primary); }
+.admin-drawer-logout {
+  margin-top: auto;
+  padding: 8px;
+  border-top: 1px solid var(--line);
+}
+.admin-drawer-logout button {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
   background: none;
   border: none;
-  width: 100%;
-  text-align: left;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 500;
   font-family: inherit;
+  cursor: pointer;
+  text-align: left;
 }
-.admin-more-sheet a:last-of-type { border-bottom: none; }
-.admin-more-sheet a.active { color: var(--primary); }
-.admin-more-sheet button { color: var(--danger); border-top: 1px solid var(--line); }
 
 /* --- Stat kartları (dashboard) --- */
 .stat-grid {
