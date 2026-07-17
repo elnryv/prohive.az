@@ -2,20 +2,26 @@
 /** @var string $content */
 /** @var string|null $pageTitle */
 use App\Core\AdminAuth;
+use App\Core\Csrf;
 
 $title = isset($pageTitle) ? $pageTitle . ' · İdarəetmə mərkəzi' : 'İdarəetmə mərkəzi — Birlikdə Yük';
 $admin = AdminAuth::admin();
 $path = rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/') ?: '/';
-$nav = [
-    '/dashboard' => ['📊', 'Dashboard'],
-    '/surucular' => ['🚚', 'Sürücülər'],
-    '/musteriler' => ['👤', 'Müştərilər'],
-    '/elanlar' => ['📦', 'Elanlar'],
-    '/odenisler' => ['💳', 'Ödənişlər'],
-    '/parametrler' => ['⚙️', 'Parametrlər'],
-    '/kampaniya' => ['🔔', 'Push kampaniya'],
-    '/loglar' => ['📜', 'Loglar'],
+
+// İlk 4-ü alt naviqasiyada sabit görünür, qalanı "Daha" menyusuna düşür.
+$primaryNav = [
+    '/dashboard' => ['home', 'Dashboard'],
+    '/surucular' => ['truck', 'Sürücülər'],
+    '/elanlar' => ['box', 'Elanlar'],
+    '/odenisler' => ['wallet', 'Ödənişlər'],
 ];
+$moreNav = [
+    '/musteriler' => ['user', 'Müştərilər'],
+    '/parametrler' => ['settings', 'Parametrlər'],
+    '/kampaniya' => ['bell', 'Push kampaniya'],
+    '/loglar' => ['list', 'Loglar'],
+];
+$isMoreActive = array_key_exists($path, $moreNav);
 ?>
 <!doctype html>
 <html lang="az">
@@ -30,21 +36,32 @@ $nav = [
 <body data-auth="0">
 <?php if ($admin !== null): ?>
 <div class="admin-shell">
-  <aside class="admin-side">
-    <div class="brand" style="padding:16px 12px">Birlikdə <span class="amber">Yük</span><br><small class="text-soft">idarəetmə mərkəzi</small></div>
-    <nav>
-      <?php foreach ($nav as $href => [$icon, $label]): ?>
-        <a href="<?= $href ?>" class="admin-nav-link <?= $path === $href ? 'active' : '' ?>"><?= $icon ?> <?= e($label) ?></a>
-      <?php endforeach; ?>
-    </nav>
-    <form method="post" action="/cixis" style="padding:12px">
-      <?= \App\Core\Csrf::field() ?>
-      <button type="submit" class="btn btn-outline btn-block">Çıxış</button>
-    </form>
-  </aside>
+  <header class="admin-topbar">
+    <span class="brand">Birlikdə <span class="amber">Yük</span></span>
+    <span class="text-soft" style="font-size:12px">idarəetmə mərkəzi</span>
+  </header>
+
   <main class="admin-main">
     <?= $content ?>
   </main>
+
+  <nav class="bottom-nav admin-bottom-nav">
+    <?php foreach ($primaryNav as $href => [$iconName, $label]): ?>
+      <a href="<?= $href ?>" class="<?= $path === $href ? 'active' : '' ?>"><?= icon($iconName) ?><span><?= e($label) ?></span></a>
+    <?php endforeach; ?>
+    <details class="admin-more">
+      <summary class="<?= $isMoreActive ? 'active' : '' ?>"><span class="admin-more-inner"><?= icon('dots') ?><span>Daha</span></span></summary>
+      <div class="admin-more-sheet">
+        <?php foreach ($moreNav as $href => [$iconName, $label]): ?>
+          <a href="<?= $href ?>" class="<?= $path === $href ? 'active' : '' ?>"><?= icon($iconName) ?> <?= e($label) ?></a>
+        <?php endforeach; ?>
+        <form method="post" action="/cixis">
+          <?= Csrf::field() ?>
+          <button type="submit"><?= icon('logout') ?> Çıxış</button>
+        </form>
+      </div>
+    </details>
+  </nav>
 </div>
 <?php else: ?>
   <?= $content ?>

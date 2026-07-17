@@ -6,6 +6,7 @@
 /** @var string $driverStatus */
 /** @var array|null $myOffer */
 use App\Core\Csrf;
+use App\Core\Icon;
 use App\Core\Lang;
 ?>
 <div class="container">
@@ -15,8 +16,8 @@ use App\Core\Lang;
     <span><?= e(Lang::field($listing, 'to')) ?></span>
   </div>
   <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">
-    <span class="chip"><?= e($listing['icon']) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
-    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent">⚡ <?= e(t('listing.urgent')) ?></span><?php endif; ?>
+    <span class="chip"><?= icon(Icon::forCategorySlug($listing['category_slug'] ?? null), 'icon', 14) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
+    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent"><?= icon('zap', 'icon', 14) ?> <?= e(t('listing.urgent')) ?></span><?php endif; ?>
     <span class="chip"><?= $listing['move_date'] ? e($listing['move_date']) : e(t('common.agreement')) ?></span>
   </div>
 
@@ -24,7 +25,7 @@ use App\Core\Lang;
     <?php if (!empty($customer['profile_photo'])): ?>
       <img src="/uploads/profiles/<?= e($customer['profile_photo']) ?>" style="width:44px;height:44px;object-fit:cover;border-radius:50%">
     <?php else: ?>
-      <div style="width:44px;height:44px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;color:var(--txt-soft)"><?= icon('user', 'icon', 20) ?></div>
     <?php endif; ?>
     <span class="text-soft"><?= e($customer['full_name']) ?></span>
   </div>

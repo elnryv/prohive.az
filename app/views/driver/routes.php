@@ -22,7 +22,7 @@ use App\Core\Lang;
         </span>
         <form method="post" action="/surucu/marsrutlar/<?= (int) $r['id'] ?>/sil">
           <?= Csrf::field() ?>
-          <button type="submit" class="btn btn-outline">✕</button>
+          <button type="submit" class="btn btn-outline"><?= icon('close', 'icon', 16) ?></button>
         </form>
       </div>
     <?php endforeach; ?>

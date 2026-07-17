@@ -1,39 +1,25 @@
-/* Birlikdə Yük — admin ("idarəetmə mərkəzi") üzrə əlavə stillər. Eyni palitra, sıx cədvəl rejimi. */
+/* Birlikdə Yük — admin ("idarəetmə mərkəzi") üzrə əlavə stillər. Mobil-öncə, kompakt kart-əsaslı görünüş. */
 
-body { padding-bottom: 0; }
+body { padding-bottom: 76px; }
 
-.admin-shell {
-  display: flex;
-  min-height: 100vh;
-}
+.admin-shell { min-height: 100vh; }
 
-.admin-side {
-  width: 220px;
-  flex-shrink: 0;
-  background: var(--coal-2);
-  border-right: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
+.admin-topbar {
   position: sticky;
   top: 0;
-  height: 100vh;
+  z-index: 30;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--coal-2);
+  border-bottom: 1px solid var(--line);
 }
-.admin-side nav { flex: 1; overflow-y: auto; }
-.admin-nav-link {
-  display: block;
-  padding: 10px 16px;
-  font-size: 14px;
-  color: var(--txt-soft);
-  border-left: 3px solid transparent;
-}
-.admin-nav-link.active { color: var(--amber); border-left-color: var(--amber); background: var(--card); }
-.admin-nav-link:hover { background: var(--card); }
 
 .admin-main {
-  flex: 1;
-  padding: 24px;
-  max-width: 100%;
-  overflow-x: auto;
+  padding: 16px;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 .admin-login {
@@ -42,11 +28,65 @@ body { padding-bottom: 0; }
   padding: 16px;
 }
 
+/* --- Alt naviqasiya (əsas saytın .bottom-nav-i ilə eyni sinif, admin üçün "Daha" əlavəsi) --- */
+.admin-bottom-nav { position: relative; }
+.admin-more { flex: 1; position: static; }
+.admin-more summary {
+  list-style: none;
+  display: block;
+  cursor: pointer;
+  padding: 4px 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.admin-more summary::-webkit-details-marker { display: none !important; }
+.admin-more summary::marker { content: none !important; font-size: 0; }
+.admin-more-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--txt-soft);
+}
+.admin-more summary.active .admin-more-inner,
+.admin-more[open] summary .admin-more-inner { color: var(--amber); }
+.admin-more-sheet {
+  position: absolute;
+  right: 8px;
+  bottom: 64px;
+  background: var(--coal-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 -8px 24px rgba(0,0,0,.4);
+  min-width: 200px;
+  overflow: hidden;
+}
+.admin-more-sheet a, .admin-more-sheet button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  color: var(--txt);
+  font-size: 14px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  font-family: inherit;
+}
+.admin-more-sheet a:last-of-type { border-bottom: none; }
+.admin-more-sheet a.active { color: var(--amber); }
+.admin-more-sheet button { color: var(--danger); border-top: 1px solid var(--line); }
+
+/* --- Stat kartları (dashboard) --- */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
 }
 .stat-card {
   background: var(--card);
@@ -54,9 +94,32 @@ body { padding-bottom: 0; }
   border-radius: var(--radius-sm);
   padding: 14px;
 }
-.stat-card .num { font-size: 26px; color: var(--amber); }
+.stat-card .num { font-size: 24px; color: var(--amber); font-weight: 700; }
 .stat-card .label { font-size: 12px; color: var(--txt-soft); }
 
+/* --- Siyahılar: cədvəl ƏVƏZİNƏ mobil-öncə kart-sıra --- */
+.admin-list { display: flex; flex-direction: column; gap: 8px; }
+.admin-row {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--txt);
+}
+.admin-row:hover { border-color: var(--amber); background: var(--card-hi); }
+.admin-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.admin-row-title { font-weight: 600; font-size: 14px; }
+.admin-row-meta { font-size: 12px; color: var(--txt-soft); display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.admin-row-meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Köhnə cədvəl-əsaslı görünüşü kim istifadə edirsə hələ də işləsin (geniş ekran) */
 table.admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -76,7 +139,7 @@ table.admin-table tr:hover td { background: var(--card-hi); }
 .table-wrap { overflow-x: auto; margin-bottom: 16px; }
 
 .admin-toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-.admin-toolbar input, .admin-toolbar select { width: auto; min-width: 160px; }
+.admin-toolbar input, .admin-toolbar select { width: auto; min-width: 140px; flex: 1; }
 
 .btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
 .toggle-switch {
@@ -87,11 +150,6 @@ table.admin-table tr:hover td { background: var(--card-hi); }
 .toggle-switch.on { border-color: var(--ok); }
 .toggle-switch.off { border-color: var(--txt-soft); }
 
-@media (max-width: 720px) {
-  .admin-shell { flex-direction: column; }
-  .admin-side { width: 100%; height: auto; position: static; flex-direction: row; overflow-x: auto; }
-  .admin-side nav { display: flex; }
-  .admin-nav-link { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
-  .admin-nav-link.active { border-left-color: transparent; border-bottom-color: var(--amber); }
-  .admin-main { padding: 12px; }
+@media (min-width: 720px) {
+  .admin-main { max-width: 960px; padding: 24px; }
 }

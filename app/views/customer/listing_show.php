@@ -3,6 +3,7 @@
 /** @var array $photos */
 /** @var array $offers */
 use App\Core\Csrf;
+use App\Core\Icon;
 use App\Core\Lang;
 use App\Core\Config;
 use App\Core\Phone;
@@ -25,8 +26,8 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
   </div>
   <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">
     <span class="chip <?= $statusChip[0] ?>"><?= e(t($statusChip[1])) ?></span>
-    <span class="chip"><?= e($listing['icon']) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
-    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent">⚡ <?= e(t('listing.urgent')) ?></span><?php endif; ?>
+    <span class="chip"><?= icon(Icon::forCategorySlug($listing['category_slug'] ?? null), 'icon', 14) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
+    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent"><?= icon('zap', 'icon', 14) ?> <?= e(t('listing.urgent')) ?></span><?php endif; ?>
   </div>
 
   <div class="card">
@@ -102,7 +103,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
   </div>
 
   <?php if ($listing['status'] === 'active'): ?>
-  <h2 style="margin-top:24px">💬 <?= e(t('listing.offers_count', ['n' => count($offers)])) ?></h2>
+  <h2 style="margin-top:24px;display:flex;align-items:center;gap:6px"><?= icon('message') ?> <?= e(t('listing.offers_count', ['n' => count($offers)])) ?></h2>
   <?php if ($offers === []): ?>
     <div class="empty-state"><p><?= e(t('listing.offers_none')) ?></p></div>
   <?php else: ?>
@@ -117,12 +118,12 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
           <?php if (!empty($offer['profile_photo'])): ?>
             <img src="/uploads/profiles/<?= e($offer['profile_photo']) ?>" style="width:32px;height:32px;object-fit:cover;border-radius:50%;flex-shrink:0">
           <?php else: ?>
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👤</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;color:var(--txt-soft);flex-shrink:0"><?= icon('user', 'icon', 16) ?></div>
           <?php endif; ?>
           <p class="text-soft" style="font-size:13px;margin:0">
             <?= e($offer['full_name']) ?> · <?= e(Lang::field(['name_az' => $offer['vt_name_az'], 'name_ru' => $offer['vt_name_ru'], 'name_en' => $offer['vt_name_en']], 'name')) ?>
-            · ✓ <?= (int) $offer['jobs_done'] ?> iş
-            <?php if ((int) $offer['cancel_count'] > 0): ?> · ⚠ <?= (int) $offer['cancel_count'] ?> ləğv<?php endif; ?>
+            · <?= icon('check', 'icon', 12) ?> <?= (int) $offer['jobs_done'] ?> iş
+            <?php if ((int) $offer['cancel_count'] > 0): ?> · <?= icon('alert-triangle', 'icon', 12) ?> <?= (int) $offer['cancel_count'] ?> ləğv<?php endif; ?>
           </p>
         </div>
 

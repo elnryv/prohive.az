@@ -7,12 +7,19 @@ declare(strict_types=1);
  * etmədiyi üçün App\Core\... daxilində olsaydı tapılmazdı).
  */
 
+use App\Core\Icon;
 use App\Core\Lang;
 use App\Core\View;
 
 function t(string $key, array $params = []): string
 {
     return Lang::t($key, $params);
+}
+
+/** Emoji əvəzinə tək-cizgili SVG ikon (bax App\Core\Icon) — çıxış escape edilmir, çünki öz aramızda sabit SVG-dir. */
+function icon(string $name, string $class = 'icon', int $size = 20): string
+{
+    return Icon::render($name, $class, $size);
 }
 
 function e(?string $value): string

@@ -60,7 +60,7 @@ final class CustomerController
         }
 
         $listingsStmt = DB::conn()->prepare(
-            "SELECT l.*, c.icon, c.name_az as cat_name, fl.name_az as from_name, tl.name_az as to_name
+            "SELECT l.*, c.icon, c.slug as category_slug, c.name_az as cat_name, fl.name_az as from_name, tl.name_az as to_name
              FROM listings l
              JOIN categories c ON c.id = l.category_id
              JOIN locations fl ON fl.id = l.from_location_id

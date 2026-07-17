@@ -11,13 +11,13 @@ use App\Core\Lang;
   <h1><?= e(t('auth.choose_role')) ?></h1>
   <div class="role-cards" style="margin-top:20px">
     <a class="role-card" href="/qeydiyyat?rol=musteri">
-      <div class="icon">📦</div>
-      <h3><?= e(t('auth.role_customer')) ?></h3>
+      <div class="icon"><?= icon('box', 'icon', 32) ?></div>
+      <h2><?= e(t('auth.role_customer')) ?></h2>
       <p class="text-soft"><?= e(t('auth.role_customer_desc')) ?></p>
     </a>
     <a class="role-card" href="/qeydiyyat?rol=surucu">
-      <div class="icon">🚚</div>
-      <h3><?= e(t('auth.role_driver')) ?></h3>
+      <div class="icon"><?= icon('truck', 'icon', 32) ?></div>
+      <h2><?= e(t('auth.role_driver')) ?></h2>
       <p class="text-soft"><?= e(t('auth.role_driver_desc')) ?></p>
     </a>
   </div>

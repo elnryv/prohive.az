@@ -3,8 +3,14 @@
 /** @var string $tab */
 /** @var string $q */
 use App\Core\Phone;
+
+$statusChipClass = static fn (string $s) => match ($s) {
+    'approved' => 'chip-ok',
+    'pending' => 'chip-warn',
+    default => 'chip-muted',
+};
 ?>
-<h1>Sürücülər</h1>
+<h1 style="display:flex;align-items:center;gap:8px"><?= icon('truck') ?> Sürücülər</h1>
 
 <div class="tabs" style="max-width:300px">
   <a href="/surucular" class="<?= $tab === 'all' ? 'active' : '' ?>">Hamısı</a>
@@ -14,35 +20,34 @@ use App\Core\Phone;
 <form method="get" class="admin-toolbar">
   <input type="hidden" name="tab" value="<?= e($tab) ?>">
   <input type="text" name="q" placeholder="Nömrə və ya ad axtar..." value="<?= e($q) ?>">
-  <button type="submit" class="btn btn-sm">Axtar</button>
+  <button type="submit" class="btn btn-sm"><?= icon('search', 'icon', 16) ?></button>
 </form>
 
-<div class="table-wrap">
-<table class="admin-table">
-  <thead><tr><th>Ad</th><th>Nömrə</th><th>Maşın</th><th>Status</th><th>Billing</th><th>Bitmə</th><th>İş</th><th>Ləğv</th><th></th></tr></thead>
-  <tbody>
+<?php if ($drivers === []): ?>
+  <div class="empty-state"><p>Nəticə yoxdur</p></div>
+<?php else: ?>
+<div class="admin-list">
   <?php foreach ($drivers as $d): ?>
-    <tr>
-      <td><?= e($d['full_name']) ?></td>
-      <td><?= e(Phone::display($d['phone'])) ?></td>
-      <td><?= e($d['vt_name'] ?? '—') ?></td>
-      <td>
-        <span class="chip <?= $d['driver_status'] === 'approved' ? 'chip-ok' : ($d['driver_status'] === 'pending' ? 'chip-warn' : 'chip-muted') ?>">
-          <?= e($d['driver_status']) ?>
-        </span>
-        <?php if ((int) $d['is_blocked'] === 1): ?><span class="chip" style="border-color:var(--danger);color:var(--danger)">bloklu</span><?php endif; ?>
-      </td>
-      <td>
-        <?php if ($d['custom_price'] !== null): ?><span class="chip chip-active"><?= number_format((float) $d['custom_price'], 0) ?> AZN</span>
-        <?php else: ?><?= e($d['billing_status'] ?? '—') ?><?php endif; ?>
-      </td>
-      <td><?= e($d['billing_status'] === 'paid' ? $d['paid_until'] : ($d['billing_status'] === 'trial' ? $d['trial_until'] : '—')) ?></td>
-      <td><?= (int) $d['jobs_done'] ?></td>
-      <td><?= (int) $d['cancel_count'] ?></td>
-      <td><a href="/surucular/<?= (int) $d['id'] ?>" class="btn btn-sm">Bax</a></td>
-    </tr>
+    <a class="admin-row" href="/surucular/<?= (int) $d['id'] ?>">
+      <div class="admin-row-top">
+        <span class="admin-row-title"><?= e($d['full_name']) ?></span>
+        <div style="display:flex;gap:4px">
+          <span class="chip <?= $statusChipClass($d['driver_status']) ?>"><?= e($d['driver_status']) ?></span>
+          <?php if ((int) $d['is_blocked'] === 1): ?><span class="chip" style="border-color:var(--danger);color:var(--danger)">bloklu</span><?php endif; ?>
+        </div>
+      </div>
+      <div class="admin-row-meta">
+        <span><?= icon('phone', 'icon', 14) ?> <?= e(Phone::display($d['phone'])) ?></span>
+        <span><?= icon('truck', 'icon', 14) ?> <?= e($d['vt_name'] ?? '—') ?></span>
+        <?php if ($d['custom_price'] !== null): ?>
+          <span class="chip chip-active"><?= number_format((float) $d['custom_price'], 0) ?> AZN</span>
+        <?php else: ?>
+          <span><?= icon('wallet', 'icon', 14) ?> <?= e($d['billing_status'] ?? '—') ?></span>
+        <?php endif; ?>
+        <span><?= icon('check', 'icon', 14) ?> <?= (int) $d['jobs_done'] ?> iş</span>
+        <?php if ((int) $d['cancel_count'] > 0): ?><span><?= icon('alert-triangle', 'icon', 14) ?> <?= (int) $d['cancel_count'] ?></span><?php endif; ?>
+      </div>
+    </a>
   <?php endforeach; ?>
-  <?php if ($drivers === []): ?><tr><td colspan="9" class="text-soft">Nəticə yoxdur</td></tr><?php endif; ?>
-  </tbody>
-</table>
 </div>
+<?php endif; ?>

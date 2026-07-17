@@ -29,7 +29,7 @@ $xetaList = $xetaCodes === '' ? [] : explode(',', $xetaCodes);
       <?php if (!empty($user['profile_photo'])): ?>
         <img src="/uploads/profiles/<?= e($user['profile_photo']) ?>" style="width:64px;height:64px;object-fit:cover;border-radius:50%">
       <?php else: ?>
-        <div style="width:64px;height:64px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;font-size:24px">👤</div>
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;color:var(--txt-soft)"><?= icon('user', 'icon', 28) ?></div>
       <?php endif; ?>
       <div>
         <p><strong><?= e($user['full_name']) ?></strong></p>
@@ -54,14 +54,15 @@ $xetaList = $xetaCodes === '' ? [] : explode(',', $xetaCodes);
   <div class="card">
     <button type="button" id="profile-push-btn" class="btn btn-outline btn-block"
       data-msg-unsupported="<?= e(t('profile_push.unsupported')) ?>"
-      data-msg-denied="<?= e(t('profile_push.denied')) ?>">
-      🔔 <?= e(t('profile_push.btn')) ?>
+      data-msg-denied="<?= e(t('profile_push.denied')) ?>"
+      style="display:flex;align-items:center;justify-content:center;gap:8px">
+      <?= icon('bell') ?> <?= e(t('profile_push.btn')) ?>
     </button>
     <p id="profile-push-success" class="text-soft" style="color:var(--ok);margin-top:8px" hidden><?= e(t('profile_push.success')) ?></p>
     <p id="profile-push-error" class="text-soft" style="color:var(--danger);margin-top:8px" hidden></p>
   </div>
   <form method="post" action="/cixis">
     <?= Csrf::field() ?>
-    <button type="submit" class="btn btn-outline btn-block"><?= e(t('nav.logout')) ?></button>
+    <button type="submit" class="btn btn-outline btn-block" style="display:flex;align-items:center;justify-content:center;gap:8px"><?= icon('logout') ?> <?= e(t('nav.logout')) ?></button>
   </form>
 </div>

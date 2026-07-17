@@ -3,6 +3,7 @@
 /** @var int $offersCount */
 /** @var array $photos */
 /** @var bool $isLoggedIn */
+use App\Core\Icon;
 use App\Core\Lang;
 ?>
 <div class="container">
@@ -13,8 +14,8 @@ use App\Core\Lang;
   </div>
 
   <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">
-    <span class="chip"><?= e($listing['icon']) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
-    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent">⚡ <?= e(t('listing.urgent')) ?></span><?php endif; ?>
+    <span class="chip"><?= icon(Icon::forCategorySlug($listing['category_slug'] ?? null), 'icon', 14) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
+    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent"><?= icon('zap', 'icon', 14) ?> <?= e(t('listing.urgent')) ?></span><?php endif; ?>
     <span class="chip"><?= $listing['move_date'] ? e($listing['move_date']) : e(t('common.agreement')) ?></span>
   </div>
 

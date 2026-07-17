@@ -7,7 +7,7 @@ use App\Core\Csrf;
 
 $paymentsOn = $settings['payments_enabled'] === '1';
 ?>
-<h1>Parametrlər</h1>
+<h1 style="display:flex;align-items:center;gap:8px"><?= icon('settings') ?> Parametrlər</h1>
 
 <div class="card">
   <h2 style="margin-top:0">Abunə sistemi</h2>
@@ -74,7 +74,7 @@ foreach ($dictionaries as $table => [$title, $rows, $hasHint]):
         <td><?= e($row['name_ru']) ?></td>
         <td><?= e($row['name_en']) ?></td>
         <?php if ($table === 'locations'): ?><td><?= (int) $row['is_baku'] === 1 ? 'Bəli' : 'Xeyr' ?></td><?php endif; ?>
-        <td><?= (int) $row['is_active'] === 1 ? '✓' : '—' ?></td>
+        <td><?= (int) $row['is_active'] === 1 ? icon('check', 'icon', 14) : '—' ?></td>
         <td>
           <form method="post" action="/parametrler/lugetler/<?= $table ?>/<?= (int) $row['id'] ?>/toggle">
             <?= Csrf::field() ?>
@@ -96,7 +96,7 @@ foreach ($dictionaries as $table => [$title, $rows, $hasHint]):
     <?php elseif ($table === 'locations'): ?>
       <label style="display:flex;align-items:center;gap:6px;width:auto"><input type="checkbox" name="is_baku" value="1" style="width:auto;min-height:auto">Bakı</label>
     <?php endif; ?>
-    <button type="submit" class="btn btn-sm">+ Əlavə et</button>
+    <button type="submit" class="btn btn-sm"><?= icon('plus', 'icon', 14) ?> Əlavə et</button>
   </form>
 </div>
 <?php endforeach; ?>

@@ -2,7 +2,7 @@
 /** @var string|null $result */
 use App\Core\Csrf;
 ?>
-<h1>Push kampaniya</h1>
+<h1 style="display:flex;align-items:center;gap:8px"><?= icon('bell') ?> Push kampaniya</h1>
 
 <?php if ($result !== null): ?><div class="banner" style="border-left-color:var(--ok)"><?= e($result) ?></div><?php endif; ?>
 

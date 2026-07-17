@@ -1,6 +1,7 @@
 <?php
 /** @var array $listing */
 /** @var string $href */
+use App\Core\Icon;
 use App\Core\Lang;
 
 $statusChip = match ($listing['status']) {
@@ -19,10 +20,10 @@ $statusChip = match ($listing['status']) {
       <span class="arrow">→</span>
       <span><?= e(Lang::field($listing, 'to')) ?></span>
     </div>
-    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent">⚡ <?= e(t('listing.urgent')) ?></span><?php endif; ?>
+    <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent"><?= icon('zap', 'icon', 14) ?> <?= e(t('listing.urgent')) ?></span><?php endif; ?>
   </div>
   <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
-    <span class="chip"><?= e($listing['icon'] ?? '') ?> <?= e(Lang::field($listing, 'cat')) ?></span>
+    <span class="chip"><?= icon(Icon::forCategorySlug($listing['category_slug'] ?? null), 'icon', 14) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
     <span class="chip <?= $statusChip[0] ?>"><?= e(t($statusChip[1])) ?></span>
     <?php if (!empty($listing['offers_count'])): ?><span class="chip chip-warn"><?= e(t('listing.offers_count', ['n' => $listing['offers_count']])) ?></span><?php endif; ?>
   </div>

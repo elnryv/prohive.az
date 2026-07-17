@@ -8,12 +8,12 @@
   <?php if (!Auth::check()): ?>
   <section class="role-cards" style="margin:24px 0">
     <a class="role-card" href="/qeydiyyat?rol=musteri">
-      <div class="icon">📦</div>
+      <div class="icon"><?= icon('box', 'icon', 32) ?></div>
       <h2><?= e(t('auth.role_customer')) ?></h2>
       <p class="text-soft"><?= e(t('auth.role_customer_desc')) ?></p>
     </a>
     <a class="role-card" href="/qeydiyyat?rol=surucu">
-      <div class="icon">🚚</div>
+      <div class="icon"><?= icon('truck', 'icon', 32) ?></div>
       <h2><?= e(t('auth.role_driver')) ?></h2>
       <p class="text-soft"><?= e(t('auth.role_driver_desc')) ?></p>
     </a>

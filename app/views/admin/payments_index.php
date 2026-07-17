@@ -3,36 +3,42 @@
 /** @var array $monthly */
 use App\Core\Phone;
 ?>
-<h1>Ödənişlər</h1>
+<h1 style="display:flex;align-items:center;gap:8px"><?= icon('wallet') ?> Ödənişlər</h1>
 
 <h2>Aylıq gəlir</h2>
-<div class="table-wrap">
-<table class="admin-table">
-  <thead><tr><th>Ay</th><th>Cəm</th><th>Say</th></tr></thead>
-  <tbody>
+<?php if ($monthly === []): ?>
+  <div class="empty-state"><p>Məlumat yoxdur</p></div>
+<?php else: ?>
+<div class="admin-list">
   <?php foreach ($monthly as $m): ?>
-    <tr><td><?= e($m['ym']) ?></td><td><?= number_format((float) $m['total'], 2) ?> AZN</td><td><?= (int) $m['cnt'] ?></td></tr>
+    <div class="admin-row">
+      <div class="admin-row-top">
+        <span class="admin-row-title"><?= e($m['ym']) ?></span>
+        <span class="chip chip-active"><?= number_format((float) $m['total'], 2) ?> AZN</span>
+      </div>
+      <div class="admin-row-meta"><span><?= icon('wallet', 'icon', 14) ?> <?= (int) $m['cnt'] ?> ödəniş</span></div>
+    </div>
   <?php endforeach; ?>
-  <?php if ($monthly === []): ?><tr><td colspan="3" class="text-soft">Məlumat yoxdur</td></tr><?php endif; ?>
-  </tbody>
-</table>
 </div>
+<?php endif; ?>
 
-<h2>Bütün ödənişlər</h2>
-<div class="table-wrap">
-<table class="admin-table">
-  <thead><tr><th>Sürücü</th><th>Nömrə</th><th>Məbləğ</th><th>Status</th><th>Tarix</th></tr></thead>
-  <tbody>
+<h2 style="margin-top:24px">Bütün ödənişlər</h2>
+<?php if ($payments === []): ?>
+  <div class="empty-state"><p>Məlumat yoxdur</p></div>
+<?php else: ?>
+<div class="admin-list">
   <?php foreach ($payments as $p): ?>
-    <tr>
-      <td><?= e($p['full_name']) ?></td>
-      <td><?= e(Phone::display($p['phone'])) ?></td>
-      <td><?= number_format((float) $p['amount'], 2) ?> <?= e($p['currency']) ?></td>
-      <td><span class="chip <?= $p['status'] === 'paid' ? 'chip-ok' : 'chip-muted' ?>"><?= e($p['status']) ?></span></td>
-      <td><?= e(substr($p['created_at'], 0, 16)) ?></td>
-    </tr>
+    <div class="admin-row">
+      <div class="admin-row-top">
+        <span class="admin-row-title"><?= e($p['full_name']) ?></span>
+        <span class="chip <?= $p['status'] === 'paid' ? 'chip-ok' : 'chip-muted' ?>"><?= e($p['status']) ?></span>
+      </div>
+      <div class="admin-row-meta">
+        <span><?= icon('phone', 'icon', 14) ?> <?= e(Phone::display($p['phone'])) ?></span>
+        <span><?= icon('wallet', 'icon', 14) ?> <?= number_format((float) $p['amount'], 2) ?> <?= e($p['currency']) ?></span>
+        <span><?= icon('calendar', 'icon', 14) ?> <?= e(substr($p['created_at'], 0, 16)) ?></span>
+      </div>
+    </div>
   <?php endforeach; ?>
-  <?php if ($payments === []): ?><tr><td colspan="5" class="text-soft">Məlumat yoxdur</td></tr><?php endif; ?>
-  </tbody>
-</table>
 </div>
+<?php endif; ?>

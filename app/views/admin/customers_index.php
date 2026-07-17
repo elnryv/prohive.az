@@ -3,27 +3,29 @@
 /** @var string $q */
 use App\Core\Phone;
 ?>
-<h1>Müştərilər</h1>
+<h1 style="display:flex;align-items:center;gap:8px"><?= icon('user') ?> Müştərilər</h1>
 
 <form method="get" class="admin-toolbar">
   <input type="text" name="q" placeholder="Nömrə və ya ad axtar..." value="<?= e($q) ?>">
-  <button type="submit" class="btn btn-sm">Axtar</button>
+  <button type="submit" class="btn btn-sm"><?= icon('search', 'icon', 16) ?></button>
 </form>
 
-<div class="table-wrap">
-<table class="admin-table">
-  <thead><tr><th>Ad</th><th>Nömrə</th><th>Elan sayı</th><th>Qəbul sayı</th><th></th></tr></thead>
-  <tbody>
+<?php if ($customers === []): ?>
+  <div class="empty-state"><p>Nəticə yoxdur</p></div>
+<?php else: ?>
+<div class="admin-list">
   <?php foreach ($customers as $c): ?>
-    <tr>
-      <td><?= e($c['full_name']) ?> <?php if ((int) $c['is_blocked'] === 1): ?><span class="chip" style="border-color:var(--danger);color:var(--danger)">bloklu</span><?php endif; ?></td>
-      <td><?= e(Phone::display($c['phone'])) ?></td>
-      <td><?= (int) $c['listing_count'] ?></td>
-      <td><?= (int) $c['accepted_count'] ?></td>
-      <td><a href="/musteriler/<?= (int) $c['id'] ?>" class="btn btn-sm">Bax</a></td>
-    </tr>
+    <a class="admin-row" href="/musteriler/<?= (int) $c['id'] ?>">
+      <div class="admin-row-top">
+        <span class="admin-row-title"><?= e($c['full_name']) ?></span>
+        <?php if ((int) $c['is_blocked'] === 1): ?><span class="chip" style="border-color:var(--danger);color:var(--danger)">bloklu</span><?php endif; ?>
+      </div>
+      <div class="admin-row-meta">
+        <span><?= icon('phone', 'icon', 14) ?> <?= e(Phone::display($c['phone'])) ?></span>
+        <span><?= icon('box', 'icon', 14) ?> <?= (int) $c['listing_count'] ?> elan</span>
+        <span><?= icon('check', 'icon', 14) ?> <?= (int) $c['accepted_count'] ?> qəbul</span>
+      </div>
+    </a>
   <?php endforeach; ?>
-  <?php if ($customers === []): ?><tr><td colspan="5" class="text-soft">Nəticə yoxdur</td></tr><?php endif; ?>
-  </tbody>
-</table>
 </div>
+<?php endif; ?>
