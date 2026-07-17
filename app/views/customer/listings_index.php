@@ -1,12 +1,15 @@
 <?php
 /** @var array $listings */
 /** @var bool $justCreated */
+/** @var array $banners */
 use App\Core\Auth;
 use App\Core\View;
 
 $firstName = explode(' ', trim((string) (Auth::user()['full_name'] ?? '')))[0] ?? '';
 ?>
 <div class="container">
+  <?php View::partial('partials/banner_carousel', ['banners' => $banners]); ?>
+
   <?php if ($justCreated): ?>
     <div class="banner" style="border-left-color:var(--ok)"><?= e(t('listing.created_ok')) ?></div>
   <?php endif; ?>

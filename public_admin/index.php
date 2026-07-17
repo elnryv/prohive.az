@@ -16,6 +16,7 @@ use App\Controllers\Admin\DictionaryController;
 use App\Controllers\Admin\PaymentController;
 use App\Controllers\Admin\CampaignController;
 use App\Controllers\Admin\LogController;
+use App\Controllers\Admin\BannerController;
 
 AdminAuth::boot();
 
@@ -123,6 +124,20 @@ $router->post('/kampaniya/gonder', function () {
 // --- Loglar ---
 $router->get('/loglar', function () {
     (new LogController())->index();
+});
+
+// --- Bannerlər ---
+$router->get('/bannerler', function () {
+    (new BannerController())->index();
+});
+$router->post('/bannerler', function () {
+    (new BannerController())->create();
+});
+$router->post('/bannerler/{id}/aktivlik', function ($p) {
+    (new BannerController())->toggle($p);
+});
+$router->post('/bannerler/{id}/sil', function ($p) {
+    (new BannerController())->delete($p);
 });
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

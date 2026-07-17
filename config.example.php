@@ -60,5 +60,6 @@ return [
         'listing_photo_dir' => __DIR__ . '/public/uploads/listings',
         'profile_photo_dir' => __DIR__ . '/public/uploads/profiles',
         'og_image_dir' => __DIR__ . '/public/storage/og',
+        'banner_dir' => __DIR__ . '/public/uploads/banners',
     ],
 ];

@@ -346,6 +346,23 @@ CREATE TABLE sse_events (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------------------
+-- banners — admin tərəfindən yüklənən, müştəri/sürücü ekranlarında
+-- başlıqdan dərhal aşağıda avtomatik sürüşən reklam/elan bannerləri
+-- ---------------------------------------------------------------------
+CREATE TABLE banners (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  image VARCHAR(255) NOT NULL,
+  title_az VARCHAR(160) DEFAULT NULL,
+  title_ru VARCHAR(160) DEFAULT NULL,
+  title_en VARCHAR(160) DEFAULT NULL,
+  link_url VARCHAR(500) DEFAULT NULL,
+  sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_active_sort (is_active, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
 -- reports — şikayət növbəsi (bölmə 9.4)
 -- ---------------------------------------------------------------------
 CREATE TABLE reports (

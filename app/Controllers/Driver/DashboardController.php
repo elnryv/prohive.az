@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Driver;
 
 use App\Core\Auth;
+use App\Core\Banners;
 use App\Core\DB;
 use App\Core\ListingRules;
 use App\Core\View;
@@ -61,6 +62,7 @@ final class DashboardController
             'locations' => $locations,
             'filters' => compact('categoryId', 'fromLocationId', 'toLocationId'),
             'lastEventId' => $lastEventId,
+            'banners' => Banners::active(),
         ]);
     }
 

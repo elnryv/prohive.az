@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Customer;
 
 use App\Core\Auth;
+use App\Core\Banners;
 use App\Core\DB;
 use App\Core\ListingRules;
 use App\Core\View;
@@ -24,6 +25,7 @@ final class DashboardController
             'pageTitle' => t('nav.my_listings'),
             'listings' => $stmt->fetchAll(),
             'justCreated' => isset($_GET['xosgeldin']),
+            'banners' => Banners::active(),
         ]);
     }
 }

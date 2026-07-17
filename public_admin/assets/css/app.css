@@ -505,6 +505,48 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   display: flex; align-items: center; justify-content: center;
 }
 
+.banner-carousel {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+}
+.banner-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .6s ease;
+  display: block;
+}
+.banner-slide.active { opacity: 1; }
+.banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.banner-slide-title {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 10px 14px;
+  background: linear-gradient(0deg, rgba(0,0,0,.55), transparent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.banner-dots {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  display: flex; gap: 5px;
+  z-index: 2;
+}
+.banner-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  transition: background .3s ease, transform .3s ease;
+}
+.banner-dot.active { background: #fff; transform: scale(1.3); }
+
 .banner {
   background: var(--card);
   border-left: 3px solid var(--warn);

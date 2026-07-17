@@ -8,10 +8,13 @@
 /** @var array $locations */
 /** @var array $filters */
 /** @var int $lastEventId */
+/** @var array $banners */
 use App\Core\Lang;
 use App\Core\View;
 ?>
 <div class="container">
+  <?php View::partial('partials/banner_carousel', ['banners' => $banners]); ?>
+
   <?php if ($driverStatus === 'pending'): ?>
     <div class="banner"><?= e(t('auth.driver_pending_banner')) ?></div>
   <?php elseif ($driverStatus === 'rejected'): ?>

@@ -15,6 +15,7 @@ $nav = [
     '/elanlar' => ['box', 'Elanlar'],
     '/odenisler' => ['wallet', 'Ödənişlər'],
     '/musteriler' => ['user', 'Müştərilər'],
+    '/bannerler' => ['camera', 'Bannerlər'],
     '/parametrler' => ['settings', 'Parametrlər'],
     '/kampaniya' => ['bell', 'Push kampaniya'],
     '/loglar' => ['list', 'Loglar'],
