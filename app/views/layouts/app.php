@@ -22,7 +22,7 @@ $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 <html lang="<?= e($lang) ?>">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title><?= e($title) ?></title>
 <meta name="description" content="<?= e(t('home.subtitle')) ?>">
 <?php if ($noindex): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>

@@ -34,6 +34,7 @@ html, body {
   -webkit-tap-highlight-color: transparent;
   max-width: 100%;
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 img, svg { max-width: 100%; }
