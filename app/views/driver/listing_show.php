@@ -1,6 +1,7 @@
 <?php
 /** @var array $listing */
 /** @var array $photos */
+/** @var array $customer */
 /** @var bool $isActive */
 /** @var string $driverStatus */
 /** @var array|null $myOffer */
@@ -17,6 +18,15 @@ use App\Core\Lang;
     <span class="chip"><?= e($listing['icon']) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
     <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent">⚡ <?= e(t('listing.urgent')) ?></span><?php endif; ?>
     <span class="chip"><?= $listing['move_date'] ? e($listing['move_date']) : e(t('common.agreement')) ?></span>
+  </div>
+
+  <div class="card" style="display:flex;align-items:center;gap:10px">
+    <?php if (!empty($customer['profile_photo'])): ?>
+      <img src="/uploads/profiles/<?= e($customer['profile_photo']) ?>" style="width:44px;height:44px;object-fit:cover;border-radius:50%">
+    <?php else: ?>
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>
+    <?php endif; ?>
+    <span class="text-soft"><?= e($customer['full_name']) ?></span>
   </div>
 
   <div class="card">

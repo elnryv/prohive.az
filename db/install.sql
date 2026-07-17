@@ -159,6 +159,7 @@ CREATE TABLE users (
   phone VARCHAR(20) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   full_name VARCHAR(120) NOT NULL,
+  profile_photo VARCHAR(255) DEFAULT NULL,
   lang ENUM('az','ru','en') NOT NULL DEFAULT 'az',
   is_blocked TINYINT(1) NOT NULL DEFAULT 0,
   vehicle_type_id INT UNSIGNED DEFAULT NULL,

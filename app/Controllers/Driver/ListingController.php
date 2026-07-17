@@ -31,6 +31,10 @@ final class ListingController
         $photos = DB::conn()->prepare('SELECT * FROM listing_photos WHERE listing_id = ? ORDER BY sort_order');
         $photos->execute([$id]);
 
+        $customerStmt = DB::conn()->prepare('SELECT full_name, profile_photo FROM users WHERE id = ? LIMIT 1');
+        $customerStmt->execute([(int) $listing['customer_id']]);
+        $customer = $customerStmt->fetch() ?: ['full_name' => '', 'profile_photo' => null];
+
         $user = Auth::user();
         $myOfferStmt = DB::conn()->prepare('SELECT * FROM offers WHERE listing_id = ? AND driver_id = ? LIMIT 1');
         $myOfferStmt->execute([$id, Auth::id()]);
@@ -39,6 +43,7 @@ final class ListingController
             'pageTitle' => t('nav.feed'),
             'listing' => $listing,
             'photos' => $photos->fetchAll(),
+            'customer' => $customer,
             'isActive' => Auth::isActiveDriver($user),
             'driverStatus' => $user['driver_status'],
             'myOffer' => $myOfferStmt->fetch() ?: null,

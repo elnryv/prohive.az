@@ -211,4 +211,14 @@ return [
         'denied' => 'Permission was not granted. Enable notifications from your phone Settings to use this.',
         'unsupported' => 'This browser/device does not support notifications.',
     ],
+
+    'profile_edit' => [
+        'photo_label' => 'Profile photo',
+        'phone_label' => 'Phone number',
+        'save' => 'Save',
+        'saved' => 'Changes saved.',
+        'phone_invalid' => 'Phone number format is invalid.',
+        'phone_taken' => 'This number is already used by another account.',
+        'photo_error' => 'Photo upload failed — check format (JPG/PNG) and size.',
+    ],
 ];

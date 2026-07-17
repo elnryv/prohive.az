@@ -22,6 +22,7 @@ use App\Controllers\Driver\HistoryController as DriverHistory;
 use App\Controllers\Driver\RouteSubscriptionController as DriverRoutes;
 use App\Controllers\Site\StreamController;
 use App\Controllers\Site\PushController;
+use App\Controllers\Site\ProfileController;
 use App\Controllers\Driver\BillingController as DriverBilling;
 use App\Controllers\Site\PaymentCallbackController;
 
@@ -85,6 +86,10 @@ $router->get('/musteri/profil', function () {
     Auth::requireRole('customer', '/giris');
     View::render('site/profile_stub', ['pageTitle' => t('nav.profile')]);
 });
+$router->post('/musteri/profil', function () {
+    Auth::requireRole('customer', '/giris');
+    (new ProfileController())->update();
+});
 
 // --- Sürücü (FAZA 2, təklif FAZA 3-də) ---
 $router->get('/surucu/lent', function () {
@@ -120,6 +125,10 @@ $router->post('/surucu/marsrutlar/{id}/sil', function ($p) {
 $router->get('/surucu/profil', function () {
     Auth::requireRole('driver', '/giris');
     View::render('site/profile_stub', ['pageTitle' => t('nav.profile')]);
+});
+$router->post('/surucu/profil', function () {
+    Auth::requireRole('driver', '/giris');
+    (new ProfileController())->update();
 });
 $router->get('/surucu/odenis', function () {
     (new DriverBilling())->show();

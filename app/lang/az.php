@@ -211,4 +211,14 @@ return [
         'denied' => 'İcazə verilmədi. Bildirişləri açmaq üçün telefonun Ayarlar bölməsindən icazə vermək lazımdır.',
         'unsupported' => 'Bu brauzer/cihaz bildirişləri dəstəkləmir.',
     ],
+
+    'profile_edit' => [
+        'photo_label' => 'Profil şəkli',
+        'phone_label' => 'Telefon nömrəsi',
+        'save' => 'Yadda saxla',
+        'saved' => 'Dəyişikliklər yadda saxlanıldı.',
+        'phone_invalid' => 'Telefon nömrəsi düzgün formatda deyil.',
+        'phone_taken' => 'Bu nömrə artıq başqa hesabda istifadə olunur.',
+        'photo_error' => 'Şəkil yüklənmədi — format (JPG/PNG) və ölçünü yoxlayın.',
+    ],
 ];

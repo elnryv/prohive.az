@@ -58,6 +58,7 @@ return [
         'max_photo_bytes' => 5 * 1024 * 1024,
         'vehicle_photo_dir' => __DIR__ . '/public/uploads/vehicles',
         'listing_photo_dir' => __DIR__ . '/public/uploads/listings',
+        'profile_photo_dir' => __DIR__ . '/public/uploads/profiles',
         'og_image_dir' => __DIR__ . '/public/storage/og',
     ],
 ];

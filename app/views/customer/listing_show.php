@@ -113,11 +113,18 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
           <?php if ($offer['status'] === 'accepted'): ?><span class="chip chip-ok"><?= e(t('listing.status_accepted')) ?></span><?php endif; ?>
         </div>
         <?php if (!empty($offer['note'])): ?><p class="text-soft"><?= e($offer['note']) ?></p><?php endif; ?>
-        <p class="text-soft" style="font-size:13px">
-          <?= e($offer['full_name']) ?> · <?= e(Lang::field(['name_az' => $offer['vt_name_az'], 'name_ru' => $offer['vt_name_ru'], 'name_en' => $offer['vt_name_en']], 'name')) ?>
-          · ✓ <?= (int) $offer['jobs_done'] ?> iş
-          <?php if ((int) $offer['cancel_count'] > 0): ?> · ⚠ <?= (int) $offer['cancel_count'] ?> ləğv<?php endif; ?>
-        </p>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <?php if (!empty($offer['profile_photo'])): ?>
+            <img src="/uploads/profiles/<?= e($offer['profile_photo']) ?>" style="width:32px;height:32px;object-fit:cover;border-radius:50%;flex-shrink:0">
+          <?php else: ?>
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--card-hi);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👤</div>
+          <?php endif; ?>
+          <p class="text-soft" style="font-size:13px;margin:0">
+            <?= e($offer['full_name']) ?> · <?= e(Lang::field(['name_az' => $offer['vt_name_az'], 'name_ru' => $offer['vt_name_ru'], 'name_en' => $offer['vt_name_en']], 'name')) ?>
+            · ✓ <?= (int) $offer['jobs_done'] ?> iş
+            <?php if ((int) $offer['cancel_count'] > 0): ?> · ⚠ <?= (int) $offer['cancel_count'] ?> ləğv<?php endif; ?>
+          </p>
+        </div>
 
         <?php if ($offer['status'] === 'pending' && $listing['status'] === 'active'): ?>
           <form method="post" action="/musteri/elan/<?= (int) $listing['id'] ?>/teklif/<?= (int) $offer['id'] ?>/qebul" style="margin-top:8px" onsubmit="return confirm('<?= e(t('offer.accept_confirm')) ?>')">

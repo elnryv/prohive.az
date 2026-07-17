@@ -186,7 +186,7 @@ final class ListingController
         // təsdiqləyib — view isə telefonu yalnız status==='accepted' olan
         // təklif üçün render edir (digərlərində sıra var, amma göstərilmir).
         $offers = DB::conn()->prepare(
-            "SELECT o.*, u.full_name, u.phone, u.jobs_done, u.cancel_count, u.vehicle_photo, u.created_at as driver_since,
+            "SELECT o.*, u.full_name, u.phone, u.jobs_done, u.cancel_count, u.vehicle_photo, u.profile_photo, u.created_at as driver_since,
                     vt.name_az as vt_name_az, vt.name_ru as vt_name_ru, vt.name_en as vt_name_en
              FROM offers o
              JOIN users u ON u.id = o.driver_id
