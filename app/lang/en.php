@@ -54,6 +54,7 @@ return [
         'driver_greeting_sub' => 'Check out new cargo that fits you',
         'driver_today_stat' => 'New today',
         'driver_active_stat' => 'Active now',
+        'splash_slogan' => 'Post your cargo — prices will come to you.',
     ],
     'auth' => [
         'choose_role' => 'Choose your role',

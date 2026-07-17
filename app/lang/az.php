@@ -54,6 +54,7 @@ return [
         'driver_greeting_sub' => 'Sənə uyğun yeni yüklərə bax',
         'driver_today_stat' => 'Bugün yeni',
         'driver_active_stat' => 'Hazırda aktiv',
+        'splash_slogan' => 'Yükünü yerləşdir, qiymətlər sənə gəlsin.',
     ],
     'auth' => [
         'choose_role' => 'Rolunu seç',

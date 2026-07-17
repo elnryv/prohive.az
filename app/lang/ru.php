@@ -54,6 +54,7 @@ return [
         'driver_greeting_sub' => 'Смотрите новые подходящие грузы',
         'driver_today_stat' => 'Сегодня новых',
         'driver_active_stat' => 'Сейчас активно',
+        'splash_slogan' => 'Разместите груз — цены придут к вам.',
     ],
     'auth' => [
         'choose_role' => 'Выберите роль',

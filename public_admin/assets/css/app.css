@@ -763,141 +763,191 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
 }
 .install-reminder .install-close { color: var(--on-primary); position: static; margin-left: auto; }
 
-/* Splash (bölmə 10.2 + FAZA 15): kinematik açılış — hissəciklər, sürət-xətləri, glow,
-   loqo "pop", mətn ardıcıllığı, loading bar + faiz, sonra fade+scale ilə çıxış (JS-dən
-   idarə olunur, bax splash.js — .splash-hide class-ı). Tünd fon qəsdən solid görünür
-   (fade YOXDUR) ki, altdakı açıq mövzulu səhifədən keçid zamanı "flaş" olmasın. */
+/* Splash (bölmə 10.2 + FAZA 15): sahibkarın verdiyi GSAP ssenarisinin dəqiq bərpası —
+   loqo (B hərfi + yük maşını) hissə-hissə yığılır, mətn/loader ardıcıllığı, sonra
+   fade+scale ilə çıxış. GSAP CDN CSP (`script-src 'self'`) tərəfindən bloklanacağı üçün
+   (sınanıldı — proksi 403 verdi, host icazə siyahısında deyil) eyni vaxt cədvəli saf CSS
+   keyframe `animation-delay`-lə, loader faizi isə minimal JS (rAF) ilə bərpa olunub —
+   nəticə vizual/vaxtlama baxımından eynidir. Tünd fon DƏRHAL solid görünür (fade YOXDUR)
+   ki, altdakı açıq mövzulu səhifədən keçiddə "flaş" olmasın. Vaxt cədvəli (GSAP-ın
+   nisbi "-=X" overlap-larından hesablanıb, saniyə, animation-delay kimi): logo-wrapper 0s,
+   b-letter .5s, speed-line .9/1.0/1.1s, truck-body 1.3s, truck-cabin 1.5s, truck-window
+   1.7s, wheel 1.8/1.9s, text-wrapper 2.1s, title 2.4s, subtitle 2.7s, slogan 3.0s,
+   loader-wrapper 3.3s, loader-bar/-text 3.8s (JS, 2s), çıxış ~6.0s. */
 .splash {
   position: fixed; inset: 0; z-index: 200;
-  background: radial-gradient(ellipse at 50% 85%, #10192e 0%, #060a14 70%);
-  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at bottom, #0d1117 0%, #050608 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff;
   overflow: hidden;
-  transition: opacity .5s ease, transform .5s ease;
+  transition: opacity .6s ease, transform .6s ease;
 }
-.splash.splash-hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
+.splash.splash-hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
 
-.splash-particles { position: absolute; inset: 0; pointer-events: none; }
-.splash-particle {
+.splash .particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.splash .particle {
   position: absolute;
-  width: 3px; height: 3px;
+  width: 2px; height: 2px;
+  background: #2196f3;
   border-radius: 50%;
-  background: #6fa8ff;
   opacity: 0;
-  animation: splash-particle-drift var(--dur, 3.5s) ease-in-out var(--delay, 0s) infinite alternate;
+  animation: splash-particle-drift var(--dur, 2.5s) ease-in-out var(--delay, 0s) infinite alternate;
 }
 @keyframes splash-particle-drift {
   0% { opacity: 0; transform: translateY(0); }
-  50% { opacity: var(--peak, .55); }
-  100% { opacity: 0; transform: translateY(var(--dy, -36px)); }
+  50% { opacity: var(--peak, .5); }
+  100% { opacity: 0; transform: translateY(var(--dy, -50px)); }
 }
 
-.splash-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-
-.splash-logo-wrapper { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
-.splash-glow {
-  position: absolute; width: 200px; height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(47, 111, 237, .55) 0%, rgba(47, 111, 237, 0) 70%);
-  filter: blur(6px);
-  opacity: 0;
-  transform: scale(.6);
-  animation: splash-glow-in .7s ease .4s forwards;
-}
-@keyframes splash-glow-in { to { opacity: 1; transform: scale(1); } }
-
-.splash-streak {
+.splash .bg-lines { position: absolute; inset: 0; overflow: hidden; }
+.splash .bg-lines span {
   position: absolute;
-  left: -40%;
-  width: 60%; height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, transparent, #6fa8ff, transparent);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #2196f3, transparent);
+  border-radius: 2px;
   opacity: 0;
-  animation: splash-streak-sweep .7s ease-out forwards;
 }
-.splash-streak-1 { top: 38%; animation-delay: .1s; }
-.splash-streak-2 { top: 52%; animation-delay: .2s; }
-.splash-streak-3 { top: 66%; animation-delay: .3s; }
-@keyframes splash-streak-sweep {
-  0% { opacity: 0; transform: translateX(0); }
-  40% { opacity: 1; }
-  100% { opacity: 0; transform: translateX(260%); }
+.splash .bg-lines span:nth-child(1) { top: 20%; width: 40%; animation: splash-line-move 1.2s ease-out .2s forwards; }
+.splash .bg-lines span:nth-child(2) { top: 30%; width: 60%; animation: splash-line-move 1.4s ease-out .3s forwards; }
+.splash .bg-lines span:nth-child(3) { top: 40%; width: 80%; animation: splash-line-move 1.6s ease-out .4s forwards; }
+.splash .bg-lines span:nth-child(4) { top: 50%; width: 50%; animation: splash-line-move 1.2s ease-out .5s forwards; }
+.splash .bg-lines span:nth-child(5) { top: 60%; width: 70%; animation: splash-line-move 1.4s ease-out .6s forwards; }
+.splash .bg-lines span:nth-child(6) { top: 70%; width: 40%; animation: splash-line-move 1.2s ease-out .7s forwards; }
+.splash .bg-lines span:nth-child(7) { top: 80%; width: 60%; animation: splash-line-move 1.4s ease-out .8s forwards; }
+.splash .bg-lines span:nth-child(8) { top: 90%; width: 30%; animation: splash-line-move 1.2s ease-out .9s forwards; }
+@keyframes splash-line-move {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(100%); opacity: 1; }
 }
 
-.splash-logo {
+.splash .logo-wrapper {
   position: relative;
-  width: 128px; height: 128px;
-  border-radius: 28px;
+  transform: scale(.6);
   opacity: 0;
-  transform: scale(.55);
-  animation: splash-logo-pop .6s cubic-bezier(.34, 1.56, .64, 1) .5s forwards;
+  margin-bottom: 20px;
+  animation: splash-logo-wrapper-in 1s cubic-bezier(.22, 1, .36, 1) 0s forwards;
 }
-@keyframes splash-logo-pop { to { opacity: 1; transform: scale(1); } }
+@keyframes splash-logo-wrapper-in { to { transform: scale(1); opacity: 1; } }
+.splash .logo { width: 180px; height: 180px; }
+.splash .logo svg { width: 100%; height: 100%; overflow: visible; }
 
-.splash-text-wrapper { margin-top: 14px; text-align: center; }
-.splash-title, .splash-subtitle, .splash-slogan {
+.splash .b-letter {
   opacity: 0;
-  transform: translateY(14px);
-  animation: splash-rise .5s ease forwards;
+  transform: translateY(40px);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: splash-rise-in .8s cubic-bezier(.22, 1, .36, 1) .5s forwards;
 }
-.splash-title {
-  font-family: var(--font-head);
-  font-size: 26px;
-  font-weight: 700;
-  color: #f2f5fc;
-  animation-delay: 1.15s;
+.splash .truck-body {
+  opacity: 0;
+  transform: translateX(-120px);
+  transform-box: fill-box;
+  animation: splash-slide-x-in .5s cubic-bezier(.22, 1, .36, 1) 1.3s forwards;
 }
-.splash-subtitle {
-  font-family: var(--font-head);
-  font-size: 30px;
-  font-weight: 700;
-  color: #6fa8ff;
-  margin-top: -4px;
-  animation-delay: 1.35s;
+.splash .truck-cabin {
+  opacity: 0;
+  transform: translateX(120px);
+  transform-box: fill-box;
+  animation: splash-slide-x-in .5s cubic-bezier(.22, 1, .36, 1) 1.5s forwards;
 }
-.splash-slogan {
-  font-size: 12.5px;
-  color: rgba(242, 245, 252, .55);
-  max-width: 240px;
-  margin: 6px auto 0;
-  animation-delay: 1.55s;
+.splash .truck-window {
+  opacity: 0;
+  transform: scale(.5);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: splash-scale-in .4s cubic-bezier(.22, 1, .36, 1) 1.7s forwards;
 }
-@keyframes splash-rise { to { opacity: 1; transform: translateY(0); } }
+.splash .wheel {
+  opacity: 0;
+  transform: scale(0);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: splash-scale-in .4s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+.splash .wheel-back { animation-delay: 1.8s; }
+.splash .wheel-front { animation-delay: 1.9s; }
+.splash .speed-line {
+  opacity: 0;
+  transform: translateX(-60px);
+  animation: splash-slide-x-in .6s ease-out forwards;
+}
+.splash .speed-line:nth-of-type(1) { animation-delay: .9s; }
+.splash .speed-line:nth-of-type(2) { animation-delay: 1.0s; }
+.splash .speed-line:nth-of-type(3) { animation-delay: 1.1s; }
+@keyframes splash-rise-in { to { opacity: 1; transform: translateY(0); } }
+@keyframes splash-slide-x-in { to { opacity: 1; transform: translateX(0); } }
+@keyframes splash-scale-in { to { opacity: 1; transform: scale(1); } }
 
-.splash-loader-wrapper {
-  margin-top: 26px;
-  width: 70%; max-width: 240px;
+.splash .text-wrapper {
+  margin-top: 30px;
+  text-align: center;
   opacity: 0;
-  transform: translateY(8px);
-  animation: splash-rise .4s ease 1.85s forwards;
+  animation: splash-fade-in .6s ease 2.1s forwards;
 }
-.splash-loader {
-  width: 100%; height: 5px;
-  background: rgba(255, 255, 255, .12);
+.splash .title, .splash .subtitle, .splash .slogan {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: splash-rise-in .6s ease forwards;
+}
+.splash .title {
+  font-family: var(--font-head);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  animation-delay: 2.4s;
+}
+.splash .subtitle {
+  font-family: var(--font-head);
+  font-size: 42px;
+  font-weight: 700;
+  color: #2196f3;
+  margin-top: -5px;
+  animation-delay: 2.7s;
+}
+.splash .slogan {
+  font-size: 13px;
+  color: #a0a7b5;
+  max-width: 260px;
+  margin: 8px auto 0;
+  animation-delay: 3.0s;
+}
+@keyframes splash-fade-in { to { opacity: 1; } }
+
+.splash .loader-wrapper {
+  margin-top: 40px;
+  width: 70%; max-width: 280px;
+  opacity: 0;
+  animation: splash-fade-in .6s ease 3.3s forwards;
+}
+.splash .loader {
+  width: 100%; height: 6px;
+  background: #1a1f2b;
   border-radius: 50px;
   overflow: hidden;
+  position: relative;
 }
-.splash-loader-bar {
+.splash .loader-bar {
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, #2F6FED, #7fb1ff);
-  box-shadow: 0 0 12px rgba(47, 111, 237, .7);
-  border-radius: inherit;
+  background: linear-gradient(90deg, #2196f3, #64b5f6);
+  box-shadow: 0 0 15px rgba(33, 150, 243, .6);
 }
-.splash-loader-text {
+.splash .loader-text {
   display: block;
   text-align: center;
   font-size: 12px;
-  color: rgba(242, 245, 252, .5);
-  margin-top: 8px;
+  color: #a0a7b5;
+  margin-top: 6px;
   opacity: 0;
-  animation: splash-rise .3s ease 1.85s forwards;
+  animation: splash-fade-in .3s ease 3.8s forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .splash-particle, .splash-glow, .splash-streak, .splash-logo,
-  .splash-title, .splash-subtitle, .splash-slogan, .splash-loader-wrapper, .splash-loader-text {
+  .splash .particle, .splash .bg-lines span, .splash .logo-wrapper, .splash .b-letter,
+  .splash .truck-body, .splash .truck-cabin, .splash .truck-window, .splash .wheel,
+  .splash .speed-line, .splash .text-wrapper, .splash .title, .splash .subtitle,
+  .splash .slogan, .splash .loader-wrapper, .splash .loader-text {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
-  .splash-streak { display: none; }
 }

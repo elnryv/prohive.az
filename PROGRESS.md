@@ -532,3 +532,23 @@ bar+faiz → çıxış) isə GSAP-sız, saf CSS keyframe + minimal JS ilə bərp
   fon dərhal solid, sürət-xətti + glow + loqo "pop" ardıcıllığı, başlıq/alt-başlıq/slogan sırayla
   görünür, loading bar 0%→100% canlı faizlə dolur, ~4.2s-də splash `#splash` DOM-dan tam silinir —
   sıfır konsol xətası.
+
+### Yeniləmə — sahibkarın verdiyi dəqiq kod ilə tam bərpa
+Sahibkar əvvəlki cavabdan sonra splash ekranının HAZIR HTML/CSS/JS kodunu (GSAP-əsaslı) mətn olaraq
+göndərdi — bu dəfə SVG path-ları (b-letter, truck-body/cabin/window, wheel) tam oxunaqlı idi.
+- GSAP-ı CDN-dən özündə saxlamağa (self-host) cəhd edildi ki, verilən `script.js` demək olar ki,
+  olduğu kimi işləsin — proksi `cdnjs.cloudflare.com`-u 403 ilə blokladı (təşkilat siyasəti,
+  `/root/.ccr/README.md`-yə uyğun təkrar cəhd edilmədi, host bloklanması qeyd olunur).
+- Nəticə: `splash.php`/`app.css`/`splash.js` verilən SVG-ni HƏRFİ olaraq (dəyişiklik edilmədən) və
+  CSS-i demək olar ki, eyni dəyərlərlə (rənglər, ölçülər, `bg-lines`) yenidən qurdu; GSAP-ın nisbi
+  `"-=X"` overlap-larından tam vaxt cədvəli hesablanıb (logo-wrapper 0s → b-letter .5s →
+  speed-line .9/1.0/1.1s → truck-body 1.3s → truck-cabin 1.5s → truck-window 1.7s →
+  wheel 1.8/1.9s → text-wrapper 2.1s → title 2.4s → subtitle 2.7s → slogan 3.0s →
+  loader-wrapper 3.3s → loader-bar/-text 3.8s (2s, JS) → çıxış ~6.0-6.6s) və CSS `animation-delay`
+  olaraq tətbiq olundu; loader faizi eyni məntiqlə (`power3-out` bənzəri) `requestAnimationFrame`
+  ilə saxlanıldı. Slogan mətni üçün yeni `home.splash_slogan` açarı 3 dildə əlavə olundu (206/206/206
+  paritet).
+- Playwright ilə tam vaxt oxu üzrə (t=0.3/1.0/1.6/2.2/2.9/3.6/4.5/5.5/6.3/6.9s) screenshot seriyası:
+  "B" hərfi düzgün render olunur, yük maşını hissə-hissə (kabina/kuzov/pəncərə/təkərlər) yığılır,
+  mətn/loader ardıcıllığı referans dizaynla üst-üstə düşür, ~6.6s-də təmiz şəkildə yox olur —
+  sıfır konsol xətası.
