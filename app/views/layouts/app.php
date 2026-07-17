@@ -10,6 +10,7 @@ $lang = Lang::current();
 $title = isset($pageTitle) ? $pageTitle . ' · ' . t('app_name') : t('app_name') . ' — ' . t('home.title');
 $user = Auth::user();
 $noindex = $noindex ?? true;
+$brandHref = $user === null ? '/' : ($user['role'] === 'driver' ? '/surucu/lent' : '/musteri/elanlarim');
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -30,7 +31,7 @@ $noindex = $noindex ?? true;
 <body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
 <?php \App\Core\View::partial('partials/splash'); ?>
 <header class="top-bar">
-  <a href="/" class="brand">Birlikdə <span class="amber">Yük</span></a>
+  <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>
   <nav class="lang-switch">
     <a href="?lang=az" class="<?= $lang === 'az' ? 'active' : '' ?>">AZ</a>
     <a href="?lang=ru" class="<?= $lang === 'ru' ? 'active' : '' ?>">RU</a>
