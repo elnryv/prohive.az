@@ -9,7 +9,7 @@ use App\Core\Lang;
 <div class="container">
   <h1><?= e(t('nav.history')) ?></h1>
 
-  <div class="card" style="border-color:var(--amber)">
+  <div class="card" style="border-color:var(--primary)">
     <p class="num" style="font-size:18px"><?= e(t('history.monthly_summary', ['count' => $monthlyCount, 'total' => number_format($monthlyTotal, 2)])) ?></p>
     <?php if ($cancelCount > 0): ?>
       <p class="text-soft" style="display:flex;align-items:center;gap:6px"><?= icon('alert-triangle', 'icon', 14) ?> <?= e(t('history.cancel_count', ['n' => $cancelCount])) ?></p>

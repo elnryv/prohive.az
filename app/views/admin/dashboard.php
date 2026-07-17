@@ -19,13 +19,13 @@ foreach ($billingBreakdown as $row) {
   <div class="stat-card"><div class="num"><?= $todayAccepted ?></div><div class="label">Bugünkü qəbul</div></div>
   <div class="stat-card">
     <div class="num"><?= $pendingDrivers ?></div><div class="label">Təsdiq gözləyən sürücü</div>
-    <?php if ($pendingDrivers > 0): ?><a href="/surucular?tab=pending" style="color:var(--amber);font-size:12px">Bax →</a><?php endif; ?>
+    <?php if ($pendingDrivers > 0): ?><a href="/surucular?tab=pending" style="color:var(--primary);font-size:12px">Bax →</a><?php endif; ?>
   </div>
   <div class="stat-card"><div class="num"><?= number_format($mrr, 0) ?> AZN</div><div class="label">MRR (bu ay)</div></div>
   <div class="stat-card">
     <div class="num" style="font-size:15px;display:flex;gap:10px">
       <span style="color:var(--ok)"><?= $billingMap['paid'] ?? 0 ?></span>
-      <span style="color:var(--amber)"><?= $billingMap['trial'] ?? 0 ?></span>
+      <span style="color:var(--primary)"><?= $billingMap['trial'] ?? 0 ?></span>
       <span style="color:var(--txt-soft)"><?= $billingMap['free'] ?? 0 ?></span>
     </div>
     <div class="label">Paid · Trial · Free</div>

@@ -19,7 +19,7 @@ $statusChipClass = static fn (string $s) => match ($s) {
   <h2 style="margin-top:0;display:flex;align-items:center;gap:6px"><?= icon('alert-triangle') ?> Şikayət növbəsi (<?= count($reports) ?>)</h2>
   <?php foreach ($reports as $r): ?>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap">
-      <span><a href="/elanlar/<?= (int) $r['listing_id'] ?>" style="color:var(--amber)"><?= e($r['public_code']) ?></a> — <?= e($r['reason']) ?> (<?= e($r['reporter_name']) ?>)</span>
+      <span><a href="/elanlar/<?= (int) $r['listing_id'] ?>" style="color:var(--primary)"><?= e($r['public_code']) ?></a> — <?= e($r['reason']) ?> (<?= e($r['reporter_name']) ?>)</span>
       <div style="display:flex;gap:6px">
         <form method="post" action="/elanlar/sikayet/<?= (int) $r['id'] ?>"><?= Csrf::field() ?><input type="hidden" name="action" value="resolve"><button class="btn btn-sm btn-amber">Həll edildi</button></form>
         <form method="post" action="/elanlar/sikayet/<?= (int) $r['id'] ?>"><?= Csrf::field() ?><input type="hidden" name="action" value="dismiss"><button class="btn btn-sm btn-outline">Rədd et</button></form>

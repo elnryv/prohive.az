@@ -223,4 +223,13 @@ return [
         'phone_taken' => 'Bu nömrə artıq başqa hesabda istifadə olunur.',
         'photo_error' => 'Şəkil yüklənmədi — format (JPG/PNG) və ölçünü yoxlayın.',
     ],
+
+    'profile_menu' => [
+        'account' => 'Hesab məlumatları',
+        'language' => 'Dil / Language',
+        'notifications' => 'Bildirişlər',
+        'support' => 'Dəstək və Yardım',
+        'about' => 'Haqqımızda',
+        'about_text' => 'Birlikdə Yük — yerli yük daşıma birjası. Versiya 1.0.',
+    ],
 ];

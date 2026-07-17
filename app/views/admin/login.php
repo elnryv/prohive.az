@@ -3,8 +3,8 @@
 use App\Core\Csrf;
 ?>
 <div class="admin-login">
-  <div class="icon-badge" style="color:var(--amber);margin:0 auto 12px"><?= icon('shield-check', 'icon', 26) ?></div>
-  <h1 style="text-align:center">Birlikdə <span style="color:var(--amber)">Yük</span></h1>
+  <div class="icon-badge" style="color:var(--primary);margin:0 auto 12px"><?= icon('shield-check', 'icon', 26) ?></div>
+  <h1 style="text-align:center">Birlikdə <span style="color:var(--primary)">Yük</span></h1>
   <p class="text-soft" style="text-align:center">İdarəetmə mərkəzi</p>
   <?php if ($error !== null): ?><div class="banner banner-error"><?= e($error) ?></div><?php endif; ?>
   <form method="post" action="/giris">

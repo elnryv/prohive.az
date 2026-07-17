@@ -33,7 +33,7 @@ use App\Core\Phone;
         <?php if ($offer['offer_status'] === 'accepted'): ?>
           <div class="card" style="border-color:var(--ok);margin-top:8px">
             <p class="text-soft"><?= e($offer['customer_name']) ?></p>
-            <p class="num" style="font-size:22px;color:var(--amber)"><?= e(Phone::display($offer['customer_phone'])) ?></p>
+            <p class="num" style="font-size:22px;color:var(--primary)"><?= e(Phone::display($offer['customer_phone'])) ?></p>
             <div style="display:flex;gap:8px;margin-top:8px">
               <a class="btn btn-amber" style="flex:1" target="_blank" rel="noopener"
                  href="https://wa.me/<?= e($offer['customer_phone']) ?>?text=<?= urlencode(t('whatsapp.template', ['route' => Lang::field($offer, 'from') . ' → ' . Lang::field($offer, 'to')])) ?>">

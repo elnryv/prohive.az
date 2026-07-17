@@ -46,7 +46,7 @@ use App\Core\Lang;
   <?php elseif ($driverStatus !== 'approved'): ?>
     <div class="banner"><?= e(t('listing.driver_pending_locked')) ?></div>
   <?php elseif (!$isActive): ?>
-    <div class="banner"><?= e(t('listing.driver_inactive_locked')) ?> <a href="/surucu/odenis" style="color:var(--amber)">→</a></div>
+    <div class="banner"><?= e(t('listing.driver_inactive_locked')) ?> <a href="/surucu/odenis" style="color:var(--primary)">→</a></div>
   <?php elseif ($myOffer !== null && in_array($myOffer['status'], ['pending', 'accepted'], true)): ?>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">

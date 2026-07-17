@@ -26,7 +26,7 @@ $regionLocations = array_filter($locations, static fn ($l) => (int) $l['is_baku'
           <label class="role-card" style="padding:12px;cursor:pointer">
             <input type="radio" name="category_id" value="<?= (int) $cat['id'] ?>" style="width:auto;min-height:auto"
               <?= (int) ($old['category_id'] ?? 0) === (int) $cat['id'] ? 'checked' : '' ?> required>
-            <span class="icon-badge" style="color:var(--amber)"><?= icon(Icon::forCategorySlug($cat['slug'] ?? null), 'icon', 22) ?></span>
+            <span class="icon-badge" style="color:var(--primary)"><?= icon(Icon::forCategorySlug($cat['slug'] ?? null), 'icon', 22) ?></span>
             <div style="font-size:13px;font-weight:600"><?= e(Lang::field($cat, 'name')) ?></div>
           </label>
         <?php endforeach; ?>

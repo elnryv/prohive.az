@@ -74,7 +74,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
       <div class="card" style="border-color:var(--ok)">
         <p class="text-soft"><?= e(t('listing.status_accepted')) ?></p>
         <p class="num" style="font-size:20px"><?= e($acceptedOffer['full_name']) ?></p>
-        <p class="num" style="font-size:24px;color:var(--amber)"><?= e(Phone::display($acceptedOffer['phone'])) ?></p>
+        <p class="num" style="font-size:24px;color:var(--primary)"><?= e(Phone::display($acceptedOffer['phone'])) ?></p>
         <div style="display:flex;gap:8px;margin-top:8px">
           <a class="btn btn-amber" style="flex:1" target="_blank" rel="noopener"
              href="https://wa.me/<?= e($acceptedOffer['phone']) ?>?text=<?= urlencode(t('whatsapp.template', ['route' => Lang::field($listing, 'from') . ' → ' . Lang::field($listing, 'to')])) ?>">
@@ -99,7 +99,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
 
   <div class="card">
     <p class="text-soft"><?= e(t('listing.view_public')) ?></p>
-    <a href="<?= e($publicUrl) ?>" style="color:var(--amber);word-break:break-all"><?= e($publicUrl) ?></a>
+    <a href="<?= e($publicUrl) ?>" style="color:var(--primary);word-break:break-all"><?= e($publicUrl) ?></a>
   </div>
 
   <?php if ($listing['status'] === 'active'): ?>

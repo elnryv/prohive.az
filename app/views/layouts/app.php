@@ -26,7 +26,7 @@ $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 <title><?= e($title) ?></title>
 <meta name="description" content="<?= e(t('home.subtitle')) ?>">
 <?php if ($noindex): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>
-<meta name="theme-color" content="#131315">
+<meta name="theme-color" content="#2F6FED">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
@@ -38,11 +38,13 @@ $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 <?php \App\Core\View::partial('partials/splash'); ?>
 <header class="top-bar">
   <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>
+  <?php if (!Auth::check()): ?>
   <nav class="lang-switch">
     <a href="?lang=az" class="<?= $lang === 'az' ? 'active' : '' ?>">AZ</a>
     <a href="?lang=ru" class="<?= $lang === 'ru' ? 'active' : '' ?>">RU</a>
     <a href="?lang=en" class="<?= $lang === 'en' ? 'active' : '' ?>">EN</a>
   </nav>
+  <?php endif; ?>
 </header>
 <main>
 <?= $content ?>

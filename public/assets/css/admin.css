@@ -12,7 +12,7 @@ body { padding-bottom: 76px; }
   align-items: baseline;
   gap: 8px;
   padding: 14px 16px;
-  background: var(--coal-2);
+  background: var(--bg-alt);
   border-bottom: 1px solid var(--line);
 }
 
@@ -50,12 +50,12 @@ body { padding-bottom: 76px; }
   color: var(--txt-soft);
 }
 .admin-more summary.active .admin-more-inner,
-.admin-more[open] summary .admin-more-inner { color: var(--amber); }
+.admin-more[open] summary .admin-more-inner { color: var(--primary); }
 .admin-more-sheet {
   position: absolute;
   right: 8px;
   bottom: 64px;
-  background: var(--coal-2);
+  background: var(--bg-alt);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: 0 -8px 24px rgba(0,0,0,.4);
@@ -78,7 +78,7 @@ body { padding-bottom: 76px; }
   font-family: inherit;
 }
 .admin-more-sheet a:last-of-type { border-bottom: none; }
-.admin-more-sheet a.active { color: var(--amber); }
+.admin-more-sheet a.active { color: var(--primary); }
 .admin-more-sheet button { color: var(--danger); border-top: 1px solid var(--line); }
 
 /* --- Stat kartları (dashboard) --- */
@@ -94,7 +94,7 @@ body { padding-bottom: 76px; }
   border-radius: var(--radius-sm);
   padding: 14px;
 }
-.stat-card .num { font-size: 24px; color: var(--amber); font-weight: 700; }
+.stat-card .num { font-size: 24px; color: var(--primary); font-weight: 700; }
 .stat-card .label { font-size: 12px; color: var(--txt-soft); }
 
 /* --- Siyahılar: cədvəl ƏVƏZİNƏ mobil-öncə kart-sıra --- */
@@ -107,7 +107,7 @@ body { padding-bottom: 76px; }
   padding: 12px 14px;
   color: var(--txt);
 }
-.admin-row:hover { border-color: var(--amber); background: var(--card-hi); }
+.admin-row:hover { border-color: var(--primary); background: var(--card-hi); }
 .admin-row-top {
   display: flex;
   justify-content: space-between;
@@ -134,7 +134,7 @@ table.admin-table th, table.admin-table td {
   text-align: left;
   white-space: nowrap;
 }
-table.admin-table th { color: var(--txt-soft); font-weight: 600; background: var(--coal-2); }
+table.admin-table th { color: var(--txt-soft); font-weight: 600; background: var(--bg-alt); }
 table.admin-table tr:hover td { background: var(--card-hi); }
 .table-wrap { overflow-x: auto; margin-bottom: 16px; }
 

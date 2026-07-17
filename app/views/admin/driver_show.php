@@ -18,7 +18,7 @@ use App\Core\Phone;
     <h1 style="margin:0"><?= e($driver['full_name']) ?></h1>
     <p class="text-soft" style="margin:2px 0;display:flex;align-items:center;gap:10px">
       <span style="display:inline-flex;align-items:center;gap:4px"><?= icon('phone', 'icon', 14) ?> <?= e(Phone::display($driver['phone'])) ?></span>
-      <a href="https://wa.me/<?= e($driver['phone']) ?>" target="_blank" style="color:var(--amber);display:inline-flex;align-items:center;gap:4px"><?= icon('whatsapp', 'icon', 14) ?> WhatsApp</a>
+      <a href="https://wa.me/<?= e($driver['phone']) ?>" target="_blank" style="color:var(--primary);display:inline-flex;align-items:center;gap:4px"><?= icon('whatsapp', 'icon', 14) ?> WhatsApp</a>
     </p>
   </div>
 </div>

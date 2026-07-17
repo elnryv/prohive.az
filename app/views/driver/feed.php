@@ -17,7 +17,7 @@ use App\Core\View;
   <?php elseif ($driverStatus === 'rejected'): ?>
     <div class="banner banner-error"><?= e(t('auth.driver_rejected_banner', ['reason' => $rejectReason ?? ''])) ?></div>
   <?php elseif (!$isActive): ?>
-    <div class="banner"><?= e(t('listing.driver_inactive_locked')) ?> <a href="/surucu/odenis" style="color:var(--amber)">→</a></div>
+    <div class="banner"><?= e(t('listing.driver_inactive_locked')) ?> <a href="/surucu/odenis" style="color:var(--primary)">→</a></div>
   <?php endif; ?>
 
   <div class="tabs">

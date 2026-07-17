@@ -223,4 +223,13 @@ return [
         'phone_taken' => 'This number is already used by another account.',
         'photo_error' => 'Photo upload failed — check format (JPG/PNG) and size.',
     ],
+
+    'profile_menu' => [
+        'account' => 'Account details',
+        'language' => 'Language',
+        'notifications' => 'Notifications',
+        'support' => 'Support & Help',
+        'about' => 'About us',
+        'about_text' => 'Birlikdə Yük — local cargo transport exchange. Version 1.0.',
+    ],
 ];

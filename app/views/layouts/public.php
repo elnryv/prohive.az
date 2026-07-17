@@ -20,7 +20,7 @@ $canonical = $baseUrl . '/e/' . $listing['public_code'];
 <title><?= $title ?></title>
 <meta name="description" content="<?= e($description) ?>">
 <link rel="canonical" href="<?= e($canonical) ?>">
-<meta name="theme-color" content="#131315">
+<meta name="theme-color" content="#2F6FED">
 <link rel="stylesheet" href="/assets/css/app.css">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Birlikdə Yük">
