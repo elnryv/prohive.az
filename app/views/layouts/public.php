@@ -11,6 +11,10 @@ $description = mb_substr((string) $listing['description'], 0, 150);
 $baseUrl = rtrim((string) Config::get('app.base_url'), '/');
 $ogImage = $baseUrl . '/storage/og/' . $listing['public_code'] . '.png';
 $canonical = $baseUrl . '/e/' . $listing['public_code'];
+$docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+$cssVer = @filemtime($docRoot . '/assets/css/app.css') ?: time();
+$iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
+$publicJsVer = @filemtime($docRoot . '/assets/js/public.js') ?: time();
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -21,7 +25,8 @@ $canonical = $baseUrl . '/e/' . $listing['public_code'];
 <meta name="description" content="<?= e($description) ?>">
 <link rel="canonical" href="<?= e($canonical) ?>">
 <meta name="theme-color" content="#2F6FED">
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
+<link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Birlikdə Yük">
 <meta property="og:title" content="<?= $title ?>">
@@ -35,5 +40,7 @@ $canonical = $baseUrl . '/e/' . $listing['public_code'];
   <a href="/" class="brand">Birlikdə <span class="amber">Yük</span></a>
 </header>
 <main><?= $content ?></main>
+<?php \App\Core\View::partial('partials/photo_lightbox'); ?>
+<script src="/assets/js/public.js?v=<?= $publicJsVer ?>" defer></script>
 </body>
 </html>

@@ -26,6 +26,7 @@ return [
         'hours_ago' => '{n} saat əvvəl',
         'days_ago' => '{n} gün əvvəl',
         'just_now' => 'İndicə',
+        'connection_lost' => 'Bağlantı yoxdur — yenidən qoşulur…',
     ],
     'nav' => [
         'home' => 'Ana səhifə',
@@ -50,6 +51,9 @@ return [
         'step3' => 'Ən uyğununu qəbul et, nömrə açılsın',
         'greeting' => 'Salam, {name}',
         'new_listing_sub' => 'Sürücülər sənə qiymət təklif etsin',
+        'driver_greeting_sub' => 'Sənə uyğun yeni yüklərə bax',
+        'driver_today_stat' => 'Bugün yeni',
+        'driver_active_stat' => 'Hazırda aktiv',
     ],
     'auth' => [
         'choose_role' => 'Rolunu seç',

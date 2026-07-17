@@ -31,6 +31,7 @@ $firstName = explode(' ', trim((string) (Auth::user()['full_name'] ?? '')))[0] ?
 
   <?php if ($listings === []): ?>
     <div class="empty-state">
+      <span class="empty-state-icon"><?= icon('truck', 'icon', 28) ?></span>
       <p><?= e(t('listing.no_listings')) ?></p>
     </div>
   <?php else: ?>

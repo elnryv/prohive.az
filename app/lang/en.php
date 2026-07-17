@@ -26,6 +26,7 @@ return [
         'hours_ago' => '{n} h ago',
         'days_ago' => '{n} d ago',
         'just_now' => 'Just now',
+        'connection_lost' => 'No connection — reconnecting…',
     ],
     'nav' => [
         'home' => 'Home',
@@ -50,6 +51,9 @@ return [
         'step3' => 'Accept the best one — the phone number opens',
         'greeting' => 'Hi, {name}',
         'new_listing_sub' => 'Drivers will offer you a price',
+        'driver_greeting_sub' => 'Check out new cargo that fits you',
+        'driver_today_stat' => 'New today',
+        'driver_active_stat' => 'Active now',
     ],
     'auth' => [
         'choose_role' => 'Choose your role',

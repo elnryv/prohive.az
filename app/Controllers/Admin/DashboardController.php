@@ -52,6 +52,48 @@ final class DashboardController
             'billingBreakdown' => $billingBreakdown,
             'mrr' => $mrr,
             'routeHeat' => $routeHeat,
+            'trend' => $this->last30DaysTrend($pdo),
         ], 'layouts/admin');
+    }
+
+    /**
+     * Son 30 gün üzrə günlük yeni elan / qəbul sayı (FAZA 14 — trend qrafiki).
+     * Boş günlər 0 ilə doldurulur ki, SVG oxu bərabər addımlı qalsın.
+     *
+     * @return array{labels:string[], created:int[], accepted:int[]}
+     */
+    private function last30DaysTrend(\PDO $pdo): array
+    {
+        $createdRows = $pdo->query(
+            "SELECT DATE(created_at) d, COUNT(*) c FROM listings
+             WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+             GROUP BY DATE(created_at)"
+        )->fetchAll();
+        $acceptedRows = $pdo->query(
+            "SELECT DATE(accepted_at) d, COUNT(*) c FROM listings
+             WHERE accepted_at >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+             GROUP BY DATE(accepted_at)"
+        )->fetchAll();
+
+        $createdMap = [];
+        foreach ($createdRows as $r) {
+            $createdMap[$r['d']] = (int) $r['c'];
+        }
+        $acceptedMap = [];
+        foreach ($acceptedRows as $r) {
+            $acceptedMap[$r['d']] = (int) $r['c'];
+        }
+
+        $labels = [];
+        $created = [];
+        $accepted = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $d = date('Y-m-d', strtotime("-{$i} days"));
+            $labels[] = date('d.m', strtotime($d));
+            $created[] = $createdMap[$d] ?? 0;
+            $accepted[] = $acceptedMap[$d] ?? 0;
+        }
+
+        return ['labels' => $labels, 'created' => $created, 'accepted' => $accepted];
     }
 }

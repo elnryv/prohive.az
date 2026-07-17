@@ -6,10 +6,33 @@
 /** @var array $billingBreakdown */
 /** @var float $mrr */
 /** @var array $routeHeat */
+/** @var array{labels:string[], created:int[], accepted:int[]} $trend */
 $billingMap = [];
 foreach ($billingBreakdown as $row) {
     $billingMap[$row['billing_status'] ?? 'none'] = (int) $row['c'];
 }
+
+// Son 30 gün trend qrafiki — kitabxanasız, sadə inline SVG polyline (12.1-in
+// "Composer/npm yoxdur" prinsipi ilə uyğun).
+$chartW = 600;
+$chartH = 160;
+$padL = 24;
+$padB = 20;
+$padT = 10;
+$n = count($trend['labels']);
+$maxVal = max(1, max($trend['created'] ?: [0]), max($trend['accepted'] ?: [0]));
+$stepX = $n > 1 ? ($chartW - $padL) / ($n - 1) : 0;
+$toPoint = static function (array $values) use ($stepX, $padL, $chartH, $padB, $padT, $maxVal): string {
+    $pts = [];
+    foreach ($values as $i => $v) {
+        $x = $padL + $i * $stepX;
+        $y = $chartH - $padB - (($v / $maxVal) * ($chartH - $padB - $padT));
+        $pts[] = round($x, 1) . ',' . round($y, 1);
+    }
+    return implode(' ', $pts);
+};
+$createdPts = $toPoint($trend['created']);
+$acceptedPts = $toPoint($trend['accepted']);
 ?>
 <h1>Dashboard</h1>
 
@@ -29,6 +52,19 @@ foreach ($billingBreakdown as $row) {
       <span style="color:var(--txt-soft)"><?= $billingMap['free'] ?? 0 ?></span>
     </div>
     <div class="label">Paid · Trial · Free</div>
+  </div>
+</div>
+
+<h2 style="display:flex;align-items:center;gap:6px"><?= icon('calendar') ?> Son 30 gün trend</h2>
+<div class="admin-card" style="padding:16px 12px">
+  <svg viewBox="0 0 <?= $chartW ?> <?= $chartH ?>" style="width:100%;height:auto;display:block" preserveAspectRatio="none">
+    <polyline points="<?= e($createdPts) ?>" fill="none" stroke="var(--primary)" stroke-width="2" />
+    <polyline points="<?= e($acceptedPts) ?>" fill="none" stroke="var(--ok)" stroke-width="2" />
+  </svg>
+  <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--txt-soft)">
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--primary);margin-right:4px"></span>Yeni elan</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--ok);margin-right:4px"></span>Qəbul olunmuş</span>
+    <span style="margin-left:auto"><?= e($trend['labels'][0]) ?> — <?= e($trend['labels'][count($trend['labels']) - 1]) ?></span>
   </div>
 </div>
 

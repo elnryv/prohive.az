@@ -105,7 +105,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
   <?php if ($listing['status'] === 'active'): ?>
   <h2 style="margin-top:24px;display:flex;align-items:center;gap:6px"><?= icon('message') ?> <?= e(t('listing.offers_count', ['n' => count($offers)])) ?></h2>
   <?php if ($offers === []): ?>
-    <div class="empty-state"><p><?= e(t('listing.offers_none')) ?></p></div>
+    <div class="empty-state"><span class="empty-state-icon"><?= icon('message', 'icon', 28) ?></span><p><?= e(t('listing.offers_none')) ?></p></div>
   <?php else: ?>
     <?php foreach ($offers as $offer): ?>
       <div class="card">

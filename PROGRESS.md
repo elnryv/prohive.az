@@ -426,3 +426,73 @@ oluna bilmir — bunun əvəzinə skriptlər/təlimatlar hazırlanır, sahibkar 
 **Layihə vəziyyəti: bütün 9 fazadan (0-8) ibarət icra planı tamamlanıb.** Qalan işlər yalnız
 sahibkarın özünün etməli olduğu server-tərəfi addımlardır (real Payriff açarları, real domen/SSL,
 real brend loqosu/fontları) — bunların hamısı README-də aydın qeyd olunub.
+
+---
+
+## FAZA 14 — Təhlükəsizlik, SSE etibarlılığı, əməliyyat, dizayn qalıqları ✅ TAMAMLANDI
+
+Canlı istifadə başladıqdan sonra sahibkarla aparılan "nə çatışmır" auditinin nəticəsində razılaşdırılan
+4 istiqamət (dizayn/UX, real-time etibarlılıq, təhlükəsizlik sərtləşdirməsi, əməliyyat) — söhbət
+bölmə 3 (chat/reytinq/xəritə) açıq şəkildə xaric edilib.
+
+### 1) Təhlükəsizlik sərtləşdirməsi
+- **CSRF auditı** — bütün `Admin`/`Customer`/`Driver`/`Site` controller-lərində POST əməliyyatları
+  tək-tək yoxlanıldı; yeganə boşluq `PushController::unsubscribe()` idi (CSRF yoxlaması yox idi) —
+  düzəldildi. `PaymentCallbackController` qəsdən CSRF-siz saxlanıldı (Payriff-dən gələn xarici webhook).
+- **Nginx sərtləşdirməsi** (hər iki domen): `Strict-Transport-Security` (HSTS) və `Permissions-Policy`
+  (`geolocation=(), camera=(), microphone=()`) header-ləri əlavə olundu.
+- **Giriş formuna qarşı IP-səviyyəli rate-limit**: yeni `yuk_login` zonası (README-də sənədləşdirilib),
+  `location = /giris` bloku hər iki nginx konfiqinə əlavə edildi — mövcud hesab-səviyyəli 5 cəhd/15
+  dəqiqə kilidinə (Auth/AdminAuth) əlavə qat kimi.
+- Upload təhlükəsizliyi (`App\Core\Upload` — real MIME yoxlanışı, WebP-ə yenidən kodlama, upload
+  qovluğunda PHP icrası bloklu) və SQL sorğularının hamısının prepared statement olması təsdiqləndi,
+  dəyişiklik tələb olunmadı.
+
+### 2) SSE / offline etibarlılığı
+- `app.js`-də paylaşılan `connectResilientSSE()` helper-i yazıldı: hər hadisədə `e.lastEventId`
+  izlənilir, `visibilitychange` (tab görünən olanda) və `online` hadisələrində `readyState` yoxlanılıb
+  lazım olduqda əl ilə yenidən qoşulur (brauzerin native auto-reconnect-i uzun ekran kilidi kimi
+  hallarda bəzən sükutla ölür).
+- Yeni görünən "Bağlantı yoxdur — yenidən qoşulur…" zolağı (`#conn-status-banner`, `.conn-banner`) —
+  yalnız 4s-dən çox fasilə olduqda görünür (qısa ~55s server ping dövrləri üçün lazımsız yerə
+  görünmür). Üç dildə `common.connection_lost` açarı əlavə olundu.
+- Sürücü lenti və müştəri elan səhifəsinin hər ikisi bu paylaşılan helper-ə keçirildi.
+
+### 3) Əməliyyat
+- Yeni `scripts/install_cron.sh` — README-dəki 4 cron sətrini (`hourly`, `daily`,
+  `payriff_recheck`, `backup.sh`) crontab-a idempotent əlavə edir (artıq mövcud olanları
+  təkrarlamır, istənilən qədər təhlükəsiz işə salına bilər).
+- Admin dashboard-a **son 30 gün trend qrafiki** əlavə olundu (`DashboardController::last30DaysTrend()`
+  + inline SVG polyline, kitabxanasız) — günlük yeni elan / qəbul sayı, boş günlər 0 ilə doldurulur.
+
+### 4) Dizayn/UX qalıqları
+- Sürücü lentinə (`driver/feed.php`) müştəri ilə eyni "salamlama + gündəlik statistika" hissi əlavə
+  olundu (bugünkü yeni elan / hazırda aktiv say).
+- Elan foto yükləmə (`customer/listing_form.php`) və sürücü qeydiyyatında maşın fotosu
+  (`site/register.php`) indi seçilən şəkillərin həqiqi thumbnail önbaxışını göstərir (əvvəllər
+  yalnız "N şəkil seçildi" mətni var idi) — `URL.createObjectURL` ilə, `.photo-preview-strip`.
+  Növbəti addımda `<input>`-lar `onchange` inline atributundan `data-photos-cta`/`data-photos-selected`
+  data-atributlarına keçirildi (CSP `script-src 'self'` ilə uyğunluq üçün).
+- Splash ekranındakı əl ilə çəkilmiş SVG yük maşını **real loqo artwork-u** (`icon-512.png`) ilə
+  əvəz olundu, sadə fade+scale animasiyası ilə.
+- **CSP uyğunsuzluğu tapıldı və düzəldildi**: `partials/splash.php` və paylaşılan elan səhifəsinin
+  (`layouts/public.php`) lightbox skripti inline `<script>` kimi yazılmışdı — hər iki domenin CSP-si
+  `script-src 'self'` olduğu üçün brauzer bunları sükutla bloklayırdı (splash effekti heç vaxt
+  görünmürdü). İkisi də ayrı xarici fayllara (`assets/js/splash.js`, `assets/js/public.js`) çıxarıldı.
+- Paylaşılan elan səhifəsi (`/e/{code}`): CSS linkinə çatışmayan cache-busting (`?v=`) əlavə olundu
+  (eyni Nginx 12s keş problemi), foto zolağı `.photo-strip` + lightbox partial-ına keçirildi (əvvəllər
+  tıklanmır/böyümürdü).
+- Boş vəziyyətlərə (tarixçə, təkliflər, elanlar, sürücü lenti, marşrutlar) dairəvi ikon-nişan
+  (`.empty-state-icon`) əlavə olundu — əvvəllər sadəcə boz mətn idi.
+
+### Özünüyoxlama nəticələri
+- `php -l` — bu fazada toxunulan bütün PHP fayllarında xətasız.
+- `node --check` — `app.js`, `splash.js`, `public.js` sintaksis xətasız.
+- Dil paritəsi: AZ/RU/EN hər biri 205/205/205 açar (yeni: `common.connection_lost`,
+  `home.driver_greeting_sub/driver_today_stat/driver_active_stat`).
+- `public/assets/css/{app,admin}.css` ilə `public_admin/assets/css/{app,admin}.css` sinxronluğu hər
+  dəyişiklikdən sonra `diff` ilə təsdiqləndi.
+- Playwright ilə lokal server üzərində (MariaDB canlandırılıb, test istifadəçiləri ilə) canlı
+  yoxlama: giriş (müştəri + sürücü + admin), splash ekranı, paylaşılan elan səhifəsi, boş tarixçə
+  vəziyyəti, sürücü lenti (yeni salamlama/statistika), foto thumbnail önbaxışı, admin trend qrafiki —
+  hamısında sıfır konsol xətası, ekran görüntüləri ilə vizual təsdiq.

@@ -16,7 +16,7 @@ use App\Core\Phone;
   </div>
 
   <?php if ($offers === []): ?>
-    <div class="empty-state"><p><?= e(t('common.empty_title')) ?></p></div>
+    <div class="empty-state"><span class="empty-state-icon"><?= icon('message', 'icon', 28) ?></span><p><?= e(t('common.empty_title')) ?></p></div>
   <?php else: ?>
     <?php foreach ($offers as $offer): ?>
       <div class="card">

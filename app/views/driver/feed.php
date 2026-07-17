@@ -9,11 +9,26 @@
 /** @var array $filters */
 /** @var int $lastEventId */
 /** @var array $banners */
+/** @var int $todayCount */
+/** @var int $activeCount */
+use App\Core\Auth;
 use App\Core\Lang;
 use App\Core\View;
+
+$firstName = explode(' ', trim((string) (Auth::user()['full_name'] ?? '')))[0] ?? '';
 ?>
 <div class="container">
   <?php View::partial('partials/banner_carousel', ['banners' => $banners]); ?>
+
+  <div class="dash-greeting">
+    <span class="text-soft"><?= e(t('home.greeting', ['name' => $firstName])) ?></span>
+  </div>
+  <p class="text-soft" style="margin:-12px 0 16px;font-size:14px"><?= e(t('home.driver_greeting_sub')) ?></p>
+
+  <div class="dash-stats">
+    <div class="dash-stat"><div class="num"><?= (int) $todayCount ?></div><div class="label"><?= e(t('home.driver_today_stat')) ?></div></div>
+    <div class="dash-stat"><div class="num"><?= (int) $activeCount ?></div><div class="label"><?= e(t('home.driver_active_stat')) ?></div></div>
+  </div>
 
   <?php if ($driverStatus === 'pending'): ?>
     <div class="banner"><?= e(t('auth.driver_pending_banner')) ?></div>
@@ -40,7 +55,7 @@ use App\Core\View;
 
   <div id="feed-list" data-last-event-id="<?= (int) $lastEventId ?>">
   <?php if ($listings === []): ?>
-    <p class="text-soft" data-empty-placeholder><?= e(t('common.empty_title')) ?></p>
+    <div class="empty-state" data-empty-placeholder><span class="empty-state-icon"><?= icon('box', 'icon', 28) ?></span><p><?= e(t('common.empty_title')) ?></p></div>
   <?php else: ?>
     <?php foreach ($listings as $listing): ?>
       <?php View::partial('partials/listing_card', ['listing' => $listing, 'href' => '/surucu/elan/' . $listing['id']]); ?>

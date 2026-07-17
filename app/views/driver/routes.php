@@ -10,7 +10,7 @@ use App\Core\Lang;
   <p class="text-soft"><?= e(t('routes.description')) ?></p>
 
   <?php if ($routes === []): ?>
-    <div class="empty-state"><p><?= e(t('common.empty_title')) ?></p></div>
+    <div class="empty-state"><span class="empty-state-icon"><?= icon('map-pin', 'icon', 28) ?></span><p><?= e(t('common.empty_title')) ?></p></div>
   <?php else: ?>
     <?php foreach ($routes as $r): ?>
       <div class="card" style="display:flex;justify-content:space-between;align-items:center">

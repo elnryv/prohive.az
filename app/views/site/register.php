@@ -75,7 +75,13 @@ use App\Core\View;
 
     <div class="field">
       <label><?= e(t('auth.vehicle_photo')) ?></label>
-      <input type="file" name="vehicle_photos[]" accept="image/*" multiple required>
+      <label class="upload-tile" for="vehicle_photos">
+        <span class="upload-tile-icon"><?= icon('camera', 'icon', 18) ?></span>
+        <span id="vehicle_photos_text"><?= e(t('listing.photos_cta')) ?></span>
+        <input type="file" id="vehicle_photos" name="vehicle_photos[]" accept="image/*" multiple required
+          data-photos-cta="<?= e(t('listing.photos_cta')) ?>" data-photos-selected="<?= e(t('listing.photos_selected')) ?>">
+      </label>
+      <div id="vehicle_photos_preview" class="photo-preview-strip"></div>
       <?php if (isset($errors['vehicle_photo'])): ?><p class="text-soft" style="color:var(--danger)"><?= e(t($errors['vehicle_photo'])) ?></p><?php endif; ?>
     </div>
     <?php endif; ?>

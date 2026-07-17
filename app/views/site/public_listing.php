@@ -22,9 +22,9 @@ use App\Core\Lang;
   <div class="card">
     <p><?= nl2br(e($listing['description'])) ?></p>
     <?php if ($photos !== []): ?>
-      <div style="display:flex;gap:6px;overflow-x:auto;margin-top:8px">
+      <div class="photo-strip">
         <?php foreach ($photos as $p): ?>
-          <img src="/uploads/listings/<?= e($p['filename']) ?>" style="width:96px;height:96px;object-fit:cover;border-radius:8px" loading="lazy">
+          <img src="/uploads/listings/<?= e($p['filename']) ?>" style="width:88px;height:88px;object-fit:cover;border-radius:8px;flex:none" loading="lazy">
         <?php endforeach; ?>
       </div>
     <?php endif; ?>

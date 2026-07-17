@@ -6,7 +6,7 @@ use App\Core\View;
   <h1><?= e(t('nav.history')) ?></h1>
 
   <?php if ($listings === []): ?>
-    <div class="empty-state"><p><?= e(t('listing.no_listings')) ?></p></div>
+    <div class="empty-state"><span class="empty-state-icon"><?= icon('clock', 'icon', 28) ?></span><p><?= e(t('listing.no_listings')) ?></p></div>
   <?php else: ?>
     <?php foreach ($listings as $listing): ?>
       <?php View::partial('partials/listing_card', ['listing' => $listing, 'href' => '/musteri/elan/' . $listing['id']]); ?>

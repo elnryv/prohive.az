@@ -42,9 +42,16 @@ final class DashboardController
              ORDER BY l.is_urgent DESC, l.created_at DESC LIMIT 50';
         $stmt = DB::conn()->prepare($sql);
         $stmt->execute($args);
+        $listings = $stmt->fetchAll();
 
         $categories = DB::conn()->query('SELECT * FROM categories WHERE is_active = 1 ORDER BY sort_order')->fetchAll();
         $locations = DB::conn()->query('SELECT * FROM locations WHERE is_active = 1 ORDER BY is_baku DESC, sort_order')->fetchAll();
+
+        $todayStmt = DB::conn()->prepare(
+            "SELECT COUNT(*) c FROM listings WHERE status = 'active' AND scope = ? AND created_at >= CURDATE()"
+        );
+        $todayStmt->execute([$scope]);
+        $todayCount = (int) $todayStmt->fetch()['c'];
 
         // Səhifə render olunan andakı son sse_events.id: EventSource bu ID-dən BAŞLAYARAQ
         // abunə olunur ki, köhnə (artıq səhifədə göstərilmiş) hadisələr "yeni" kimi təkrar
@@ -56,13 +63,15 @@ final class DashboardController
             'driverStatus' => $user['driver_status'],
             'rejectReason' => $user['reject_reason'],
             'isActive' => Auth::isActiveDriver($user),
-            'listings' => $stmt->fetchAll(),
+            'listings' => $listings,
             'scope' => $scope,
             'categories' => $categories,
             'locations' => $locations,
             'filters' => compact('categoryId', 'fromLocationId', 'toLocationId'),
             'lastEventId' => $lastEventId,
             'banners' => Banners::active(),
+            'todayCount' => $todayCount,
+            'activeCount' => count($listings),
         ]);
     }
 

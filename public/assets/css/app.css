@@ -254,6 +254,22 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
 }
 .upload-tile-count { color: var(--primary); font-weight: 600; }
 
+.photo-preview-strip {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.photo-preview-strip:empty { display: none; }
+.photo-preview-strip img {
+  width: 64px; height: 64px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -302,6 +318,16 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   padding: 48px 16px;
   color: var(--txt-soft);
 }
+.empty-state-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--primary-tint);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .skeleton {
   background: linear-gradient(90deg, var(--card) 25%, var(--card-hi) 37%, var(--card) 63%);
@@ -346,6 +372,21 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   z-index: 1;
 }
 .brand .amber { color: var(--primary); }
+
+.conn-banner {
+  position: fixed;
+  top: 60px;
+  left: 0; right: 0;
+  z-index: 29;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #92400e;
+  background: #fef3c7;
+  border-bottom: 1px solid #fde68a;
+}
+.conn-banner[hidden] { display: none; }
 
 .lang-switch { display: flex; gap: 4px; flex-shrink: 0; }
 .lang-switch a {
@@ -510,6 +551,17 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   margin: 4px 0 16px;
 }
 .dash-greeting .text-soft { color: var(--txt); }
+
+.dash-stats { display: flex; gap: 10px; margin-bottom: 20px; }
+.dash-stat {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.dash-stat .num { font-size: 20px; font-weight: 700; color: var(--primary); font-family: var(--font-head); }
+.dash-stat .label { font-size: 12px; color: var(--txt-soft); margin-top: 2px; }
 
 .dash-cta {
   display: flex;
@@ -702,29 +754,16 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   animation: splash-out .3s ease 1.5s forwards;
 }
 .splash-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.splash-word {
-  font-family: var(--font-head);
-  font-size: 32px;
-  font-weight: 700;
+.splash-logo {
+  width: 128px; height: 128px;
+  border-radius: 28px;
   opacity: 0;
+  transform: scale(.85);
+  animation: splash-logo-in .5s ease .1s forwards;
 }
-.splash-word-1 {
-  color: var(--txt);
-  animation: splash-fade-in .5s ease .1s forwards;
-}
-.splash-word-2 {
-  color: var(--primary);
-  animation: splash-fade-in .5s ease .5s forwards;
-}
-.splash-truck-path, .splash-wheel {
-  stroke-dasharray: 220;
-  stroke-dashoffset: 220;
-  animation: splash-draw .9s ease .5s forwards;
-}
-@keyframes splash-fade-in { to { opacity: 1; } }
-@keyframes splash-draw { to { stroke-dashoffset: 0; } }
+@keyframes splash-logo-in { to { opacity: 1; transform: scale(1); } }
 @keyframes splash-out { to { opacity: 0; visibility: hidden; pointer-events: none; } }
 @media (prefers-reduced-motion: reduce) {
   .splash { animation: splash-out .01s linear 1.5s forwards; }
-  .splash-word, .splash-truck-path, .splash-wheel { animation: none; opacity: 1; stroke-dashoffset: 0; }
+  .splash-logo { animation: none; opacity: 1; transform: scale(1); }
 }

@@ -48,6 +48,11 @@ final class PushController
     public function unsubscribe(): void
     {
         Auth::requireLogin('/giris');
+        if (!Csrf::verifyRequest()) {
+            http_response_code(419);
+            return;
+        }
+
         $body = json_decode(file_get_contents('php://input'), true);
         $endpoint = (string) ($body['endpoint'] ?? '');
         if ($endpoint !== '') {

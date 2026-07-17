@@ -190,6 +190,59 @@
   });
 
   // ---------------------------------------------------------------
+  // SSE dayanıqlılığı (bölmə 11.5 + FAZA 14): bağlantı itəndə görünən "bağlantı
+  // yoxdur" zolağı, ekran kilidlənib açılandan/tab arxa plandan qayıdandan və
+  // şəbəkə "online" hadisəsindən sonra məcburi yenidən qoşulma. Brauzer artıq
+  // özü retry edir (native EventSource), amma uzun fonda qalma (ekran kilidi)
+  // zamanı bəzi mobil brauzerlər bağlantını "error" atmadan sükutla ölü qoyur —
+  // buna görə visibilitychange/online zamanı readyState əl ilə yoxlanılır.
+  let connBannerTimer = null;
+  const connBanner = document.getElementById('conn-status-banner');
+  function setConnStatus(offline) {
+    clearTimeout(connBannerTimer);
+    if (!connBanner) return;
+    if (offline) {
+      // Qısa müddətli "ping" fasilələri (hər ~55s server tərəfi dövrü) üçün
+      // zolağı dərhal göstərmirik — yalnız 4s-dən çox bağlantı bərpa olmasa.
+      connBannerTimer = setTimeout(() => { connBanner.hidden = false; }, 4000);
+    } else {
+      connBanner.hidden = true;
+    }
+  }
+
+  function connectResilientSSE(url, initialLastId, handlers) {
+    let es = null;
+    let lastId = initialLastId;
+
+    function open() {
+      if (es) es.close();
+      const sep = url.includes('?') ? '&' : '?';
+      es = new EventSource(url + sep + 'lastId=' + encodeURIComponent(lastId));
+      es.onopen = () => setConnStatus(false);
+      es.onerror = () => setConnStatus(true);
+      Object.keys(handlers).forEach((name) => {
+        es.addEventListener(name, (e) => {
+          if (e.lastEventId) lastId = e.lastEventId;
+          handlers[name](e);
+        });
+      });
+    }
+
+    open();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && es && es.readyState === EventSource.CLOSED) {
+        open();
+      }
+    });
+    window.addEventListener('online', () => {
+      if (es && es.readyState !== EventSource.OPEN) {
+        open();
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------
   // SSE: sürücü lenti (bölmə 7.2, 11.5) — yeni elan üstə düşür, bağlanan sönür (≤3s).
   // ---------------------------------------------------------------
   const feedList = document.getElementById('feed-list');
@@ -199,9 +252,8 @@
     // Səhifə render olunanda mövcud olan son hadisə ID-dən başlayır — əvvəlki (artıq
     // göstərilmiş) hadisələr "yeni" kimi təkrar oynadılmır.
     const initialLastId = feedList.dataset.lastEventId || '0';
-    const es = new EventSource('/axin/lent?lastId=' + initialLastId);
 
-    es.addEventListener('listing_new', async (e) => {
+    const handleListingNew = async (e) => {
       const data = JSON.parse(e.data);
       const listingId = data.payload.listing_id;
       try {
@@ -227,7 +279,7 @@
       } catch (err) {
         // şəbəkə xətası — növbəti hadisədə yenidən cəhd olunacaq
       }
-    });
+    };
 
     const removeCard = (listingId) => {
       const el = feedList.querySelector('[data-listing-id="' + listingId + '"]');
@@ -240,13 +292,15 @@
       setTimeout(() => el.remove(), 300);
     };
 
-    es.addEventListener('listing_closed', (e) => {
-      const data = JSON.parse(e.data);
-      removeCard(data.payload.listing_id);
-    });
-
-    es.addEventListener('offer_accepted', () => {
-      // Bu sürücünün təklifi qəbul olunub — "Təkliflərim" səhifəsi növbəti ziyarətdə yenilənəcək.
+    connectResilientSSE('/axin/lent', initialLastId, {
+      listing_new: handleListingNew,
+      listing_closed: (e) => {
+        const data = JSON.parse(e.data);
+        removeCard(data.payload.listing_id);
+      },
+      offer_accepted: () => {
+        // Bu sürücünün təklifi qəbul olunub — "Təkliflərim" səhifəsi növbəti ziyarətdə yenilənəcək.
+      },
     });
   }
 
@@ -257,14 +311,16 @@
   if (listingContainer && body.dataset.role !== 'driver' && 'EventSource' in window) {
     const myListingId = listingContainer.dataset.listingPage;
     const initialLastId2 = listingContainer.dataset.lastEventId || '0';
-    const es2 = new EventSource('/axin/musteri?lastId=' + initialLastId2);
-    ['offer_new', 'offer_updated', 'accepted'].forEach((evt) => {
-      es2.addEventListener(evt, (e) => {
-        const data = JSON.parse(e.data);
-        if (String(data.payload.listing_id) === String(myListingId)) {
-          window.location.reload();
-        }
-      });
+    const onListingEvent = (e) => {
+      const data = JSON.parse(e.data);
+      if (String(data.payload.listing_id) === String(myListingId)) {
+        window.location.reload();
+      }
+    };
+    connectResilientSSE('/axin/musteri', initialLastId2, {
+      offer_new: onListingEvent,
+      offer_updated: onListingEvent,
+      accepted: onListingEvent,
     });
   }
 
@@ -272,6 +328,30 @@
   // Banner karuseli — hər 2 saniyədən bir avtomatik növbəti banner (bax
   // partials/banner_carousel.php); yalnız birdən çox banner olduqda işə düşür.
   // ---------------------------------------------------------------
+  // ---------------------------------------------------------------
+  // Foto yükləmə önbaxışı (FAZA 14) — seçilən şəkillərin kiçik thumbnail-ları
+  // upload-tile altında göstərilir (əvvəllər yalnız "N şəkil seçildi" mətni var idi).
+  // ---------------------------------------------------------------
+  document.querySelectorAll('input[type="file"][data-photos-cta]').forEach((input) => {
+    const label = input.id ? document.getElementById(input.id + '_text') : null;
+    const preview = input.id ? document.getElementById(input.id + '_preview') : null;
+    input.addEventListener('change', () => {
+      const n = input.files.length;
+      if (label) {
+        label.textContent = n ? n + ' ' + input.dataset.photosSelected : input.dataset.photosCta;
+      }
+      if (preview) {
+        preview.innerHTML = '';
+        Array.from(input.files).forEach((file) => {
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(file);
+          img.alt = '';
+          preview.appendChild(img);
+        });
+      }
+    });
+  });
+
   document.querySelectorAll('[data-banner-carousel]').forEach((carousel) => {
     const slides = carousel.querySelectorAll('.banner-slide');
     const dots = carousel.querySelectorAll('.banner-dot');

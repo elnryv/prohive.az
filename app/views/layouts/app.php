@@ -62,6 +62,9 @@ $manifestFile = match ($user['role'] ?? null) {
   </nav>
   <?php endif; ?>
 </header>
+<?php if (Auth::check()): ?>
+<div id="conn-status-banner" class="conn-banner" hidden><?= e(t('common.connection_lost')) ?></div>
+<?php endif; ?>
 <main>
 <?= $content ?>
 </main>

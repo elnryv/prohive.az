@@ -59,6 +59,9 @@ ln -s /etc/nginx/sites-available/yukadmin.birlikde.biz.conf /etc/nginx/sites-ena
 # http bloğuna (nginx.conf) rate-limit zonalarını əlavə edin — konfiq fayllarında istinad olunur:
 #   limit_req_zone $binary_remote_addr zone=yuk_general:10m rate=10r/s;
 #   limit_req_zone $binary_remote_addr zone=yuk_admin:10m rate=5r/s;
+#   limit_req_zone $binary_remote_addr zone=yuk_login:10m rate=1r/s;
+# (yuk_login: /giris formuna qarşı IP-səviyyəli brute-force limiti, hər iki sənəd kökündə istifadə olunur —
+#  hesab səviyyəli 5 cəhd/15 dəqiqə kilidinə əlavə qat, bax App\Core\Auth/AdminAuth)
 
 certbot --nginx -d yuk.birlikde.biz -d yukadmin.birlikde.biz
 nginx -t && systemctl reload nginx
@@ -91,6 +94,14 @@ crontab -e
 
 # Gecəlik yedəkləmə (mysqldump + uploads rsync) — hər gecə 02:30
 30 2 * * * /var/www/yuk/scripts/backup.sh >> /var/www/yuk/storage/logs/backup.log 2>&1
+```
+
+Əl ilə `crontab -e` etmək əvəzinə, yuxarıdakı 4 sətri idempotent əlavə edən hazır skript də var
+(artıq quraşdırılmış sətirləri təkrarlamır, təhlükəsiz şəkildə istənilən qədər işə salına bilər):
+
+```bash
+bash scripts/install_cron.sh
+crontab -l   # təsdiq üçün
 ```
 
 ## 5. Yedəkləmə

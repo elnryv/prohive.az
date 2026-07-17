@@ -17,7 +17,7 @@ use App\Core\Lang;
   </div>
 
   <?php if ($jobs === []): ?>
-    <div class="empty-state"><p><?= e(t('listing.no_listings')) ?></p></div>
+    <div class="empty-state"><span class="empty-state-icon"><?= icon('clock', 'icon', 28) ?></span><p><?= e(t('listing.no_listings')) ?></p></div>
   <?php else: ?>
     <?php foreach ($jobs as $job): ?>
       <div class="card">
