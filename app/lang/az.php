@@ -42,12 +42,14 @@ return [
     'home' => [
         'title' => 'Yerli yük daşıma birjası',
         'subtitle' => 'Yükünü yaz — qiymətlər sənə gəlsin. Təklifi qəbul et — nömrə açılsın.',
-        'cta_customer' => '📦 Yük göndərirəm',
-        'cta_driver' => '🚚 Yük daşıyıram',
+        'cta_customer' => 'Yük göndərirəm',
+        'cta_driver' => 'Yük daşıyıram',
         'how_it_works' => 'Necə işləyir',
         'step1' => 'Qiymətsiz elan qoy',
         'step2' => 'Sürücülər qiymət təklif etsin',
         'step3' => 'Ən uyğununu qəbul et, nömrə açılsın',
+        'greeting' => 'Salam, {name}',
+        'new_listing_sub' => 'Sürücülər sənə qiymət təklif etsin',
     ],
     'auth' => [
         'choose_role' => 'Rolunu seç',

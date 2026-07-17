@@ -42,12 +42,14 @@ return [
     'home' => [
         'title' => 'Local cargo transport exchange',
         'subtitle' => 'Post your cargo — prices come to you. Accept an offer — the phone number opens.',
-        'cta_customer' => '📦 I need to ship cargo',
-        'cta_driver' => '🚚 I transport cargo',
+        'cta_customer' => 'I need to ship cargo',
+        'cta_driver' => 'I transport cargo',
         'how_it_works' => 'How it works',
         'step1' => 'Post a listing with no price',
         'step2' => 'Drivers submit price offers',
         'step3' => 'Accept the best one — the phone number opens',
+        'greeting' => 'Hi, {name}',
+        'new_listing_sub' => 'Drivers will offer you a price',
     ],
     'auth' => [
         'choose_role' => 'Choose your role',

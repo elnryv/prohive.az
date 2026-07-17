@@ -273,6 +273,48 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
 .role-card .icon { color: var(--amber); }
 .role-card h2 { font-size: 18px; }
 
+.dash-greeting {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--txt);
+  margin: 4px 0 16px;
+}
+.dash-greeting .text-soft { color: var(--txt); }
+
+.dash-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--amber-soft), var(--amber));
+  color: #16130E;
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: 0 8px 24px rgba(232, 134, 46, .28);
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.dash-cta:hover { box-shadow: 0 10px 28px rgba(232, 134, 46, .36); }
+.dash-cta:active { transform: scale(.98); box-shadow: 0 4px 14px rgba(232, 134, 46, .3); }
+.dash-cta strong { display: block; font-size: 16px; font-family: var(--font-head); }
+.dash-cta-icon {
+  width: 48px; height: 48px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(22, 19, 14, .16);
+  display: flex; align-items: center; justify-content: center;
+}
+.dash-cta-sub { display: block; font-size: 13px; opacity: .82; margin-top: 2px; }
+.dash-cta-plus {
+  margin-left: auto;
+  width: 32px; height: 32px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(22, 19, 14, .16);
+  display: flex; align-items: center; justify-content: center;
+}
+
 .banner {
   background: var(--card);
   border-left: 3px solid var(--warn);
