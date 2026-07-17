@@ -96,14 +96,20 @@
     }
   });
 
+  const pushAlreadyGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
+
   if (!isStandalone() && localStorage.getItem(INSTALLED_KEY) !== '1') {
     // Qeydiyyat/giriş bitən kimi (bölmə 6.1): tam ekran sheet, 3 gün cooldown ilə.
     const params = new URLSearchParams(window.location.search);
     if (params.get('xosgeldin') === '1' && !dismissedRecently()) {
       showInstallSheet();
     }
-    // Sürücü rolunda hər lent açılışında nazik xatırlatma zolağı (push kritikdir — cooldown-a tabe deyil).
-    if (body.dataset.role === 'driver' && document.getElementById('feed-list')) {
+    // Hər iki roldan (sürücü lenti / müştəri elanlarım) əsas ekranı açanda nazik
+    // xatırlatma zolağı — push bildirişi kritik olduğu üçün cooldown-a tabe deyil,
+    // artıq icazə verilibsə (permission=granted) bezdirməmək üçün göstərilmir.
+    const onDriverFeed = body.dataset.role === 'driver' && document.getElementById('feed-list');
+    const onCustomerDashboard = body.dataset.role === 'customer' && document.querySelector('.dash-cta');
+    if ((onDriverFeed || onCustomerDashboard) && !pushAlreadyGranted) {
       showInstallReminder();
     }
   }
