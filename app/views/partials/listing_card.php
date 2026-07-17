@@ -15,15 +15,18 @@ $statusChip = match ($listing['status']) {
 ?>
 <a class="card" href="<?= e($href) ?>" style="display:block" data-listing-id="<?= (int) $listing['id'] ?>">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-    <div class="route">
-      <span><?= e(Lang::field($listing, 'from')) ?></span>
-      <span class="arrow">→</span>
-      <span><?= e(Lang::field($listing, 'to')) ?></span>
+    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+      <span class="icon-badge-sm"><?= icon(Icon::forCategorySlug($listing['category_slug'] ?? null), 'icon', 18) ?></span>
+      <div class="route">
+        <span><?= e(Lang::field($listing, 'from')) ?></span>
+        <span class="arrow">→</span>
+        <span><?= e(Lang::field($listing, 'to')) ?></span>
+      </div>
     </div>
     <?php if ((int) $listing['is_urgent'] === 1): ?><span class="chip chip-urgent"><?= icon('zap', 'icon', 14) ?> <?= e(t('listing.urgent')) ?></span><?php endif; ?>
   </div>
   <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
-    <span class="chip"><?= icon(Icon::forCategorySlug($listing['category_slug'] ?? null), 'icon', 14) ?> <?= e(Lang::field($listing, 'cat')) ?></span>
+    <span class="chip"><?= e(Lang::field($listing, 'cat')) ?></span>
     <span class="chip <?= $statusChip[0] ?>"><?= e(t($statusChip[1])) ?></span>
     <?php if (!empty($listing['offers_count'])): ?><span class="chip chip-warn"><?= e(t('listing.offers_count', ['n' => $listing['offers_count']])) ?></span><?php endif; ?>
   </div>
