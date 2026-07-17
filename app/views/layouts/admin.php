@@ -27,6 +27,7 @@ $currentLabel = $nav[$path][1] ?? 'Dashboard';
 $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
 $cssVer = @filemtime($docRoot . '/assets/css/app.css') ?: time();
 $adminCssVer = @filemtime($docRoot . '/assets/css/admin.css') ?: time();
+$iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
 ?>
 <!doctype html>
 <html lang="az">
@@ -35,7 +36,7 @@ $adminCssVer = @filemtime($docRoot . '/assets/css/admin.css') ?: time();
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?= e($title) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="/assets/icons/icon-192.png">
+<link rel="icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
 <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
 <link rel="stylesheet" href="/assets/css/admin.css?v=<?= $adminCssVer ?>">
 </head>

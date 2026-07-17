@@ -17,6 +17,7 @@ $brandHref = $user === null ? '/' : ($user['role'] === 'driver' ? '/surucu/lent'
 $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
 $cssVer = @filemtime($docRoot . '/assets/css/app.css') ?: time();
 $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
+$iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -27,9 +28,9 @@ $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 <meta name="description" content="<?= e(t('home.subtitle')) ?>">
 <?php if ($noindex): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>
 <meta name="theme-color" content="#2F6FED">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/assets/icons/icon-192.png">
-<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest?v=<?= $iconVer ?>">
+<link rel="icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
 <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
 <meta property="og:site_name" content="Birlikdə Yük">
 <meta name="csrf-token" content="<?= e(Csrf::token()) ?>">
