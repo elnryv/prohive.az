@@ -11,6 +11,12 @@ $title = isset($pageTitle) ? $pageTitle . ' · ' . t('app_name') : t('app_name')
 $user = Auth::user();
 $noindex = $noindex ?? true;
 $brandHref = $user === null ? '/' : ($user['role'] === 'driver' ? '/surucu/lent' : '/musteri/elanlarim');
+// Statik faylların dəyişmə vaxtına əsaslı keş-sındırma (bölmə 12.1 keş
+// başlıqları ilə birlikdə işləyir) — hər yeniləmədə brauzer keşi avtomatik
+// köhnəlir, əl ilə versiya nömrəsi artırmağa ehtiyac qalmır.
+$docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+$cssVer = @filemtime($docRoot . '/assets/css/app.css') ?: time();
+$jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -24,7 +30,7 @@ $brandHref = $user === null ? '/' : ($user['role'] === 'driver' ? '/surucu/lent'
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
 <meta property="og:site_name" content="Birlikdə Yük">
 <meta name="csrf-token" content="<?= e(Csrf::token()) ?>">
 </head>
@@ -45,6 +51,6 @@ $brandHref = $user === null ? '/' : ($user['role'] === 'driver' ? '/surucu/lent'
 <?php \App\Core\View::partial('partials/bottom_nav'); ?>
 <?php endif; ?>
 <?php \App\Core\View::partial('partials/install_prompt'); ?>
-<script src="/assets/js/app.js" defer></script>
+<script src="/assets/js/app.js?v=<?= $jsVer ?>" defer></script>
 </body>
 </html>
