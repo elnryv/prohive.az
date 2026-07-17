@@ -6,8 +6,43 @@
 use App\Core\Csrf;
 
 $paymentsOn = $settings['payments_enabled'] === '1';
+$sifreXeta = $_GET['sifre_xeta'] ?? null;
+$sifreOk = ($_GET['sifre'] ?? '') === 'ok';
 ?>
 <h1 style="display:flex;align-items:center;gap:8px"><?= icon('settings') ?> Parametrlər</h1>
+
+<div class="card">
+  <h2 style="margin-top:0">Şifrəni dəyiş</h2>
+  <?php if ($sifreOk): ?>
+    <div class="banner" style="border-left-color:var(--ok)">Şifrə dəyişdirildi.</div>
+  <?php endif; ?>
+  <?php if ($sifreXeta !== null): ?>
+    <div class="banner banner-error">
+      <?= e(match ($sifreXeta) {
+          'cari_yanlis' => 'Cari şifrə yanlışdır.',
+          'qisa' => 'Yeni şifrə minimum 6 simvol olmalıdır.',
+          'uygun_deyil' => 'Yeni şifrələr üst-üstə düşmür.',
+          default => 'Xəta baş verdi.',
+      }) ?>
+    </div>
+  <?php endif; ?>
+  <form method="post" action="/parametrler/sifre">
+    <?= Csrf::field() ?>
+    <div class="field">
+      <label>Cari şifrə</label>
+      <input type="password" name="current_password" required>
+    </div>
+    <div class="field">
+      <label>Yeni şifrə</label>
+      <input type="password" name="new_password" required minlength="6">
+    </div>
+    <div class="field">
+      <label>Yeni şifrə (təkrar)</label>
+      <input type="password" name="new_password_confirm" required minlength="6">
+    </div>
+    <button type="submit" class="btn btn-amber">Şifrəni dəyiş</button>
+  </form>
+</div>
 
 <div class="card">
   <h2 style="margin-top:0">Abunə sistemi</h2>

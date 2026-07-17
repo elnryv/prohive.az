@@ -1,6 +1,7 @@
 <?php
 /** @var string|null $error */
 use App\Core\Csrf;
+use App\Core\View;
 ?>
 <div class="container">
   <h1><?= e(t('auth.login_title')) ?></h1>
@@ -11,10 +12,7 @@ use App\Core\Csrf;
 
   <form method="post" action="/giris" novalidate>
     <?= Csrf::field() ?>
-    <div class="field">
-      <label><?= e(t('common.phone')) ?></label>
-      <input type="tel" name="phone" placeholder="<?= e(t('auth.phone_placeholder')) ?>" required autofocus>
-    </div>
+    <?php View::partial('partials/phone_input'); ?>
     <div class="field">
       <label><?= e(t('common.password')) ?></label>
       <input type="password" name="password" required>

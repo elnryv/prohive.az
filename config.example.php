@@ -34,7 +34,7 @@ return [
     'session' => [
         'name' => 'yuk_sess',
         'remember_cookie' => 'yuk_remember',
-        'remember_days' => 30,
+        'remember_days' => 365,
     ],
 
     'payriff' => [

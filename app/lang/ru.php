@@ -60,6 +60,7 @@ return [
         'register_title' => 'Регистрация',
         'login_title' => 'Вход',
         'phone_placeholder' => '050 123 45 67',
+        'phone_digits_hint' => 'Номер должен состоять ровно из 7 цифр',
         'password_placeholder' => 'Пароль',
         'confirm_password' => 'Повторите пароль',
         'remember_me' => 'Запомнить меня',

@@ -60,6 +60,7 @@ return [
         'register_title' => 'Qeydiyyat',
         'login_title' => 'Giriş',
         'phone_placeholder' => '050 123 45 67',
+        'phone_digits_hint' => 'Nömrə tam 7 rəqəm olmalıdır',
         'password_placeholder' => 'Şifrə',
         'confirm_password' => 'Şifrəni təkrarla',
         'remember_me' => 'Məni yadda saxla',

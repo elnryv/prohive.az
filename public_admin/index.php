@@ -101,6 +101,9 @@ $router->post('/parametrler/umumi', function () {
 $router->post('/parametrler/texniki-fasile', function () {
     (new SettingsController())->toggleMaintenance();
 });
+$router->post('/parametrler/sifre', function () {
+    (new SettingsController())->changePassword();
+});
 $router->post('/parametrler/lugetler/{table}', function ($p) {
     (new DictionaryController())->add($p);
 });

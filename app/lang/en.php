@@ -60,6 +60,7 @@ return [
         'register_title' => 'Sign up',
         'login_title' => 'Log in',
         'phone_placeholder' => '050 123 45 67',
+        'phone_digits_hint' => 'The number must be exactly 7 digits',
         'password_placeholder' => 'Password',
         'confirm_password' => 'Confirm password',
         'remember_me' => 'Remember me',

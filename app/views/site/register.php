@@ -5,6 +5,7 @@
 /** @var array $old */
 use App\Core\Csrf;
 use App\Core\Lang;
+use App\Core\View;
 ?>
 <div class="container">
 <?php if ($role === null): ?>
@@ -35,11 +36,11 @@ use App\Core\Lang;
       <?php if (isset($errors['full_name'])): ?><p class="text-soft" style="color:var(--danger)"><?= e(t($errors['full_name'])) ?></p><?php endif; ?>
     </div>
 
-    <div class="field">
-      <label><?= e(t('common.phone')) ?></label>
-      <input type="tel" name="phone" placeholder="<?= e(t('auth.phone_placeholder')) ?>" value="<?= e($old['phone'] ?? '') ?>" required>
-      <?php if (isset($errors['phone'])): ?><p class="text-soft" style="color:var(--danger)"><?= e(t($errors['phone'])) ?></p><?php endif; ?>
-    </div>
+    <?php View::partial('partials/phone_input', [
+        'oldPrefix' => $old['phone_prefix'] ?? '',
+        'oldNumber' => $old['phone_number'] ?? '',
+    ]); ?>
+    <?php if (isset($errors['phone'])): ?><p class="text-soft" style="color:var(--danger)"><?= e(t($errors['phone'])) ?></p><?php endif; ?>
 
     <div class="field">
       <label><?= e(t('common.password')) ?></label>

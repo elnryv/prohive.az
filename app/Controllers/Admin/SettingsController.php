@@ -111,6 +111,40 @@ final class SettingsController
         header('Location: /parametrler');
     }
 
+    public function changePassword(): void
+    {
+        AdminAuth::requireLogin('/giris');
+        $this->assertCsrf();
+
+        $current = (string) ($_POST['current_password'] ?? '');
+        $new = (string) ($_POST['new_password'] ?? '');
+        $confirm = (string) ($_POST['new_password_confirm'] ?? '');
+
+        $adminId = AdminAuth::id();
+        $stmt = DB::conn()->prepare('SELECT password_hash FROM admins WHERE id = ?');
+        $stmt->execute([$adminId]);
+        $row = $stmt->fetch();
+
+        if ($row === false || !password_verify($current, $row['password_hash'])) {
+            header('Location: /parametrler?sifre_xeta=cari_yanlis');
+            return;
+        }
+        if (strlen($new) < 6) {
+            header('Location: /parametrler?sifre_xeta=qisa');
+            return;
+        }
+        if ($new !== $confirm) {
+            header('Location: /parametrler?sifre_xeta=uygun_deyil');
+            return;
+        }
+
+        DB::conn()->prepare('UPDATE admins SET password_hash = ? WHERE id = ?')
+            ->execute([password_hash($new, PASSWORD_BCRYPT), $adminId]);
+
+        AdminAuth::log('admin_change_password', 'admin', $adminId);
+        header('Location: /parametrler?sifre=ok');
+    }
+
     private function assertCsrf(): void
     {
         if (!Csrf::verifyRequest()) {

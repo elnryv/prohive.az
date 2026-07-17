@@ -61,7 +61,7 @@ final class AuthController
     private function validateCommon(array &$errors): array
     {
         $fullName = trim((string) ($_POST['full_name'] ?? ''));
-        $phoneRaw = (string) ($_POST['phone'] ?? '');
+        $phoneRaw = (string) ($_POST['phone_prefix'] ?? '') . (string) ($_POST['phone_number'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
         $passwordConfirm = (string) ($_POST['password_confirm'] ?? '');
 
@@ -220,7 +220,7 @@ final class AuthController
             return;
         }
 
-        $phone = (string) ($_POST['phone'] ?? '');
+        $phone = (string) ($_POST['phone_prefix'] ?? '') . (string) ($_POST['phone_number'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
         $remember = !empty($_POST['remember']);
 

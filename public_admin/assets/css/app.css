@@ -216,6 +216,10 @@ textarea { min-height: 96px; resize: vertical; }
 label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 6px; }
 .field { margin-bottom: 16px; }
 
+.phone-input-group { display: flex; gap: 8px; }
+.phone-prefix-select { flex: 0 0 84px; }
+.phone-number-input { flex: 1; min-width: 0; }
+
 .upload-tile {
   display: flex;
   flex-direction: column;
