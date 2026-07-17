@@ -190,12 +190,21 @@ final class OfferActionController
             throw $e;
         }
 
+        // Ləğv olunan təklifin sahibi də bildirilməlidir — o "lost" deyil,
+        // "canceled_by_customer" statusundadır, ona görə $restoredDriverIds-ə
+        // düşmür, amma yenidən açılan elana yenidən təklif verə bilər (bax
+        // driver/listing_show.php-dəki status şərti) və bunu bilməlidir.
+        $notifyDriverIds = array_map('intval', $restoredDriverIds);
+        if ($acceptedDriverId !== null && !in_array((int) $acceptedDriverId, $notifyDriverIds, true)) {
+            $notifyDriverIds[] = (int) $acceptedDriverId;
+        }
+
         Sse::publish('feed', 'listing_reopened', ['listing_id' => $listingId]);
-        foreach ($restoredDriverIds as $did) {
+        foreach ($notifyDriverIds as $did) {
             Sse::publish('driver_' . $did, 'listing_reopened', ['listing_id' => $listingId]);
         }
-        if ($restoredDriverIds !== []) {
-            WebPush::sendToUsersLocalized(array_map('intval', $restoredDriverIds), static fn () => [
+        if ($notifyDriverIds !== []) {
+            WebPush::sendToUsersLocalized($notifyDriverIds, static fn () => [
                 'title' => t('push.listing_reopened_title'),
                 'body' => t('push.listing_reopened_body'),
                 'url' => '/surucu/lent',

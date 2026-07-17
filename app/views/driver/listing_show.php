@@ -46,7 +46,7 @@ use App\Core\Lang;
     <div class="banner"><?= e(t('listing.driver_pending_locked')) ?></div>
   <?php elseif (!$isActive): ?>
     <div class="banner"><?= e(t('listing.driver_inactive_locked')) ?> <a href="/surucu/odenis" style="color:var(--amber)">→</a></div>
-  <?php elseif ($myOffer !== null && $myOffer['status'] !== 'withdrawn'): ?>
+  <?php elseif ($myOffer !== null && in_array($myOffer['status'], ['pending', 'accepted'], true)): ?>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span class="num" style="font-size:22px"><?= number_format((float) $myOffer['price'], 2) ?> AZN</span>
