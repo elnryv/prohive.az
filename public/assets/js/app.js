@@ -161,6 +161,16 @@
   // artıq standalone rejimdə açılıbsa (əl ilə əlavə edilib) və icazə hələ soruşulmayıbsa,
   // ayrıca bir banner göstərib toxunma ilə (iOS tələb edir) icazəni soruşuruq.
   const iosPushBanner = document.getElementById('ios-push-banner');
+  // MÜVƏQQƏTİ DİAQNOSTİKA — problem həll olunandan sonra silinəcək.
+  if (body.dataset.role === 'driver') {
+    alert(
+      'standalone=' + isStandalone()
+      + ' auth=' + body.dataset.auth
+      + ' role=' + body.dataset.role
+      + ' notif=' + (typeof Notification === 'undefined' ? 'undefined' : Notification.permission)
+      + ' banner=' + (iosPushBanner ? 'found' : 'MISSING')
+    );
+  }
   if (
     iosPushBanner
     && isStandalone()
