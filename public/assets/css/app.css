@@ -336,15 +336,17 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   100% { background-position: -150% 0; }
 }
 .brand {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 18px;
+  white-space: nowrap;
+}
+.top-bar .brand {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 18px;
-  white-space: nowrap;
 }
 .brand .amber {
   background: linear-gradient(90deg, var(--primary) 0%, #7B61FF 35%, #22D3EE 65%, var(--primary) 100%);
