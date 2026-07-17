@@ -94,6 +94,8 @@ return [
         'date_agreement' => 'By agreement',
         'urgent' => 'Urgent (today/tomorrow)',
         'description' => 'Description',
+        'description_hint' => 'Describe the cargo in full: what it is, length/width/height (cm or m), weight, and other important details — so drivers can offer an accurate price.',
+        'description_placeholder' => 'E.g.: 2 armchairs (180x90x80 cm each), 1 fridge (60x60x170 cm), handle with care...',
         'photos' => 'Photos (up to 6, optional)',
         'photos_cta' => 'Choose photos',
         'photos_selected' => 'photo(s) selected',

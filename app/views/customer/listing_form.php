@@ -89,7 +89,8 @@ $regionLocations = array_filter($locations, static fn ($l) => (int) $l['is_baku'
 
     <div class="field">
       <label><?= e(t('listing.description')) ?></label>
-      <textarea name="description" required><?= e($old['description'] ?? '') ?></textarea>
+      <p class="text-soft" style="margin-top:-2px;margin-bottom:8px;font-size:13px"><?= e(t('listing.description_hint')) ?></p>
+      <textarea name="description" placeholder="<?= e(t('listing.description_placeholder')) ?>" required><?= e($old['description'] ?? '') ?></textarea>
       <?php if (isset($errors['description'])): ?><p style="color:var(--danger)"><?= e(t($errors['description'])) ?></p><?php endif; ?>
     </div>
 

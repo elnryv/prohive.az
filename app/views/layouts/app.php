@@ -18,6 +18,19 @@ $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
 $cssVer = @filemtime($docRoot . '/assets/css/app.css') ?: time();
 $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 $iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
+// Rola görə fərqli "Ana ekrana əlavə et" adı (bölmə: qeydiyyatdan asılı PWA adı) —
+// manifest həm android/chrome quraşdırma dialoqu, apple-mobile-web-app-title isə
+// iOS Safari-nin "Ana ekrana əlavə et" sahəsini əvvəlcədən doldurur.
+$homeScreenName = match ($user['role'] ?? null) {
+    'driver' => 'Birlikdə Yük Daşıma',
+    'customer' => 'Birlikdə Yük Müştəri',
+    default => 'Birlikdə Yük',
+};
+$manifestFile = match ($user['role'] ?? null) {
+    'driver' => 'manifest-driver.webmanifest',
+    'customer' => 'manifest-customer.webmanifest',
+    default => 'manifest.webmanifest',
+};
 ?>
 <!doctype html>
 <html lang="<?= e($lang) ?>">
@@ -28,7 +41,8 @@ $iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
 <meta name="description" content="<?= e(t('home.subtitle')) ?>">
 <?php if ($noindex): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>
 <meta name="theme-color" content="#2F6FED">
-<link rel="manifest" href="/manifest.webmanifest?v=<?= $iconVer ?>">
+<meta name="apple-mobile-web-app-title" content="<?= e($homeScreenName) ?>">
+<link rel="manifest" href="/<?= $manifestFile ?>?v=<?= $iconVer ?>">
 <link rel="icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
 <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
@@ -54,6 +68,7 @@ $iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
 <?php \App\Core\View::partial('partials/bottom_nav'); ?>
 <?php endif; ?>
 <?php \App\Core\View::partial('partials/install_prompt'); ?>
+<?php \App\Core\View::partial('partials/photo_lightbox'); ?>
 <script src="/assets/js/app.js?v=<?= $jsVer ?>" defer></script>
 </body>
 </html>

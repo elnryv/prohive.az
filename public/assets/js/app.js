@@ -285,4 +285,24 @@
       dots[idx]?.classList.add('active');
     }, 2000);
   });
+
+  // ---------------------------------------------------------------
+  // Şəkil lightbox-u — elan şəkillərinin kiçik zolağında (.photo-strip) toxunanda
+  // tam ekran böyüdülmüş göstərilir (bax partials/photo_lightbox.php).
+  // ---------------------------------------------------------------
+  const lightbox = document.getElementById('photo-lightbox');
+  const lightboxImg = document.getElementById('photo-lightbox-img');
+  if (lightbox && lightboxImg) {
+    document.querySelectorAll('.photo-strip img').forEach((img) => {
+      img.addEventListener('click', () => {
+        lightboxImg.src = img.src;
+        lightbox.hidden = false;
+      });
+    });
+    const closeLightbox = () => { lightbox.hidden = true; lightboxImg.src = ''; };
+    document.getElementById('photo-lightbox-close')?.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
 })();

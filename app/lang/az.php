@@ -94,6 +94,8 @@ return [
         'date_agreement' => 'Razılaşma ilə',
         'urgent' => 'Təcili (bu gün-sabah)',
         'description' => 'Təsvir',
+        'description_hint' => 'Yükün tam təsvirini yaz: nə daşınır, uzunluq/en/hündürlük (sm və ya m), çəki və digər vacib detallar — sürücülər dəqiq qiymət versin.',
+        'description_placeholder' => 'Məs: 2 kreslo (hər biri 180x90x80 sm), 1 soyuducu (60x60x170 sm), ehtiyatlı daşınmalıdır...',
         'photos' => 'Fotolar (maks 6, könüllü)',
         'photos_cta' => 'Şəkil seç',
         'photos_selected' => 'şəkil seçildi',

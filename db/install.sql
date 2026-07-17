@@ -145,6 +145,8 @@ CREATE TABLE vehicle_types (
 INSERT INTO vehicle_types (name_az, name_ru, name_en, sort_order) VALUES
 ('Yük taksisi (kiçik)','Грузовое такси (малое)','Small cargo taxi',10),
 ('Furqon','Фургон','Van',20),
+('Sprinter (furqon)','Спринтер (фургон)','Sprinter (van)',21),
+('Ford Transit (furqon)','Форд Транзит (фургон)','Ford Transit (van)',22),
 ('Bortlu maşın','Бортовая машина','Flatbed truck',30),
 ('Kamaz/böyük yük','КамАЗ/большегруз','Heavy truck',40),
 ('Fura','Фура','Semi-trailer',50),
