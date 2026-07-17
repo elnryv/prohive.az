@@ -51,6 +51,7 @@ $manifestFile = match ($user['role'] ?? null) {
 </head>
 <body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
 <?php \App\Core\View::partial('partials/splash'); ?>
+<?php \App\Core\View::partial('partials/bg_blobs'); ?>
 <header class="top-bar">
   <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>
   <?php if (!Auth::check()): ?>
