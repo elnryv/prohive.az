@@ -16,8 +16,8 @@ final class DashboardController
     {
         Auth::requireRole('customer', '/giris');
 
-        $sql = 'SELECT ' . ListingRules::SELECT_SQL . ' ' . ListingRules::FROM_SQL . '
-             WHERE l.customer_id = ? ORDER BY l.created_at DESC LIMIT 50';
+        $sql = 'SELECT ' . ListingRules::SELECT_SQL . ' ' . ListingRules::FROM_SQL . "
+             WHERE l.customer_id = ? AND l.status = 'active' ORDER BY l.created_at DESC LIMIT 50";
         $stmt = DB::conn()->prepare($sql);
         $stmt->execute([Auth::id()]);
 

@@ -17,7 +17,7 @@ final class HistoryController
         Auth::requireRole('customer', '/giris');
 
         $sql = 'SELECT ' . ListingRules::SELECT_SQL . ' ' . ListingRules::FROM_SQL . "
-             WHERE l.customer_id = ? AND l.status IN ('completed','expired','removed')
+             WHERE l.customer_id = ? AND l.status IN ('accepted','completed','expired','removed')
              ORDER BY l.created_at DESC LIMIT 100";
         $stmt = DB::conn()->prepare($sql);
         $stmt->execute([Auth::id()]);
