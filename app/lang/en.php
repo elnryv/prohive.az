@@ -95,6 +95,8 @@ return [
         'urgent' => 'Urgent (today/tomorrow)',
         'description' => 'Description',
         'photos' => 'Photos (up to 6, optional)',
+        'photos_cta' => 'Choose photos',
+        'photos_selected' => 'photo(s) selected',
         'submit' => 'Post listing',
         'no_price_note' => "You don't set a price — drivers will offer their own",
         'offers_count' => '{n} offers',

@@ -26,7 +26,7 @@ $regionLocations = array_filter($locations, static fn ($l) => (int) $l['is_baku'
           <label class="role-card" style="padding:12px;cursor:pointer">
             <input type="radio" name="category_id" value="<?= (int) $cat['id'] ?>" style="width:auto;min-height:auto"
               <?= (int) ($old['category_id'] ?? 0) === (int) $cat['id'] ? 'checked' : '' ?> required>
-            <span class="icon-badge" style="color:var(--primary)"><?= icon(Icon::forCategorySlug($cat['slug'] ?? null), 'icon', 22) ?></span>
+            <span class="icon-badge"><?= icon(Icon::forCategorySlug($cat['slug'] ?? null), 'icon', 22) ?></span>
             <div style="font-size:13px;font-weight:600"><?= e(Lang::field($cat, 'name')) ?></div>
           </label>
         <?php endforeach; ?>
@@ -95,7 +95,12 @@ $regionLocations = array_filter($locations, static fn ($l) => (int) $l['is_baku'
 
     <div class="field">
       <label><?= e(t('listing.photos')) ?></label>
-      <input type="file" name="photos[]" accept="image/*" multiple>
+      <label class="upload-tile" for="listing_photos">
+        <span class="upload-tile-icon"><?= icon('camera', 'icon', 18) ?></span>
+        <span id="listing_photos_text"><?= e(t('listing.photos_cta')) ?></span>
+        <input type="file" id="listing_photos" name="photos[]" accept="image/*" multiple
+          onchange="document.getElementById('listing_photos_text').textContent = this.files.length ? this.files.length + ' ' + '<?= e(t('listing.photos_selected')) ?>' : '<?= e(t('listing.photos_cta')) ?>'">
+      </label>
       <?php if (isset($errors['photos'])): ?><p style="color:var(--danger)"><?= e(t($errors['photos'])) ?></p><?php endif; ?>
     </div>
 

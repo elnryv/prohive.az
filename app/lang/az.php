@@ -95,6 +95,8 @@ return [
         'urgent' => 'Təcili (bu gün-sabah)',
         'description' => 'Təsvir',
         'photos' => 'Fotolar (maks 6, könüllü)',
+        'photos_cta' => 'Şəkil seç',
+        'photos_selected' => 'şəkil seçildi',
         'submit' => 'Elanı yerləşdir',
         'no_price_note' => 'Qiymət yazmırsan — sürücülər özləri təklif edəcək',
         'offers_count' => '{n} təklif',

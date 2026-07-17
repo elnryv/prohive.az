@@ -176,6 +176,34 @@ textarea { min-height: 96px; resize: vertical; }
 label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 6px; }
 .field { margin-bottom: 16px; }
 
+.upload-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius-sm);
+  padding: 24px 16px;
+  color: var(--txt-soft);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  background: var(--card);
+  transition: border-color .15s ease, background .15s ease;
+}
+.upload-tile:active { border-color: var(--primary); background: var(--card-hi); }
+.upload-tile input[type="file"] { display: none; }
+.upload-tile-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--primary-tint);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+}
+.upload-tile-count { color: var(--primary); font-weight: 600; }
+
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -198,6 +226,10 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   min-height: 44px;
 }
 .bottom-nav a.active { color: var(--primary); }
+/* Fab-lı bottom-nav-larda (bax bottom_nav.php) düymənin tam mərkəzdə olması üçün
+   sol/sağ tərəflər neçə linkdən ibarət olmasından asılı olmayaraq bərabər en tutur. */
+.bottom-nav-side { flex: 1; display: flex; }
+.bottom-nav-side a { flex: 1; }
 .bottom-nav .fab {
   flex: 0 0 48px;
   background: linear-gradient(135deg, var(--primary-soft), var(--primary));
@@ -261,11 +293,20 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
 }
 .lang-switch a.active { color: var(--primary); border-color: var(--primary); }
 
-.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
 .tabs a {
-  flex: 1;
+  flex: 0 0 auto;
+  white-space: nowrap;
   text-align: center;
-  padding: 10px;
+  padding: 10px 16px;
   border-radius: var(--radius-sm);
   background: var(--card);
   border: 1px solid var(--line);
@@ -284,6 +325,14 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   cursor: pointer;
 }
 .role-card:hover, .role-card.selected { border-color: var(--primary); background: var(--card-hi); }
+.role-card:has(input:checked) { border-color: var(--primary); background: var(--card-hi); }
+.role-card:has(input:checked) .icon-badge { background: var(--primary); color: var(--on-primary); }
+.role-card input[type="radio"], .role-card input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+  margin: -1px;
+}
 .role-card .icon, .icon-badge {
   width: 44px; height: 44px;
   border-radius: 50%;
@@ -291,7 +340,7 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 8px;
 }
-.role-card .icon { color: var(--primary); }
+.role-card .icon, .icon-badge { color: var(--primary); }
 .role-card h2 { font-size: 18px; }
 
 .profile-header {

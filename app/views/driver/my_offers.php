@@ -8,7 +8,7 @@ use App\Core\Phone;
 <div class="container">
   <h1><?= e(t('nav.my_offers')) ?></h1>
 
-  <div class="tabs" style="flex-wrap:wrap">
+  <div class="tabs">
     <a href="?tab=pending" class="<?= $tab === 'pending' ? 'active' : '' ?>"><?= e(t('offer.status_pending')) ?></a>
     <a href="?tab=accepted" class="<?= $tab === 'accepted' ? 'active' : '' ?>"><?= e(t('offer.status_accepted')) ?></a>
     <a href="?tab=lost" class="<?= $tab === 'lost' ? 'active' : '' ?>"><?= e(t('offer.status_lost')) ?></a>
