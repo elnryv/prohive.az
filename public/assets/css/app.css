@@ -57,6 +57,7 @@ img, svg { max-width: 100%; }
 
 body {
   min-height: 100vh;
+  padding-top: 60px; /* fixed top-bar (bax .top-bar) */
   padding-bottom: 72px; /* bottom nav */
 }
 
@@ -273,15 +274,16 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   justify-content: space-between;
   gap: 8px;
   padding: 12px 16px;
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 0; left: 0; right: 0;
   background: rgba(255, 255, 255, .88);
   backdrop-filter: blur(6px);
   z-index: 30;
   border-bottom: 1px solid var(--line);
 }
-.brand { font-family: var(--font-head); font-weight: 700; font-size: 17px; white-space: nowrap; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-head); font-weight: 700; font-size: 18px; white-space: nowrap; }
 .brand .amber { color: var(--primary); }
+.brand-logo { width: 28px; height: 28px; border-radius: 8px; flex: none; }
 
 .lang-switch { display: flex; gap: 4px; flex-shrink: 0; }
 .lang-switch a {

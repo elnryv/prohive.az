@@ -34,6 +34,7 @@ $adminCssVer = @filemtime($docRoot . '/assets/css/admin.css') ?: time();
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?= e($title) ?></title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/icons/icon-192.png">
 <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
 <link rel="stylesheet" href="/assets/css/admin.css?v=<?= $adminCssVer ?>">
 </head>
@@ -51,7 +52,7 @@ $adminCssVer = @filemtime($docRoot . '/assets/css/admin.css') ?: time();
 
   <aside class="admin-drawer">
     <div class="admin-drawer-header">
-      <span class="brand">Birlikdə <span class="amber">Yük</span></span>
+      <span class="brand"><img class="brand-logo" src="/assets/icons/icon-192.png" alt="">Birlikdə <span class="amber">Yük</span></span>
       <label for="admin-drawer-toggle" class="admin-drawer-close" aria-label="Bağla"><?= icon('close', 'icon', 18) ?></label>
     </div>
     <p class="text-soft" style="padding:0 16px 12px;font-size:12px">İdarəetmə mərkəzi</p>

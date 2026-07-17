@@ -37,7 +37,7 @@ $jsVer = @filemtime($docRoot . '/assets/js/app.js') ?: time();
 <body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
 <?php \App\Core\View::partial('partials/splash'); ?>
 <header class="top-bar">
-  <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>
+  <a href="<?= e($brandHref) ?>" class="brand"><img class="brand-logo" src="/assets/icons/icon-192.png" alt="">Birlikdə <span class="amber">Yük</span></a>
   <?php if (!Auth::check()): ?>
   <nav class="lang-switch">
     <a href="?lang=az" class="<?= $lang === 'az' ? 'active' : '' ?>">AZ</a>

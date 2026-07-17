@@ -1,12 +1,12 @@
 /* Birlikdə Yük — admin ("idarəetmə mərkəzi") üzrə əlavə stillər. Mobil-öncə, kompakt kart-əsaslı görünüş. */
 
-body { padding-bottom: 0; }
+body { padding-bottom: 0; padding-top: 0; }
 
 .admin-shell { min-height: 100vh; }
 
 .admin-topbar {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 0; left: 0; right: 0;
   z-index: 30;
   display: flex;
   align-items: center;
@@ -28,6 +28,7 @@ body { padding-bottom: 0; }
 
 .admin-main {
   padding: 16px;
+  padding-top: calc(16px + 60px);
   max-width: 720px;
   margin: 0 auto;
 }
