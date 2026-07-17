@@ -161,7 +161,7 @@ final class ListingController
         );
 
         Sse::publish('feed', 'listing_new', ['listing_id' => $listingId, 'scope' => $scope]);
-        $this->notifyRouteSubscribers($listingId, $fromLocationId, $toLocationId, $scope, $fromLocation, $toLocation);
+        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation);
 
         header('Location: /musteri/elan/' . $listingId . '?yaradildi=1');
     }
@@ -251,20 +251,18 @@ final class ListingController
         header('Location: /musteri/elan/' . $id);
     }
 
-    /** Q-Y12: route_subscriptions üzrə uyğun (approved) sürücülərə "route_match" push. */
-    private function notifyRouteSubscribers(int $listingId, int $fromId, int $toId, string $scope, array $fromLocation, array $toLocation): void
+    /**
+     * Yeni elan haqqında BÜTÜN təsdiqlənmiş (və bloklanmamış) sürücülərə push göndərir
+     * (sahibkarın qərarı — əvvəlki route_subscriptions-a görə filtrləmə ləğv edildi;
+     * qeyri-təsdiqli sürücü təklif verə bilmədiyi üçün push almasının mənası yoxdur,
+     * bax Auth::isActiveDriver()).
+     */
+    private function notifyApprovedDrivers(int $listingId, array $fromLocation, array $toLocation): void
     {
-        $stmt = DB::conn()->prepare(
-            "SELECT DISTINCT rs.driver_id
-             FROM route_subscriptions rs
-             JOIN users u ON u.id = rs.driver_id
-             WHERE u.driver_status = 'approved'
-               AND (rs.from_location_id IS NULL OR rs.from_location_id = ?)
-               AND (rs.to_location_id IS NULL OR rs.to_location_id = ?)
-               AND (rs.scope = 'all' OR rs.scope = ?)"
+        $stmt = DB::conn()->query(
+            "SELECT id FROM users WHERE role = 'driver' AND driver_status = 'approved' AND is_blocked = 0"
         );
-        $stmt->execute([$fromId, $toId, $scope]);
-        $driverIds = array_map('intval', array_column($stmt->fetchAll(), 'driver_id'));
+        $driverIds = array_map('intval', array_column($stmt->fetchAll(), 'id'));
 
         if ($driverIds === []) {
             return;
