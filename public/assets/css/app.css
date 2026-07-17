@@ -281,9 +281,33 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   z-index: 30;
   border-bottom: 1px solid var(--line);
 }
-.brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-head); font-weight: 700; font-size: 18px; white-space: nowrap; }
+.brand {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 18px;
+  white-space: nowrap;
+}
 .brand .amber { color: var(--primary); }
-.brand-logo { width: 28px; height: 28px; border-radius: 8px; flex: none; }
+.brand::before {
+  content: '';
+  position: absolute;
+  inset: -10px -16px;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(47, 111, 237, .38) 0%, rgba(47, 111, 237, 0) 70%);
+  filter: blur(9px);
+  animation: brand-glow 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes brand-glow {
+  0%, 100% { opacity: .5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand::before { animation: none; opacity: .6; }
+}
 
 .lang-switch { display: flex; gap: 4px; flex-shrink: 0; }
 .lang-switch a {

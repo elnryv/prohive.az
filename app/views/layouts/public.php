@@ -32,7 +32,7 @@ $canonical = $baseUrl . '/e/' . $listing['public_code'];
 </head>
 <body>
 <header class="top-bar">
-  <a href="/" class="brand"><img class="brand-logo" src="/assets/icons/icon-192.png" alt="">Birlikdə <span class="amber">Yük</span></a>
+  <a href="/" class="brand">Birlikdə <span class="amber">Yük</span></a>
 </header>
 <main><?= $content ?></main>
 </body>
