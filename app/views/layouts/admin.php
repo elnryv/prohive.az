@@ -20,6 +20,12 @@ $nav = [
     '/loglar' => ['list', 'Loglar'],
 ];
 $currentLabel = $nav[$path][1] ?? 'Dashboard';
+// app.css/admin.css üçün keş-sındırma (bax layouts/app.php) — public_admin öz ayrıca
+// kopyasını saxladığı üçün (bölmə: aaPanel qeydi) bu fayllar `cp` ilə sinxronlaşdıqda
+// belə Nginx-in 12 saatlıq statik keşi köhnə versiyanı saxlaya bilməsin deyə vacibdir.
+$docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+$cssVer = @filemtime($docRoot . '/assets/css/app.css') ?: time();
+$adminCssVer = @filemtime($docRoot . '/assets/css/admin.css') ?: time();
 ?>
 <!doctype html>
 <html lang="az">
@@ -28,8 +34,8 @@ $currentLabel = $nav[$path][1] ?? 'Dashboard';
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?= e($title) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="/assets/css/app.css">
-<link rel="stylesheet" href="/assets/css/admin.css">
+<link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
+<link rel="stylesheet" href="/assets/css/admin.css?v=<?= $adminCssVer ?>">
 </head>
 <body data-auth="0">
 <?php if ($admin !== null): ?>
