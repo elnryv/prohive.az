@@ -156,6 +156,31 @@
     subscribeToPush();
   }
 
+  // iOS Safari-də "Ana ekrana əlavə et" beforeinstallprompt-u atəşləmir, ona görə
+  // Android-in "Quraşdır" düyməsindəki icazə axını iOS-a heç vaxt çatmır — tətbiq
+  // artıq standalone rejimdə açılıbsa (əl ilə əlavə edilib) və icazə hələ soruşulmayıbsa,
+  // ayrıca bir banner göstərib toxunma ilə (iOS tələb edir) icazəni soruşuruq.
+  const iosPushBanner = document.getElementById('ios-push-banner');
+  if (
+    iosPushBanner
+    && isStandalone()
+    && body.dataset.auth === '1'
+    && typeof Notification !== 'undefined'
+    && Notification.permission === 'default'
+  ) {
+    iosPushBanner.hidden = false;
+  }
+  document.getElementById('ios-push-btn')?.addEventListener('click', async () => {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      subscribeToPush();
+    }
+    if (iosPushBanner) iosPushBanner.hidden = true;
+  });
+  document.getElementById('ios-push-close')?.addEventListener('click', () => {
+    if (iosPushBanner) iosPushBanner.hidden = true;
+  });
+
   // ---------------------------------------------------------------
   // SSE: sürücü lenti (bölmə 7.2, 11.5) — yeni elan üstə düşür, bağlanan sönür (≤3s).
   // ---------------------------------------------------------------

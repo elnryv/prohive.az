@@ -203,5 +203,7 @@ return [
         'ios_step3' => 'Tap "Add" at the top',
         'reminder_text' => 'Install the app for notifications',
         'reminder_cta' => 'Install',
+        'ios_enable_push_text' => 'Get notified about new orders/offers',
+        'ios_enable_push_cta' => 'Enable notifications',
     ],
 ];
