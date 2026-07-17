@@ -34,8 +34,8 @@ $regionLocations = array_filter($locations, static fn ($l) => (int) $l['is_baku'
     </div>
 
     <div class="field">
-      <label><?= e(t('listing.from')) ?></label>
-      <select name="from_location_id" required>
+      <label for="from_location_id"><?= e(t('listing.from')) ?></label>
+      <select id="from_location_id" name="from_location_id" required>
         <option value="">—</option>
         <optgroup label="Bakı">
           <?php foreach ($bakuLocations as $loc): ?>
@@ -53,8 +53,8 @@ $regionLocations = array_filter($locations, static fn ($l) => (int) $l['is_baku'
     </div>
 
     <div class="field">
-      <label><?= e(t('listing.to')) ?></label>
-      <select name="to_location_id" required>
+      <label for="to_location_id"><?= e(t('listing.to')) ?></label>
+      <select id="to_location_id" name="to_location_id" required>
         <option value="">—</option>
         <optgroup label="Bakı">
           <?php foreach ($bakuLocations as $loc): ?>

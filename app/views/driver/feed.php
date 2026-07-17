@@ -27,7 +27,7 @@ use App\Core\View;
 
   <form method="get" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
     <input type="hidden" name="tab" value="<?= e($scope) ?>">
-    <select name="category_id" onchange="this.form.submit()" style="flex:1;min-width:120px">
+    <select name="category_id" onchange="this.form.submit()" style="flex:1;min-width:120px" aria-label="<?= e(t('listing.category')) ?>">
       <option value="0"><?= e(t('listing.filter_all')) ?> — <?= e(t('listing.category')) ?></option>
       <?php foreach ($categories as $cat): ?>
         <option value="<?= (int) $cat['id'] ?>" <?= $filters['categoryId'] === (int) $cat['id'] ? 'selected' : '' ?>><?= e($cat['icon']) ?> <?= e(Lang::field($cat, 'name')) ?></option>

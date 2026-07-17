@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /$
+Allow: /e/
+Disallow: /musteri/
+Disallow: /surucu/
+Disallow: /qeydiyyat
+Disallow: /giris
+Disallow: /axin/
+Disallow: /push/
+
+Sitemap: https://yuk.birlikde.biz/sitemap.xml

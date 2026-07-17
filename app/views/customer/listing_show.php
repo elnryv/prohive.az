@@ -86,8 +86,8 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
 
     <form method="post" action="/musteri/elan/<?= (int) $listing['id'] ?>/legv" style="margin:12px 0" onsubmit="return confirm('<?= e(t('listing.cancel_confirm')) ?>')">
       <?= Csrf::field() ?>
-      <label><?= e(t('listing.cancel_reason')) ?></label>
-      <select name="reason">
+      <label for="cancel_reason"><?= e(t('listing.cancel_reason')) ?></label>
+      <select id="cancel_reason" name="reason">
         <option value="driver_no_show"><?= e(t('listing.reason_no_show')) ?></option>
         <option value="price_changed"><?= e(t('listing.reason_price_changed')) ?></option>
         <option value="changed_mind"><?= e(t('listing.reason_changed_mind')) ?></option>

@@ -27,6 +27,6 @@ use App\Core\Csrf;
   </form>
 
   <p class="text-soft" style="text-align:center;margin-top:16px">
-    <?= e(t('auth.no_account')) ?> <a href="/qeydiyyat" style="color:var(--amber)"><?= e(t('nav.register')) ?></a>
+    <?= e(t('auth.no_account')) ?> <a href="/qeydiyyat" class="link-amber"><?= e(t('nav.register')) ?></a>
   </p>
 </div>

@@ -32,8 +32,8 @@ use App\Core\Lang;
     <form method="post" action="/surucu/marsrutlar" style="margin-top:16px">
       <?= Csrf::field() ?>
       <div class="field">
-        <label><?= e(t('listing.from')) ?></label>
-        <select name="from_location_id">
+        <label for="from_location_id"><?= e(t('listing.from')) ?></label>
+        <select id="from_location_id" name="from_location_id">
           <option value="0"><?= e(t('listing.filter_all')) ?></option>
           <?php foreach ($locations as $loc): ?>
             <option value="<?= (int) $loc['id'] ?>"><?= e(Lang::field($loc, 'name')) ?></option>
@@ -41,8 +41,8 @@ use App\Core\Lang;
         </select>
       </div>
       <div class="field">
-        <label><?= e(t('listing.to')) ?></label>
-        <select name="to_location_id">
+        <label for="to_location_id"><?= e(t('listing.to')) ?></label>
+        <select id="to_location_id" name="to_location_id">
           <option value="0"><?= e(t('listing.filter_all')) ?></option>
           <?php foreach ($locations as $loc): ?>
             <option value="<?= (int) $loc['id'] ?>"><?= e(Lang::field($loc, 'name')) ?></option>
@@ -50,8 +50,8 @@ use App\Core\Lang;
         </select>
       </div>
       <div class="field">
-        <label><?= e(t('listing.category')) ?> / <?= e(t('routes.scope')) ?></label>
-        <select name="scope">
+        <label for="route_scope"><?= e(t('listing.category')) ?> / <?= e(t('routes.scope')) ?></label>
+        <select id="route_scope" name="scope">
           <option value="all"><?= e(t('listing.filter_all')) ?></option>
           <option value="baku"><?= e(t('listing.tab_baku')) ?></option>
           <option value="intercity"><?= e(t('listing.tab_intercity')) ?></option>

@@ -2,24 +2,43 @@
 
 Həqiqət mənbəyi: `BIRLIKDE_YUK_TAM.md` (istifadəçinin göndərdiyi PDF-dən çıxarılıb, bax aşağı qeyd) + bu fayl.
 
-## SUAL / QƏRAR QEYDİ (sahibkardan cavab gözlənilir, blok DEYİL — davam edilib)
+## SUAL / QƏRAR QEYDİ — HƏLL OLUNDU (2026-07-17)
 
-**SUAL:** `BIRLIKDE_GETDIK_TAM.md` (Payriff `PaymentGateway.php`/`PayriffProvider.php` kodu, telefon
-normalizasiya alqoritmi, SSE poll mexanizmi üçün istinad sənədi) nə repoda, nə upload-larda tapılmadı.
-İstifadəçiyə aydınlaşdırıcı sual göndərildi, lakin cavab alınmadı (tool xətası). **Qərar:** bloklamadan,
-öz best-practice tətbiqimlə davam edirəm:
+**Əvvəlki SUAL:** `BIRLIKDE_GETDIK_TAM.md`/`.pdf` (Payriff `PaymentGateway.php`/`PayriffProvider.php`
+kodu, telefon normalizasiya alqoritmi, SSE poll mexanizmi üçün istinad sənədi) nə repoda, nə
+upload-larda tapılmadı. Bloklamadan, best-practice tətbiqi ilə davam edilmişdi.
 
-- **Telefon normalizasiyası:** sənəddə formatı açıq yazılıb (`994XXXXXXXXX`) — `app/Core/Phone.php`
-  bunu 070/077/099 s.k. yerli formatlardan, `+994`-dən, boşluq/tire-lərdən təmizləyib qurur.
-- **Payriff inteqrasiyası:** `app/Payments/PayriffProvider.php` Payriff-in ictimai API v3 sənədləşməsinə
-  (createOrder, getOrderStatus, callback) uyğun, sənədin bölmə 7.6/8 təsvirinə əsasən yazılıb.
-  SECRET_KEY placeholder-dır. **Sahibkar Getdik-in əsl kodunu versə, bu fayl 1:1 əvəz olunmalıdır**
-  (bölmə 8-in tələbi budur — "eyni kod").
-- **SSE:** bölmə 11.5-dəki təsvirə (sse_events poll, ping, reconnect, kanallar) əsasən `app/Core/Sse.php`
-  özüm yazılıb.
+**Yenilik:** İstifadəçi `BIRLIKDE_GETDIK_TAM.pdf`-i yüklədi. Sənəd oxundu — **bu, "Birlikdə Yük"-ün
+bir hissəsi/kitabxanası DEYİL, tamamilə ayrı, müstəqil bir məhsulun (bölgə qonaq evləri vitrin
+platforması, "Birlikdə Getdik", `getdik.birlikde.biz`) tam texniki şərtnaməsidir** — fərqli domen,
+fərqli DB sxemi (`owners`/`houses`/`regions`), fərqli biznes modeli (aylıq abunə vitrin, rezervasiya
+yox). Yəni "eyni kod bazası" fərziyyəsi yanlış idi.
 
-Bu 3 fayl "Getdik ilə EYNİ" tələbini formal şəkildə ödəmir (çünki mənbə kod yoxdur), amma spesifikasiyanın
-təsvir etdiyi DAVRANIŞI tam ödəyir. Əgər sahibkar əsl Getdik kodunu təqdim etsə, dərhal əvəz olunacaq.
+Bununla belə, sənəddə (eyni müəllifin əli ilə yazılmış) konkret, işlək referans kodu var idi ki, bunlar
+"Birlikdə Yük"-ə də tətbiq edilə bilər və edildi:
+
+- **Telefon normalizasiyası (bölmə 5.1):** Getdik-in alqoritmi (rəqəm təmizlə → `0`-prefiks → `994+qalan`
+  → `994`-prefiks olduğu kimi → 9 rəqəmlidirsə `994+` prefiks → 12 rəqəm deyilsə xəta) `app/Core/Phone.php`-də
+  artıq **hərfi olaraq** tətbiq olunmuş formada idi (yalnız əlavə olaraq mobil operator prefiks siyahısı ilə
+  validasiya edir) — **dəyişiklik tələb olunmadı, təsdiqləndi.**
+- **Payriff inteqrasiyası (bölmə 8.3, "TAM" kod):** `app/Payments/PayriffProvider.php` bu sənədin konkret
+  sorğu/cavab konvensiyalarına uyğun **yeniləndi**:
+  - `Authorization` başlığı `Bearer ` prefiksi OLMADAN, xam Secret Key kimi göndərilir.
+  - Sorğu gövdəsinə `operation: 'PURCHASE'`, `cancelUrl`, `metadata.externalRef` (əvvəlki
+    `externalTrackId` top-level sahəsinin yerinə) əlavə olundu.
+  - Status sorğusu `GET /orders/{orderId}` (əvvəlki `/orders/{id}/status` deyil) və cavab
+    `payload.paymentStatus ?? payload.orderStatus` sahələrindən (`APPROVED`/`DECLINED`/`CANCELED`/
+    `PENDING`/`UNKNOWN`) oxunur — uydurma `EXPIRED`/`REVERSED` dəyərləri silindi.
+  - `storage/logs/payriff.log`-a audit logu əlavə olundu (bölmə 8.3-dəki `log()` metodu nümunəsi ilə).
+  - `PaymentCallbackController::reconcile()` bu yeni status lüğətinə uyğunlaşdırıldı
+    (`declined`/`canceled` → `failed`; `pending`/`unknown` → toxunulmur).
+  - Callback təhlükəsizlik qaydası (body-yə güvənməmək, `getOrderStatus`-la yenidən sorğulamaq,
+    idempotentlik) artıq düzgün tətbiq olunmuşdu — dəyişiklik tələb olunmadı.
+- **SSE (bölmə 11.4):** `app/Core/Sse.php`-nin kanal-əsaslı poll + `Last-Event-ID` + ping mexanizmi
+  Getdik-in təsvirinə artıq uyğun idi — **dəyişiklik tələb olunmadı, təsdiqləndi.**
+
+Nəticə: bu 3 sahə indi Getdik sənədindəki konkret nümunə koda tam uyğundur. Payriff `SECRET_KEY`/
+`merchant_id` hələ də placeholder-dır (sahibkar özü dolduracaq, Q7).
 
 ---
 
@@ -27,15 +46,15 @@ təsvir etdiyi DAVRANIŞI tam ödəyir. Əgər sahibkar əsl Getdik kodunu təqd
 
 | Faza | Ad | Status |
 |---|---|---|
-| 0 | Skelet | 🔄 icrada |
-| 1 | Auth + rollar | ⏳ |
-| 2 | Elan + lent | ⏳ |
-| 3 | Təklif + qəbul (atomik) | ⏳ |
-| 4 | SSE + Push | ⏳ |
-| 5 | Abunə + Payriff | ⏳ |
-| 6 | Admin | ⏳ |
-| 7 | PWA + dizayn cilası | ⏳ |
-| 8 | Buraxılış | ⏳ |
+| 0 | Skelet | ✅ tamamlandı |
+| 1 | Auth + rollar | ✅ tamamlandı |
+| 2 | Elan + lent | ✅ tamamlandı |
+| 3 | Təklif + qəbul (atomik) | ✅ tamamlandı |
+| 4 | SSE + Push | ✅ tamamlandı |
+| 5 | Abunə + Payriff | ✅ tamamlandı |
+| 6 | Admin | ✅ tamamlandı |
+| 7 | PWA + dizayn cilası | ✅ tamamlandı |
+| 8 | Buraxılış | ✅ tamamlandı |
 
 ## FAZA 1 — Auth + rollar ✅ TAMAMLANDI
 
@@ -223,11 +242,11 @@ apara bilər (README-də qeyd olunacaq).
 - `cron/daily.php` və `cron/payriff_recheck.php` konfiqurasiyasız Payriff mühitində xətasız işlədi.
 
 ### Qeyd (mühit məhdudiyyəti)
-Bu sandbox-da real Payriff API-yə (internet) çıxış yoxdur — `PayriffProvider` PROGRESS.md-nin əvvəlki
-"SUAL" qeydində izah olunduğu kimi Getdik-in əsl kodu olmadan, Payriff-in ictimai API v3 nümunələrinə
-əsasən yazılıb. Sahibkar canlıya keçmədən əvvəl bunu öz Payriff kabinetindəki sandbox açarları ilə
-mütləq test etməlidir (xüsusilə `createOrder`/`getOrderStatus` sorğu-cavab sahə adları Payriff-in
-faktiki sənədləşməsi ilə tam üst-üstə düşməyə bilər).
+Bu sandbox-da real Payriff API-yə (internet) çıxış yoxdur. **Yeniləmə (2026-07-17):** `PayriffProvider`
+indi `BIRLIKDE_GETDIK_TAM.pdf`-in bölmə 8.3-dəki konkret nümunə koduna uyğunlaşdırılıb (bax yuxarıdakı
+"SUAL / QƏRAR QEYDİ — HƏLL OLUNDU" bölməsi: `Authorization` başlığı, sorğu/cavab sahə adları,
+`operation`/`metadata.externalRef`). Yenə də sahibkar canlıya keçmədən əvvəl öz Payriff kabinetindəki
+sandbox açarları ilə test etməlidir.
 
 ## FAZA 6 — Admin paneli ✅ TAMAMLANDI
 
@@ -305,3 +324,105 @@ oluna bilmir — bunun əvəzinə skriptlər/təlimatlar hazırlanır, sahibkar 
   fayllarını `public/assets/fonts/`-a əlavə edib `@font-face` bağlaya bilər (README-də qeyd olunacaq).
 - İkon/PNG-lər (`icon-192.png`, `icon-512.png`, `badge-72.png`) hazırda funksional placeholder-dır
   (kömür fon + narıncı kvadrat) — real brend loqosu ilə əvəz oluna bilər, texniki tələb (ölçü/format) ödənilib.
+
+## FAZA 7 — PWA + dizayn cilası ✅ TAMAMLANDI
+
+### Nə edildi
+- **PWA əsasları:** `public/manifest.webmanifest`, `public/sw.js` (cache-first statik aktivlər,
+  versiyalı keş adı, `push`/`notificationclick` handlerları), `app/views/partials/splash.php`
+  (yalnız `display-mode: standalone`-da və ya sessiyada ilk açılışda — `sessionStorage` bayrağı ilə,
+  hər səhifə keçidində YOX), `app/views/partials/install_prompt.php` (Android/Chrome
+  `beforeinstallprompt`, iOS Safari üçün əl ilə "Ana ekrana əlavə et" təlimat modalı,
+  `matchMedia('(display-mode: standalone)')`/`navigator.standalone` aşkarlanması).
+- **SEO:** `public/robots.txt`, `app/views/layouts/app.php`-da `$noindex` dəyişəni (default `true`,
+  ictimai səhifələrdə `false`), `public_admin` tərəfində tam `Disallow: /`.
+- **Dil paritəsi təsdiqi:** `app/lang/{az,ru,en}.php` skriptlə müqayisə edildi — 177 açar, 3 faylda da
+  eyni, əskik/artıq YOXDUR.
+- **Əlçatanlıq (accessibility) keçidi — real Lighthouse audit əsasında:**
+  - Ana səhifə (`site/home.php`): `heading-order` pozuntusu (`h1`→`h3` sıçrayışı) — rol kartlarının
+    başlıqları `h3`→`h2`-yə dəyişdirildi (`.role-card h2{font-size:18px}` əlavə olundu, vizual görünüş
+    saxlanıldı); `link-in-text-block` (rəng-yalnız keçidlər) — `.link-amber` klassı ilə underline
+    əlavə olundu. Təkrar audit: Performance/Accessibility/SEO 100/100/100.
+  - Sürücü lenti (`driver/feed.php`): `select-name` (kateqoriya filtri üçün əlçatan ad yox idi) —
+    `aria-label` əlavə olundu.
+  - Bundan sonra bütün `<select>` elementləri sayt üzrə sistematik yoxlanıldı
+    (`grep -rn "<select" app/views/ | grep -v aria-label`) və qalanlar düzəldildi:
+    `customer/listing_form.php` (`from_location_id`/`to_location_id` — `id`/`for` cütü),
+    `site/register.php` (`vehicle_type_id` — `id`/`for` cütü),
+    `customer/listing_show.php` (`cancel_reason` — `id`/`for` cütü),
+    `admin/listings_index.php` (status/scope filtrləri — görünən label yox idi, `aria-label` əlavə
+    olundu), `admin/campaign.php` (hədəf seçimi — mövcud `<label>` `for`-suz idi, cüt bağlandı),
+    `driver/routes.php` (from/to/scope seçimləri — hər üçü üçün `id`/`for` cütü).
+- **Kritik CSS bug (Playwright ilə tapıldı):** `.install-sheet`, `.install-reminder`, `.splash`
+  elementləri `display:flex` ilə qeyd-şərtsiz elan olunmuşdu; author-stylesheet spesifikliyi
+  `[hidden]`-in UA defolt qaydası ilə bərabər olduğundan, sonrakı author qaydası qalib gəlirdi və
+  `hidden` atributu HEÇ NƏYƏ TƏSİR ETMİRDİ (elementlər click-through bloklayırdı, görünməsə də).
+  Qeydiyyat formasında bir klik testi 30s+ retry etməyə başlayanda aşkar olundu. Düzəliş:
+  `.install-sheet[hidden], .install-reminder[hidden], .splash[hidden] { display: none !important; }`.
+- **Skeleton loader qərarı:** `app.css`-də `.skeleton` klassı mövcuddur, lakin heç bir view-da
+  istifadə olunmayıb — QƏSDƏN. Bütün səhifələr server-tərəfli render olunur (SSR), ilk yüklənişdə
+  məzmun artıq HTML-in içindədir; skeleton yalnız client-tərəfli fetch gecikməsini maskalamaq üçün
+  faydalıdır, bu arxitekturada belə gecikmə yoxdur (sürücü lentinin SSE ilə canlı kart əlavəsi isə
+  artıq sub-saniyəlik, ayrıca skeleton overlay-ə ehtiyac yaratmır). Qərar: klass gələcək üçün saxlanılır,
+  məcburi tətbiq edilmədi.
+- **Onboarding:** ayrıca "2 slayd" widget-i tikilmədi — ana səhifədəki mövcud 3-addımlı "necə işləyir"
+  kartları (FAZA 1-də tikilib) eyni funksiyanı görür qərarı verildi (vaxt/mürəkkəblik balansı).
+
+### Özünüyoxlama nəticələri
+- Lighthouse (`performance,seo,accessibility`, mobil emulyasiya): ana səhifə 100/100/100, sürücü
+  lenti səhifəsi 100/100/100 (əvvəlki `select-name` pozuntusu düzəldildikdən sonra).
+- Playwright: qeydiyyat formasında bütün sahələr klikə açıqdır (`splash`/`install-sheet` `hidden`
+  ikən pointer-events bloklamır) — əvvəlki 30s+ retry problemi aradan qalxıb.
+- `grep -rn "<select" app/views/` — bütün nəticələr indi ya `aria-label`, ya `id`/`for` cütü daşıyır
+  (sıfır istisna).
+- `php -l` bütün redaktə olunmuş view-larda xətasız.
+
+---
+
+## FAZA 8 — Buraxılış hazırlığı ✅ TAMAMLANDI
+
+### Nə edildi
+- **Nginx konfiqləri** (`nginx/yuk.birlikde.biz.conf`, `nginx/yukadmin.birlikde.biz.conf`) — FAZA 0-da
+  yaradılıb, bu fazada təsdiqləndi: SSL (Let's Encrypt qeydləri), SSE endpoint-ləri üçün
+  `fastcgi_buffering off`, upload/storage qovluqlarında PHP icrası bloklanması, admin tərəfdə
+  `X-Robots-Tag: noindex, nofollow` + CSP `frame-ancestors 'none'`.
+- **Backup skripti:** `scripts/backup.sh` (yeni) — `config.php`-dən DB kimlik məlumatlarını oxuyub
+  `mysqldump --single-transaction` ilə sıxılmış dump + `rsync` ilə `public/uploads/` yedəkləməsi;
+  14 gündən köhnə dump-ları avtomatik silir. `chmod +x` edilib, `bash -n` ilə sintaksis yoxlanıldı.
+- **Cron qeydiyyatı:** README-də tam crontab nümunəsi sənədləşdirildi (`hourly.php` saatlıq,
+  `daily.php` gecə 03:00, `payriff_recheck.php` 15 dəqiqədə bir, `backup.sh` gecə 02:30).
+- **README.md** (əvvəllər boş stub idi) — tam yenidən yazıldı: server tələbləri, addım-addım quraşdırma
+  (DB yaratma, `config.php` doldurma, VAPID keygen), Nginx+SSL qoşulması, **`public_admin` CSS-sinxron
+  xəbərdarlığı** (ayrı sənəd kökü olduğu üçün CSS dəyişikliyi hər iki qovluğa köçürülməlidir), Payriff
+  konfiqurasiya addımları, dil paritəsi qeydi, fallback font qeydi, lokal inkişaf üçün iki `php -S`
+  komandası.
+- **`.env`-siz config yoxlanışı:** layihə heç vaxt `.env` istifadə etməyib — `config.php` (git-ə
+  düşməyən, `.gitignore`-da) + `config.example.php` (versiyalaşdırılan şablon) modeli əvvəldən
+  tətbiq olunub; bu fazada yalnız README-də bu axın sənədləşdirildi, kod dəyişikliyi tələb olunmadı.
+- **PROGRESS.md yekunu:** FAZA STATUSLARI cədvəli 0-8 hamısı ✅ olaraq yeniləndi.
+
+### Özünüyoxlama nəticələri
+- `bash -n scripts/backup.sh` — sintaksis xətasız.
+- Nginx konfiqləri əvvəlki fazalarda `nginx -t` ilə test edilmiş formatdadır (bu sessiyada real
+  Let's Encrypt/domain olmadığı üçün canlı sertifikat testi mümkün deyil — README-də bu addım
+  sahibkar tərəfindən icra olunacaq şəkildə qeyd edilib).
+- README addımları mövcud fayl strukturu ilə bir-bir yoxlanıldı (`config.example.php`,
+  `db/install.sql`, `cron/vapid_keygen.php`, `nginx/*.conf`, `scripts/backup.sh` — hamısı mövcuddur
+  və README-dəki yollarla üst-üstə düşür).
+
+### Qəbul kriteriyaları (yekun vəziyyət)
+1. Qonaq/müştəri qeydiyyatsız elan yerləşdirə bilir, sürücü təklif verir — FAZA 1-3-də test edilib. ✅
+2. Real-time silinmə/yenilənmə: iki brauzer pəncərəsi ilə SSE test edilib (FAZA 4). ✅
+3. Telefon məxfiliyi (Q-Y3): yalnız qəbul edilmiş təklifin sürücü nömrəsi müştəriyə açılır — atomik
+   qəbul zamanı doğrulanıb (FAZA 3). ✅
+4. Atomik qəbul (Q-Y4): 10 paralel curl sorğusu → cəmi 1 `accepted` — FAZA 3-də doğrulanıb. ✅
+5. Ödəniş açma/bağlama (Q-Y7): admin panelindən bir kliklə, grace-period məntiqi ilə — FAZA 5-də
+   doğrulanıb. ✅
+6. PWA quraşdırma + splash + SSE canlı sayğaclar — FAZA 4/7-də doğrulanıb. ✅
+7. Üç dil (AZ/RU/EN), 0 əskik açar — FAZA 6/7-də doğrulanıb. ✅
+8. CSRF + upload təhlükəsizliyi + login brute-force kilidi — FAZA 0-6 boyu tətbiq olunub. ✅
+9. Buraxılış artefaktları (nginx, cron, backup, README) — bu fazada tamamlandı. ✅
+
+**Layihə vəziyyəti: bütün 9 fazadan (0-8) ibarət icra planı tamamlanıb.** Qalan işlər yalnız
+sahibkarın özünün etməli olduğu server-tərəfi addımlardır (real Payriff açarları, real domen/SSL,
+real brend loqosu/fontları) — bunların hamısı README-də aydın qeyd olunub.

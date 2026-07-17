@@ -8,8 +8,8 @@ use App\Core\Csrf;
 
 <form method="post" action="/kampaniya/gonder" class="card">
   <div class="field">
-    <label>Hədəf</label>
-    <select name="target">
+    <label for="target">Hədəf</label>
+    <select id="target" name="target">
       <option value="all_drivers">Bütün sürücülər</option>
       <option value="all_customers">Bütün müştərilər</option>
       <option value="route_subscribers">Marşrut abunəçiləri</option>

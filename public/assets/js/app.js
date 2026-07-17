@@ -15,6 +15,100 @@
   }
 
   // ---------------------------------------------------------------
+  // PWA quraşdırma sheet-i (Q-Y13, bölmə 11.3)
+  // ---------------------------------------------------------------
+  const DISMISS_KEY = 'yuk_install_dismissed_at';
+  const INSTALLED_KEY = 'yuk_installed';
+  const DISMISS_DAYS = 3;
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  function isIos() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+  function dismissedRecently() {
+    const at = localStorage.getItem(DISMISS_KEY);
+    if (!at) return false;
+    return (Date.now() - parseInt(at, 10)) < DISMISS_DAYS * 86400000;
+  }
+
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+  });
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem(INSTALLED_KEY, '1');
+    hideInstallSheet();
+    hideInstallReminder();
+  });
+
+  const sheet = document.getElementById('install-sheet');
+  const reminder = document.getElementById('install-reminder');
+
+  function showInstallSheet() {
+    if (!sheet || isStandalone() || localStorage.getItem(INSTALLED_KEY) === '1') {
+      return;
+    }
+    const androidBox = document.getElementById('install-android');
+    const iosBox = document.getElementById('install-ios');
+    if (isIos()) {
+      iosBox.hidden = false;
+      androidBox.hidden = true;
+    } else {
+      androidBox.hidden = false;
+      iosBox.hidden = true;
+    }
+    sheet.hidden = false;
+  }
+  function hideInstallSheet() {
+    if (sheet) sheet.hidden = true;
+  }
+  function showInstallReminder() {
+    if (!reminder || isStandalone() || localStorage.getItem(INSTALLED_KEY) === '1') {
+      return;
+    }
+    reminder.hidden = false;
+  }
+  function hideInstallReminder() {
+    if (reminder) reminder.hidden = true;
+  }
+
+  document.getElementById('install-close')?.addEventListener('click', () => {
+    localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    hideInstallSheet();
+  });
+  document.getElementById('install-reminder-close')?.addEventListener('click', hideInstallReminder);
+  document.getElementById('install-reminder-btn')?.addEventListener('click', showInstallSheet);
+  document.getElementById('install-android-btn')?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) {
+      return;
+    }
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if (choice.outcome === 'accepted' && 'Notification' in window && Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted' && window.YukPush) {
+        window.YukPush.subscribe();
+      }
+    }
+  });
+
+  if (!isStandalone() && localStorage.getItem(INSTALLED_KEY) !== '1') {
+    // Qeydiyyat/giriş bitən kimi (bölmə 6.1): tam ekran sheet, 3 gün cooldown ilə.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('xosgeldin') === '1' && !dismissedRecently()) {
+      showInstallSheet();
+    }
+    // Sürücü rolunda hər lent açılışında nazik xatırlatma zolağı (push kritikdir — cooldown-a tabe deyil).
+    if (body.dataset.role === 'driver' && document.getElementById('feed-list')) {
+      showInstallReminder();
+    }
+  }
+
+  // ---------------------------------------------------------------
   // Web Push abunəliyi (bölmə 11.4) — icazə artıq verilibsə səssiz abunə olunur.
   // Aktiv tələb (permission prompt) FAZA 7-dəki quraşdırma axınında idarə olunur.
   // ---------------------------------------------------------------

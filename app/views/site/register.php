@@ -55,8 +55,8 @@ use App\Core\Lang;
 
     <?php if ($role === 'surucu'): ?>
     <div class="field">
-      <label><?= e(t('auth.vehicle_type')) ?></label>
-      <select name="vehicle_type_id" required>
+      <label for="vehicle_type_id"><?= e(t('auth.vehicle_type')) ?></label>
+      <select id="vehicle_type_id" name="vehicle_type_id" required>
         <option value="">—</option>
         <?php foreach ($vehicleTypes as $vt): ?>
           <option value="<?= (int) $vt['id'] ?>" <?= (int) ($old['vehicle_type_id'] ?? 0) === (int) $vt['id'] ? 'selected' : '' ?>>
@@ -83,7 +83,7 @@ use App\Core\Lang;
   </form>
 
   <p class="text-soft" style="text-align:center;margin-top:16px">
-    <?= e(t('auth.has_account')) ?> <a href="/giris" style="color:var(--amber)"><?= e(t('nav.login')) ?></a>
+    <?= e(t('auth.has_account')) ?> <a href="/giris" class="link-amber"><?= e(t('nav.login')) ?></a>
   </p>
 <?php endif; ?>
 </div>

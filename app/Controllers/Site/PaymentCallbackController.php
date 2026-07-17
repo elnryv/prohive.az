@@ -87,10 +87,10 @@ final class PaymentCallbackController
                 $pdo->rollBack();
                 throw $e;
             }
-        } elseif (in_array($result['status'], ['declined', 'expired', 'reversed'], true)) {
+        } elseif (in_array($result['status'], ['declined', 'canceled'], true)) {
             $upd = DB::conn()->prepare("UPDATE payments SET status = 'failed', raw_response = ? WHERE id = ?");
             $upd->execute([$rawJson, $payment['id']]);
         }
-        // 'created'/pending qalan hallarda heç nə dəyişmir — sonrakı recheck-də yenidən yoxlanılır.
+        // 'pending'/'unknown' qalan hallarda heç nə dəyişmir — sonrakı recheck-də yenidən yoxlanılır.
     }
 }

@@ -193,4 +193,15 @@ return [
         'reminder_body' => 'Abunən 5 gün ərzində bitir — vaxtında yenilə ki, təklif vermə hüququn dayanmasın.',
         'system_activated_body' => 'Abunə sistemi aktivləşdi — {days} gün ərzində ödənişini et.',
     ],
+    'install' => [
+        'title' => 'Qur ki, xəbərin olsun',
+        'subtitle' => 'Yük/təklif gələndə bildiriş alasan deyə telefonuna qur.',
+        'android_cta' => 'Telefonuna qur',
+        'ios_push_note' => 'Qur ki, təklif/yük gələndə xəbərin olsun — bildirişlər yalnız qurulandan sonra işləyir.',
+        'ios_step1' => 'Aşağıda Paylaş düyməsinə bas',
+        'ios_step2' => '"Əsas ekrana əlavə et" seç',
+        'ios_step3' => 'Yuxarıda "Əlavə et"ə bas',
+        'reminder_text' => 'Bildirişlər üçün tətbiqi quraşdır',
+        'reminder_cta' => 'Qur',
+    ],
 ];

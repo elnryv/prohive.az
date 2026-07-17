@@ -24,13 +24,13 @@ use App\Core\Lang;
 <?php endif; ?>
 
 <form method="get" class="admin-toolbar">
-  <select name="status" onchange="this.form.submit()">
+  <select name="status" onchange="this.form.submit()" aria-label="Status filtri">
     <option value="">Bütün statuslar</option>
     <?php foreach (['active','accepted','completed','expired','removed'] as $s): ?>
       <option value="<?= $s ?>" <?= $status === $s ? 'selected' : '' ?>><?= $s ?></option>
     <?php endforeach; ?>
   </select>
-  <select name="scope" onchange="this.form.submit()">
+  <select name="scope" onchange="this.form.submit()" aria-label="Əhatə dairəsi filtri">
     <option value="">Bütün scope-lar</option>
     <option value="baku" <?= $scope === 'baku' ? 'selected' : '' ?>>Bakı</option>
     <option value="intercity" <?= $scope === 'intercity' ? 'selected' : '' ?>>Bölgələrarası</option>

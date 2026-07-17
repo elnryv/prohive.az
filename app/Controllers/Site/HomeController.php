@@ -10,6 +10,6 @@ final class HomeController
 {
     public function index(): void
     {
-        View::render('site/home', ['pageTitle' => null]);
+        View::render('site/home', ['pageTitle' => null, 'noindex' => false]);
     }
 }

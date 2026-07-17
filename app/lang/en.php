@@ -193,4 +193,15 @@ return [
         'reminder_body' => 'Your subscription expires in 5 days — renew in time to keep offering prices.',
         'system_activated_body' => 'The subscription system was activated — pay within {days} days.',
     ],
+    'install' => [
+        'title' => 'Install to stay notified',
+        'subtitle' => 'Install on your phone to get notified about cargo/offers.',
+        'android_cta' => 'Install on phone',
+        'ios_push_note' => 'Install the app to get notified — notifications only work once installed.',
+        'ios_step1' => 'Tap the Share icon below',
+        'ios_step2' => 'Choose "Add to Home Screen"',
+        'ios_step3' => 'Tap "Add" at the top',
+        'reminder_text' => 'Install the app for notifications',
+        'reminder_cta' => 'Install',
+    ],
 ];
