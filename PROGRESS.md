@@ -817,3 +817,49 @@ bilavasitə kod inteqrasiyası tələb olundu. **Rənglər/loqo/layout TOXUNULMA
 - Playwright: sürücü lentinə simulyasiya edilmiş `.card` elementi `prepend()` edildi —
   `getComputedStyle` göstərdi ki, giriş animasiyası (`animationName: "cardIn"`) CSS tərəfindən
   idarə olunur, JS-dən heç bir inline stil münaqişəsi yoxdur.
+
+## FAZA 22 — Real-time-ın HƏQİQİ kök səbəbi: `Last-Event-ID` başlığı GET parametri tərəfindən sükutla e'tibarsız edilirdi ✅ TAMAMLANDI
+
+Sahibkar dəqiq təsvir etdi: sürücü lentində yeni sifariş bilavasitə düşmür, yalnız aşağı
+naviqasiyada başqa bölməyə keçib geri qayıdanda (yəni tam səhifə yenidən yükləndikdə) görünür.
+Bu, FAZA 20-dəki nginx/inline-HTML düzəlişlərindən SONRA da davam edirdi — deməli ayrı, daha
+dərin bir kök səbəb var idi. `app.birlikde.biz`-in (`claude/project-memory-system-m966o7`)
+`SseController::lovhe()`-i ilə birbaşa müqayisə aparıldı və fərq TAPILDI:
+
+### Kök səbəb
+`StreamController::feed()`/`customer()`-də: `$lastId = (int) ($_GET['lastId'] ?? ($_SERVER['HTTP_LAST_EVENT_ID'] ?? 0));`
+`Sse::stream()` hər ~55 saniyədə bağlantını QƏSDƏN bağlayır (uzun-polling dövrü). Brauzerin
+NATIVE `EventSource` avtomatik yenidən-qoşulması bu zaman HƏMİŞƏ İLKİN URL-i (səhifə
+yükləndiyi andakı `?lastId=` dəyəri ilə) təkrar istifadə edir — bunu JS-dən DƏYİŞMƏK MÜMKÜN
+DEYİL. Amma brauzer hər yenidən-qoşulmada DÜZGÜN, son görülən hadisə ID-ni `Last-Event-ID`
+HTTP başlığında avtomatik göndərir (SSE spesifikasiyasının məhz bunun üçün olan hissəsi).
+`$_GET` HƏMİŞƏ dolu olduğundan (`??` heç vaxt geri qayıtmır), server bu düzgün başlığı
+HƏMİŞƏ e'tibarsız edib, donmuş ilkin dəyərdən sorğulamağa davam edirdi. `app.birlikde.biz`-in
+`SseController::lovhe()`-i YALNIZ başlığı oxuyur (`$request->header('Last-Event-ID')`) — GET
+parametri heç yoxdur belə.
+
+### Düzəliş
+- `StreamController::feed()` və `customer()` — sıra dəyişdirildi:
+  `$lastId = (int) ($_SERVER['HTTP_LAST_EVENT_ID'] ?? ($_GET['lastId'] ?? 0));` (başlıq ÖNCƏ,
+  GET yalnız ilk bağlantı üçün ehtiyat kimi qalır, çünki ilk sorğuda hələ başlıq yoxdur).
+
+### Özünüyoxlama nəticələri
+- `php -l` — xətasız.
+- Canlı HTTP səviyyəsində dəqiq reprodüksiya: `sse_events`-ə 3 test hadisəsi əlavə edildi (id
+  3/4/5), sonra giriş edilmiş sürücü sessiyası ilə `curl -H "Last-Event-ID: 4" ".../axin/lent?lastId=2"`
+  çağırıldı (məhz brauzerin real yenidən-qoşulmada göndərəcəyi kimi: köhnə GET + düzgün başlıq).
+  **Düzəlişdən ƏVVƏL** bu sorğu 3 hadisənin HAMISINI (id 3,4,5) qaytarardı (GET=2 üstünlük
+  edirdi); **düzəlişdən SONRA** yalnız id=5 qaytarır (başlıq=4 üstünlük edir) — dəqiq gözlənilən
+  davranış. Başlıqsız (ilkin bağlantı) sorğu isə `lastId=2` GET-dən düzgün istifadə edib bütün 3
+  hadisəni qaytarır — köhnə davranış pozulmayıb.
+- Test sətirləri (`sse_events` id 3-5) təmizləndi, `sse_events` cədvəli əvvəlki vəziyyətinə
+  qaytarıldı.
+
+### Niyə bu, əvvəlki "nginx buferi" düzəlişindən fərqlidir
+FAZA 20-dəki nginx location fix HƏQİQİ idi (SSE ümumiyyətlə çatmırdı). Bu FAZA 22 düzəlişi
+ONDAN SONRA da qalan, DAHA İNCƏ bir problemi həll edir: SSE ÇATIR, connection düzgün açılır,
+AMMA hər ~55 saniyəlik məcburi yenidən-qoşulma dövründə server "unudur" harada qalmışdı və
+köhnə, donmuş nöqtədən sorğulamağa davam edir — kifayət qədər hadisə yığılandan sonra (LIMIT
+100 pəncərəsi keçəndə) tab HEÇ VAXT yeni hadisələrə çatmır, YALNIZ tam səhifə yenilənməsi
+(yəni server-tərəfi təzə `lastEventId` ilə təzə render) vəziyyəti düzəldir — bu, dəqiq
+sahibkarın təsvir etdiyi "bölməyə keçib qayıdanda görünür" simptomudur.

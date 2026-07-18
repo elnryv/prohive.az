@@ -22,7 +22,16 @@ final class StreamController
             return;
         }
         $driverId = (int) Auth::id();
-        $lastId = (int) ($_GET['lastId'] ?? ($_SERVER['HTTP_LAST_EVENT_ID'] ?? 0));
+        // KRİTİK: `Last-Event-ID` başlığı `lastId` GET parametrindən ÖNCƏ oxunmalıdır.
+        // Brauzerin native EventSource avtomatik yenidən-qoşulması (hər ~55s-lik Sse::stream
+        // dövrü bitəndə baş verir) HƏMİŞƏ İLKİN URL-i təkrar istifadə edir — `lastId` GET
+        // parametri səhifə yükləndiyi andakı DƏYƏRDƏ donub qalır, dəyişə bilmir. Amma brauzer
+        // hər yenidən-qoşulmada DÜZGÜN, son görülən ID-ni `Last-Event-ID` başlığında göndərir
+        // (spesifikasiyanın əsas məqsədi budur). Əvvəlki sıra (`$_GET` ilk) bu başlığı HƏMİŞƏ
+        // e'tibarsız edirdi — nəticədə uzun açıq qalan tab köhnə, donmuş nöqtədən sorğulamağa
+        // davam edirdi və yeni elanlar YALNIZ tam səhifə yenilənəndə (tab dəyişəndə) görünürdü.
+        // app.birlikde.biz-in `SseController::lovhe()`-i YALNIZ başlığı oxuyur — eyni səbəbdən.
+        $lastId = (int) ($_SERVER['HTTP_LAST_EVENT_ID'] ?? ($_GET['lastId'] ?? 0));
 
         // KRİTİK: session faylı lock-u burada buraxılmalıdır. PHP-nin fayl-əsaslı sessiya
         // handler-i session_start()-dan session_write_close()-a qədər EXCLUSIVE lock saxlayır —
@@ -37,7 +46,8 @@ final class StreamController
     {
         Auth::requireRole('customer', '/giris');
         $customerId = (int) Auth::id();
-        $lastId = (int) ($_GET['lastId'] ?? ($_SERVER['HTTP_LAST_EVENT_ID'] ?? 0));
+        // Bax feed()-dəki şərh — Last-Event-ID başlığı GET parametrindən ÖNCƏ oxunmalıdır.
+        $lastId = (int) ($_SERVER['HTTP_LAST_EVENT_ID'] ?? ($_GET['lastId'] ?? 0));
 
         session_write_close(); // bax yuxarıdakı şərh (feed())
 
