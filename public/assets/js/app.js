@@ -205,20 +205,31 @@
   }
 
   // ---------------------------------------------------------------
-  // SSE dayanıqlılığı (bölmə 11.5 + FAZA 14/15): ekran kilidlənib açılandan/tab
-  // arxa plandan qayıdandan və şəbəkə "online" hadisəsindən sonra məcburi yenidən
-  // qoşulma (bağlantı zolağından tam asılı olmayan, ayrıca etibarlılıq qatı).
+  // SSE dayanıqlılığı (bölmə 11.5 + FAZA 14/15/22): FAZA 22-də `readyState`-ə
+  // etibar etməyin özü bug mənbəyi olduğu üzə çıxdı — mobil brauzerlərdə (xüsusilə
+  // ekran kilidlənib arxa plana keçəndə) əməliyyat sistemi soketi səssizcə öldürür,
+  // amma JS-in gördüyü `readyState` bunu HEÇ VAXT `CLOSED`-ə çevirmir (zombi
+  // bağlantı) — köhnə şərtli yoxlama (`readyState === CLOSED` olanda YALNIZ onda
+  // yenidən qoşul) bu halda heç vaxt işə düşmürdü. İndi: (1) görünən/online
+  // olanda HƏMİŞƏ məcburi yenidən qoşuluruq (ucuz əməliyyatdır, sağlam bağlantını
+  // bağlayıb identik halda açmaqdan başqa fərq yaratmır), (2) əlavə sağlamlıq
+  // gözətçisi — son mesajdan (ping daxil) bəri 90s+ keçibsə, heç bir hadisə
+  // baş verməsə belə bağlantı sükutla ölmüş sayılır və yenilənir.
   function connectResilientSSE(url, initialLastId, handlers) {
     let es = null;
     let lastId = initialLastId;
+    let lastMessageAt = Date.now();
 
     function open() {
       if (es) es.close();
       const sep = url.includes('?') ? '&' : '?';
       const fullUrl = url + sep + 'lastId=' + encodeURIComponent(lastId);
       es = new EventSource(fullUrl);
+      lastMessageAt = Date.now();
+      es.addEventListener('ping', () => { lastMessageAt = Date.now(); });
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
+          lastMessageAt = Date.now();
           if (e.lastEventId) lastId = e.lastEventId;
           handlers[name](e);
         });
@@ -228,15 +239,15 @@
     open();
 
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && es && es.readyState === EventSource.CLOSED) {
+      if (document.visibilityState === 'visible') open();
+    });
+    window.addEventListener('online', open);
+
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && navigator.onLine && Date.now() - lastMessageAt > 90000) {
         open();
       }
-    });
-    window.addEventListener('online', () => {
-      if (es && es.readyState !== EventSource.OPEN) {
-        open();
-      }
-    });
+    }, 20000);
   }
 
   // ---------------------------------------------------------------

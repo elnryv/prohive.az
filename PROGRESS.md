@@ -863,3 +863,40 @@ köhnə, donmuş nöqtədən sorğulamağa davam edir — kifayət qədər hadis
 100 pəncərəsi keçəndə) tab HEÇ VAXT yeni hadisələrə çatmır, YALNIZ tam səhifə yenilənməsi
 (yəni server-tərəfi təzə `lastEventId` ilə təzə render) vəziyyəti düzəldir — bu, dəqiq
 sahibkarın təsvir etdiyi "bölməyə keçib qayıdanda görünür" simptomudur.
+
+## FAZA 23 — SSE client: "zombi bağlantı" qorunması (push gəlir, ekran yenilənmir) ✅ TAMAMLANDI
+
+FAZA 22-dən sonra sahibkar YENƏ bildirdi: sürücüyə push bildirişi gəlir (deməli hadisə
+publish olunub, mexanizm işləyir), AMMA ekrandakı lent birbaşa yenilənmir. Push-un gəlməsi
+özü sübut edir ki, server-tərəfi hər şey düzgündür — qalan boşluq YALNIZ client-in canlı
+bağlantısında ola bilər.
+
+### Kök səbəb
+`connectResilientSSE()`-də köhnə şərt: `visibilitychange` → `visible` olanda YALNIZ
+`es.readyState === EventSource.CLOSED` olarsa yenidən qoşulurdu. Mobil brauzerlərdə (xüsusilə
+ekran kilidlənib tətbiq arxa plana keçəndə) əməliyyat sistemi TCP soketini səssizcə öldürür,
+amma JS-in gördüyü `EventSource.readyState` bunu HEÇ VAXT `CLOSED`-ə çevirmir — "zombi
+bağlantı" (JS-ə görə hələ `OPEN`, əslində ölü). Bizim `Sse::stream()` hər ~55 saniyədə
+məcburi dövr etdiyi üçün (`app.birlikde.biz`-in 1 saatlıq dövrünə qarşı) bu boşluğa məruz
+qalma ehtimalı ~65 dəfə çoxdur.
+
+### Düzəliş (`connectResilientSSE`, `app.js`)
+- `visibilitychange`→`visible` və `online` hadisələrində artıq `readyState` YOXLANMIR —
+  HƏMİŞƏ məcburi yenidən qoşulma (`open()`) baş verir. Sağlam bağlantını bağlayıb eyni
+  vəziyyətdə yenidən açmaq ucuzdur, amma zombi bağlantı ehtimalını tam aradan qaldırır.
+- Yeni sağlamlıq gözətçisi (`setInterval`, 20s): son mesajdan (adi hadisə VƏ YA `ping`
+  adlı hadisə) bəri 90 saniyədən çox keçibsə — heç bir `visibilitychange`/`online`
+  hadisəsi olmasa BELƏ (məs. masaüstü tab fokusda qalıb, amma şəbəkə səssizcə kəsilib) —
+  bağlantı ölmüş sayılır və yenilənir.
+- `app.birlikde.biz`-in `SseController::lovhe()`-i ilə müqayisə: onların `es.onerror` heç
+  nə etmir, sadəcə brauzerin öz avtomatik reconnect-inə etibar edir — bu, ONLARDA işləyir,
+  çünki dövr müddəti 1 saatdır (nadir hallarda reconnect lazım olur). Bizdə dövr 55
+  saniyədir — eyni "sadəlövh etibar" yanaşması bizdə uğursuz olur, ona görə əlavə,
+  daha aqressiv qoruma qatı əlavə edildi.
+
+### Özünüyoxlama nəticələri
+- `node --check public/assets/js/app.js` — xətasız.
+- Playwright: sürücü lentini aç → `visibilitychange` sintetik hadisəsi ilə "arxa plana
+  keçib qayıtma" simulyasiya edildi → `/axin/lent` sorğusu sayı 1-dən 2-yə qalxdı
+  (məcburi yenidən qoşulma baş verdi, əvvəlki kodda BU BAŞ VERMİRDİ, çünki
+  `readyState` hələ `OPEN` görünürdü). Sıfır konsol xətası.
