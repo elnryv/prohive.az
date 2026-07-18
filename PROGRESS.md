@@ -942,3 +942,38 @@ faydanı azalda bilər, YENİ problem yaratmır, çünki brauzer bunu normal ba�
 görüb avtomatik reconnect edəcək). Sahibkardan xahiş: `grep -n request_terminate_timeout
 /www/server/php/*/etc/php-fpm.conf` (aaPanel) ilə yoxlasın, sıfır və ya boşdursa (defolt,
 limitsiz deməkdir) heç nə etməyə ehtiyac yoxdur.
+
+## FAZA 25 — Splash "tam bağlanıb-açılma"da göstərilmirdi: kuki-əsaslı aşkarlama PWA-da işləmir ✅ TAMAMLANDI
+
+Sahibkar: "splash ekran hər dəfə girəndə açmır, arxa fonda bağlı olsa yenidən girsəm açmır."
+FAZA 18/19-dakı dizayn `Auth::establishSession()`-un YALNIZ 3 halda (qeydiyyat/giriş/"yaddaş
+saxla" bərpası) işə düşməsinə əsaslanırdı — bərpa YALNIZ `yuk_sess` sessiya kukisi YOX olanda
+baş verir. Fərziyyə: tətbiq TAM bağlanıb-açılanda kuki itir. **Bu fərziyyə YANLIŞ çıxdı.**
+iOS-da (və bir çox "Ana ekrana əlavə et" PWA mühitində) sessiya kukiləri AYRI, tətbiqin öz
+prosesindən asılı olmayan bir OS-səviyyəli anbarda saxlanılır — tətbiq öldürülüb yenidən
+açılanda kuki demək olar HEÇ VAXT itmir. Nəticədə server "tam yenidən açılma" halını
+demək olar HEÇ VAXT görmür, `show_splash_once` qoyulmur, splash göstərilmir.
+
+### Düzəliş — iki mənbəli (OR) qərar
+- `layouts/app.php` — splash markup-u artıq HƏMİŞƏ DOM-a yazılır (`hidden`), server
+  bayrağı (`$showSplash`) `partials/splash`-a `forceShow` kimi ötürülür, PHP-səviyyəli
+  şərti render LƏĞV EDİLDİ.
+- `partials/splash.php` — `#splash`-a `data-force="1|0"` atributu əlavə olundu.
+- `splash.js` — qərar məntiqi: `sessionStorage.getItem('birlikde_splash_seen')`. Server
+  `forceShow=1` DEYİLSə VƏ bu JS icra konteksti ərzində artıq göstərilibsə, splash SİLİNİR
+  (göstərilmir). Əks halda göstərilir və bayraq qoyulur. `sessionStorage` — kukidən fərqli
+  olaraq — HƏR JS icra konteksti (tab/WebView instansı) üçün AYRICA saxlanılır və kontekst
+  HƏQİQƏTƏN yenidən yaradılanda (tətbiq öldürülüb yenidən açılanda) sıfırlanır — məhz server
+  kukisinin aşkarlaya bilmədiyi halı dəqiq aşkarlayır.
+- Nəticə: (1) fresh giriş/qeydiyyat → HƏMİŞƏ göstərilir (server məcburi edir); (2) adi
+  səhifə keçidi (eyni tab davam edir) → BİR DƏFƏ göstərilib bir daha göstərilmir; (3) tətbiq
+  öldürülüb yenidən açılanda (JS konteksti təzələnir) → sessiya kukisi hələ etibarlı olsa
+  BELƏ YENİDƏN göstərilir — məhz sahibkarın istədiyi düzəliş.
+
+### Özünüyoxlama nəticələri
+- `php -l`, `node --check` — xətasız.
+- Playwright, 3 ssenari: (1) fresh giriş → splash mövcud (gözlənilən: var) ✅; (2) adi
+  naviqasiya (eyni tab) → görünmür (gözlənilən: yox) ✅; (3) `sessionStorage.clear()` +
+  reload (kuki/sessiya TOXUNULMADAN, real "bağla-yenidən aç"ı simulyasiya edir) → splash
+  YENİDƏN görünür (gözlənilən: var) ✅ — məhz FAZA 18/19-un aşkarlaya bilmədiyi hal.
+  Sıfır konsol xətası.

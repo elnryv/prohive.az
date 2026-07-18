@@ -51,19 +51,24 @@ $manifestFile = match ($user['role'] ?? null) {
 </head>
 <body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
 <?php
-// Splash YALNIZ 3 real haldan birində göstərilir: qeydiyyat, giriş, ya da "yaddaş
-// saxla" ilə sessiyanın YENİDƏN qurulması (bu da yalnız PHP sessiya kukisi itibsə baş
-// verir — yəni tətbiq TAM bağlanıb yenidən açılıbsa). Bayraq `Auth::establishSession()`
-// içində qoyulur (bax App\Core\Auth) — bu metod məhz yalnız bu 3 halda çağırılır, adi
-// arxa-plan-keçidində/naviqasiyada mövcud sessiya sadəcə davam etdiyi üçün toxunulmur.
-// Oxunan kimi dərhal silinir ki, bir dəfədən çox (növbəti səhifələrdə) göstərməsin.
+// FAZA 25: server YALNIZ 3 real haldan birini bilə bilər: qeydiyyat, giriş, "yaddaş
+// saxla" ilə sessiyanın YENİDƏN qurulması. Bayraq `Auth::establishSession()`-da qoyulur.
+// AMMA real cihazlarda (xüsusilə iOS-da "Ana ekrana əlavə et" ilə açılan PWA-da) tətbiq
+// TAM bağlanıb yenidən açılsa BELƏ, `yuk_sess` sessiya kukisi çox vaxt YOX OLMUR — kuki
+// saxlanması ayrı bir OS-səviyyəli proses tərəfindən idarə olunur, tətbiqin öz prosesi
+// öldürüləndə bu YOX olmur. Nəticədə server "tam bağlanıb-açılma" halını heç vaxt görmür,
+// splash YENİDƏN AÇILANDA göstərilmir (sahibkarın bildirdiyi bug). Buna görə server
+// bayrağına ƏLAVƏ olaraq client-tərəfi `sessionStorage` siqnalı əlavə olunur (bax
+// splash.js) — bu, kukidən fərqli olaraq, JS icra konteksti HƏQİQƏTƏN yenidən
+// yaradılanda (tətbiq öldürülüb yenidən açılanda) sıfırlanır, adi səhifə keçidində isə
+// (eyni tab/WebView instansı davam edir) qorunur. Splash markup-u İNDİ HƏMİŞƏ DOM-a
+// yazılır (gizli, `hidden`), son qərarı client verir — server bayrağı yalnız "MƏCBURİ
+// GÖSTƏR" siqnalı kimi ötürülür.
 $showSplash = !empty($_SESSION['show_splash_once']);
 if ($showSplash) {
     unset($_SESSION['show_splash_once']);
 }
-if ($showSplash): ?>
-<?php \App\Core\View::partial('partials/splash'); ?>
-<?php endif; ?>
+\App\Core\View::partial('partials/splash', ['forceShow' => $showSplash]); ?>
 <?php \App\Core\View::partial('partials/bg_blobs'); ?>
 <header class="top-bar">
   <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>

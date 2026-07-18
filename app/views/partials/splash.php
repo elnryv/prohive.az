@@ -1,4 +1,5 @@
-<div id="splash" class="splash" hidden>
+<?php /** @var bool $forceShow Server "mütləq göstər" bayrağı — bax layouts/app.php. */ ?>
+<div id="splash" class="splash" data-force="<?= !empty($forceShow) ? '1' : '0' ?>" hidden>
   <div class="splash-mark-wrapper">
     <div class="splash-glow"></div>
     <div class="splash-mark">
