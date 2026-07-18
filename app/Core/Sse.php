@@ -29,6 +29,37 @@ final class Sse
     }
 
     /**
+     * FAZA 28: EventSource-dan TAMAMİLƏ ASILI OLMAYAN ehtiyat mexanizmi — client bunu
+     * bir neçə saniyədə bir sadə fetch() ilə çağırır. Safari-nin EventSource-u bağlantını
+     * bərpa edə bilmədiyi (və ya heç açılmadığı) HƏR HANSI hal bundan asılı olmayaraq
+     * işləyir, çünki bu, adi tək-dəfəlik HTTP sorğusudur — brauzer keyfiyyəti/EventSource
+     * dəstəyi/reconnect məntiqi ÜMUMİYYƏTLƏ İŞƏ QARIŞMIR.
+     *
+     * @param string[] $channels
+     * @return array<int, array{id:int, channel:string, event:string, payload:array}>
+     */
+    public static function poll(array $channels, int $lastEventId): array
+    {
+        $placeholders = implode(',', array_fill(0, count($channels), '?'));
+        $stmt = DB::conn()->prepare(
+            "SELECT id, channel, event, payload FROM sse_events
+             WHERE channel IN ({$placeholders}) AND id > ? ORDER BY id ASC LIMIT 100"
+        );
+        $stmt->execute([...$channels, $lastEventId]);
+
+        $out = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $out[] = [
+                'id' => (int) $row['id'],
+                'channel' => (string) $row['channel'],
+                'event' => (string) $row['event'],
+                'payload' => json_decode((string) $row['payload'], true),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * @param string[] $channels
      */
     public static function stream(array $channels, int $lastEventId = 0): void

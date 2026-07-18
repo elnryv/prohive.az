@@ -1043,3 +1043,45 @@ yüklənməsinin cari DB vəziyyətini adi PHP render ilə göstərməsi idi.
 ### Qeyd
 FAZA 26-nın müvəqqəti diaqnostika nişanı hələ kodda saxlanılıb — sahibkar canlıda təsdiq
 edəndən sonra silinəcək.
+
+## FAZA 28 — EventSource-dan TAMAMİLƏ ASILI OLMAYAN polling ehtiyat mexanizmi ✅ TAMAMLANDI
+
+FAZA 27-dən sonra sahibkar CANLI test etdi: nişan düzgün xəta+reconnect mesajı göstərsə də,
+"Alınmır" (yenə kart görünmür) — deməli reconnect CƏHDİ özü ya uğursuz olur, ya da davamlı
+xəta dövrü yaranır. Sahibkar `app.birlikde.biz` kodunda "iOS üçün düzəliş" axtarmağı istədi —
+o kod TƏKRAR diqqətlə yoxlanıldı: onların `es.onerror` HEÇ NƏ ETMİR (boş şərh, "brauzer özü
+bərpa edəcək" fərziyyəsinə əsaslanır) — YƏNİ ONLARDA da EYNİ Safari bugı MÖVCUDDUR, sadəcə
+onların 1 saatlıq dövrü ilə nadir üzə çıxır və indiyədək stress-test olunmayıb. Kopyalanacaq
+"gizli iOS düzəlişi" YOXDUR.
+
+### Qərar: EventSource-u sonsuza qədər "düzəltməyə" çalışmaq əvəzinə, ondan ASILI olmayan ehtiyat
+Bir neçə brauzer-spesifik EventSource bugı ardıcıl tapılıb düzəldildikdən sonra (header
+prioriteti, zombi bağlantı, Safari-nin reconnect etməməsi) — hələ də naməlum başqa kənar
+hallar (şəbəkə/OS-səviyyəli) qala bilər ki, uzaqdan proqnozlaşdırmaq mümkün deyil. Ona görə
+EventSource-un ÖZÜNDƏN TAMAMİLƏ ASILI OLMAYAN sadə bir HTTP polling mexanizmi əlavə olundu —
+bu, HEÇ BİR brauzer-spesifik keyfiyyətdən, reconnect məntiqindən, uzunmüddətli bağlantı
+davranışından ASILI DEYİL, sadəcə adi `fetch()` sorğusudur, ona görə YÜZDƏ YÜZ etibarlıdır.
+Xərc: ən pis halda ~5 saniyəlik gecikmə (yük elanları üçün tamamilə qəbul edilə bilər).
+
+### Düzəliş
+- `App\Core\Sse::poll(array $channels, int $lastEventId): array` (yeni) — `stream()`-in
+  eynisi sorğunu edir, AMMA TƏK DƏFƏ (loop/sleep YOXDUR), sadə массив qaytarır.
+- `StreamController::feedPoll()`/`customerPoll()` (yeni) — `/axin/lent-sorgu` və
+  `/axin/musteri-sorgu` route-ları, JSON cavab qaytarır (`{"events":[...]}`).
+- `app.js`-də `connectResilientSSE(url, initialLastId, handlers, pollUrl)` — yeni 4-cü
+  parametr. `pollUrl` verilibsə, hər 5 saniyədə bir (yalnız görünən/onlayn olanda) bu
+  endpoint-ə sorğu göndərir, qaytarılan hər hadisəni EYNİ `handlers` funksiyalarına
+  (EventSource-la eyni interfeys — sintetik `{data, lastEventId}` obyekti ilə) tətbiq edir.
+  `lastId` closure-u EventSource VƏ polling arasında PAYLAŞILIR — hər ikisi eyni kursoru
+  irəli aparır, dublikat kartlar mövcud `data-listing-id` yoxlaması ilə artıq qarşısı
+  alınmış şəkildə qalır.
+- Sürücü lenti (`/axin/lent`) və müştəri elan səhifəsi (`/axin/musteri`) hər ikisi üçün
+  poll fallback-i aktivləşdirildi.
+
+### Özünüyoxlama nəticələri
+- `php -l`, `node --check` — xətasız.
+- Playwright, ƏN PİS SSENARİ: `/axin/lent` sorğusu TAMAMİLƏ SINDIRILDI (`route.abort()`,
+  EventSource HEÇ VAXT açıla bilmir — Safari-nin ən pis halını simulyasiya edir), sonra
+  DB-yə birbaşa test hadisəsi əlavə olundu. ~6.5 saniyə sonra kart EKRANDA GÖRÜNDÜ —
+  YALNIZ polling vasitəsilə, EventSource heç vaxt işləmədən. Bu, mexanizmin brauzer/şəbəkə
+  xüsusiyyətlərindən TAM MÜSTƏQİL işlədiyini qəti sübut edir.

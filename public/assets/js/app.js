@@ -215,7 +215,7 @@
   // bağlayıb identik halda açmaqdan başqa fərq yaratmır), (2) əlavə sağlamlıq
   // gözətçisi — son mesajdan (ping daxil) bəri 90s+ keçibsə, heç bir hadisə
   // baş verməsə belə bağlantı sükutla ölmüş sayılır və yenilənir.
-  function connectResilientSSE(url, initialLastId, handlers) {
+  function connectResilientSSE(url, initialLastId, handlers, pollUrl) {
     let es = null;
     let lastId = initialLastId;
     let lastMessageAt = Date.now();
@@ -285,6 +285,37 @@
         open();
       }
     }, 20000);
+
+    // FAZA 28: EventSource-dan TAMAMİLƏ ASILI OLMAYAN polling ehtiyat mexanizmi.
+    // Nə qədər EventSource-un özündə (Safari-nin reconnect etməməsi kimi) qırıq
+    // olursa olsun, bu sadə fetch() HƏR BRAUZERDƏ eyni işləyir — çünki heç bir
+    // uzunmüddətli bağlantı/reconnect məntiqindən asılı deyil, sadəcə adi sorğudur.
+    if (pollUrl) {
+      setInterval(() => {
+        if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+        const sep = pollUrl.includes('?') ? '&' : '?';
+        fetch(pollUrl + sep + 'lastId=' + encodeURIComponent(lastId))
+          .then((res) => (res.ok ? res.json() : null))
+          .then((body) => {
+            const events = (body && body.events) || [];
+            events.forEach((item) => {
+              lastId = String(item.id);
+              lastMessageAt = Date.now();
+              const handler = handlers[item.event];
+              if (handler) {
+                handler({
+                  data: JSON.stringify({ channel: item.channel, payload: item.payload }),
+                  lastEventId: String(item.id),
+                });
+              }
+            });
+            if (events.length > 0) setBadge('SSE: poll ilə ' + events.length + ' hadisə alındı, lastId=' + lastId);
+          })
+          .catch(() => {
+            // Səssizcə keç — 5s sonra növbəti dövr yenidən cəhd edəcək.
+          });
+      }, 5000);
+    }
   }
 
   // ---------------------------------------------------------------
@@ -342,7 +373,7 @@
       offer_accepted: () => {
         // Bu sürücünün təklifi qəbul olunub — "Təkliflərim" səhifəsi növbəti ziyarətdə yenilənəcək.
       },
-    });
+    }, '/axin/lent-sorgu');
   }
 
   // ---------------------------------------------------------------
@@ -362,7 +393,7 @@
       offer_new: onListingEvent,
       offer_updated: onListingEvent,
       accepted: onListingEvent,
-    });
+    }, '/axin/musteri-sorgu');
   }
 
   // ---------------------------------------------------------------
