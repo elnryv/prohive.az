@@ -1,12 +1,7 @@
 <div id="splash" class="splash" hidden>
-  <div class="particles" id="particles"></div>
-  <div class="bg-lines" id="bgLines">
-    <span></span><span></span><span></span><span></span>
-    <span></span><span></span><span></span><span></span>
-  </div>
-
-  <div class="logo-wrapper" id="logoWrapper">
-    <div class="logo" id="logo">
+  <div class="splash-mark-wrapper">
+    <div class="splash-glow"></div>
+    <div class="splash-mark">
       <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -22,18 +17,13 @@
     </div>
   </div>
 
-  <div class="text-wrapper" id="textWrapper">
-    <h1 class="title" id="title">Birlikdə</h1>
-    <h2 class="subtitle" id="subtitle">Yük</h2>
-    <p class="slogan" id="slogan"><?= e(t('home.splash_slogan')) ?></p>
+  <div class="splash-word">
+    <h1 class="title">Birlikdə</h1>
+    <h2 class="subtitle">Yük</h2>
+    <p class="slogan"><?= e(t('home.splash_slogan')) ?></p>
   </div>
 
-  <div class="loader-wrapper" id="loaderWrapper">
-    <div class="loader" id="loader">
-      <div class="loader-bar" id="loaderBar"></div>
-    </div>
-    <span class="loader-text" id="loaderText">0%</span>
-  </div>
+  <div class="splash-loadbar"><span></span></div>
 </div>
 <?php
 // CSP (script-src 'self') xarici skriptə (GSAP CDN daxil) icazə vermir, buna görə

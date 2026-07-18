@@ -28,6 +28,10 @@
   --shadow-card: 0 2px 12px rgba(20, 22, 27, .06);
   --font-head: 'Space Grotesk', 'BY Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: 'Manrope', 'BY Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* FAZA 21: app.birlikde.biz-dən köçürülmüş hərəkət tokenləri (rəngdən asılı deyil) —
+     --bounce: sıçrayışlı giriş (kart/düymə/splash mark), --smooth: yumşaq səhifə keçidi. */
+  --bounce: cubic-bezier(.34, 1.56, .64, 1);
+  --smooth: cubic-bezier(.2, 1, .3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -120,7 +124,9 @@ a { color: inherit; text-decoration: none; }
   margin: 0 auto;
   padding: 16px;
   overflow-wrap: break-word;
+  animation: pageIn .4s var(--smooth);
 }
+@keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 .card {
   background: var(--card);
@@ -129,10 +135,18 @@ a { color: inherit; text-decoration: none; }
   padding: 16px;
   margin-bottom: 12px;
   box-shadow: var(--shadow-card);
-  transition: background .15s ease, box-shadow .15s ease, transform .15s ease;
+  opacity: 0;
+  transform: translateY(14px) scale(.98);
+  animation: cardIn .5s var(--bounce) forwards;
+  transition: background .15s ease, box-shadow .15s ease, transform .12s var(--bounce);
 }
+@keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
 .card:hover { background: var(--card-hi); }
-.card:active { transform: scale(.99); }
+.card:active { transform: scale(.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .container, .card { animation: none; opacity: 1; transform: none; }
+}
 
 .icon-badge-sm {
   width: 36px; height: 36px;
@@ -158,17 +172,18 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer;
   background: var(--card);
   color: var(--txt);
+  transition: transform .12s var(--bounce);
 }
 .btn-amber {
   background: linear-gradient(135deg, var(--primary-soft), var(--primary));
   color: var(--on-primary);
   border: none;
   box-shadow: 0 4px 14px rgba(47, 111, 237, .32);
-  transition: transform .15s ease, box-shadow .15s ease;
+  transition: transform .12s var(--bounce), box-shadow .15s ease;
 }
 .btn-amber:hover { box-shadow: 0 6px 18px rgba(47, 111, 237, .4); }
-.btn-amber:active { transform: scale(.97); box-shadow: 0 2px 8px rgba(47, 111, 237, .3); }
-.btn-outline:active, .btn:active { transform: scale(.97); }
+.btn-amber:active { transform: scale(.94); box-shadow: 0 2px 8px rgba(47, 111, 237, .3); }
+.btn-outline:active, .btn:active { transform: scale(.94); }
 .btn-outline {
   background: transparent;
   border: 1px solid var(--primary);
@@ -308,9 +323,9 @@ label { display: block; font-size: 13px; color: var(--txt-soft); margin-bottom: 
   line-height: 1;
   padding: 0;
   box-shadow: 0 8px 20px rgba(47, 111, 237, .4);
-  transition: transform .15s ease, box-shadow .15s ease;
+  transition: transform .12s var(--bounce), box-shadow .15s ease;
 }
-.bottom-nav .fab:active { transform: scale(.93); box-shadow: 0 4px 12px rgba(47, 111, 237, .35); }
+.bottom-nav .fab:active { transform: scale(.9); box-shadow: 0 4px 12px rgba(47, 111, 237, .35); }
 .bottom-nav .fab.active { color: var(--on-primary); }
 
 .empty-state, .error-state {
@@ -745,17 +760,13 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
 }
 .install-reminder .install-close { color: var(--on-primary); position: static; margin-left: auto; }
 
-/* Splash (bölmə 10.2 + FAZA 15/16): sahibkarın verdiyi GSAP ssenarisi əsasında, sonra
-   canlı istifadəçi rəyinə görə yük maşını B hərfinin üstündən LƏĞV OLUNDU (yalnız B
-   hərfi + sürət-xətləri qalır). GSAP CDN CSP (`script-src 'self'`) tərəfindən
-   bloklanacağı üçün (sınanıldı — proksi 403 verdi) vaxt cədvəli saf CSS keyframe
-   `animation-delay`-lə, loader faizi isə minimal JS (rAF) ilə bərpa olunub. Tünd fon
-   DƏRHAL solid görünür (fade YOXDUR) ki, açıq mövzulu səhifəyə keçiddə "flaş" olmasın.
-   FAZA 20: real istifadəçi Safari-də "gecikmə/pis animasiya" şikayət etdi — orijinal
-   ~6s teatral versiya yüngülləşdirilib, ~2.6s-ə sıxılıb (referans layihənin sadə,
-   sürətli splash-ına uyğun). Vaxt cədvəli (saniyə, animation-delay): logo-wrapper 0s,
-   b-letter .25s, speed-line .4/.45/.5s, text-wrapper .6s, title .7s, subtitle .85s,
-   slogan 1.0s, loader-wrapper 1.2s, loader-bar/-text 1.4s (JS, 1s), çıxış ~2.5-2.9s. */
+/* Splash (bölmə 10.2 + FAZA 15/16/21): FAZA 21-də app.birlikde.biz-in splash
+   ritminə uyğunlaşdırıldı — hissəcik sahəsi, arxa fon xətləri və canlı faiz
+   sayğacı silindi, yerinə mark pop+pulse, radar-halqa, glow-pulse və söz-bounce
+   gəldi (rənglər/loqo DƏYİŞMİR, yalnız hərəkət ritmi). Tünd fon DƏRHAL solid
+   görünür (fade YOXDUR) ki, açıq mövzulu səhifəyə keçiddə "flaş" olmasın. Ümumi
+   müddət ~1.9s: mark 0s, pulse .5s (2 dəfə), halqalar .15s/.75s (infinite),
+   glow .1s, söz .7s, slogan 1.1s, loadbar 1.3s, çıxış ~1.9s (bax splash.js). */
 .splash {
   position: fixed; inset: 0; z-index: 200;
   background: radial-gradient(ellipse at bottom, #0d1117 0%, #050608 100%);
@@ -766,137 +777,110 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
 }
 .splash.splash-hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
 
-.splash .particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-.splash .particle {
-  position: absolute;
-  width: 2px; height: 2px;
-  background: #2196f3;
-  border-radius: 50%;
-  opacity: 0;
-  animation: splash-particle-drift var(--dur, 2.5s) ease-in-out var(--delay, 0s) infinite alternate;
-}
-@keyframes splash-particle-drift {
-  0% { opacity: 0; transform: translateY(0); }
-  50% { opacity: var(--peak, .5); }
-  100% { opacity: 0; transform: translateY(var(--dy, -50px)); }
-}
-
-.splash .bg-lines { position: absolute; inset: 0; overflow: hidden; }
-.splash .bg-lines span {
-  position: absolute;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #2196f3, transparent);
-  border-radius: 2px;
-  opacity: 0;
-}
-.splash .bg-lines span:nth-child(1) { top: 20%; width: 40%; animation: splash-line-move 1.2s ease-out .2s forwards; }
-.splash .bg-lines span:nth-child(2) { top: 30%; width: 60%; animation: splash-line-move 1.4s ease-out .3s forwards; }
-.splash .bg-lines span:nth-child(3) { top: 40%; width: 80%; animation: splash-line-move 1.6s ease-out .4s forwards; }
-.splash .bg-lines span:nth-child(4) { top: 50%; width: 50%; animation: splash-line-move 1.2s ease-out .5s forwards; }
-.splash .bg-lines span:nth-child(5) { top: 60%; width: 70%; animation: splash-line-move 1.4s ease-out .6s forwards; }
-.splash .bg-lines span:nth-child(6) { top: 70%; width: 40%; animation: splash-line-move 1.2s ease-out .7s forwards; }
-.splash .bg-lines span:nth-child(7) { top: 80%; width: 60%; animation: splash-line-move 1.4s ease-out .8s forwards; }
-.splash .bg-lines span:nth-child(8) { top: 90%; width: 30%; animation: splash-line-move 1.2s ease-out .9s forwards; }
-@keyframes splash-line-move {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(100%); opacity: 1; }
-}
-
-.splash .logo-wrapper {
+.splash-mark-wrapper {
   position: relative;
-  transform: scale(.6);
-  opacity: 0;
-  margin-bottom: 20px;
-  animation: splash-logo-wrapper-in .4s cubic-bezier(.22, 1, .36, 1) 0s forwards;
+  width: 180px; height: 180px;
+  display: flex; align-items: center; justify-content: center;
 }
-@keyframes splash-logo-wrapper-in { to { transform: scale(1); opacity: 1; } }
-.splash .logo { width: 180px; height: 180px; }
-.splash .logo svg { width: 100%; height: 100%; overflow: visible; }
+.splash-mark-wrapper::before, .splash-mark-wrapper::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid #2196f3;
+  opacity: 0;
+  animation: splashRingPing 1.8s ease-out .15s infinite;
+}
+.splash-mark-wrapper::after { animation-delay: .75s; }
 
-.splash .b-letter {
+.splash-glow {
+  position: absolute; inset: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(33, 150, 243, .55) 0%, rgba(33, 150, 243, 0) 70%);
   opacity: 0;
-  transform: translateY(40px);
-  transform-origin: 165px 148px;
-  animation: splash-rise-in .35s cubic-bezier(.22, 1, .36, 1) .25s forwards;
+  transform: scale(.2);
+  animation: splashGlowPulse .8s ease-out .1s forwards;
 }
-.splash .speed-line {
+
+.splash-mark {
+  position: relative;
+  width: 100%; height: 100%;
+  opacity: 0;
+  transform: scale(.3);
+  animation: splashMarkPop .5s var(--bounce) forwards, splashMarkPulse .5s ease-in-out .5s 2;
+}
+.splash-mark svg { width: 100%; height: 100%; overflow: visible; }
+@keyframes splashMarkPop { to { opacity: 1; transform: scale(1); } }
+@keyframes splashMarkPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes splashRingPing { 0% { opacity: .65; transform: scale(1); } 100% { opacity: 0; transform: scale(2.4); } }
+@keyframes splashGlowPulse {
+  0% { opacity: 0; transform: scale(.2); }
+  35% { opacity: 1; }
+  100% { opacity: .55; transform: scale(1.35); }
+}
+
+.splash-mark .speed-line {
   opacity: 0;
   transform: translateX(-60px);
   animation: splash-slide-x-in .3s ease-out forwards;
 }
-.splash .speed-line:nth-of-type(1) { animation-delay: .4s; }
-.splash .speed-line:nth-of-type(2) { animation-delay: .45s; }
-.splash .speed-line:nth-of-type(3) { animation-delay: .5s; }
-@keyframes splash-rise-in { to { opacity: 1; transform: translateY(0); } }
+.splash-mark .speed-line:nth-of-type(1) { animation-delay: .3s; }
+.splash-mark .speed-line:nth-of-type(2) { animation-delay: .35s; }
+.splash-mark .speed-line:nth-of-type(3) { animation-delay: .4s; }
 @keyframes splash-slide-x-in { to { opacity: 1; transform: translateX(0); } }
 
-.splash .text-wrapper {
-  margin-top: 30px;
+.splash-word {
+  margin-top: 28px;
   text-align: center;
   opacity: 0;
-  animation: splash-fade-in .3s ease .6s forwards;
+  transform: scale(.6);
+  animation: splashWordBounce .6s var(--bounce) .7s forwards;
 }
-.splash .title, .splash .subtitle, .splash .slogan {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: splash-rise-in .3s ease forwards;
-}
-.splash .title {
+@keyframes splashWordBounce { to { opacity: 1; transform: scale(1); } }
+.splash-word .title {
   font-family: var(--font-head);
   font-size: 36px;
   font-weight: 600;
   letter-spacing: 1px;
-  animation-delay: .7s;
 }
-.splash .subtitle {
+.splash-word .subtitle {
   font-family: var(--font-head);
   font-size: 42px;
   font-weight: 700;
   color: #2196f3;
   margin-top: -5px;
-  animation-delay: .85s;
 }
-.splash .slogan {
+.splash-word .slogan {
   font-size: 13px;
   color: #a0a7b5;
   max-width: 260px;
   margin: 8px auto 0;
-  animation-delay: 1.0s;
+  opacity: 0;
+  animation: splash-fade-in .3s ease 1.1s forwards;
 }
 @keyframes splash-fade-in { to { opacity: 1; } }
 
-.splash .loader-wrapper {
-  margin-top: 40px;
-  width: 70%; max-width: 280px;
-  opacity: 0;
-  animation: splash-fade-in .3s ease 1.2s forwards;
-}
-.splash .loader {
-  width: 100%; height: 6px;
+.splash-loadbar {
+  margin-top: 36px;
+  width: 70%; max-width: 220px;
+  height: 6px;
   background: #1a1f2b;
   border-radius: 50px;
   overflow: hidden;
-  position: relative;
+  opacity: 0;
+  animation: splash-fade-in .3s ease 1.3s forwards;
 }
-.splash .loader-bar {
-  height: 100%; width: 0%;
+.splash-loadbar span {
+  display: block;
+  width: 45%; height: 100%;
+  border-radius: 50px;
   background: linear-gradient(90deg, #2196f3, #64b5f6);
   box-shadow: 0 0 15px rgba(33, 150, 243, .6);
 }
-.splash .loader-text {
-  display: block;
-  text-align: center;
-  font-size: 12px;
-  color: #a0a7b5;
-  margin-top: 6px;
-  opacity: 0;
-  animation: splash-fade-in .3s ease 1.4s forwards;
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .splash .particle, .splash .bg-lines span, .splash .logo-wrapper, .splash .b-letter,
-  .splash .speed-line, .splash .text-wrapper, .splash .title, .splash .subtitle,
-  .splash .slogan, .splash .loader-wrapper, .splash .loader-text {
+  .splash-mark-wrapper::before, .splash-mark-wrapper::after, .splash-glow,
+  .splash-mark, .splash-mark .speed-line, .splash-word, .splash-word .slogan,
+  .splash-loadbar {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

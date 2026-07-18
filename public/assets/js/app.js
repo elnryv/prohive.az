@@ -217,15 +217,8 @@
       const sep = url.includes('?') ? '&' : '?';
       const fullUrl = url + sep + 'lastId=' + encodeURIComponent(lastId);
       es = new EventSource(fullUrl);
-      // MÜVƏQQƏTİ DİAQNOSTİKA (FAZA 20) — real-time problemi araşdırmaq üçün. Brauzerin
-      // Konsol (Console) sekmesində görünür, istifadəçiyə görünməz. Problem tapılandan
-      // sonra silinəcək.
-      console.log('[SSE] açılır:', fullUrl);
-      es.onopen = () => console.log('[SSE] qoşuldu:', fullUrl);
-      es.onerror = () => console.log('[SSE] error, readyState=', es.readyState, fullUrl);
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
-          console.log('[SSE] hadisə alındı:', name, e.data);
           if (e.lastEventId) lastId = e.lastEventId;
           handlers[name](e);
         });
@@ -265,27 +258,19 @@
     const handleListingNew = (e) => {
       const data = JSON.parse(e.data);
       const listingId = data.payload.listing_id;
-      console.log('[SSE] listing payload:', listingId, 'scope=', data.payload.scope, 'gözlənilən=', currentScope, 'html var?', !!data.payload.html);
       if (!data.payload.html || data.payload.scope !== currentScope) {
-        console.log('[SSE] kart göstərilmir (uyğun deyil və ya html yoxdur)');
         return;
       }
       if (feedList.querySelector('[data-listing-id="' + listingId + '"]')) {
-        console.log('[SSE] kart artıq lentdə var, təkrarlanmır');
         return;
       }
-      console.log('[SSE] kart lentə əlavə olunur:', listingId);
       const wrapper = document.createElement('div');
       wrapper.innerHTML = data.payload.html.trim();
       const el = wrapper.firstChild;
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(-8px)';
-      el.style.transition = 'opacity .3s ease, transform .3s ease';
+      // Giriş animasiyası CSS-dəki `.card { animation: cardIn ... }` qaydası ilə
+      // avtomatik işə düşür (app.birlikde.biz-in bounce ritminə uyğun) — burada əlavə
+      // inline stil lazım deyil, ikiqat animasiya toqquşmasının qarşısı alınır.
       feedList.prepend(el);
-      requestAnimationFrame(() => {
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-      });
     };
 
     const removeCard = (listingId) => {

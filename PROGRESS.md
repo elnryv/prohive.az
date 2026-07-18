@@ -765,3 +765,55 @@ göstərmir" şikayətini dəqiq izah edir.
 `opcache.validate_timestamps` defolt (aktiv), nginx `location ~ ^/axin/` düzgün uyğunlaşır (`nginx -T`
 ilə təsdiqlənib) — bunların heç biri kök səbəb deyildi, əsl səbəb yuxarıdakı əlavə fetch round-trip
 idi.
+
+## FAZA 21 — Splash/real-time/animasiya kodunun app.birlikde.biz-dən inteqrasiyası ✅ TAMAMLANDI
+
+Sahibkar birbaşa göstəriş verdi: "app.birlikdə bizdə olan splash ekran kodu açılma məntiqi, real
+time ekrandan göstərmə kodu və s hamısını götürürsən bizim koda inteqrasiya edirsən" — sənəd deyil,
+bilavasitə kod inteqrasiyası tələb olundu. **Rənglər/loqo/layout TOXUNULMADI** — yalnız hərəkət
+(animasiya) məntiqi köçürüldü.
+
+### Dəyişikliklər
+- **`--bounce`/`--smooth` tokenləri** (`:root`) — app.birlikde.biz-dəki iki adlandırılmış easing
+  əyrisi eynilə köçürüldü (`cubic-bezier(.34,1.56,.64,1)` və `cubic-bezier(.2,1,.3,1)`).
+- **`.container`** — `pageIn` keyframe (`opacity 0→1`, `translateY(10px)→0`, `.4s var(--smooth)`),
+  hər səhifə yüklənməsində avtomatik işə düşür (View Transitions API əvəzinə sadə CSS, Safari-də
+  problemsiz).
+- **`.card`** — `cardIn` keyframe (`opacity 0→1`, `translateY(14px) scale(.98)→translateY(0) scale(1)`,
+  `.5s var(--bounce)`), `:active` sıçrayışı `scale(.94)`-ə endirildi (`.btn`/`.btn-amber`/
+  `.bottom-nav .fab` üçün də eyni cür).
+- **`prefers-reduced-motion: reduce`** — yeni `@media` bloku `.container`/`.card` animasiyalarını
+  söndürür.
+- **Real-time kart girişi (`app.js`, `handleListingNew`)** — əvvəlki inline JS
+  `opacity`/`transform`/`transition` sıfırdan yazılışı SİLİNDİ (yeni `.card { animation: cardIn }`
+  qaydası ilə TOQQUŞURDU — ikiqat animasiya riski). İndi SSE-dən gələn kart sadəcə DOM-a
+  `prepend()` edilir, giriş animasiyasını CSS özü idarə edir (Playwright ilə təsdiqləndi:
+  `animationName: "cardIn"`, `opacity`/`transform` doğru keçid edir).
+- **Splash ekranı** (`partials/splash.php`, `app.css`, `splash.js`) — app.birlikde.biz-in
+  mark-pop+pulse+radar-halqa+glow+söz-bounce+statik-pill ritminə uyğunlaşdırıldı:
+  - Hissəcik sahəsi (`#particles`), arxa fon "sürət xətləri" (`#bgLines`) və canlı faiz sayğacı
+    TAMAMİLƏ SİLİNDİ (bunların heç biri referans layihədə yoxdur).
+  - B-hərfi SVG-si `.splash-mark` konteynerinə köçürüldü: `splashMarkPop` (.3→1 scale pop) +
+    `splashMarkPulse` (2 dəfə 1→1.18→1) animasiyaları.
+  - `.splash-mark-wrapper::before/::after` — 2 radar-tipli genişlənən halqa (`splashRingPing`,
+    `infinite`, .15s/.75s gecikmə ilə staggered).
+  - `.splash-glow` — mark arxasında bir dəfəlik radial-gradient glow-pulse.
+  - `.splash-word` — "Birlikdə"/"Yük"/slogan mətni `splashWordBounce` ilə sıçrayışla açılır.
+  - `.splash-loadbar` — STATİK (faizsiz) dekorativ pill (əvvəlki canlı `rAF` faiz hesablaması
+    silindi).
+  - `splash.js` 80 sətirdən 20 sətirə düşdü: `createParticles()`/`runLoader()` silindi, yalnız sabit
+    `setTimeout(..., 1900)` ilə `.splash-hide` əlavə edir (app.birlikde.biz-in `playSplashOnce()`-i
+    ilə eyni məntiq). "Nə vaxt göstər" server-tərəfi bayraq məntiqi (`Auth::establishSession()` +
+    `layouts/app.php`) DƏYİŞMƏDİ — bu artıq düzgün işləyirdi.
+- **Müvəqqəti `[SSE]` diaqnostika konsol log-ları silindi** (FAZA 20-də əlavə edilmişdi, kök səbəb
+  artıq tapılıb/düzəldilib).
+- `public_admin/assets/css/app.css` sinxronlaşdırıldı (`diff` ilə təsdiqlənib).
+
+### Özünüyoxlama nəticələri
+- `php -l app/views/partials/splash.php`, `node --check public/assets/js/app.js`,
+  `node --check public/assets/js/splash.js` — xətasız.
+- Playwright: giriş → splash görünür (mark+halqa+glow ilk kadrda, söz+loadbar sonrakı kadrda) →
+  ~1.9s-də `.splash-hide`, ~2.35s-də DOM-dan silinir (`splash gone: true`). Sıfır konsol xətası.
+- Playwright: sürücü lentinə simulyasiya edilmiş `.card` elementi `prepend()` edildi —
+  `getComputedStyle` göstərdi ki, giriş animasiyası (`animationName: "cardIn"`) CSS tərəfindən
+  idarə olunur, JS-dən heç bir inline stil münaqişəsi yoxdur.

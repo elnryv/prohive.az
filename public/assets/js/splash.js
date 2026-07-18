@@ -1,15 +1,12 @@
-// Flaş effektindən qaçmaq üçün dərhal (defer olmadan) icra olunur. Bütün açılış
-// ardıcıllığı (loqo, mətn, loader) CSS keyframe `animation-delay`-lə idarə olunur
-// (bax app.css .splash .* qaydaları). Bu skript yalnız: (1) hissəcikləri generasiya
-// edir, (2) loading bar/faiz sayğacını sürükləyir, (3) sonda splash-ı sildirir.
+// FAZA 21: app.birlikde.biz-in `playSplashOnce()` yanaşmasına uyğunlaşdırıldı — bütün
+// açılış ardıcıllığı (mark, radar-halqa, glow, söz-bounce, loadbar) CSS keyframe
+// `animation-delay`-lə idarə olunur (bax app.css .splash-* qaydaları). Bu skript
+// yalnız sabit bir müddətdən sonra `.splash-hide` sinifini əlavə edib elementi silir —
+// canlı hissəcik/faiz hesablaması YOXDUR.
 //
-// FAZA 18: "nə vaxt göstər" qərarı artıq TAMAMİLƏ serverdədir (bax layouts/app.php —
-// `#splash` elementi yalnız `?splash=1` yönləndirmə işarəsi olanda ümumiyyətlə DOM-a
-// yazılır, bax AuthController::redirectHome()). Əvvəlki JS-tərəfi heuristikalar
-// (sessionStorage, sonra localStorage+12s) etibarsız çıxdı — PWA-nı arxa plandan
-// (start_url-a, işarəsiz) qayıtma ilə real yeni girişi (işarəli) yalnız server
-// fərqləndirə bilər. Ona görə bu skript artıq `#splash` mövcud olub-olmamasından başqa
-// heç bir şərt yoxlamır — element varsa, deməli server onu göstərməyə qərar verib.
+// "Nə vaxt göstər" qərarı serverdədir (bax layouts/app.php + Auth::establishSession()
+// — `#splash` yalnız server bunu qərarlaşdıranda DOM-a yazılır). Element varsa, server
+// onu göstərməyə qərar verib deməkdir.
 (function () {
   var splash = document.getElementById('splash');
   if (!splash) return;
@@ -18,66 +15,8 @@
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function createParticles() {
-    var container = document.getElementById('particles');
-    if (!container) return;
-    var count = 15; // FAZA 20: 50-dən azaldıldı — daha yüngül, Safari-dostu
-    for (var i = 0; i < count; i++) {
-      var p = document.createElement('div');
-      p.className = 'particle';
-      p.style.left = Math.round(Math.random() * 100) + 'vw';
-      p.style.top = Math.round(Math.random() * 100) + 'vh';
-      p.style.setProperty('--dur', (Math.random() * 2 + 1).toFixed(2) + 's');
-      p.style.setProperty('--delay', (Math.random() * 2).toFixed(2) + 's');
-      p.style.setProperty('--dy', (Math.round(Math.random() * 100 - 50)) + 'px');
-      p.style.setProperty('--peak', (Math.random() * 0.6 + 0.2).toFixed(2));
-      container.appendChild(p);
-    }
-  }
-
-  function updateLoader(pct) {
-    var bar = document.getElementById('loaderBar');
-    var text = document.getElementById('loaderText');
-    if (bar) bar.style.width = pct + '%';
-    if (text) text.textContent = pct + '%';
-  }
-
-  function runLoader(delayMs, durationMs, onDone) {
-    setTimeout(function () {
-      var start = null;
-      function tick(ts) {
-        if (start === null) start = ts;
-        var elapsed = ts - start;
-        var t = Math.min(1, elapsed / durationMs);
-        var eased = 1 - Math.pow(1 - t, 3); // power3-out bənzəri (GSAP defaults.ease)
-        updateLoader(Math.round(eased * 100));
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          onDone();
-        }
-      }
-      requestAnimationFrame(tick);
-    }, delayMs);
-  }
-
-  function hideSplash() {
+  setTimeout(function () {
     splash.classList.add('splash-hide');
-    setTimeout(function () { splash.remove(); }, 650);
-  }
-
-  if (reduceMotion) {
-    // Animasiyasız halda istifadəçini uzun teatr boyu gözlətmə — dərhal tam vəziyyətə
-    // keç və qısa müddətdən sonra sil.
-    updateLoader(100);
-    setTimeout(hideSplash, 300);
-    return;
-  }
-
-  createParticles();
-
-  // FAZA 20: yüngülləşdirilmiş vaxt cədvəli — loader-bar 1.4s-də başlayır, 1s çəkir.
-  runLoader(1400, 1000, function () {
-    setTimeout(hideSplash, 100);
-  });
+    setTimeout(function () { splash.remove(); }, 450);
+  }, reduceMotion ? 0 : 1900);
 })();
