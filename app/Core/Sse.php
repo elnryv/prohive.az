@@ -12,6 +12,16 @@ namespace App\Core;
  */
 final class Sse
 {
+    // FAZA 23: app.birlikde.biz-in `SseController::lovhe()`-i ilə EYNİ ədədlər
+    // (MAX_ITERATIONS=1800, SLEEP_SECONDS=2 → 3600s/1 saat dövr). Əvvəlki 55s dövr
+    // hər bağlantını saatda ~65 dəfə məcburi yenidən-qoşulmağa vadar edirdi —
+    // reconnect yolundakı istənilən qırığa (brauzer/mobil şəbəkə) məruz qalma
+    // ehtimalını 65 dəfə artırırdı. `fastcgi_read_timeout` (nginx) İKİ ardıcıl
+    // oxuma ARASINDAKI boşluğa aiddir, ÜMUMİ bağlantı müddətinə YOX — bizim 2s-lik
+    // ping-lər davam etdiyi üçün bu dəyişiklik nginx konfiqini TƏLƏB ETMİR.
+    private const MAX_ITERATIONS = 1800;
+    private const SLEEP_SECONDS = 2;
+
     public static function publish(string $channel, string $event, array $payload = []): void
     {
         $stmt = DB::conn()->prepare('INSERT INTO sse_events (channel, event, payload) VALUES (?, ?, ?)');
@@ -21,13 +31,13 @@ final class Sse
     /**
      * @param string[] $channels
      */
-    public static function stream(array $channels, int $lastEventId = 0, int $maxSeconds = 55): void
+    public static function stream(array $channels, int $lastEventId = 0): void
     {
         // FAZA 19: `nginx buffering off` TƏK BAŞINA kifayət etmədi — PHP-nin ÖZÜ
         // (php-fpm pool php.ini-də) `zlib.output_compression` aktiv ola bilər, bu
         // halda flush()/ob_flush() çağırışları heç nəyi dəyişmir, çünki bayt-lar
         // artıq PHP-nin daxili gzip buferindən keçir və yalnız bufer dolanda və ya
-        // skript bitəndə (bizim halda 55s dövrün sonunda) çıxır — bu da eynilə
+        // skript bitəndə (bizim halda dövrün sonunda) çıxır — bu da eynilə
         // "yalnız tab dəyişəndə görünür" simptomunu verir, nginx-dən ASILI OLMADAN.
         // `max_execution_time` (bəzi php.ini-lərdə default 30s) də dövrü vaxtından
         // əvvəl kəsə bilər — set_time_limit(0) ilə bu SSE skripti üçün xüsusi ləğv edilir.
@@ -43,10 +53,9 @@ final class Sse
         header('X-Accel-Buffering: no');
         header('Connection: keep-alive');
 
-        $start = time();
         $lastId = $lastEventId;
 
-        while (true) {
+        for ($i = 0; $i < self::MAX_ITERATIONS; $i++) {
             if (connection_aborted()) {
                 return;
             }
@@ -75,18 +84,19 @@ final class Sse
                 @flush();
             }
 
-            if (time() - $start >= $maxSeconds) {
-                echo "event: ping\ndata: {}\n\n";
-                @ob_flush();
-                @flush();
-                return;
-            }
-
+            // Nginx `fastcgi_read_timeout` (65s, bax nginx/*.conf) İKİ ardıcıl oxuma
+            // ARASINDAKI boşluğa aiddir — bu 2s-lik keep-alive şərh sətri o boşluğu
+            // heç vaxt 65s-ə çatdırmır, ona görə MAX_ITERATIONS-ı 3600s-ə qaldırmaq
+            // nginx konfiqini dəyişməyi TƏLƏB ETMİR.
             echo ": ping\n\n";
             @ob_flush();
             @flush();
 
-            sleep(2);
+            sleep(self::SLEEP_SECONDS);
         }
+
+        echo "event: ping\ndata: {}\n\n";
+        @ob_flush();
+        @flush();
     }
 }

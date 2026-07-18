@@ -900,3 +900,45 @@ qalma ehtimalı ~65 dəfə çoxdur.
   keçib qayıtma" simulyasiya edildi → `/axin/lent` sorğusu sayı 1-dən 2-yə qalxdı
   (məcburi yenidən qoşulma baş verdi, əvvəlki kodda BU BAŞ VERMİRDİ, çünki
   `readyState` hələ `OPEN` görünürdü). Sıfır konsol xətası.
+
+## FAZA 24 — Sse::stream dövr müddəti app.birlikde.biz-lə EYNİLƏŞDİRİLDİ (55s → 1 saat) ✅ TAMAMLANDI
+
+Sahibkar FAZA 22/23-dən sonra da real-time-ın etibarsız qaldığını bildirdi və bütün SSE
+kodunun `app.birlikde.biz`-in koduna BİRƏBİR uyğunlaşdırılmasını istədi. Fayl-fayl eyni
+kopyalamaq mümkün deyil (fərqli DB sxemi, fərqli auth/sessiya sistemi, fərqli marşrutlar/
+controller-lər — bu, tamam ayrı bir domen, kuryer çatdırılması yox, yük elanları bazarıdır),
+AMMA konkret ƏDƏDLƏR/MEXANİZM 1:1 köçürülə bilər. Müqayisədə TAPILAN son fərq:
+`SseController::lovhe()`-də `MAX_ITERATIONS = 1800; SLEEP_SECONDS = 2;` → dövr ~3600 saniyə
+(1 saat). Bizim `Sse::stream()`-də dövr YALNIZ 55 saniyə idi — yəni bizim bağlantımız
+ONLARINKINDAN ~65 DƏFƏ TEZ-TEZ məcburi yenidən-qoşulmağa gedirdi, FAZA 22/23-də tapılan HƏR
+İKİ reconnect-yolu problemin (header prioriteti, zombi bağlantı) baş vermə ehtimalını 65 dəfə
+artırırdı.
+
+### Düzəliş
+- `App\Core\Sse` — `MAX_ITERATIONS = 1800` və `SLEEP_SECONDS = 2` sabitləri əlavə olundu
+  (`app.birlikde.biz` ilə HƏRFİ EYNİ ədədlər), vaxt-əsaslı `while (time()-$start >= $maxSeconds)`
+  şərti iterasiya-əsaslı `for ($i = 0; $i < MAX_ITERATIONS; $i++)` ilə əvəz olundu (onlarınkı ilə
+  eyni struktur). Nəticə: dövr indi ~55 saniyə YOX, ~1 SAAT.
+  `StreamController::feed()`/`customer()` artıq `$maxSeconds` ötürmür (default silindi).
+- Hər 2 saniyəlik keep-alive şərh sətri (`: ping\n\n`) SAXLANILDI (onların kodunda YOXDUR, çünki
+  onların nginx-i `fastcgi_read_timeout 3600s` təyin edib — bizimki isə 65s-dir). `fastcgi_read_timeout`
+  İKİ ARDICIL OXUMA ARASINDAKI boşluğa aiddir, ÜMUMİ bağlantı müddətinə YOX — bizim 2s-lik ping-lər
+  bu boşluğu heç vaxt 65s-ə çatdırmadığı üçün **nginx konfiqinə TOXUNULMASINA EHTİYAC YOXDUR**.
+- Dövrün TƏBİİ sonunda (1800 iterasiyadan sonra) əvvəlki kimi adlandırılmış `event: ping` mesajı
+  göndərilir (FAZA 23-dəki client-tərəfi sağlamlıq gözətçisi bunu dinləyir).
+
+### Özünüyoxlama nəticələri
+- `php -l app/Core/Sse.php app/Controllers/Site/StreamController.php` — xətasız.
+- Canlı test: `curl -N` ilə bağlantı açıldı, 3 saniyə sonra yeni `sse_events` sətri əlavə
+  olundu → hadisə DƏRHAL (növbəti 2s-lik iterasiya dövründə) axına gəldi, keep-alive
+  şərhləri (`: ping`) 2s aralıqla davam etdi — mexanizm dəyişməyib, YALNIZ məcburi
+  dayandırma həddi uzadılıb.
+
+### PHP-FPM qeydi (server-tərəfi, təsdiq tələb olunur)
+Bu dəyişiklik nginx-i TƏLƏB ETMİR, amma PHP-FPM pool-unda `request_terminate_timeout`
+(əgər sıfırdan fərqli təyin olunubsa) 1 saatdan qısa ola bilər — bu halda FPM həmin worker-i
+vaxtından əvvəl kəsəcək (bu, KÖHNƏ 55s davranışından PIS DEYİL, sadəcə gözlənilən 1 saatlıq
+faydanı azalda bilər, YENİ problem yaratmır, çünki brauzer bunu normal bağlantı kəsilməsi kimi
+görüb avtomatik reconnect edəcək). Sahibkardan xahiş: `grep -n request_terminate_timeout
+/www/server/php/*/etc/php-fpm.conf` (aaPanel) ilə yoxlasın, sıfır və ya boşdursa (defolt,
+limitsiz deməkdir) heç nə etməyə ehtiyac yoxdur.

@@ -23,8 +23,8 @@ final class StreamController
         }
         $driverId = (int) Auth::id();
         // KRİTİK: `Last-Event-ID` başlığı `lastId` GET parametrindən ÖNCƏ oxunmalıdır.
-        // Brauzerin native EventSource avtomatik yenidən-qoşulması (hər ~55s-lik Sse::stream
-        // dövrü bitəndə baş verir) HƏMİŞƏ İLKİN URL-i təkrar istifadə edir — `lastId` GET
+        // Brauzerin native EventSource avtomatik yenidən-qoşulması (hər ~1 saatlıq
+        // Sse::stream dövrü bitəndə, bax FAZA 23) HƏMİŞƏ İLKİN URL-i təkrar istifadə edir — `lastId` GET
         // parametri səhifə yükləndiyi andakı DƏYƏRDƏ donub qalır, dəyişə bilmir. Amma brauzer
         // hər yenidən-qoşulmada DÜZGÜN, son görülən ID-ni `Last-Event-ID` başlığında göndərir
         // (spesifikasiyanın əsas məqsədi budur). Əvvəlki sıra (`$_GET` ilk) bu başlığı HƏMİŞƏ
@@ -35,8 +35,8 @@ final class StreamController
 
         // KRİTİK: session faylı lock-u burada buraxılmalıdır. PHP-nin fayl-əsaslı sessiya
         // handler-i session_start()-dan session_write_close()-a qədər EXCLUSIVE lock saxlayır —
-        // bağlamasaq, bu uzun (≤55s) SSE loop-u eyni brauzerdən gələn BÜTÜN digər sorğuları
-        // (məs. kart fraqmenti fetch-i) session bağlanana qədər bloklayardı.
+        // bağlamasaq, bu uzun (≤1 saat, bax FAZA 23) SSE loop-u eyni brauzerdən gələn BÜTÜN
+        // digər sorğuları (məs. kart fraqmenti fetch-i) session bağlanana qədər bloklayardı.
         session_write_close();
 
         Sse::stream(['feed', 'driver_' . $driverId], $lastId);
