@@ -66,4 +66,18 @@ final class Phone
     {
         return $normalized;
     }
+
+    /**
+     * Saxlanılan 994XXXXXXXXX formatını qeydiyyat/profil formasındakı prefiks-seçim
+     * inputuna uyğun {prefix: "0XX", number: "XXXXXXX"} cütünə bölür (FAZA 16).
+     *
+     * @return array{prefix:string, number:string}
+     */
+    public static function splitForInput(string $normalized): array
+    {
+        if (!preg_match('/^994(\d{2})(\d{7})$/', $normalized, $m)) {
+            return ['prefix' => '', 'number' => ''];
+        }
+        return ['prefix' => '0' . $m[1], 'number' => $m[2]];
+    }
 }

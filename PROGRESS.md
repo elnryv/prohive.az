@@ -552,3 +552,48 @@ göndərdi — bu dəfə SVG path-ları (b-letter, truck-body/cabin/window, whee
   "B" hərfi düzgün render olunur, yük maşını hissə-hissə (kabina/kuzov/pəncərə/təkərlər) yığılır,
   mətn/loader ardıcıllığı referans dizaynla üst-üstə düşür, ~6.6s-də təmiz şəkildə yox olur —
   sıfır konsol xətası.
+
+---
+
+## FAZA 16 — Canlı istifadəçi geri-bildirimi: bağlantı bənneri, splash sağlamlığı, profil redaktəsi ✅ TAMAMLANDI
+
+### 1) "Bağlantı yoxdur" bənneri yalan-müsbət verirdi
+Kök səbəb: server (`Sse::stream`) hər ~55 saniyədə bağlantını QƏSDƏN bağlayır (uzun-polling
+dövrü) — bu, brauzerdə HƏR DƏFƏ normal/gözlənilən `error` hadisəsi yaradır, hətta bağlantı tam
+sağlamdırsa belə. Köhnə məntiq tək bir "error"-dan sonra sabit 4s gözləyib bənneri göstərirdi,
+bərpa olub-olmadığını yenidən yoxlamadan. `app.js`-də düzəldildi: 5s gecikmədən sonra YALNIZ
+`readyState`/`navigator.onLine` hələ də sağlam deyilsə göstərilir; native `online`/`offline`
+brauzer hadisələri isə gecikmədən, dərhal idarə edir. Playwright ilə 12s ərzində sağlam bağlantıda
+bənnerin görünmədiyi, əl ilə offline/online simulyasiyasında isə düzgün göstərilib/gizləndiyi
+təsdiqləndi.
+
+### 2) Splash-dakı truck render sağlamlığı
+Sahibkarın "truck sınıq görünür" şikayətinə cavab olaraq (konkret ekran görüntüsü alına bilmədi) —
+kod auditi zamanı real risk aşkarlandı: `.truck-window`/`.wheel`/`.b-letter` `transform-box:
+fill-box` + `transform-origin: center`-dən istifadə edirdi, bu, bəzi WebKit (mobil Safari)
+versiyalarında `<path>`/`<circle>` bounding-box hesablamasında etibarsız ola bilər. Bütün
+`transform-origin` dəyərləri SVG-nin öz `viewBox` koordinat sistemində sabit piksel olaraq
+yenidən yazıldı (`fill-box`-a ehtiyac qalmadı) — bu, bounding-box hesablanmasından asılı olmayan,
+bütün brauzerlərdə (köhnə daxil) eyni davranan həlldir. Xalis `translateX` istifadə edən
+`truck-body`/`truck-cabin`-dən lazımsız `fill-box` bəyanatı da silindi.
+
+### 3) Profil redaktəsi: ad dəyişmə + qeydiyyat-tərzi telefon prefiksi
+`ProfileController::update()` əvvəllər YALNIZ tək `phone` sahəsini və şəkli dəstəkləyirdi, ad
+dəyişməyə ümumiyyətlə icazə vermirdi. İndi:
+- `App\Core\Phone::splitForInput()` (yeni) — saxlanılan `994XXXXXXXXX`-i formaya uyğun
+  `{prefix:"0XX", number:"XXXXXXX"}` cütünə bölür.
+- Profil formasına ad sahəsi əlavə olundu, telefon sahəsi isə qeydiyyat/giriş ilə paylaşılan
+  `partials/phone_input.php` komponentinə keçirildi (prefiks seçimi + 7-rəqəm sərt limiti + canlı
+  validasiya) — həm müştəri, həm sürücü üçün eyni endpoint/forma.
+- Server tərəfi: boş ad → `ad_bos` xətası, yanlış/uzun-qısa nömrə → `nomre_yanlis` (mövcud
+  `Phone::normalize()` validasiyası), nömrə başqasında → `nomre_movcuddur`.
+- Yeni lang açarları: `profile_edit.full_name_label`, `profile_edit.name_required` (3 dil, 208/208/208
+  paritet).
+
+### Özünüyoxlama nəticələri
+- `php -l`, dil paritet yoxlaması (208/208/208) — xətasız.
+- Playwright: sağlam bağlantıda bənnerin 12s ərzində gizli qalması + real offline/online keçidində
+  düzgün davranışı; splash-ın yenidən render yoxlanışı (vizual dəyişiklik yoxdur, sadəcə origin
+  sağlamlığı); profil səhifəsində ad+nömrə formasının pre-fill (050/1117766) düzgün göstərilməsi;
+  real ad dəyişikliyinin submit edilib bazada saxlanılması və səhifədə əks olunması təsdiqləndi —
+  bütün hallarda sıfır konsol xətası.

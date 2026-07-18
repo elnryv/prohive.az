@@ -226,11 +226,13 @@ return [
 
     'profile_edit' => [
         'photo_label' => 'Profil şəkli',
+        'full_name_label' => 'Ad, soyad',
         'phone_label' => 'Telefon nömrəsi',
         'save' => 'Yadda saxla',
         'saved' => 'Dəyişikliklər yadda saxlanıldı.',
         'phone_invalid' => 'Telefon nömrəsi düzgün formatda deyil.',
         'phone_taken' => 'Bu nömrə artıq başqa hesabda istifadə olunur.',
+        'name_required' => 'Ad, soyad boş ola bilməz.',
         'photo_error' => 'Şəkil yüklənmədi — format (JPG/PNG) və ölçünü yoxlayın.',
     ],
 

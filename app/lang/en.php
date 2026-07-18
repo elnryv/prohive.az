@@ -226,11 +226,13 @@ return [
 
     'profile_edit' => [
         'photo_label' => 'Profile photo',
+        'full_name_label' => 'Full name',
         'phone_label' => 'Phone number',
         'save' => 'Save',
         'saved' => 'Changes saved.',
         'phone_invalid' => 'Phone number format is invalid.',
         'phone_taken' => 'This number is already used by another account.',
+        'name_required' => 'Full name cannot be empty.',
         'photo_error' => 'Photo upload failed — check format (JPG/PNG) and size.',
     ],
 

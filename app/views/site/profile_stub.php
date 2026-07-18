@@ -3,11 +3,13 @@ use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Lang;
 use App\Core\Phone;
+use App\Core\View;
 
 $user = Auth::user();
 $profileAction = $user['role'] === 'driver' ? '/surucu/profil' : '/musteri/profil';
 $xetaCodes = $_GET['xeta'] ?? '';
 $xetaList = $xetaCodes === '' ? [] : explode(',', $xetaCodes);
+$phoneParts = Phone::splitForInput($user['phone']);
 $currentLang = Lang::current();
 $langNames = ['az' => 'Azərbaycan', 'ru' => 'Русский', 'en' => 'English'];
 ?>
@@ -20,6 +22,7 @@ $langNames = ['az' => 'Azərbaycan', 'ru' => 'Русский', 'en' => 'English'
       <?= e(t(match ($code) {
           'nomre_yanlis' => 'profile_edit.phone_invalid',
           'nomre_movcuddur' => 'profile_edit.phone_taken',
+          'ad_bos' => 'profile_edit.name_required',
           default => 'profile_edit.photo_error',
       })) ?>
     </div>
@@ -55,9 +58,10 @@ $langNames = ['az' => 'Azərbaycan', 'ru' => 'Русский', 'en' => 'English'
         <form method="post" action="<?= e($profileAction) ?>">
           <?= Csrf::field() ?>
           <div class="field">
-            <label for="profile_phone"><?= e(t('profile_edit.phone_label')) ?></label>
-            <input type="tel" id="profile_phone" name="phone" value="<?= e($user['phone']) ?>">
+            <label for="profile_full_name"><?= e(t('profile_edit.full_name_label')) ?></label>
+            <input type="text" id="profile_full_name" name="full_name" value="<?= e($user['full_name']) ?>" required>
           </div>
+          <?php View::partial('partials/phone_input', ['oldPrefix' => $phoneParts['prefix'], 'oldNumber' => $phoneParts['number']]); ?>
           <button type="submit" class="btn btn-amber btn-block"><?= e(t('profile_edit.save')) ?></button>
         </form>
       </div>

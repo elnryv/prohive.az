@@ -30,9 +30,18 @@ final class ProfileController
         $redirectBase = $user['role'] === 'driver' ? '/surucu/profil' : '/musteri/profil';
         $errors = [];
 
-        $newPhone = trim((string) ($_POST['phone'] ?? ''));
-        if ($newPhone !== '') {
-            $normalized = Phone::normalize($newPhone);
+        if (isset($_POST['full_name'])) {
+            $fullName = trim((string) $_POST['full_name']);
+            if ($fullName === '') {
+                $errors[] = 'ad_bos';
+            } elseif ($fullName !== $user['full_name']) {
+                DB::conn()->prepare('UPDATE users SET full_name = ? WHERE id = ?')->execute([$fullName, Auth::id()]);
+            }
+        }
+
+        if (isset($_POST['phone_prefix']) || isset($_POST['phone_number'])) {
+            $phoneRaw = (string) ($_POST['phone_prefix'] ?? '') . (string) ($_POST['phone_number'] ?? '');
+            $normalized = Phone::normalize($phoneRaw);
             if ($normalized === null) {
                 $errors[] = 'nomre_yanlis';
             } elseif ($normalized !== $user['phone']) {
