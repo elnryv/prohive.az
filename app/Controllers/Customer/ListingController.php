@@ -166,7 +166,7 @@ final class ListingController
             'scope' => $scope,
             'html' => $card['html'] ?? null,
         ]);
-        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation, $scope);
+        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation);
 
         header('Location: /musteri/elan/' . $listingId . '?yaradildi=1');
     }
@@ -257,27 +257,19 @@ final class ListingController
     }
 
     /**
-     * Yeni elan haqqında təsdiqlənmiş (və bloklanmamış) sürücülərə push göndərir.
-     * FAZA 29: canlı lentin (app.js handleListingNew) kartı YALNIZ uyğun scope-da
-     * göstərdiyi ilə uyğunlaşdırmaq üçün scope-a görə filtrlənir — əks halda sürücü
-     * push bildirişi alır, amma canlı lentə baxanda kart görünmür (scope uyğun
-     * gəlmədiyi üçün), bu, "bildiriş gəlir, ekranda yoxdur" hissi yaradırdı.
-     * Sürücünün `route_subscriptions`-da HEÇ BİR qeydi yoxdursa (bax
-     * Driver\RouteSubscriptionController) — defolt olaraq HAMISINI alır (əvvəlki
-     * "bütün təsdiqlənmiş sürücülərə göndər" davranışı, opt-in konfiqurasiya
-     * etməyən sürücülər üçün REGRESSIYA olmasın deyə). Sürücünün EN AZI bir qeydi
-     * varsa, YALNIZ bu elanın scope-una (və ya 'all') uyğun qeydi olduqda bildiriş alır.
+     * Yeni elan haqqında BÜTÜN təsdiqlənmiş (və bloklanmamış) sürücülərə push göndərir
+     * (sahibkarın qərarı — scope-a görə filtrləmə YENƏ ləğv edildi, bax FAZA 29:
+     * bunun əvəzinə canlı lent artıq HƏR elanı dərhal göstərir, fərqli bölgəli
+     * elanın üstündə "Bakı daxili"/"Bölgələrarası" çipi olur — bax app.js
+     * handleListingNew(). Deməli push HƏR ZAMAN hamıya gedir, qeyri-təsdiqli
+     * sürücü təklif verə bilmədiyi üçün onlara push almasının mənası yoxdur,
+     * bax Auth::isActiveDriver()).
      */
-    private function notifyApprovedDrivers(int $listingId, array $fromLocation, array $toLocation, string $scope): void
+    private function notifyApprovedDrivers(int $listingId, array $fromLocation, array $toLocation): void
     {
-        $stmt = DB::conn()->prepare(
-            "SELECT DISTINCT u.id
-             FROM users u
-             LEFT JOIN route_subscriptions rs ON rs.driver_id = u.id
-             WHERE u.role = 'driver' AND u.driver_status = 'approved' AND u.is_blocked = 0
-               AND (rs.id IS NULL OR rs.scope = 'all' OR rs.scope = ?)"
+        $stmt = DB::conn()->query(
+            "SELECT id FROM users WHERE role = 'driver' AND driver_status = 'approved' AND is_blocked = 0"
         );
-        $stmt->execute([$scope]);
         $driverIds = array_map('intval', array_column($stmt->fetchAll(), 'id'));
 
         if ($driverIds === []) {
