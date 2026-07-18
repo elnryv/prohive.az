@@ -205,117 +205,30 @@
   }
 
   // ---------------------------------------------------------------
-  // SSE dayanıqlılığı (bölmə 11.5 + FAZA 14/15/22): FAZA 22-də `readyState`-ə
-  // etibar etməyin özü bug mənbəyi olduğu üzə çıxdı — mobil brauzerlərdə (xüsusilə
-  // ekran kilidlənib arxa plana keçəndə) əməliyyat sistemi soketi səssizcə öldürür,
-  // amma JS-in gördüyü `readyState` bunu HEÇ VAXT `CLOSED`-ə çevirmir (zombi
-  // bağlantı) — köhnə şərtli yoxlama (`readyState === CLOSED` olanda YALNIZ onda
-  // yenidən qoşul) bu halda heç vaxt işə düşmürdü. İndi: (1) görünən/online
-  // olanda HƏMİŞƏ məcburi yenidən qoşuluruq (ucuz əməliyyatdır, sağlam bağlantını
-  // bağlayıb identik halda açmaqdan başqa fərq yaratmır), (2) əlavə sağlamlıq
-  // gözətçisi — son mesajdan (ping daxil) bəri 90s+ keçibsə, heç bir hadisə
-  // baş verməsə belə bağlantı sükutla ölmüş sayılır və yenilənir.
-  function connectResilientSSE(url, initialLastId, handlers, pollUrl) {
+  // SSE (bölmə 11.5, FAZA 31): app.birlikde.biz-in `kurye/lovhe.php`-dəki
+  // `connectSse()`-i ilə EYNİ, minimal yanaşma — sadə EventSource, `onerror`
+  // brauzerin öz avtomatik reconnect-inə etibar edir, əlavə heç nə yoxdur.
+  // ---------------------------------------------------------------
+  function connectResilientSSE(url, initialLastId, handlers) {
     let es = null;
     let lastId = initialLastId;
-    let lastMessageAt = Date.now();
-
-    // FAZA 26: MÜVƏQQƏTİ görünən diaqnostika nişanı (bax ekranın altı, tünd zolaq).
-    // Masaüstü/dev-tools olmadan (telefonda) bağlantının canlı vəziyyətini birbaşa
-    // gözlə görmək üçün — problem tapılandan SONRA silinəcək.
-    const debugBadge = document.createElement('div');
-    debugBadge.id = 'sse-debug-badge';
-    debugBadge.style.cssText = 'position:fixed;left:8px;right:8px;bottom:64px;z-index:99999;'
-      + 'background:rgba(0,0,0,.85);color:#7CFC7C;font:11px/1.4 monospace;padding:6px 10px;'
-      + 'border-radius:8px;white-space:pre-wrap;pointer-events:none;';
-    function setBadge(text) {
-      const t = new Date().toLocaleTimeString();
-      debugBadge.textContent = '[' + t + '] ' + text;
-    }
-    setBadge('SSE: hazırlanır...');
-    document.addEventListener('DOMContentLoaded', () => document.body.appendChild(debugBadge));
-    if (document.readyState !== 'loading') document.body.appendChild(debugBadge);
 
     function open() {
-      if (es) es.close();
       const sep = url.includes('?') ? '&' : '?';
       const fullUrl = url + sep + 'lastId=' + encodeURIComponent(lastId);
       es = new EventSource(fullUrl);
-      lastMessageAt = Date.now();
-      setBadge('SSE: qoşulur (lastId=' + lastId + ')');
-      es.onopen = () => setBadge('SSE: AÇIQ, lastId=' + lastId);
-      // FAZA 27: KÖK SƏBƏB TAPILDI — Safari/WebKit-in EventSource-u serverin (Sse::stream)
-      // TƏMİZ bağladığı bağlantını (dövrün təbii sonu) Chrome/Firefox-dan FƏRQLİ olaraq
-      // AVTOMATİK yenidən qoşmur (readyState `CLOSED`-də əbədi qalır) — bu, məhz FAZA 26-nın
-      // diaqnostika nişanının canlıda göstərdiyi `readyState=2` idi. Əvvəlki kod `onerror`-da
-      // YALNIZ nişanı yeniləyirdi, HEÇ VAXT yenidən qoşulmurdu — bağlantı browser səviyyəsində
-      // sükutla ölürdü, YALNIZ tam səhifə keçidi (bottom-nav) və ya 90s-lik gözətçi onu xilas
-      // edə bilirdi. İndi xəta baş verən kimi (qısa gecikmə ilə, server müvəqqəti səhv verirsə
-      // sürətli dövrün qarşısını almaq üçün) MƏCBURİ yenidən qoşulur.
       es.onerror = () => {
-        setBadge('SSE: XƏTA, readyState=' + es.readyState + ', lastId=' + lastId + ' -> 1s sonra reconnect');
-        if (es.readyState === EventSource.CLOSED) {
-          setTimeout(open, 1000);
-        }
+        // Bağlantı kəsilərsə brauzer avtomatik yenidən qoşulmağa cəhd edir.
       };
-      es.addEventListener('ping', () => { lastMessageAt = Date.now(); setBadge('SSE: ping alındı (canlıdır), lastId=' + lastId); });
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
-          lastMessageAt = Date.now();
           if (e.lastEventId) lastId = e.lastEventId;
-          setBadge('SSE: "' + name + '" hadisəsi ALINDI! id=' + e.lastEventId);
           handlers[name](e);
         });
       });
     }
 
     open();
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        setBadge('SSE: görünən oldu -> məcburi reconnect');
-        open();
-      }
-    });
-    window.addEventListener('online', open);
-
-    setInterval(() => {
-      if (document.visibilityState === 'visible' && navigator.onLine && Date.now() - lastMessageAt > 90000) {
-        setBadge('SSE: 90s+ sükut -> sağlamlıq gözətçisi reconnect edir');
-        open();
-      }
-    }, 20000);
-
-    // FAZA 28: EventSource-dan TAMAMİLƏ ASILI OLMAYAN polling ehtiyat mexanizmi.
-    // Nə qədər EventSource-un özündə (Safari-nin reconnect etməməsi kimi) qırıq
-    // olursa olsun, bu sadə fetch() HƏR BRAUZERDƏ eyni işləyir — çünki heç bir
-    // uzunmüddətli bağlantı/reconnect məntiqindən asılı deyil, sadəcə adi sorğudur.
-    if (pollUrl) {
-      setInterval(() => {
-        if (document.visibilityState !== 'visible' || !navigator.onLine) return;
-        const sep = pollUrl.includes('?') ? '&' : '?';
-        fetch(pollUrl + sep + 'lastId=' + encodeURIComponent(lastId))
-          .then((res) => (res.ok ? res.json() : null))
-          .then((body) => {
-            const events = (body && body.events) || [];
-            events.forEach((item) => {
-              lastId = String(item.id);
-              lastMessageAt = Date.now();
-              const handler = handlers[item.event];
-              if (handler) {
-                handler({
-                  data: JSON.stringify({ channel: item.channel, payload: item.payload }),
-                  lastEventId: String(item.id),
-                });
-              }
-            });
-            if (events.length > 0) setBadge('SSE: poll ilə ' + events.length + ' hadisə alındı, lastId=' + lastId);
-          })
-          .catch(() => {
-            // Səssizcə keç — 5s sonra növbəti dövr yenidən cəhd edəcək.
-          });
-      }, 5000);
-    }
   }
 
   // ---------------------------------------------------------------
@@ -392,7 +305,7 @@
       offer_accepted: () => {
         // Bu sürücünün təklifi qəbul olunub — "Təkliflərim" səhifəsi növbəti ziyarətdə yenilənəcək.
       },
-    }, '/axin/lent-sorgu');
+    });
   }
 
   // ---------------------------------------------------------------
@@ -412,7 +325,7 @@
       offer_new: onListingEvent,
       offer_updated: onListingEvent,
       accepted: onListingEvent,
-    }, '/axin/musteri-sorgu');
+    });
   }
 
   // ---------------------------------------------------------------

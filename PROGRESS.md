@@ -1176,3 +1176,45 @@ SİNXRON baş verirdi — müştəri özü də bu bütün dövrün bitməsini g�
 - Playwright: əsl elan yaratma axını sıfır server xətası ilə tamamlandı (VAPID lokal
   konfiqurasiya olunmadıqda `WebPush::isConfigured()` erkən `false` qaytarır, `notifyApprovedDrivers()`
   səssizcə heç nə göndərmədən qayıdır — reqressiya yoxdur).
+
+## FAZA 31 — Sahibkarın açıq göstərişi ilə SSE client-i app.birlikde.biz-in minimal versiyasına sadələşdirmə
+
+Sahibkar açıq şəkildə dəfələrlə istədi: "bizim real-time-a aid hər şeyi sil, app birlikdə
+biz-dən inteqrasiya et, elə indi." Mən əvvəlcə bunun FAZA 22-28-də artıq edildiyini,
+üstəlik bizim əlavə qatların (polling ehtiyat, Safari-reconnect düzəlişi) ONLARDA
+olmayan, sırf FAYDALI əlavələr olduğunu izah etdim — sahibkar bunu eşidib YENƏ DƏ eyni
+göstərişi təkrarladı. Ona görə tələb olunduğu kimi tətbiq edildi.
+
+### Silinən (FAZA 26/27/28-in bütün əlavələri)
+- `app.js` — `connectResilientSSE()` sadələşdirildi: MÜVƏQQƏTİ diaqnostika nişanı (FAZA 26),
+  `onerror`-da məcburi 1s-reconnect (FAZA 27), `visibilitychange`/`online`-da HƏMİŞƏ məcburi
+  reconnect, 90s sağlamlıq gözətçisi (FAZA 23) — HAMISI silindi. İndi YALNIZ: sadə
+  `EventSource`, `onerror` boş şərh (brauzerə etibar edir) — app.birlikde.biz-in
+  `kurye/lovhe.php`-dəki `connectSse()`-i ilə HƏRFİ EYNİ struktur.
+- `Sse::poll()` (`app/Core/Sse.php`), `StreamController::feedPoll()`/`customerPoll()`,
+  `/axin/lent-sorgu`/`/axin/musteri-sorgu` route-ları (FAZA 28-in bütün polling ehtiyat
+  mexanizmi) TAMAMİLƏ silindi.
+
+### SAXLANILAN (bunlar artıq app.birlikde.biz-lə EYNİ idi, "silinməli əlavə" deyil)
+- `Last-Event-ID` header-in GET-dən ÖNCƏ oxunması (FAZA 22) — bu, onların da etdiyi şeydir
+  (onlar YALNIZ header oxuyur), silinsəydi əsl regressiya olardı.
+- `Sse::stream()`-in 1 saatlıq dövrü (FAZA 23/24) — onlarınkı ilə eyni ədədlər.
+- nginx `/axin/` konfiqi — artıq onlarınkı ilə eyni məntiqdə idi.
+- Push-un scope-suz hədəflənməsi (81a3160) və paralel göndərilməsi (FAZA 30) — bunlar
+  "real-time SSE" deyil, ayrı bir sistemdir (Web Push), sahibkarın "real-time"
+  göstərişinin əhatəsindən kənar sayıldı.
+
+### Özünüyoxlama nəticələri
+- `php -l`, `node --check` — xətasız. Kod bazasında `Sse::poll`/`feedPoll`/`customerPoll`/
+  `axin/*-sorgu`/`sse-debug-badge` sözlərinə görə axtarış — HEÇ bir qalıq istinad tapılmadı.
+- Playwright, tam DB+HTTP real ssenari (iki ayrı PHP prosesi, əsl login+elan-yaratma formu):
+  sürücü ekranı açıq qalaraq (heç bir naviqasiya/tab-dəyişmə olmadan) başqa prosesdən yeni
+  elan yaradıldı → kart ~1.5 saniyə ərzində ekranda göründü, sıfır konsol xətası. Sadələşdirilmiş
+  versiya lokal mühitdə düzgün işləyir.
+
+### Qeyd (məsuliyyət bölgüsü üçün aydın olsun)
+Bu sadələşdirmə sahibkarın AÇIQ, dəfələrlə təkrarlanan göstərişi ilə edilib, mənim
+tövsiyəm ƏKSİNƏ idi — FAZA 27-də CANLI istehsalatda (sahibkarın öz cihazında, ekran video-
+sunda) tapılan Safari/WebKit-in `EventSource`-u təmiz bağlanandan sonra avtomatik
+reconnect ETMƏMƏSİ bugı bu sadələşdirmə ilə YENİDƏN AÇIQDIR (çünki `onerror` artıq heç nə
+etmir). Bu, app.birlikde.biz-in öz kodunda da MÖVCUD olan, test edilməmiş bir bugdur.

@@ -146,13 +146,6 @@ $router->get('/axin/lent', function () {
 $router->get('/axin/musteri', function () {
     (new StreamController())->customer();
 });
-// FAZA 28: EventSource-dan asılı olmayan polling ehtiyat sorğusu.
-$router->get('/axin/lent-sorgu', function () {
-    (new StreamController())->feedPoll();
-});
-$router->get('/axin/musteri-sorgu', function () {
-    (new StreamController())->customerPoll();
-});
 
 // --- Web Push (FAZA 4, bölmə 11.4) ---
 $router->get('/push/vapid-acar', function () {

@@ -53,34 +53,4 @@ final class StreamController
 
         Sse::stream(['customer_' . $customerId], $lastId);
     }
-
-    /**
-     * FAZA 28: EventSource-dan asılı olmayan polling ehtiyat sorğusu (bax Sse::poll()).
-     * Client bunu bir neçə saniyədə bir çağırır — Safari-nin EventSource-u bərpa edə
-     * bilmədiyi/açmadığı halda BELƏ, adi fetch() olduğu üçün həmişə işləyir.
-     */
-    public function feedPoll(): void
-    {
-        Auth::requireRole('driver', '/giris');
-        $user = Auth::user();
-        if ($user['driver_status'] !== 'approved') {
-            http_response_code(403);
-            return;
-        }
-        $driverId = (int) Auth::id();
-        $lastId = (int) ($_GET['lastId'] ?? 0);
-
-        header('Content-Type: application/json');
-        echo json_encode(['events' => Sse::poll(['feed', 'driver_' . $driverId], $lastId)], JSON_UNESCAPED_UNICODE);
-    }
-
-    public function customerPoll(): void
-    {
-        Auth::requireRole('customer', '/giris');
-        $customerId = (int) Auth::id();
-        $lastId = (int) ($_GET['lastId'] ?? 0);
-
-        header('Content-Type: application/json');
-        echo json_encode(['events' => Sse::poll(['customer_' . $customerId], $lastId)], JSON_UNESCAPED_UNICODE);
-    }
 }
