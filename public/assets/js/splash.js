@@ -76,8 +76,8 @@
 
   createParticles();
 
-  // GSAP ssenarisindəki loader-bar tween-i 3.8s-də başlayır, 2s çəkir.
-  runLoader(3800, 2000, function () {
+  // Loader-bar 2.7s (loader-wrapper) qalxdıqdan qısa müddət sonra, 3.2s-də başlayır, 2s çəkir.
+  runLoader(3200, 2000, function () {
     setTimeout(hideSplash, 200);
   });
 })();

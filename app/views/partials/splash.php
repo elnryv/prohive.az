@@ -15,11 +15,6 @@
           </linearGradient>
         </defs>
         <path class="b-letter" d="M70 40h100c44 0 74 28 74 68 0 26-12 46-34 58 28 10 46 34 46 66 0 44-34 72-80 72H70V40zm46 42v64h48c22 0 36-12 36-32s-14-32-36-32h-48zm0 102v74h54c24 0 40-14 40-37s-16-37-40-37h-54z" fill="url(#blueGradient)" />
-        <path class="truck-body" d="M85 160h90v35H85z" fill="#fff" />
-        <path class="truck-cabin" d="M175 165h35c5 0 10 5 10 10v25h-45v-35z" fill="#fff" />
-        <path class="truck-window" d="M185 170h20v15h-20z" fill="#0d47a1" />
-        <circle class="wheel wheel-back" cx="105" cy="195" r="10" fill="#fff" />
-        <circle class="wheel wheel-front" cx="185" cy="195" r="10" fill="#fff" />
         <line class="speed-line" x1="40" y1="190" x2="75" y2="190" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
         <line class="speed-line" x1="30" y1="205" x2="70" y2="205" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
         <line class="speed-line" x1="45" y1="220" x2="80" y2="220" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />

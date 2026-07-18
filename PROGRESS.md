@@ -597,3 +597,26 @@ dəyişməyə ümumiyyətlə icazə vermirdi. İndi:
   sağlamlığı); profil səhifəsində ad+nömrə formasının pre-fill (050/1117766) düzgün göstərilməsi;
   real ad dəyişikliyinin submit edilib bazada saxlanılması və səhifədə əks olunması təsdiqləndi —
   bütün hallarda sıfır konsol xətası.
+
+### Yeniləmə — canlı istifadəçi ekran görüntüləri: bənner hələ də görünürdü + truck ləğvi
+İki ekran görüntüsü göndərildi: (1) sürücü lentində "Bağlantı yoxdur" bənneri ilk açılışda görünür
+(əvvəlki fix kifayət etmədi — SSE-nin `error` hadisəsi əsaslı yoxlama hələ də real production
+şəbəkə şəraitində (yavaş ilk qoşulma) yalan-müsbət verə bilirdi), (2) splash-da B hərfinin üstündə
+truck artıq düzgün render olunur, AMMA istifadəçi estetik olaraq onu ÜMUMİYYƏTLƏ istəmir.
+- **Bənner sadələşdirildi köklü şəkildə:** SSE `error`-a əsaslanan bütün heuristika (5s
+  gecikmə + `readyState` yoxlaması) tamamilə SİLİNDİ. İndi bənner YALNIZ brauzerin native
+  `navigator.onLine`/`online`/`offline` siqnalına əsaslanır — sıfır yalan-müsbət riski, çünki
+  server-tərəfi SSE dövrü ilə heç bir əlaqəsi qalmadı. SSE-nin özünün etibarlı reconnect məntiqi
+  (visibilitychange/online zamanı `readyState` yoxlanışı) toxunulmadan qaldı.
+- **Splash-dan truck tamamilə ləğv olundu:** `truck-body`/`truck-cabin`/`truck-window`/`wheel`
+  SVG elementləri və onlara aid bütün CSS keyframe/animation-delay qaydaları silindi — yalnız
+  "B" hərfi və sürət-xətləri (B-nin yanında, üstündə DEYİL) qalır. Vaxt cədvəli sıxlaşdırıldı
+  (truck üçün ayrılmış ~1s aradan qaldırıldı): text-wrapper indi 1.5s-də (əvvəl 2.1s) başlayır,
+  ümumi splash müddəti ~6.6s-dən ~6.0s-ə düşdü.
+
+### Özünüyoxlama nəticələri
+- `php -l`, `node --check` (app.js, splash.js) — xətasız.
+- Playwright: splash-da truck-a aid heç bir element DOM-da yoxdur, yalnız B hərfi + sürət-xətləri
+  render olunur, ~6.1s-də təmiz silinir; sürücü lentinə giriş edən kimi (300ms-dən sonra) bənnerin
+  gizli olduğu, əl ilə offline simulyasiyasında dərhal göründüyü, online-a qayıdanda dərhal
+  gizləndiyi təsdiqləndi — bütün hallarda sıfır konsol xətası.
