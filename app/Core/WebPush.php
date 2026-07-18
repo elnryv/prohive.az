@@ -277,7 +277,13 @@ final class WebPush
     }
 
     /**
-     * Bir neçə istifadəçiyə push göndərir (50-lik partiyalarla, sinxron, 0.05s fasilə — 11.4).
+     * Bir neçə istifadəçiyə push göndərir. FAZA 30: əvvəlki versiya HƏR alıcını
+     * SINXRON, bir-bir (+ aralarında 50ms süni fasilə) göndərirdi — sürücü sayı
+     * artdıqca son sıradakılara çatma müddəti XƏTTİ olaraq uzanırdı (N sürücü ≈
+     * N × (şəbəkə gecikməsi + 50ms) — 30 sürücüdə bir neçə saniyəyə qədər).
+     * İndi `curl_multi` ilə BÜTÜN göndərişlər EYNİ ANDA (paralel) aparılır —
+     * ümumi müddət YALNIZ ən yavaş TƏK sorğunun müddətinə bərabərdir, sürücü
+     * sayından demək olar asılı deyil.
      * @param int[] $userIds
      */
     public static function sendToUsers(array $userIds, array $payload, string $urgency = 'normal'): void
@@ -292,14 +298,7 @@ final class WebPush
                 "SELECT id, user_id, endpoint, p256dh, auth_key FROM push_subscriptions WHERE user_id IN ({$placeholders})"
             );
             $stmt->execute($chunk);
-            foreach ($stmt->fetchAll() as $sub) {
-                $result = self::send($sub, $payload, $urgency);
-                if (($result['expired'] ?? false) === true) {
-                    $del = \App\Core\DB::conn()->prepare('DELETE FROM push_subscriptions WHERE id = ?');
-                    $del->execute([$sub['id']]);
-                }
-                usleep(50000);
-            }
+            self::sendConcurrent($stmt->fetchAll(), static fn () => $payload, $urgency);
         }
     }
 
@@ -325,18 +324,97 @@ final class WebPush
                  WHERE ps.user_id IN ({$placeholders})"
             );
             $stmt->execute($chunk);
-            foreach ($stmt->fetchAll() as $sub) {
+            self::sendConcurrent($stmt->fetchAll(), static function (array $sub) use ($payloadBuilder) {
                 Lang::use($sub['lang']);
-                $payload = $payloadBuilder($sub);
-                $result = self::send($sub, $payload, $urgency);
-                if (($result['expired'] ?? false) === true) {
-                    $del = \App\Core\DB::conn()->prepare('DELETE FROM push_subscriptions WHERE id = ?');
-                    $del->execute([$sub['id']]);
-                }
-                usleep(50000);
-            }
+                return $payloadBuilder($sub);
+            }, $urgency);
         }
 
         Lang::use($previousLang);
+    }
+
+    /**
+     * `curl_multi` ilə eyni partiyadakı (≤50) BÜTÜN abunəliklərə PARALEL göndərir.
+     * @param array<int, array{id:int, endpoint:string, p256dh:string, auth_key:string}> $subs
+     */
+    private static function sendConcurrent(array $subs, callable $payloadFor, string $urgency): void
+    {
+        if ($subs === []) {
+            return;
+        }
+
+        $mh = curl_multi_init();
+        $handles = [];
+        foreach ($subs as $sub) {
+            $payload = $payloadFor($sub);
+            $body = self::encryptPayload(
+                self::b64urlDecode($sub['p256dh']),
+                self::b64urlDecode($sub['auth_key']),
+                json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)
+            );
+            $authHeader = $body !== null ? self::buildVapidAuthHeader($sub['endpoint']) : null;
+            if ($body === null || $authHeader === null) {
+                continue;
+            }
+
+            $ch = curl_init($sub['endpoint']);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $body,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/octet-stream',
+                    'Content-Encoding: aes128gcm',
+                    'TTL: 86400',
+                    'Urgency: ' . $urgency,
+                    'Authorization: ' . $authHeader,
+                ],
+            ]);
+            curl_multi_add_handle($mh, $ch);
+            $handles[(int) $ch] = ['ch' => $ch, 'sub' => $sub];
+        }
+
+        if ($handles === []) {
+            curl_multi_close($mh);
+            return;
+        }
+
+        // KRİTİK: `curl_multi_select()` heç bir fd hazır olmayanda (məsələn,
+        // bağlantılar hələ TCP-səviyyəsində qurulur) -1 qaytarır — bu halda onun
+        // ÖZ daxili defolt taймaутuna (1000ms!) etibar etmək TƏSADÜFİ ~1 saniyəlik
+        // əlavə gecikmə yaradır (məşhur, sənədləşdirilmiş PHP curl_multi tələsi,
+        // burada CANLI ölçmə ilə TAPILDI — 8 alıcı üçün müddət 0.42s/1.44s arasında
+        // TƏSADÜFİ tərəddüd edirdi). Ona görə select() -1 qaytaranda özümüz qısa
+        // (10ms) gözləyib yenidən yoxlayırıq, onun daxili timeout-una etibar etmirik.
+        do {
+            $status = curl_multi_exec($mh, $running);
+        } while ($status === CURLM_CALL_MULTI_PERFORM);
+
+        while ($running > 0) {
+            if (curl_multi_select($mh) === -1) {
+                usleep(10000);
+            }
+            do {
+                $status = curl_multi_exec($mh, $running);
+            } while ($status === CURLM_CALL_MULTI_PERFORM);
+        }
+
+        $expiredIds = [];
+        foreach ($handles as $entry) {
+            $status = (int) curl_getinfo($entry['ch'], CURLINFO_HTTP_CODE);
+            if ($status === 404 || $status === 410) {
+                $expiredIds[] = (int) $entry['sub']['id'];
+            }
+            curl_multi_remove_handle($mh, $entry['ch']);
+            curl_close($entry['ch']);
+        }
+        curl_multi_close($mh);
+
+        if ($expiredIds !== []) {
+            $placeholders = implode(',', array_fill(0, count($expiredIds), '?'));
+            $del = \App\Core\DB::conn()->prepare("DELETE FROM push_subscriptions WHERE id IN ({$placeholders})");
+            $del->execute($expiredIds);
+        }
     }
 }

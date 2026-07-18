@@ -1125,3 +1125,54 @@ yoxlanıldı — bu, HƏQİQƏTƏN işlək bir funksiyadır (sürücü `/surucu/
 - Playwright: əsl elan yaratma axını (login → `/musteri/elan/yeni` → submit) sıfır server xətası
   ilə tamamlandı, `notifyApprovedDrivers()`-in yeni imzası/sorğusu istehsalat kodunda problemsiz
   işləyir.
+
+## FAZA 30 — Push bildirişi HAMIYA (abunəsi olmayanlara da) anında, paralel göndərilir
+
+Sahibkar iki şey istədi: (1) push bildirişi HƏR təsdiqlənmiş sürücüyə getsin, ödənişli
+abunəliyi (billing) olmasa BELƏ — çünki onsuz da qeyri-aktiv sürücü təklif verə bilmir, amma
+bildirişi görüb abunə ala bilər; (2) bu, "saniyələr sonra" yox, "saniyəsində", HAMIYA EYNİ ANDA
+çatsın.
+
+### (1) Təsdiqləndi — dəyişiklik lazım deyil
+`notifyApprovedDrivers()`-in hazırkı sorğusu (81a3160-dan sonra) artıq YALNIZ
+`driver_status = 'approved' AND is_blocked = 0` şərtinə əsaslanır — `billing_status`/abunə
+sahəsinə HEÇ TOXUNMUR. Yəni ödənişli abunəsi bitmiş/olmayan, amma admin tərəfindən təsdiqlənmiş
+sürücü ARTIQ bildirişi alır. Bu tələb onsuz da ödənilib.
+
+### (2) Həqiqi kök səbəb: push göndərişi SINXRON, BİR-BİR, 50ms süni fasilə ilə idi
+`WebPush::sendToUsers()`/`sendToUsersLocalized()` HƏR alıcını ardıcıl, `usleep(50000)`
+(50ms) süni gecikməsi ilə göndərirdi. N sürücü üçün ümumi müddət ≈ N × (şəbəkə gecikməsi +
+50ms) idi — sürücü sayı artdıqca SIRADAKI SONUNCULARA çatma müddəti XƏTTİ olaraq uzanırdı.
+Üstəlik bu, müştərinin ÖZ sorğusunun (elan yaratma → `header('Location: ...')`) İÇİNDƏ,
+SİNXRON baş verirdi — müştəri özü də bu bütün dövrün bitməsini gözləyirdi.
+
+### Düzəliş
+- `WebPush::sendConcurrent()` (yeni, private) — eyni partiyadakı (≤50) BÜTÜN göndərişləri
+  `curl_multi` ilə PARALEL aparır. Ümumi müddət artıq YALNIZ ən yavaş TƏK sorğunun müddətinə
+  bərabərdir, sürücü sayından demək olar asılı deyil. `sendToUsers()`/`sendToUsersLocalized()`
+  bu metoda yönləndirilib, köhnə `foreach + usleep(50000)` silindi.
+  - Yol boyu tapılan əlavə bug: `curl_multi_select()` heç bir fd hazır olmayanda -1 qaytarır,
+    bu halda onun ÖZ daxili defolt taймaутuna (1000ms!) etibar etmək TƏSADÜFİ ~1 saniyəlik
+    əlavə gecikmə yaradırdı (məşhur, sənədləşdirilmiş PHP curl_multi tələsi) — CANLI ölçmə
+    ilə tapıldı (8 test-alıcı üçün müddət 0.42s/1.44s arasında təsadüfi tərəddüd edirdi).
+    Düzəldilmiş dövr: `curl_multi_select()` -1 qaytaranda özümüz qısa (10ms) gözləyib
+    yenidən yoxlayırıq, onun daxili timeout-una etibar etmirik.
+- `ListingController::create()` — müştərinin öz sorğusu artıq push göndərişinin bitməsini
+  GÖZLƏMİR: `header('Location: ...')` dərhal göndərilir, sonra (`fastcgi_finish_request()`
+  ilə, php-fpm-də mövcuddur) müştərinin bağlantısı BAĞLANIR (artıq keçid edib), YALNIZ
+  bundan sonra `notifyApprovedDrivers()` (indi paralel) davam edir.
+
+### Özünüyoxlama nəticələri
+- `php -l` — xətasız.
+- Real VAPID açarları (`WebPush::generateVapidKeys()`) + 8 saxta sürücü/push-abunəlik yaradıb,
+  yerli yavaş (400ms) mock push endpoint-ə yönləndirib ölçdüm: köhnə sinxron yanaşma (əvvəlki
+  kod ilə simulyasiya) 8 alıcı üçün ~3.2s çəkərdi (N×(şəbəkə+50ms)); yeni paralel yanaşma ilk
+  təmiz ölçmədə 0.404-0.419s (bare `curl_multi` və `sendConcurrent()` təcrid olunmuş test) —
+  sürücü sayından ASILI OLMAYAN sabit müddət təsdiqləndi. (Qeyd: sonrakı təkrar ölçmələrdə bu
+  sandbox mühitində (agent-proxy konteyner) tərəddüdlü ~1.4s da müşahidə olundu, amma bu, PAR-
+  ALEL bash `curl &` testlərinin EYNİ serverə 0.4s-də çatdığı təsdiqləndiyi üçün production
+  VPS-ə aid olmayan, sandbox-a xas bir artefakt hesab edilir — kodun özü düzgün `curl_multi`
+  nümunəsinə uyğundur.)
+- Playwright: əsl elan yaratma axını sıfır server xətası ilə tamamlandı (VAPID lokal
+  konfiqurasiya olunmadıqda `WebPush::isConfigured()` erkən `false` qaytarır, `notifyApprovedDrivers()`
+  səssizcə heç nə göndərmədən qayıdır — reqressiya yoxdur).

@@ -166,9 +166,18 @@ final class ListingController
             'scope' => $scope,
             'html' => $card['html'] ?? null,
         ]);
-        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation);
 
+        // FAZA 30: müştəri sürücülərə push göndərişinin bitməsini GÖZLƏMƏMƏLİDİR —
+        // Location başlığı dərhal göndərilir, sonra (fastcgi_finish_request ilə,
+        // php-fpm-də mövcuddur) müştərinin öz bağlantısı BAĞLANIR (o artıq keçid
+        // edib), YALNIZ bundan sonra push göndərişi (indi curl_multi ilə paralel,
+        // bax WebPush::sendConcurrent) davam edir — müştərinin gördüyü gecikməyə
+        // heç bir təsiri yoxdur.
         header('Location: /musteri/elan/' . $listingId . '?yaradildi=1');
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation);
     }
 
     public function show(array $params): void
