@@ -4,24 +4,6 @@
   src: local('DejaVu Sans');
 }
 
-/* FAZA 15: səhifələr arası keçid nativ tətbiq kimi hiss olunsun (bütün tab/link
-   naviqasiyaları, tam sənəd yenilənməsi daxil olmaqla) — dəstəkləməyən brauzerlərdə
-   sadəcə e'tibarsız qalır, heç bir JS/kitabxana lazım deyil, köhnə davranışa geri düşür. */
-@view-transition {
-  navigation: auto;
-}
-::view-transition-old(root) {
-  animation: 160ms ease-out both by-view-out;
-}
-::view-transition-new(root) {
-  animation: 220ms ease-out both by-view-in;
-}
-@keyframes by-view-out { to { opacity: 0; transform: scale(.985); } }
-@keyframes by-view-in { from { opacity: 0; transform: scale(1.01); } }
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-}
-
 :root {
   --bg: #F2F5FC;
   --bg-alt: #FFFFFF;
