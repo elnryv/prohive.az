@@ -145,6 +145,13 @@ final class Auth
         $_SESSION[self::SESSION_KEY] = $userId;
         self::$user = self::fetchById($userId);
         self::$resolved = true;
+        // FAZA 19: splash ekranı üçün bayraq — bu metod YALNIZ 3 həqiqi halda çağırılır:
+        // giriş, qeydiyyat, və "yaddaş saxla" ilə sessiyanın YENİDƏN qurulması (bu da yalnız
+        // PHP sessiya kukisi yoxdursa baş verir — yəni tətbiq tam bağlanıb kuki itibsə).
+        // Adi arxa-plan keçidində/naviqasiyada mövcud sessiya sadəcə davam edir, bu metod
+        // çağırılmır — buna görə splash həmin halda YOX, məhz bu 3 halda görünür.
+        // Bax layouts/app.php (bayrağı oxuyub dərhal silir ki, bir dəfədən çox göstərməsin).
+        $_SESSION['show_splash_once'] = true;
     }
 
     public static function logout(): void

@@ -51,12 +51,17 @@ $manifestFile = match ($user['role'] ?? null) {
 </head>
 <body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
 <?php
-// Splash YALNIZ real giriş/qeydiyyat uğurundan sonrakı ilk səhifədə göstərilir (bax
-// AuthController::redirectHome() — `?splash=1` yönləndirmə işarəsi). Sessiya-lokal
-// yaddaş/vaxt-əsaslı heuristikalar (əvvəlki cəhd) etibarsız çıxdı, çünki PWA arxa
-// plandan qayıdanda (start_url-a, işarəsiz) və real yeni girişdə (işarəli) eyni səhifə
-// server tərəfindən fərqləndirilməlidir — bu, JS-dən deyil, YALNIZ serverdən mümkündür.
-if (isset($_GET['splash'])): ?>
+// Splash YALNIZ 3 real haldan birində göstərilir: qeydiyyat, giriş, ya da "yaddaş
+// saxla" ilə sessiyanın YENİDƏN qurulması (bu da yalnız PHP sessiya kukisi itibsə baş
+// verir — yəni tətbiq TAM bağlanıb yenidən açılıbsa). Bayraq `Auth::establishSession()`
+// içində qoyulur (bax App\Core\Auth) — bu metod məhz yalnız bu 3 halda çağırılır, adi
+// arxa-plan-keçidində/naviqasiyada mövcud sessiya sadəcə davam etdiyi üçün toxunulmur.
+// Oxunan kimi dərhal silinir ki, bir dəfədən çox (növbəti səhifələrdə) göstərməsin.
+$showSplash = !empty($_SESSION['show_splash_once']);
+if ($showSplash) {
+    unset($_SESSION['show_splash_once']);
+}
+if ($showSplash): ?>
 <?php \App\Core\View::partial('partials/splash'); ?>
 <?php endif; ?>
 <?php \App\Core\View::partial('partials/bg_blobs'); ?>

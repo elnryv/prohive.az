@@ -119,7 +119,7 @@ final class AuthController
         ]);
 
         Auth::establishSession((int) DB::conn()->lastInsertId());
-        header('Location: /musteri/elanlarim?xosgeldin=1&splash=1');
+        header('Location: /musteri/elanlarim?xosgeldin=1');
     }
 
     private function registerDriver(): void
@@ -201,7 +201,7 @@ final class AuthController
         ]);
 
         Auth::establishSession((int) DB::conn()->lastInsertId());
-        header('Location: /surucu/lent?xosgeldin=1&splash=1');
+        header('Location: /surucu/lent?xosgeldin=1');
     }
 
     public function loginForm(): void
@@ -231,7 +231,7 @@ final class AuthController
             return;
         }
 
-        $this->redirectHome(true);
+        $this->redirectHome();
     }
 
     public function logout(): void
@@ -240,21 +240,13 @@ final class AuthController
         header('Location: /');
     }
 
-    /**
-     * @param bool $freshLogin `true` yalnız real giriş uğurundan sonra — bu halda dashboard-a
-     * `splash=1` işarəsi ilə yönləndirilir (bax layouts/app.php), ki, açılış animasiyası YALNIZ
-     * bu real "yeni giriş" anında görünsün, arxa plandan sadəcə qayıdanda YOX (FAZA 17/18).
-     * Artıq giriş etmiş istifadəçi /giris və ya /qeydiyyat-a yenidən düşəndə (yuxarıdakı
-     * `Auth::check()` mühafizələri) `false` ilə çağırılır — heç bir splash lazım deyil.
-     */
-    private function redirectHome(bool $freshLogin = false): void
+    private function redirectHome(): void
     {
         $user = Auth::user();
-        $suffix = $freshLogin ? '?splash=1' : '';
         if ($user !== null && $user['role'] === 'driver') {
-            header('Location: /surucu/lent' . $suffix);
+            header('Location: /surucu/lent');
         } else {
-            header('Location: /musteri/elanlarim' . $suffix);
+            header('Location: /musteri/elanlarim');
         }
         exit;
     }

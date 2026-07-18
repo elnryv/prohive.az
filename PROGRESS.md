@@ -693,3 +693,33 @@ Sahibkarın istinad etdiyi kuryer platforması ayrı repo deyil, `elnryv/prohive
 `X-Accel-Buffering: no`), YEGANƏ əhəmiyyətli fərq — onların nginx location-u DƏQİQ uyğunlaşır
 (`location = /sse/lovhe`, real route ilə tam üst-üstə düşür), bizimki isə FAZA 17-yə qədər
 uyğunlaşmırdı. Bu, FAZA 17-dəki kök-səbəb diaqnozunu müstəqil şəkildə təsdiqlədi.
+
+---
+
+## FAZA 19 — Splash: dəqiq 3 hal (giriş/qeydiyyat/app-yenidən-açılma) ✅ TAMAMLANDI
+
+FAZA 18-in `?splash=1` query-parametr həlli natamam çıxdı — sahibkar sual-cavab vasitəsilə dəqiq
+göstərdi ki, splash **3 real halda** görünməlidir: (1) qeydiyyat, (2) çıxış edib telefon+şifrə ilə
+yenidən giriş, (3) app-ı TAM bağlayıb (task-killer/swipe-up) yenidən ikondan açanda ("yaddaş
+saxla" ilə sessiya avtomatik bərpa olunanda) — AMMA sadəcə arxa plana atılıb (bağlanmadan) geri
+qayıdanda YOX.
+
+### Daha dəqiq həll: bayraq `Auth::establishSession()`-ın öz içində
+`establishSession()` YALNIZ bu 3 həqiqi haldan birində çağırılır — `Auth::login()`, qeydiyyat
+(`registerCustomer`/`registerDriver`), və `tryRememberLogin()` (bu da YALNIZ PHP sessiya kukisi
+YOXDURSA işə düşür — yəni tətbiq tam bağlanıb kuki itibsə). Adi arxa-plan-keçidində/naviqasiyada
+mövcud sessiya `Auth::boot()`-da birbaşa oxunur, `establishSession()` heç çağırılmır. Buna görə
+bayraq (`$_SESSION['show_splash_once'] = true;`) məhz bu metodun daxilinə qoyuldu — 3 həqiqi hal
+avtomatik və düzgün tutulur, "arxa plan vs tam bağlanma" fərqini JS-in deyil, PHP sessiya kukisinin
+təbii davranışının özü təmin edir. `layouts/app.php` bu bayrağı oxuyub dərhal silir (bir dəfəlik).
+`AuthController`-dəki `$freshLogin`/`?splash=1` query-parametr mexanizmi tamamilə silindi (artıq
+lazımsız, sadələşdirmə).
+
+### Özünüyoxlama nəticələri
+- `php -l` — xətasız.
+- Playwright, 5 ssenari ardıcıl: (1) təzə giriş → splash görünür; (2) adi naviqasiya → yoxdur;
+  (3) sadə reload (arxa-plan-qayıdış simulyasiyası, sessiya kukisi toxunulmayıb) → yoxdur;
+  (4) YALNIZ `yuk_sess` kukisi silinib (`yuk_remember` saxlanılıb — app tam bağlanma simulyasiyası)
+  sonra səhifə açılışı → `tryRememberLogin()` sessiyanı bərpa edir, splash YENİDƏN görünür;
+  (5) bundan dərhal sonra başqa səhifəyə keçiddə → yoxdur (bayraq artıq istehlak olunub).
+  Bütün hallarda sıfır konsol xətası.
