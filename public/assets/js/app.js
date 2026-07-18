@@ -220,17 +220,37 @@
     let lastId = initialLastId;
     let lastMessageAt = Date.now();
 
+    // FAZA 26: MÜVƏQQƏTİ görünən diaqnostika nişanı (bax ekranın altı, tünd zolaq).
+    // Masaüstü/dev-tools olmadan (telefonda) bağlantının canlı vəziyyətini birbaşa
+    // gözlə görmək üçün — problem tapılandan SONRA silinəcək.
+    const debugBadge = document.createElement('div');
+    debugBadge.id = 'sse-debug-badge';
+    debugBadge.style.cssText = 'position:fixed;left:8px;right:8px;bottom:64px;z-index:99999;'
+      + 'background:rgba(0,0,0,.85);color:#7CFC7C;font:11px/1.4 monospace;padding:6px 10px;'
+      + 'border-radius:8px;white-space:pre-wrap;pointer-events:none;';
+    function setBadge(text) {
+      const t = new Date().toLocaleTimeString();
+      debugBadge.textContent = '[' + t + '] ' + text;
+    }
+    setBadge('SSE: hazırlanır...');
+    document.addEventListener('DOMContentLoaded', () => document.body.appendChild(debugBadge));
+    if (document.readyState !== 'loading') document.body.appendChild(debugBadge);
+
     function open() {
       if (es) es.close();
       const sep = url.includes('?') ? '&' : '?';
       const fullUrl = url + sep + 'lastId=' + encodeURIComponent(lastId);
       es = new EventSource(fullUrl);
       lastMessageAt = Date.now();
-      es.addEventListener('ping', () => { lastMessageAt = Date.now(); });
+      setBadge('SSE: qoşulur (lastId=' + lastId + ')');
+      es.onopen = () => setBadge('SSE: AÇIQ, lastId=' + lastId);
+      es.onerror = () => setBadge('SSE: XƏTA, readyState=' + es.readyState + ', lastId=' + lastId);
+      es.addEventListener('ping', () => { lastMessageAt = Date.now(); setBadge('SSE: ping alındı (canlıdır), lastId=' + lastId); });
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
           lastMessageAt = Date.now();
           if (e.lastEventId) lastId = e.lastEventId;
+          setBadge('SSE: "' + name + '" hadisəsi ALINDI! id=' + e.lastEventId);
           handlers[name](e);
         });
       });
@@ -239,12 +259,16 @@
     open();
 
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') open();
+      if (document.visibilityState === 'visible') {
+        setBadge('SSE: görünən oldu -> məcburi reconnect');
+        open();
+      }
     });
     window.addEventListener('online', open);
 
     setInterval(() => {
       if (document.visibilityState === 'visible' && navigator.onLine && Date.now() - lastMessageAt > 90000) {
+        setBadge('SSE: 90s+ sükut -> sağlamlıq gözətçisi reconnect edir');
         open();
       }
     }, 20000);

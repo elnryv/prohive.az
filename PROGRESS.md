@@ -977,3 +977,32 @@ demək olar HEÇ VAXT görmür, `show_splash_once` qoyulmur, splash göstərilmi
   reload (kuki/sessiya TOXUNULMADAN, real "bağla-yenidən aç"ı simulyasiya edir) → splash
   YENİDƏN görünür (gözlənilən: var) ✅ — məhz FAZA 18/19-un aşkarlaya bilmədiyi hal.
   Sıfır konsol xətası.
+
+## FAZA 26 — MÜVƏQQƏTİ görünən SSE diaqnostika nişanı (masaüstü/dev-tools olmadan)
+
+Splash düzəlişi (FAZA 25) canlıda TƏSDİQLƏNDİ (sahibkar: "Splash işlədi"). Real-time isə
+sahibkarın öz cihazında HƏLƏ DƏ görünmür — bu, FAZA 22/23/24-ün (header prioriteti, zombi
+bağlantı, dövr müddəti) production-da artıq aktiv olduğu haldadır (`git log` ilə təsdiqləndi:
+77abb78). Sahibkarın masaüstü kompüteri yoxdur (yalnız telefon) — brauzerin Developer
+Tools/Network tabına çıxışı yoxdur, ona görə uzaqdan diaqnoz qoymaq üçün ADİ konsol logu
+kifayət etmir (görünməzdir).
+
+### Həll — ekranın özündə görünən status nişanı
+`connectResilientSSE()`-yə (bax `app.js`) kiçik, tünd-şəffaf bir zolaq əlavə olundu (ekranın
+altında, bottom-nav-ın üstündə) — bunu HƏR kəs (dev tools lazım deyil) sadəcə ekrana baxaraq
+oxuya bilər:
+- `SSE: qoşulur...` — bağlantı açılır.
+- `SSE: AÇIQ, lastId=N` — bağlantı sağlamdır.
+- `SSE: XƏTA, readyState=N` — bağlantı kəsilib.
+- `SSE: ping alındı (canlıdır)` — server-dən keep-alive gəlir (bağlantı canlıdır).
+- `SSE: "listing_new" hadisəsi ALINDI!` — yeni elan hadisəsi gəlib (bu görünürsə, problem
+  YALNIZ kartın DOM-a əlavə olunmasında/filtrində ola bilər, bağlantıda YOX).
+- `SSE: görünən oldu -> məcburi reconnect` / `SSE: 90s+ sükut -> ...` — FAZA 23-ün
+  müdafiə mexanizmlərinin işə düşdüyü anlar.
+
+Bu, TAMAMİLƏ MÜVƏQQƏTİDİR — kod şərhində "FAZA 26" və "silinəcək" olaraq açıq işarələnib,
+problem tapılandan sonra silinəcək.
+
+### Özünüyoxlama
+- `node --check` — xətasız.
+- Playwright: sürücü lentini aç → nişan `"SSE: AÇIQ, lastId=N"` göstərir. Sıfır konsol xətası.
