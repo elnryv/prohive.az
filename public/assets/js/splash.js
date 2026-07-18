@@ -1,19 +1,27 @@
-// Sessiyada 1 dəfə (bölmə 10.2, FAZA 15) — flaş effektindən qaçmaq üçün dərhal
-// (defer olmadan) icra olunur. Bütün açılış ardıcıllığı (loqo hissələrinin sıra ilə
-// yığılması, mətn, loader) CSS keyframe `animation-delay`-lə idarə olunur (bax app.css
-// .splash .* qaydaları — sahibkarın verdiyi GSAP timeline-ın eyni vaxt cədvəli ilə).
-// Bu skript yalnız: (1) hissəcikləri generasiya edir, (2) loading bar/faiz sayğacını
-// GSAP-ın loader-bar tween-inin başladığı andan (3.8s) etibarən sürükləyir, (3) sonda
-// splash-ı sildirir.
+// Flaş effektindən qaçmaq üçün dərhal (defer olmadan) icra olunur. Bütün açılış
+// ardıcıllığı (loqo, mətn, loader) CSS keyframe `animation-delay`-lə idarə olunur
+// (bax app.css .splash .* qaydaları). Bu skript yalnız: (1) hissəcikləri generasiya
+// edir, (2) loading bar/faiz sayğacını sürükləyir, (3) sonda splash-ı sildirir.
+//
+// FAZA 16 fix: əvvəllər `sessionStorage` istifadə olunurdu ("sessiyada 1 dəfə"), amma
+// PWA-nı Ana ekrandan açanlarda (standalone rejim) mobil brauzerlər (xüsusən iOS)
+// arxa plana atılan səhifənin WebView prosesini yaddaş üçün öldürüb sonra "təzə"
+// yükləyə bilir — bu zaman sessionStorage sıfırlanır və splash HƏR dəfə arxa plandan
+// qayıdanda təkrar oynanılır (şikayət budur). `localStorage` isə disk-əsaslıdır,
+// WebView prosesi öldürülsə belə davam edir — buna görə saxlanma yeri dəyişdirilib,
+// üstəlik 12 saatdan köhnə olarsa yenidən göstərilir (yeni günün ilk açılışı kimi).
 (function () {
   var splash = document.getElementById('splash');
   if (!splash) return;
 
-  if (sessionStorage.getItem('yuk_splash_shown')) {
+  var STORAGE_KEY = 'yuk_splash_last_shown';
+  var MIN_GAP_MS = 12 * 60 * 60 * 1000; // 12 saat
+  var lastShown = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+  if (lastShown && (Date.now() - lastShown) < MIN_GAP_MS) {
     splash.remove();
     return;
   }
-  sessionStorage.setItem('yuk_splash_shown', '1');
+  localStorage.setItem(STORAGE_KEY, String(Date.now()));
   splash.hidden = false;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
