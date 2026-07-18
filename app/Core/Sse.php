@@ -23,6 +23,18 @@ final class Sse
      */
     public static function stream(array $channels, int $lastEventId = 0, int $maxSeconds = 55): void
     {
+        // FAZA 19: `nginx buffering off` TƏK BAŞINA kifayət etmədi — PHP-nin ÖZÜ
+        // (php-fpm pool php.ini-də) `zlib.output_compression` aktiv ola bilər, bu
+        // halda flush()/ob_flush() çağırışları heç nəyi dəyişmir, çünki bayt-lar
+        // artıq PHP-nin daxili gzip buferindən keçir və yalnız bufer dolanda və ya
+        // skript bitəndə (bizim halda 55s dövrün sonunda) çıxır — bu da eynilə
+        // "yalnız tab dəyişəndə görünür" simptomunu verir, nginx-dən ASILI OLMADAN.
+        // `max_execution_time` (bəzi php.ini-lərdə default 30s) də dövrü vaxtından
+        // əvvəl kəsə bilər — set_time_limit(0) ilə bu SSE skripti üçün xüsusi ləğv edilir.
+        @ini_set('zlib.output_compression', '0');
+        @ini_set('output_buffering', 'off');
+        @ini_set('implicit_flush', '1');
+        set_time_limit(0);
         while (ob_get_level() > 0) {
             ob_end_clean();
         }
