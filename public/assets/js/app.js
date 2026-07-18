@@ -215,9 +215,17 @@
     function open() {
       if (es) es.close();
       const sep = url.includes('?') ? '&' : '?';
-      es = new EventSource(url + sep + 'lastId=' + encodeURIComponent(lastId));
+      const fullUrl = url + sep + 'lastId=' + encodeURIComponent(lastId);
+      es = new EventSource(fullUrl);
+      // MÜVƏQQƏTİ DİAQNOSTİKA (FAZA 20) — real-time problemi araşdırmaq üçün. Brauzerin
+      // Konsol (Console) sekmesində görünür, istifadəçiyə görünməz. Problem tapılandan
+      // sonra silinəcək.
+      console.log('[SSE] açılır:', fullUrl);
+      es.onopen = () => console.log('[SSE] qoşuldu:', fullUrl);
+      es.onerror = () => console.log('[SSE] error, readyState=', es.readyState, fullUrl);
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
+          console.log('[SSE] hadisə alındı:', name, e.data);
           if (e.lastEventId) lastId = e.lastEventId;
           handlers[name](e);
         });
@@ -255,12 +263,16 @@
       try {
         const res = await fetch('/surucu/lent/kart/' + listingId);
         const card = await res.json();
+        console.log('[SSE] kart sorğusu:', listingId, 'ok=', card.ok, 'scope=', card.scope, 'gözlənilən=', currentScope);
         if (!card.ok || card.scope !== currentScope) {
+          console.log('[SSE] kart göstərilmir (uyğun deyil və ya tapılmadı)');
           return;
         }
         if (feedList.querySelector('[data-listing-id="' + listingId + '"]')) {
+          console.log('[SSE] kart artıq lentdə var, təkrarlanmır');
           return;
         }
+        console.log('[SSE] kart lentə əlavə olunur:', listingId);
         const wrapper = document.createElement('div');
         wrapper.innerHTML = card.html.trim();
         const el = wrapper.firstChild;
@@ -273,7 +285,7 @@
           el.style.transform = 'translateY(0)';
         });
       } catch (err) {
-        // şəbəkə xətası — növbəti hadisədə yenidən cəhd olunacaq
+        console.log('[SSE] kart sorğusunda xəta:', err);
       }
     };
 
