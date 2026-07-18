@@ -329,6 +329,14 @@
     // göstərilmiş) hadisələr "yeni" kimi təkrar oynadılmır.
     const initialLastId = feedList.dataset.lastEventId || '0';
 
+    // FAZA 29: bütün yeni elanlar scope-dan asılı olmadan DƏRHAL lentin başında
+    // göstərilir (əvvəlki versiya `scope !== currentScope` olanda kartı tamamilə
+    // gizlədirdi — bildiriş bütün sürücülərə gedir, amma lent yalnız cari taba
+    // uyğun elanı göstərirdi, nəticədə "bildiriş gəlir, kart görünmür" effekti
+    // yaranırdı). İndi uyğunsuz scope-lu kart da dərhal görünür, üstündə hansı
+    // bölgəyə aid olduğunu göstərən çip var ki, sürücü qarışdırmasın.
+    const SCOPE_LABELS = { baku: 'Bakı daxili', intercity: 'Bölgələrarası' };
+
     // FAZA 20: kartın HTML-i artıq SSE hadisəsinin İÇİNDƏ gəlir (bax
     // ListingRules::renderFeedCard()) — əvvəlki dizaynda bu funksiya ayrıca
     // fetch('/surucu/lent/kart/'+id) çağırırdı, bu əlavə round-trip özü müstəqil
@@ -337,7 +345,7 @@
     const handleListingNew = (e) => {
       const data = JSON.parse(e.data);
       const listingId = data.payload.listing_id;
-      if (!data.payload.html || data.payload.scope !== currentScope) {
+      if (!data.payload.html) {
         return;
       }
       if (feedList.querySelector('[data-listing-id="' + listingId + '"]')) {
@@ -346,6 +354,17 @@
       const wrapper = document.createElement('div');
       wrapper.innerHTML = data.payload.html.trim();
       const el = wrapper.firstChild;
+
+      if (data.payload.scope && data.payload.scope !== currentScope) {
+        const chipRow = el.children[1];
+        if (chipRow) {
+          const scopeChip = document.createElement('span');
+          scopeChip.className = 'chip chip-warn';
+          scopeChip.textContent = SCOPE_LABELS[data.payload.scope] || data.payload.scope;
+          chipRow.prepend(scopeChip);
+        }
+      }
+
       // Giriş animasiyası CSS-dəki `.card { animation: cardIn ... }` qaydası ilə
       // avtomatik işə düşür (app.birlikde.biz-in bounce ritminə uyğun) — burada əlavə
       // inline stil lazım deyil, ikiqat animasiya toqquşmasının qarşısı alınır.
