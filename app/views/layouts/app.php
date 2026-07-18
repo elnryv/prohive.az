@@ -50,7 +50,15 @@ $manifestFile = match ($user['role'] ?? null) {
 <meta name="csrf-token" content="<?= e(Csrf::token()) ?>">
 </head>
 <body data-role="<?= e($user['role'] ?? '') ?>" data-auth="<?= Auth::check() ? '1' : '0' ?>" data-driver-status="<?= e($user['driver_status'] ?? '') ?>">
+<?php
+// Splash YALNIZ real giriş/qeydiyyat uğurundan sonrakı ilk səhifədə göstərilir (bax
+// AuthController::redirectHome() — `?splash=1` yönləndirmə işarəsi). Sessiya-lokal
+// yaddaş/vaxt-əsaslı heuristikalar (əvvəlki cəhd) etibarsız çıxdı, çünki PWA arxa
+// plandan qayıdanda (start_url-a, işarəsiz) və real yeni girişdə (işarəli) eyni səhifə
+// server tərəfindən fərqləndirilməlidir — bu, JS-dən deyil, YALNIZ serverdən mümkündür.
+if (isset($_GET['splash'])): ?>
 <?php \App\Core\View::partial('partials/splash'); ?>
+<?php endif; ?>
 <?php \App\Core\View::partial('partials/bg_blobs'); ?>
 <header class="top-bar">
   <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>

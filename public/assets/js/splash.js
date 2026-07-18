@@ -3,25 +3,17 @@
 // (bax app.css .splash .* qaydaları). Bu skript yalnız: (1) hissəcikləri generasiya
 // edir, (2) loading bar/faiz sayğacını sürükləyir, (3) sonda splash-ı sildirir.
 //
-// FAZA 16 fix: əvvəllər `sessionStorage` istifadə olunurdu ("sessiyada 1 dəfə"), amma
-// PWA-nı Ana ekrandan açanlarda (standalone rejim) mobil brauzerlər (xüsusən iOS)
-// arxa plana atılan səhifənin WebView prosesini yaddaş üçün öldürüb sonra "təzə"
-// yükləyə bilir — bu zaman sessionStorage sıfırlanır və splash HƏR dəfə arxa plandan
-// qayıdanda təkrar oynanılır (şikayət budur). `localStorage` isə disk-əsaslıdır,
-// WebView prosesi öldürülsə belə davam edir — buna görə saxlanma yeri dəyişdirilib,
-// üstəlik 12 saatdan köhnə olarsa yenidən göstərilir (yeni günün ilk açılışı kimi).
+// FAZA 18: "nə vaxt göstər" qərarı artıq TAMAMİLƏ serverdədir (bax layouts/app.php —
+// `#splash` elementi yalnız `?splash=1` yönləndirmə işarəsi olanda ümumiyyətlə DOM-a
+// yazılır, bax AuthController::redirectHome()). Əvvəlki JS-tərəfi heuristikalar
+// (sessionStorage, sonra localStorage+12s) etibarsız çıxdı — PWA-nı arxa plandan
+// (start_url-a, işarəsiz) qayıtma ilə real yeni girişi (işarəli) yalnız server
+// fərqləndirə bilər. Ona görə bu skript artıq `#splash` mövcud olub-olmamasından başqa
+// heç bir şərt yoxlamır — element varsa, deməli server onu göstərməyə qərar verib.
 (function () {
   var splash = document.getElementById('splash');
   if (!splash) return;
 
-  var STORAGE_KEY = 'yuk_splash_last_shown';
-  var MIN_GAP_MS = 12 * 60 * 60 * 1000; // 12 saat
-  var lastShown = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-  if (lastShown && (Date.now() - lastShown) < MIN_GAP_MS) {
-    splash.remove();
-    return;
-  }
-  localStorage.setItem(STORAGE_KEY, String(Date.now()));
   splash.hidden = false;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -656,3 +656,40 @@ dəyişmə əslində SSE ilə əlaqəli deyildi, sadəcə təzə səhifə render
 - **VACİB DEPLOY QEYDİ:** bu fix yalnız `git pull` ilə İŞLƏMİR — nginx konfiqi yenidən
   yüklənməlidir (`nginx -t && systemctl reload nginx`), əks halda köhnə (səhv) location
   bloku yaddaşda qalacaq.
+
+---
+
+## FAZA 18 — Splash: yalnız real girişdə, arxa fondan qayıdanda YOX ✅ TAMAMLANDI
+
+Əvvəlki fix (`localStorage` + 12 saat pəncərə, FAZA 16) natamam çıxdı: istifadəçi "arxa fonda
+açıq olanda yenidən girişdə splash açılmasın" dedi, mən müvəqqəti bir pəncərə ilə düzəltdim, amma
+bu, HƏQİQİ yeni girişi arxa plandan sadə qayıdışdan fərqləndirmirdi (ikisi də "eyni cihazda çox
+tezliklə") — nəticədə həqiqi təzə girişdə də splash görünmədi.
+
+### Düzgün həll: qərar tamamilə serverə keçirildi
+- `AuthController::redirectHome(bool $freshLogin)` — YALNIZ `login()`-dəki real uğurlu giriş
+  `true` ilə çağırır, bu da dashboard URL-inə `?splash=1` əlavə edir. Artıq giriş etmiş
+  istifadəçi səhvən `/giris`-ə düşəndə (`Auth::check()` mühafizəsi) `false` ilə çağrılır —
+  splash yoxdur. Qeydiyyat uğuru da eyni işarəni alır (`?xosgeldin=1&splash=1`).
+- `layouts/app.php` — `#splash` elementi artıq HƏR SƏHİFƏDƏ deyil, YALNIZ `$_GET['splash']`
+  mövcud olanda DOM-a yazılır.
+- `splash.js` — bütün JS-tərəfi "nə vaxt göstər" heuristikası (sessionStorage, sonra
+  localStorage+12s) tamamilə silindi — server `#splash`-ı DOM-a yazıbsa, skript sadəcə oynadır.
+
+Bu, PWA-nın `start_url`-a (heç bir sorğu parametri olmadan) arxa plandan qayıtmasını real
+girişdən (hər zaman təzə `?splash=1` alan) DƏQİQ ayırır — JS-dən deyil, yalnız serverdən mümkün
+olan bir fərqləndirmədir.
+
+### Özünüyoxlama nəticələri
+- `php -l` — xətasız.
+- Playwright: `/giris`-in özündə splash yoxdur; real login-dən sonra `?splash=1` ilə
+  yönləndirilir və splash görünür; sonra eyni dashboard-a marker OLMADAN sadə səhifə açılışında
+  (arxa plandan qayıdış simulyasiyası) splash tamamilə DOM-da yoxdur — sıfır konsol xətası.
+
+## Qeyd: "app.birlikde.biz" tapıldı — eyni repo, fərqli branch
+Sahibkarın istinad etdiyi kuryer platforması ayrı repo deyil, `elnryv/prohive.az`-ın
+`claude/project-memory-system-m966o7` branch-idir. Onların SSE (`app/Controllers/SseController.php`,
+`deploy/nginx/app.birlikde.biz.conf`) müqayisə edildi: quruluş demək olar eynidir (2s poll loop,
+`X-Accel-Buffering: no`), YEGANƏ əhəmiyyətli fərq — onların nginx location-u DƏQİQ uyğunlaşır
+(`location = /sse/lovhe`, real route ilə tam üst-üstə düşür), bizimki isə FAZA 17-yə qədər
+uyğunlaşmırdı. Bu, FAZA 17-dəki kök-səbəb diaqnozunu müstəqil şəkildə təsdiqlədi.
