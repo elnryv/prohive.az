@@ -166,7 +166,7 @@ final class ListingController
             'scope' => $scope,
             'html' => $card['html'] ?? null,
         ]);
-        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation);
+        $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation, $scope);
 
         header('Location: /musteri/elan/' . $listingId . '?yaradildi=1');
     }
@@ -257,16 +257,27 @@ final class ListingController
     }
 
     /**
-     * Yeni elan haqqında BÜTÜN təsdiqlənmiş (və bloklanmamış) sürücülərə push göndərir
-     * (sahibkarın qərarı — əvvəlki route_subscriptions-a görə filtrləmə ləğv edildi;
-     * qeyri-təsdiqli sürücü təklif verə bilmədiyi üçün push almasının mənası yoxdur,
-     * bax Auth::isActiveDriver()).
+     * Yeni elan haqqında təsdiqlənmiş (və bloklanmamış) sürücülərə push göndərir.
+     * FAZA 29: canlı lentin (app.js handleListingNew) kartı YALNIZ uyğun scope-da
+     * göstərdiyi ilə uyğunlaşdırmaq üçün scope-a görə filtrlənir — əks halda sürücü
+     * push bildirişi alır, amma canlı lentə baxanda kart görünmür (scope uyğun
+     * gəlmədiyi üçün), bu, "bildiriş gəlir, ekranda yoxdur" hissi yaradırdı.
+     * Sürücünün `route_subscriptions`-da HEÇ BİR qeydi yoxdursa (bax
+     * Driver\RouteSubscriptionController) — defolt olaraq HAMISINI alır (əvvəlki
+     * "bütün təsdiqlənmiş sürücülərə göndər" davranışı, opt-in konfiqurasiya
+     * etməyən sürücülər üçün REGRESSIYA olmasın deyə). Sürücünün EN AZI bir qeydi
+     * varsa, YALNIZ bu elanın scope-una (və ya 'all') uyğun qeydi olduqda bildiriş alır.
      */
-    private function notifyApprovedDrivers(int $listingId, array $fromLocation, array $toLocation): void
+    private function notifyApprovedDrivers(int $listingId, array $fromLocation, array $toLocation, string $scope): void
     {
-        $stmt = DB::conn()->query(
-            "SELECT id FROM users WHERE role = 'driver' AND driver_status = 'approved' AND is_blocked = 0"
+        $stmt = DB::conn()->prepare(
+            "SELECT DISTINCT u.id
+             FROM users u
+             LEFT JOIN route_subscriptions rs ON rs.driver_id = u.id
+             WHERE u.role = 'driver' AND u.driver_status = 'approved' AND u.is_blocked = 0
+               AND (rs.id IS NULL OR rs.scope = 'all' OR rs.scope = ?)"
         );
+        $stmt->execute([$scope]);
         $driverIds = array_map('intval', array_column($stmt->fetchAll(), 'id'));
 
         if ($driverIds === []) {

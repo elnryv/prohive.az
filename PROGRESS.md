@@ -1085,3 +1085,43 @@ Xərc: ən pis halda ~5 saniyəlik gecikmə (yük elanları üçün tamamilə q�
   DB-yə birbaşa test hadisəsi əlavə olundu. ~6.5 saniyə sonra kart EKRANDA GÖRÜNDÜ —
   YALNIZ polling vasitəsilə, EventSource heç vaxt işləmədən. Bu, mexanizmin brauzer/şəbəkə
   xüsusiyyətlərindən TAM MÜSTƏQİL işlədiyini qəti sübut edir.
+
+## FAZA 29 — Push bildirişi ilə canlı lentin scope-u arasında uyğunsuzluq düzəldildi
+
+Sahibkar konkret bir kod-səviyyəli uyğunsuzluq göstərdi: `ListingController::notifyApprovedDrivers()`
+BÜTÜN təsdiqlənmiş sürücülərə (scope-dan asılı olmayaraq) push göndərirdi, AMMA canlı lent
+(`app.js`-dəki `handleListingNew`) kartı YALNIZ `data.payload.scope === currentScope` olanda
+göstərirdi. Nəticə: sürücü "Bölgələrarası" elanı üçün push bildirişi alır, amma "Bakı daxili"
+tabındadırsa, canlı lentdə heç nə görünmür (düzgün, dizayn görə) — bu, "bildiriş gəlir, ekranda
+yoxdur" hissi yaradırdı, baxmayaraq ki, real-time transportun özü (SSE) düzgün işləyirdi.
+
+### Kontekst — köhnə şərh
+Kodda artıq qeyd var idi: "sahibkarın qərarı — əvvəlki `route_subscriptions`-a görə filtrləmə
+ləğv edildi." Yəni bu, keçmişdə bilərəkdən edilmiş bir qərar idi. `Driver\RouteSubscriptionController`
+yoxlanıldı — bu, HƏQİQƏTƏN işlək bir funksiyadır (sürücü `/surucu/marsrutlar`-da maks 5 marşrut
++ scope seçə bilir), sadəcə push bildirişlərinə TƏSİR ETMİRDİ.
+
+### Düzəliş (`ListingController::notifyApprovedDrivers()`)
+- Metod artıq `$scope` parametri qəbul edir (çağırış yerində `create()`-dəki artıq hesablanmış
+  `$scope` ötürülür).
+- SQL sorğusu `route_subscriptions` ilə `LEFT JOIN` edir:
+  `WHERE ... AND (rs.id IS NULL OR rs.scope = 'all' OR rs.scope = ?)`.
+  - Sürücünün HEÇ BİR marşrut abunəliyi yoxdursa (`rs.id IS NULL`) — DEFOLT olaraq HAMISINI alır
+    (köhnə "bütün sürücülərə göndər" davranışı qorunur — opt-in konfiqurasiya ETMƏYƏN sürücülər
+    üçün REGRESSİYA olmasın deyə, çünki əksəriyyət heç vaxt bu səhifəyə getməyib).
+  - Sürücünün ƏN AZI bir qeydi varsa — YALNIZ bu elanın scope-una (və ya `'all'`) uyğun
+    qeydi olduqda bildiriş alır (məsələn, YALNIZ 'baku' abunə olan sürücü 'intercity' elanı
+    üçün artıq push ALMIR).
+- `OfferActionController`-dəki reopen-bildirişi (yalnız artıq həmin elana təklif vermiş
+  sürücülərə göndərilir) TOXUNULMADI — bu, fərqli, hədəflənmiş bir bildirişdir (ümumi
+  "yeni elan kəşfi" broadcast-ı deyil), scope-uyğunsuzluğu bura aid deyil.
+
+### Özünüyoxlama nəticələri
+- `php -l` — xətasız.
+- SQL sorğusu birbaşa test edildi: (a) abunəliyi olmayan sürücü — HƏR İKİ scope üçün daxil
+  edilir; (b) YALNIZ `baku` abunə olan sürücü — `scope=baku` sorğusunda daxil, `scope=intercity`
+  sorğusunda İSTİSNA edilir (dəqiq gözlənilən); (c) `all` abunə olan sürücü — HƏR İKİ scope üçün
+  daxil edilir.
+- Playwright: əsl elan yaratma axını (login → `/musteri/elan/yeni` → submit) sıfır server xətası
+  ilə tamamlandı, `notifyApprovedDrivers()`-in yeni imzası/sorğusu istehsalat kodunda problemsiz
+  işləyir.
