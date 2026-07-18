@@ -1006,3 +1006,40 @@ problem tapılandan sonra silinəcək.
 ### Özünüyoxlama
 - `node --check` — xətasız.
 - Playwright: sürücü lentini aç → nişan `"SSE: AÇIQ, lastId=N"` göstərir. Sıfır konsol xətası.
+
+## FAZA 27 — HƏQİQİ KÖK SƏBƏB: Safari/WebKit server-bağlantını təmiz bağlayanda AVTOMATİK yenidən qoşulmur ✅ TAMAMLANDI
+
+FAZA 26-nın diaqnostika nişanı sayəsində sahibkarın öz cihazında (iPhone) CANLI tutuldu:
+nişan `"SSE: XƏTA, readyState=2, lastId=67"` göstərdi. `readyState=2` = `EventSource.CLOSED`.
+
+### Kök səbəb (dəqiq tapıldı)
+Chrome/Firefox öz EventSource-larını server bağlantını (istər xəta, istərsə TƏMİZ/normal
+şəkildə, bizim `Sse::stream()`-in dövr sonunda etdiyi kimi) bağlayanda AVTOMATİK yenidən
+qoşulmağa çalışır. **Safari/WebKit isə YOX** — bu, sənədləşdirilmiş, brauzerlər-arası fərqdir.
+Bizim köhnə `es.onerror` handler-i (FAZA 22/23-dən qalma) YALNIZ diaqnostika mətnini
+yeniləyirdi, HEÇ VAXT `open()` çağırmırdı — çünki əvvəllər (yanlış olaraq) fərz edilirdi ki,
+brauzer bunu öz-özünə həll edir. Chrome-da bu fərziyyə doğrudur, Safari-də İSƏ YANLIŞDIR —
+bağlantı `CLOSED`-də ƏBƏDİ qalır, heç nə onu xilas etmir NƏ VAXTA KİMİ tam səhifə keçidi
+(bottom-nav-a klik = yeni server render) baş versin. Bu da DƏQİQ sahibkarın "tab dəyişəndə
+göstərir" müşahidəsini izah edir — bu, SSE-nin bərpa olunması DEYİL, sadəcə təzə səhifə
+yüklənməsinin cari DB vəziyyətini adi PHP render ilə göstərməsi idi.
+
+### Düzəliş
+- `connectResilientSSE()`-də `es.onerror`: `readyState === EventSource.CLOSED` olduqda
+  1 saniyə gecikmə ilə (server müvəqqəti nasazlıqdadırsa sürətli sonsuz dövrün qarşısını
+  almaq üçün) `open()` MƏCBURİ çağırılır. Artıq FAZA 23-ün "hər halda visibilitychange/
+  online-da məcburi reconnect" + 90s gözətçi məntiqinə ƏLAVƏ olaraq, bağlantı öləndə
+  DƏRHAL (istənilən görünürlük vəziyyətində) özünü bərpa edir.
+
+### Özünüyoxlama nəticələri
+- `node --check` — xətasız.
+- Playwright: `page.route()` ilə ilk `/axin/lent` sorğusuna QISA, dərhal bağlanan cavab
+  verildi (server-tərəfi "təmiz bağlama"nı simulyasiya edir — məhz Safari-nin özü-özünə
+  DÜZƏLTMƏDİYİ hal). Nəticə: HEÇ BİR `visibilitychange`/tab-dəyişmə OLMADAN, ~1-2 saniyə
+  ərzində 2-ci `/axin/lent` sorğusu avtomatik göndərildi, nişan yenidən `"AÇIQ"` göstərdi.
+  Əvvəlki kodda bu HEÇ VAXT baş vermirdi (yalnız nişan mətni yenilənirdi, bağlantı sonsuza
+  qədər ölü qalırdı). Sıfır konsol xətası.
+
+### Qeyd
+FAZA 26-nın müvəqqəti diaqnostika nişanı hələ kodda saxlanılıb — sahibkar canlıda təsdiq
+edəndən sonra silinəcək.

@@ -244,7 +244,20 @@
       lastMessageAt = Date.now();
       setBadge('SSE: qoşulur (lastId=' + lastId + ')');
       es.onopen = () => setBadge('SSE: AÇIQ, lastId=' + lastId);
-      es.onerror = () => setBadge('SSE: XƏTA, readyState=' + es.readyState + ', lastId=' + lastId);
+      // FAZA 27: KÖK SƏBƏB TAPILDI — Safari/WebKit-in EventSource-u serverin (Sse::stream)
+      // TƏMİZ bağladığı bağlantını (dövrün təbii sonu) Chrome/Firefox-dan FƏRQLİ olaraq
+      // AVTOMATİK yenidən qoşmur (readyState `CLOSED`-də əbədi qalır) — bu, məhz FAZA 26-nın
+      // diaqnostika nişanının canlıda göstərdiyi `readyState=2` idi. Əvvəlki kod `onerror`-da
+      // YALNIZ nişanı yeniləyirdi, HEÇ VAXT yenidən qoşulmurdu — bağlantı browser səviyyəsində
+      // sükutla ölürdü, YALNIZ tam səhifə keçidi (bottom-nav) və ya 90s-lik gözətçi onu xilas
+      // edə bilirdi. İndi xəta baş verən kimi (qısa gecikmə ilə, server müvəqqəti səhv verirsə
+      // sürətli dövrün qarşısını almaq üçün) MƏCBURİ yenidən qoşulur.
+      es.onerror = () => {
+        setBadge('SSE: XƏTA, readyState=' + es.readyState + ', lastId=' + lastId + ' -> 1s sonra reconnect');
+        if (es.readyState === EventSource.CLOSED) {
+          setTimeout(open, 1000);
+        }
+      };
       es.addEventListener('ping', () => { lastMessageAt = Date.now(); setBadge('SSE: ping alındı (canlıdır), lastId=' + lastId); });
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
