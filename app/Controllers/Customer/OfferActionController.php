@@ -199,9 +199,11 @@ final class OfferActionController
             $notifyDriverIds[] = (int) $acceptedDriverId;
         }
 
-        Sse::publish('feed', 'listing_reopened', ['listing_id' => $listingId]);
+        $card = ListingRules::renderFeedCard($listingId);
+        $reopenPayload = ['listing_id' => $listingId, 'scope' => $card['scope'] ?? null, 'html' => $card['html'] ?? null];
+        Sse::publish('feed', 'listing_reopened', $reopenPayload);
         foreach ($notifyDriverIds as $did) {
-            Sse::publish('driver_' . $did, 'listing_reopened', ['listing_id' => $listingId]);
+            Sse::publish('driver_' . $did, 'listing_reopened', $reopenPayload);
         }
         if ($notifyDriverIds !== []) {
             WebPush::sendToUsersLocalized($notifyDriverIds, static fn () => [

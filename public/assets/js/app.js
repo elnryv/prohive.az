@@ -257,36 +257,35 @@
     // göstərilmiş) hadisələr "yeni" kimi təkrar oynadılmır.
     const initialLastId = feedList.dataset.lastEventId || '0';
 
-    const handleListingNew = async (e) => {
+    // FAZA 20: kartın HTML-i artıq SSE hadisəsinin İÇİNDƏ gəlir (bax
+    // ListingRules::renderFeedCard()) — əvvəlki dizaynda bu funksiya ayrıca
+    // fetch('/surucu/lent/kart/'+id) çağırırdı, bu əlavə round-trip özü müstəqil
+    // uğursuzluq nöqtəsi idi (hadisə çatsa da, sonrakı sorğu uğursuz/gec olarsa kart
+    // heç görünmürdü). İndi heç bir şəbəkə sorğusu lazım deyil, sırf DOM əlavəsi.
+    const handleListingNew = (e) => {
       const data = JSON.parse(e.data);
       const listingId = data.payload.listing_id;
-      try {
-        const res = await fetch('/surucu/lent/kart/' + listingId);
-        const card = await res.json();
-        console.log('[SSE] kart sorğusu:', listingId, 'ok=', card.ok, 'scope=', card.scope, 'gözlənilən=', currentScope);
-        if (!card.ok || card.scope !== currentScope) {
-          console.log('[SSE] kart göstərilmir (uyğun deyil və ya tapılmadı)');
-          return;
-        }
-        if (feedList.querySelector('[data-listing-id="' + listingId + '"]')) {
-          console.log('[SSE] kart artıq lentdə var, təkrarlanmır');
-          return;
-        }
-        console.log('[SSE] kart lentə əlavə olunur:', listingId);
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = card.html.trim();
-        const el = wrapper.firstChild;
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(-8px)';
-        el.style.transition = 'opacity .3s ease, transform .3s ease';
-        feedList.prepend(el);
-        requestAnimationFrame(() => {
-          el.style.opacity = '1';
-          el.style.transform = 'translateY(0)';
-        });
-      } catch (err) {
-        console.log('[SSE] kart sorğusunda xəta:', err);
+      console.log('[SSE] listing payload:', listingId, 'scope=', data.payload.scope, 'gözlənilən=', currentScope, 'html var?', !!data.payload.html);
+      if (!data.payload.html || data.payload.scope !== currentScope) {
+        console.log('[SSE] kart göstərilmir (uyğun deyil və ya html yoxdur)');
+        return;
       }
+      if (feedList.querySelector('[data-listing-id="' + listingId + '"]')) {
+        console.log('[SSE] kart artıq lentdə var, təkrarlanmır');
+        return;
+      }
+      console.log('[SSE] kart lentə əlavə olunur:', listingId);
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = data.payload.html.trim();
+      const el = wrapper.firstChild;
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-8px)';
+      el.style.transition = 'opacity .3s ease, transform .3s ease';
+      feedList.prepend(el);
+      requestAnimationFrame(() => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
     };
 
     const removeCard = (listingId) => {

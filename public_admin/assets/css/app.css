@@ -751,9 +751,11 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
    bloklanacağı üçün (sınanıldı — proksi 403 verdi) vaxt cədvəli saf CSS keyframe
    `animation-delay`-lə, loader faizi isə minimal JS (rAF) ilə bərpa olunub. Tünd fon
    DƏRHAL solid görünür (fade YOXDUR) ki, açıq mövzulu səhifəyə keçiddə "flaş" olmasın.
-   Vaxt cədvəli (saniyə, animation-delay): logo-wrapper 0s, b-letter .5s,
-   speed-line .9/1.0/1.1s, text-wrapper 1.5s, title 1.8s, subtitle 2.1s, slogan 2.4s,
-   loader-wrapper 2.7s, loader-bar/-text 3.2s (JS, 2s), çıxış ~5.4-6.0s. */
+   FAZA 20: real istifadəçi Safari-də "gecikmə/pis animasiya" şikayət etdi — orijinal
+   ~6s teatral versiya yüngülləşdirilib, ~2.6s-ə sıxılıb (referans layihənin sadə,
+   sürətli splash-ına uyğun). Vaxt cədvəli (saniyə, animation-delay): logo-wrapper 0s,
+   b-letter .25s, speed-line .4/.45/.5s, text-wrapper .6s, title .7s, subtitle .85s,
+   slogan 1.0s, loader-wrapper 1.2s, loader-bar/-text 1.4s (JS, 1s), çıxış ~2.5-2.9s. */
 .splash {
   position: fixed; inset: 0; z-index: 200;
   background: radial-gradient(ellipse at bottom, #0d1117 0%, #050608 100%);
@@ -805,7 +807,7 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   transform: scale(.6);
   opacity: 0;
   margin-bottom: 20px;
-  animation: splash-logo-wrapper-in 1s cubic-bezier(.22, 1, .36, 1) 0s forwards;
+  animation: splash-logo-wrapper-in .4s cubic-bezier(.22, 1, .36, 1) 0s forwards;
 }
 @keyframes splash-logo-wrapper-in { to { transform: scale(1); opacity: 1; } }
 .splash .logo { width: 180px; height: 180px; }
@@ -815,16 +817,16 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   opacity: 0;
   transform: translateY(40px);
   transform-origin: 165px 148px;
-  animation: splash-rise-in .8s cubic-bezier(.22, 1, .36, 1) .5s forwards;
+  animation: splash-rise-in .35s cubic-bezier(.22, 1, .36, 1) .25s forwards;
 }
 .splash .speed-line {
   opacity: 0;
   transform: translateX(-60px);
-  animation: splash-slide-x-in .6s ease-out forwards;
+  animation: splash-slide-x-in .3s ease-out forwards;
 }
-.splash .speed-line:nth-of-type(1) { animation-delay: .9s; }
-.splash .speed-line:nth-of-type(2) { animation-delay: 1.0s; }
-.splash .speed-line:nth-of-type(3) { animation-delay: 1.1s; }
+.splash .speed-line:nth-of-type(1) { animation-delay: .4s; }
+.splash .speed-line:nth-of-type(2) { animation-delay: .45s; }
+.splash .speed-line:nth-of-type(3) { animation-delay: .5s; }
 @keyframes splash-rise-in { to { opacity: 1; transform: translateY(0); } }
 @keyframes splash-slide-x-in { to { opacity: 1; transform: translateX(0); } }
 
@@ -832,19 +834,19 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   margin-top: 30px;
   text-align: center;
   opacity: 0;
-  animation: splash-fade-in .6s ease 1.5s forwards;
+  animation: splash-fade-in .3s ease .6s forwards;
 }
 .splash .title, .splash .subtitle, .splash .slogan {
   opacity: 0;
   transform: translateY(20px);
-  animation: splash-rise-in .6s ease forwards;
+  animation: splash-rise-in .3s ease forwards;
 }
 .splash .title {
   font-family: var(--font-head);
   font-size: 36px;
   font-weight: 600;
   letter-spacing: 1px;
-  animation-delay: 1.8s;
+  animation-delay: .7s;
 }
 .splash .subtitle {
   font-family: var(--font-head);
@@ -852,14 +854,14 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   font-weight: 700;
   color: #2196f3;
   margin-top: -5px;
-  animation-delay: 2.1s;
+  animation-delay: .85s;
 }
 .splash .slogan {
   font-size: 13px;
   color: #a0a7b5;
   max-width: 260px;
   margin: 8px auto 0;
-  animation-delay: 2.4s;
+  animation-delay: 1.0s;
 }
 @keyframes splash-fade-in { to { opacity: 1; } }
 
@@ -867,7 +869,7 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   margin-top: 40px;
   width: 70%; max-width: 280px;
   opacity: 0;
-  animation: splash-fade-in .6s ease 2.7s forwards;
+  animation: splash-fade-in .3s ease 1.2s forwards;
 }
 .splash .loader {
   width: 100%; height: 6px;
@@ -888,7 +890,7 @@ details[open] > .profile-row .profile-row-chevron { transform: rotate(90deg); }
   color: #a0a7b5;
   margin-top: 6px;
   opacity: 0;
-  animation: splash-fade-in .3s ease 3.2s forwards;
+  animation: splash-fade-in .3s ease 1.4s forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -21,7 +21,7 @@
   function createParticles() {
     var container = document.getElementById('particles');
     if (!container) return;
-    var count = 50;
+    var count = 15; // FAZA 20: 50-dən azaldıldı — daha yüngül, Safari-dostu
     for (var i = 0; i < count; i++) {
       var p = document.createElement('div');
       p.className = 'particle';
@@ -76,8 +76,8 @@
 
   createParticles();
 
-  // Loader-bar 2.7s (loader-wrapper) qalxdıqdan qısa müddət sonra, 3.2s-də başlayır, 2s çəkir.
-  runLoader(3200, 2000, function () {
-    setTimeout(hideSplash, 200);
+  // FAZA 20: yüngülləşdirilmiş vaxt cədvəli — loader-bar 1.4s-də başlayır, 1s çəkir.
+  runLoader(1400, 1000, function () {
+    setTimeout(hideSplash, 100);
   });
 })();

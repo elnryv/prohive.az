@@ -110,9 +110,6 @@ $router->get('/surucu/tekliflerim', function () {
 $router->get('/surucu/tarixce', function () {
     (new DriverHistory())->index();
 });
-$router->get('/surucu/lent/kart/{id}', function ($p) {
-    (new DriverDashboard())->cardFragment($p);
-});
 $router->get('/surucu/marsrutlar', function () {
     (new DriverRoutes())->index();
 });

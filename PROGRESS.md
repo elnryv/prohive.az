@@ -723,3 +723,45 @@ lazımsız, sadələşdirmə).
   sonra səhifə açılışı → `tryRememberLogin()` sessiyanı bərpa edir, splash YENİDƏN görünür;
   (5) bundan dərhal sonra başqa səhifəyə keçiddə → yoxdur (bayraq artıq istehlak olunub).
   Bütün hallarda sıfır konsol xətası.
+
+---
+
+## FAZA 20 — Real-time: kart HTML-i SSE hadisəsinin İÇİNDƏ + splash yüngülləşdirmə ✅ TAMAMLANDI
+
+Sahibkar `app.birlikde.biz` (`claude/project-memory-system-m966o7` branch) layihəsinin splash və
+real-time koduna baxıb ona uyğunlaşdırmağı istədi. Müqayisədə əsas memarlıq fərqi tapıldı:
+onların SSE hadisəsi sifarişin BÜTÜN datasını hadisənin özündə göndərir və client birbaşa DOM-a
+yazır; bizim dizaynda isə `listing_new` hadisəsi yalnız ID+scope göndərirdi, sonra client
+AYRICA `fetch('/surucu/lent/kart/{id}')` sorğusu ilə kart HTML-ini çəkirdi. Bu əlavə round-trip
+özü müstəqil bir uğursuzluq nöqtəsi idi — SSE hadisəsi düzgün çatsa belə, sonrakı fetch
+uğursuz/gecikmiş olarsa kart heç görünmürdü. Bu, "push bildirişi gəlir amma ana ekranda
+göstərmir" şikayətini dəqiq izah edir.
+
+### Düzəliş
+- `App\Core\ListingRules::renderFeedCard(int $listingId)` (yeni) — sorğu + `partials/listing_card`
+  render-i BİR yerdə, `Sse::publish()` ÇAĞIRILMAZDAN ƏVVƏL işə düşür, hazır HTML-i qaytarır.
+- `Customer\ListingController::create()` və `OfferActionController` (ləğv/yenidən-açma) — hazır HTML
+  artıq `listing_new`/`listing_reopened` SSE payload-unun daxilinə (`html` sahəsi) qoyulur.
+- `app.js`-də `handleListingNew` sadələşdirildi: `async`/`fetch`/`try-catch` tamamilə silindi,
+  birbaşa `data.payload.html`-i DOM-a yazır — sıfır əlavə şəbəkə sorğusu.
+- Artıq istifadə olunmayan `/surucu/lent/kart/{id}` route-u və `DashboardController::cardFragment()`
+  silindi (ölü kod).
+- **Splash yüngülləşdirmə:** istifadəçi Safari-də gecikmə/pis animasiya şikayət etdi (View
+  Transitions API-dən sonra) — splash-ın özü də referans layihənin sadə (~1.9s) yanaşmasına uyğun
+  ~6.6s-dən **~2.9s**-ə sıxıldı, hissəcik sayı 50-dən 15-ə endirildi (Safari-də daha yüngül).
+- **Müvəqqəti diaqnostika:** `[SSE]` konsol log-ları əlavə olundu (əvvəlki commit-dən) — problem
+  artıq tapıldığı üçün növbəti təmiz fazada silinəcək.
+
+### Özünüyoxlama nəticələri
+- `php -l`, `node --check` — xətasız.
+- Playwright, İKİ AYRI PHP prosesi (8080/8082, PHP-nin daxili serverinin tək-thread'li olması
+  səbəbindən paralel test üçün) ilə tam ucdan-uca ssenari: sürücü lentdədir, müştəri başqa
+  prosesdən yeni elan yaradır → SSE hadisəsi 2 saniyə ərzində çatır, kart HEÇ BİR əlavə şəbəkə
+  sorğusu olmadan dərhal görünür (`Cards visible in driver feed: 3`). Splash isə indi ~2.9 saniyəyə
+  bitir, vizual olaraq təmiz qalır. Sıfır konsol xətası.
+
+### Server-tərəfi yoxlanılıb, təmiz çıxdı (bu fazaya qədər)
+`pm.max_children = 50` (PHP-FPM, kifayət qədər), `zlib.output_compression = Off`,
+`opcache.validate_timestamps` defolt (aktiv), nginx `location ~ ^/axin/` düzgün uyğunlaşır (`nginx -T`
+ilə təsdiqlənib) — bunların heç biri kök səbəb deyildi, əsl səbəb yuxarıdakı əlavə fetch round-trip
+idi.

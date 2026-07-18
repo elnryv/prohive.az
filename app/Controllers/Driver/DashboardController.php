@@ -74,32 +74,4 @@ final class DashboardController
             'activeCount' => count($listings),
         ]);
     }
-
-    /**
-     * SSE `listing_new` hadisəsindən sonra JS tərəfindən çağırılır — tək elanın kart HTML-i
-     * qaytarılır (yalnız hələ aktivdirsə). Kart render məntiqi PHP-də tək yerdə qalır.
-     */
-    public function cardFragment(array $params): void
-    {
-        Auth::requireRole('driver', '/giris');
-        $id = (int) $params['id'];
-
-        $sql = 'SELECT ' . ListingRules::SELECT_SQL . ' ' . ListingRules::FROM_SQL . "
-             WHERE l.id = ? AND l.status = 'active' LIMIT 1";
-        $stmt = DB::conn()->prepare($sql);
-        $stmt->execute([$id]);
-        $listing = $stmt->fetch();
-
-        header('Content-Type: application/json');
-        if ($listing === false) {
-            echo json_encode(['ok' => false]);
-            return;
-        }
-
-        echo json_encode([
-            'ok' => true,
-            'scope' => $listing['scope'],
-            'html' => View::capture('partials/listing_card', ['listing' => $listing, 'href' => '/surucu/elan/' . $id]),
-        ]);
-    }
 }

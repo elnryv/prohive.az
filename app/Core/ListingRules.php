@@ -53,4 +53,29 @@ final class ListingRules
         }
         return date('Y-m-d H:i:s', strtotime($acceptedAt) + 72 * 3600);
     }
+
+    /**
+     * Sürücü lentinə canlı (SSE) düşəcək kartın hazır HTML-i — sorğu + render PUBLISH
+     * ANINDA, bir yerdə edilir ki, client tərəfi ayrıca fetch()-ə ehtiyac duymasın.
+     * Əvvəlki dizaynda bu əlavə round-trip (`/surucu/lent/kart/{id}`) özü müstəqil bir
+     * uğursuzluq nöqtəsi idi (FAZA 20) — SSE hadisəsi çatsa belə, sonrakı fetch
+     * uğursuz/gec olarsa kart heç görünmürdü.
+     *
+     * @return array{html:string, scope:string}|null
+     */
+    public static function renderFeedCard(int $listingId): ?array
+    {
+        $sql = 'SELECT ' . self::SELECT_SQL . ' ' . self::FROM_SQL . "
+             WHERE l.id = ? AND l.status = 'active' LIMIT 1";
+        $stmt = DB::conn()->prepare($sql);
+        $stmt->execute([$listingId]);
+        $listing = $stmt->fetch();
+        if ($listing === false) {
+            return null;
+        }
+        return [
+            'html' => View::capture('partials/listing_card', ['listing' => $listing, 'href' => '/surucu/elan/' . $listingId]),
+            'scope' => $listing['scope'],
+        ];
+    }
 }

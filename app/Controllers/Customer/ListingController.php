@@ -160,7 +160,12 @@ final class ListingController
             \App\Core\Lang::field($category, 'name')
         );
 
-        Sse::publish('feed', 'listing_new', ['listing_id' => $listingId, 'scope' => $scope]);
+        $card = ListingRules::renderFeedCard($listingId);
+        Sse::publish('feed', 'listing_new', [
+            'listing_id' => $listingId,
+            'scope' => $scope,
+            'html' => $card['html'] ?? null,
+        ]);
         $this->notifyApprovedDrivers($listingId, $fromLocation, $toLocation);
 
         header('Location: /musteri/elan/' . $listingId . '?yaradildi=1');
