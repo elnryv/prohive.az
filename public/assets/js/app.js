@@ -190,25 +190,35 @@
   });
 
   // ---------------------------------------------------------------
-  // SSE dayanıqlılığı (bölmə 11.5 + FAZA 14): bağlantı itəndə görünən "bağlantı
+  // SSE dayanıqlılığı (bölmə 11.5 + FAZA 14/15): bağlantı itəndə görünən "bağlantı
   // yoxdur" zolağı, ekran kilidlənib açılandan/tab arxa plandan qayıdandan və
-  // şəbəkə "online" hadisəsindən sonra məcburi yenidən qoşulma. Brauzer artıq
-  // özü retry edir (native EventSource), amma uzun fonda qalma (ekran kilidi)
-  // zamanı bəzi mobil brauzerlər bağlantını "error" atmadan sükutla ölü qoyur —
-  // buna görə visibilitychange/online zamanı readyState əl ilə yoxlanılır.
-  let connBannerTimer = null;
+  // şəbəkə "online" hadisəsindən sonra məcburi yenidən qoşulma.
+  //
+  // VACİB: server tərəfi (Sse::stream) hər ~55 saniyədə bağlantını QƏSDƏN bağlayır
+  // (uzun-polling dövrü) — bu, brauzerdə HƏR DƏFƏ normal/gözlənilən "error" hadisəsi
+  // yaradır, hətta bağlantı tam sağlamdırsa belə. Ona görə tək bir "error" heç vaxt
+  // özlüyündə zolağı göstərmək üçün kifayət DEYİL — 5s gözlənilir, sonra YALNız hələ
+  // də bağlı deyilsə (readyState açıq deyil) VƏ ya brauzer özü "offline" deyirsə
+  // göstərilir. Native `offline`/`online` hadisələri isə dərhal, gecikmədən idarə edir.
   const connBanner = document.getElementById('conn-status-banner');
-  function setConnStatus(offline) {
+  let connBannerTimer = null;
+
+  function markConnOnline() {
     clearTimeout(connBannerTimer);
-    if (!connBanner) return;
-    if (offline) {
-      // Qısa müddətli "ping" fasilələri (hər ~55s server tərəfi dövrü) üçün
-      // zolağı dərhal göstərmirik — yalnız 4s-dən çox bağlantı bərpa olmasa.
-      connBannerTimer = setTimeout(() => { connBanner.hidden = false; }, 4000);
-    } else {
-      connBanner.hidden = true;
-    }
+    if (connBanner) connBanner.hidden = true;
   }
+
+  function scheduleConnCheck(isHealthyNow) {
+    clearTimeout(connBannerTimer);
+    connBannerTimer = setTimeout(() => {
+      if (!isHealthyNow()) {
+        if (connBanner) connBanner.hidden = false;
+      }
+    }, 5000);
+  }
+
+  window.addEventListener('offline', () => { if (connBanner) connBanner.hidden = false; });
+  window.addEventListener('online', markConnOnline);
 
   function connectResilientSSE(url, initialLastId, handlers) {
     let es = null;
@@ -218,8 +228,10 @@
       if (es) es.close();
       const sep = url.includes('?') ? '&' : '?';
       es = new EventSource(url + sep + 'lastId=' + encodeURIComponent(lastId));
-      es.onopen = () => setConnStatus(false);
-      es.onerror = () => setConnStatus(true);
+      es.onopen = markConnOnline;
+      es.onerror = () => {
+        scheduleConnCheck(() => navigator.onLine && es && es.readyState === EventSource.OPEN);
+      };
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
           if (e.lastEventId) lastId = e.lastEventId;
