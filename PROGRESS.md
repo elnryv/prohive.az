@@ -620,3 +620,39 @@ truck artıq düzgün render olunur, AMMA istifadəçi estetik olaraq onu ÜMUM�
   render olunur, ~6.1s-də təmiz silinir; sürücü lentinə giriş edən kimi (300ms-dən sonra) bənnerin
   gizli olduğu, əl ilə offline simulyasiyasında dərhal göründüyü, online-a qayıdanda dərhal
   gizləndiyi təsdiqləndi — bütün hallarda sıfır konsol xətası.
+
+---
+
+## FAZA 17 — Real-time-in TAPILAN KÖK SƏBƏBİ: nginx SSE location-u heç vaxt uyğunlaşmırdı ✅ TAMAMLANDI
+
+Sahibkar dedi: real-time yeniləmə (yeni elan/təklif) həm müştəri, həm sürücü tərəfdə dərhal
+görünmür — yalnız başqa taba keçib qayıdanda ("tab dəyişmə") görünür, halbuki push bildirişi
+işləyir. Lokal test mühitində (php built-in server, nginx yoxdur) bu heç vaxt aşkarlanmayıb,
+çünki bug məhz nginx-in canlı serverdəki davranışına aiddir.
+
+### Kök səbəb
+`nginx/yuk.birlikde.biz.conf`-dakı SSE-üçün-buferi-söndürən location bloku
+`location ~ ^/(lent-axini|sse)` idi — AMMA `StreamController`-in HƏQİQİ route-ları
+`/axin/lent` və `/axin/musteri`-dir (bax `public/index.php`). Bu iki ad heç vaxt üst-üstə
+düşməyib — yəni bu xüsusi (`fastcgi_buffering off; proxy_buffering off;`) blok SSE
+sorğularına HEÇ VAXT tətbiq olunmayıb, onlar ümumi `location ~ \.php$` bloğuna düşüb və
+nginx tərəfindən BUFERLƏNİB. Nəticədə server-tərəfi hadisələr (`Sse::publish`) dərhal
+göndərilsə də, brauzerə YALNIZ nginx buferi dolanda və ya bağlantı hər ~55s-lik dövrün
+sonunda bağlananda çatırdı — bu da "tab dəyişib qayıdanda görünür" kimi hiss olunurdu (tab
+dəyişmə əslində SSE ilə əlaqəli deyildi, sadəcə təzə səhifə render-i idi).
+
+### Düzəliş
+- `location ~ ^/(lent-axini|sse)` → `location ~ ^/axin/` (həqiqi route-lara uyğun).
+- Əlavə etibarlılıq: `gzip off;` əlavə olundu (gzip modulu da streamed cavabı buferləyə bilər,
+  `fastcgi_buffering off` ilə yanaşı ehtiyat tədbiri kimi).
+- Kiçik əlaqəli boşluq: sürücü lenti JS-i `listing_reopened` hadisəsini heç dinləmirdi
+  (yalnız `listing_new`/`listing_closed`/`offer_accepted`) — əlavə olundu, eyni
+  `handleListingNew` funksiyasından istifadə edərək.
+
+### Özünüyoxlama nəticələri
+- `nginx -t` ilə tam http{} konteksti daxilində sintaksis yoxlanıldı — "syntax is ok"
+  (yalnız sandbox-un IPv6 dəstəkləməməsi ayrı, əlaqəsiz xəbərdarlıq verdi).
+- `node --check` — xətasız.
+- **VACİB DEPLOY QEYDİ:** bu fix yalnız `git pull` ilə İŞLƏMİR — nginx konfiqi yenidən
+  yüklənməlidir (`nginx -t && systemctl reload nginx`), əks halda köhnə (səhv) location
+  bloku yaddaşda qalacaq.

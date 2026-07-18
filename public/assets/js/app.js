@@ -290,6 +290,7 @@
 
     connectResilientSSE('/axin/lent', initialLastId, {
       listing_new: handleListingNew,
+      listing_reopened: handleListingNew,
       listing_closed: (e) => {
         const data = JSON.parse(e.data);
         removeCard(data.payload.listing_id);
