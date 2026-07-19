@@ -5,6 +5,7 @@ import { showToast } from '../components/toast.js';
 import { navigate } from '../router.js';
 import { esc } from '../utils.js';
 import { getState } from '../store.js';
+import { maybePromptNotificationPermission } from '../notify-permission.js';
 
 const CITIES = ['Bakı', 'Sumqayıt', 'Gəncə', 'Mingəçevir', 'Naxçıvan', 'Şəki', 'Lənkəran', 'Şirvan'];
 const BAKU_DISTRICTS = [
@@ -341,6 +342,7 @@ export async function mount(root) {
 
         showToast('Elanınız dərc olundu! Təkliflər gələn kimi xəbər verəcəyik.');
         navigate(`/elan/${order.id}`, { replace: true });
+        maybePromptNotificationPermission('customer_first_order');
       } catch (e) {
         errorEl.textContent = e instanceof ApiError ? e.message : 'Xəta baş verdi.';
         errorEl.style.display = 'block';

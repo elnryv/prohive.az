@@ -6,6 +6,8 @@ import { getState, setState } from '../store.js';
 import { navigate } from '../router.js';
 import { esc } from '../utils.js';
 
+const ROUTE_CITIES = ['Bakı', 'Sumqayıt', 'Gəncə', 'Mingəçevir', 'Naxçıvan', 'Şəki', 'Lənkəran', 'Şirvan'];
+
 async function openCmsSheet(slug, fallbackTitle) {
   const content = document.createElement('div');
   content.innerHTML = `<h3 class="h3">${fallbackTitle}</h3><p class="small-text">Yüklənir…</p>`;
@@ -109,6 +111,98 @@ function openComplaintSheet() {
   });
 }
 
+function openAddRouteSheet(onAdded) {
+  const content = document.createElement('div');
+  content.innerHTML = `
+    <h3 class="h3" style="margin-bottom:16px;">Marşrut əlavə et</h3>
+    <div class="sheet-row" id="baku-preset">Bakı daxili (hamısı)</div>
+    <div class="small-text" style="margin:12px 0 4px;color:var(--text-muted);">Haradan</div>
+    <div id="from-list"></div>
+    <div class="small-text" style="margin:12px 0 4px;color:var(--text-muted);">Hara</div>
+    <div id="to-list"></div>
+    <button type="button" class="btn btn-primary" id="add-btn" style="margin-top:16px;" disabled>Əlavə et</button>
+  `;
+  const { close } = openSheet(content);
+
+  let fromCity = null;
+  let toCity = null;
+  const addBtn = content.querySelector('#add-btn');
+  function checkValid() { addBtn.disabled = !fromCity || !toCity; }
+
+  function buildList(containerId, onSelect) {
+    const container = content.querySelector(containerId);
+    ROUTE_CITIES.forEach((city) => {
+      const row = document.createElement('div');
+      row.className = 'sheet-row';
+      row.textContent = city;
+      row.addEventListener('click', () => {
+        [...container.children].forEach((c) => c.classList.remove('selected'));
+        row.classList.add('selected');
+        onSelect(city);
+        checkValid();
+      });
+      container.appendChild(row);
+    });
+  }
+  buildList('#from-list', (city) => { fromCity = city; });
+  buildList('#to-list', (city) => { toCity = city; });
+
+  content.querySelector('#baku-preset').addEventListener('click', async () => {
+    try {
+      await api.post('/routes', { from_city: 'Bakı', to_city: 'Bakı' });
+      close();
+      onAdded();
+    } catch (e) {
+      showToast(e instanceof ApiError ? e.message : 'Xəta baş verdi.');
+    }
+  });
+
+  addBtn.addEventListener('click', async () => {
+    try {
+      await api.post('/routes', { from_city: fromCity, to_city: toCity });
+      close();
+      onAdded();
+    } catch (e) {
+      showToast(e instanceof ApiError ? e.message : 'Xəta baş verdi.');
+    }
+  });
+}
+
+async function renderRouteWatches(container) {
+  container.innerHTML = '<p class="small-text" style="color:var(--text-muted);">Yüklənir…</p>';
+  try {
+    const { routes } = await api.get('/routes');
+    container.innerHTML = '';
+
+    routes.forEach((route) => {
+      const row = document.createElement('div');
+      row.className = 'sheet-row';
+      row.innerHTML = `<span>${esc(route.from_city)} → ${esc(route.to_city)}</span><button type="button" style="border:none;background:none;color:var(--error);font-size:16px;">×</button>`;
+      row.querySelector('button').addEventListener('click', async () => {
+        try {
+          await api.del('/routes', { id: route.id });
+          renderRouteWatches(container);
+        } catch (e) {
+          showToast(e instanceof ApiError ? e.message : 'Xəta baş verdi.');
+        }
+      });
+      container.appendChild(row);
+    });
+
+    if (routes.length < 5) {
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'chip';
+      addBtn.style.marginTop = '8px';
+      addBtn.textContent = '+ Marşrut əlavə et';
+      addBtn.addEventListener('click', () => openAddRouteSheet(() => renderRouteWatches(container)));
+      container.appendChild(addBtn);
+    }
+  } catch {
+    container.innerHTML = '<p class="small-text">Yüklənə bilmədi.</p>';
+  }
+}
+
 export async function render(root) {
   const { user } = getState();
   const config = await api.get('/config').catch(() => ({}));
@@ -129,6 +223,11 @@ export async function render(root) {
     <div class="sheet-row" id="edit-name">Ad və soyadı dəyiş</div>
     <div class="sheet-row" id="edit-pin">PIN dəyişdir</div>
     ${p.role === 'driver' ? `<div class="sheet-row" id="edit-vehicle">Avtomobil məlumatları</div>` : ''}
+
+    ${p.role === 'driver' ? `
+      <h3 class="h3" style="margin-top:24px;">İzlədiyim marşrutlar</h3>
+      <div id="route-watches"></div>
+    ` : ''}
 
     <h3 class="h3" style="margin-top:24px;">Bildiriş ayarları</h3>
     <div class="sheet-row"><span>Təklif bildirişləri</span><input type="checkbox" id="notify-offers" ${p.notify_offers ? 'checked' : ''}></div>
@@ -219,5 +318,7 @@ export async function render(root) {
         list.appendChild(row);
       });
     });
+
+    renderRouteWatches(root.querySelector('#route-watches'));
   }
 }

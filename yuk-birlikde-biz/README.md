@@ -13,6 +13,8 @@ mysql -u root -p -e "CREATE DATABASE yuk_birlikde CHARACTER SET utf8mb4 COLLATE 
 # client-in defolt latin1 kodlaşdırması ilə import zamanı korlanır.
 for f in migrations/*.sql; do mysql --default-character-set=utf8mb4 -u root -p yuk_birlikde < "$f"; done
 
+php app/generate_vapid_keys.php   # bir dəfəlik Web Push açarları (app/vapid_keys.php — git-ə düşmür)
+
 cd public
 # PHP_CLI_SERVER_WORKERS vacibdir — olmasa uzunömürlü SSE bağlantıları (/sse/stream.php)
 # builtin server-in tək worker-ini tutub qalan bütün sorğuları bloklayır.
@@ -46,7 +48,9 @@ storage/        uploads/, logs/, backups/ (git-ə düşmür)
 - [x] **Faza 1 — Təməl**: bütün DB miqrasiyaları · settings modulu · SPA shell + router + API/SSE client skeletləri · dizayn tokenləri · komponent kitabxanası (Hissə 2.5) · Splash → Telefon → check-phone → PIN/Qeydiyyat vahid axını (operator sheet, PinPad, rol seçimi, bütün addımlar) · sessiya sistemi · CMS səhifələri + razılıq.
 - [x] **Faza 2 — Elan dövriyyəsi**: 6 addımlıq elan yaratma + şəkil yükləmə + icmal · YK nömrələmə + slug · statuslar + expire cron · sürücü lenti (adi yüklənmə, scope/filtr) · elan detalları (hər iki baxış) · təklif sheet-i + dəyiş/geri çək · Təkliflərim ekranı · seçim (atomik) → nömrə açılışı → Danışıq Gedir → Bağla/Ləğv et → yenidən açılma → imtina · qiymətləndirmə · Elanlarım tabları · Bildirişlər ekranı · Profil (hər iki rol, bildiriş ayarları, şikayət, hesab silmə).
 - [x] **Faza 3 — Real-time (SSE)**: events cədvəli + publish helper + `/sse/stream.php` (kanal icazələri, Last-Event-ID catch-up, 25s heartbeat) · lentdə slide-down/collapse + "N yeni elan" düyməsi · müştəridə canlı təkliflər (listing:{id}) · reconnect + visibility sync (iOS arxa fon) · bağlantı statusu zolaqları · xatırlatma cron-u (15/30/60/1440 dəq, settings-dən) · events təmizləmə cron-u.
-- [ ] Faza 4 — PWA + Push
+- [x] **Faza 4 — PWA + Push**: manifest + ikonlar + splash rəngləri · Service Worker (app-shell precache, API network-only + offline fallback, versiya yeniləmə toast-ı) · Hissə 2.6 qadağaları (pull-to-refresh, long-press, tap-highlight) · gecikmiş bildiriş icazəsi axını (izah sheet-i, 7 gün təkrar) · install prompt (Android beforeinstallprompt + iOS təlimat, 3 gün/maks 3 dəfə) · native Web Push (VAPID + aes128gcm şifrələmə, kənar asılılıqsız) + `/api/v1/push` + bütün mövcud bildiriş hadisələri üçün avtomatik göndəriş · marşrut izləmə (`/api/v1/routes`, Profil ekranı) + uyğun yeni elanda push.
+
+  > **Qeyd:** Inter woff2 fontları hələ mənbələndirilməyib (tokens.css sistem fontlarına fallback edir) — brend dizayn aktivləri Faza 7 cilalamasında əlavə olunacaq.
 - [ ] Faza 5 — Abunə
 - [ ] Faza 6 — Admin panel
 - [ ] Faza 7 — Paylaşım + Cilalama

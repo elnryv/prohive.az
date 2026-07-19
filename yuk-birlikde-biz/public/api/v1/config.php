@@ -31,6 +31,10 @@ json_ok([
     'whatsapp_number' => settings_get('whatsapp_number', ''),
     'contact_phone' => settings_get('contact_phone', ''),
     'copyright' => settings_get('copyright', ''),
+    'pwa_prompt_enabled' => settings_get_bool('pwa_prompt_enabled', true),
+    'vapid_public_key' => file_exists(__DIR__ . '/../../../app/vapid_keys.php')
+        ? (require __DIR__ . '/../../../app/vapid_keys.php')['public_key_raw']
+        : null,
     'operators' => $operators,
     'vehicles' => $vehicles,
     'vehicle_sizes' => $vehicleSizes,

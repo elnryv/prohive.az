@@ -61,7 +61,13 @@ async function renderRoute(path, { direction = 'forward' } = {}) {
 
 export function init(root) {
   rootEl = root;
-  window.addEventListener('popstate', (e) => {
+  window.addEventListener('popstate', () => {
+    // Eyni path üçün popstate BottomSheet-in özünün history marker-i bağlanarkən
+    // də tetiklənir (bax: sheet.js) — real naviqasiya olmadıqda ekranı yenidən
+    // mount etməyə ehtiyac yoxdur.
+    if (location.pathname === current?.path) {
+      return;
+    }
     renderRoute(location.pathname, { direction: 'back' });
   });
 }
@@ -77,4 +83,12 @@ export function navigate(path, { replace = false } = {}) {
 
 export function start() {
   renderRoute(location.pathname, { direction: 'forward' });
+}
+
+// İnternet bağlantısı bərpa olunanda cari ekranı "sakit" yenidən mount edir
+// (Hissə 2.6: "internet qayıdanda avtomatik sinxron").
+export function refresh() {
+  if (current) {
+    renderRoute(current.path, { direction: 'forward' });
+  }
 }

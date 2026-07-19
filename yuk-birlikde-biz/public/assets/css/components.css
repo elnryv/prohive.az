@@ -388,6 +388,49 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
 .conn-banner-warning { background: var(--warning-soft); color: var(--warning); }
 .conn-banner-success { background: var(--success-soft); color: var(--success); }
 
+/* Qlobal offline zolağı (Hissə 2.6) — viewport-un ən üstündə, bütün ekranların fövqündə */
+#offline-banner:not(:empty) {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+#offline-banner .conn-banner { margin-bottom: 0; margin-top: 8px; }
+
+/* Versiya yeniləmə toast-ı (Hissə 2.6) */
+.update-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  max-width: 448px;
+  margin: 0 auto;
+  z-index: 100;
+  background: rgba(17, 24, 39, 0.92);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+.update-toast button {
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--r-chip);
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
 /* "N yeni elan" üzən düymə — Hissə 5.1 */
 .new-listings-btn {
   position: sticky;

@@ -27,6 +27,7 @@ function texts(): array
         'notify_order_closed' => 'Sifariş bağlandı. Uğurlar!',
         'notify_order_expired' => 'Elanınızın müddəti bitdi. İstəsəniz yenidən dərc edin.',
         'notify_reminder' => 'Əgər sürücü ilə razılaşmısınızsa, zəhmət olmasa sifarişi bağlayın.',
+        'notify_route_watch' => 'Yeni elan: %s → %s, %s',
 
         'order_not_found' => 'Elan tapılmadı.',
         'offer_not_found' => 'Təklif tapılmadı.',

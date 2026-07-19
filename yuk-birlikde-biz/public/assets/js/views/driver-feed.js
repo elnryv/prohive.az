@@ -8,6 +8,7 @@ import { createSegmentedTabs } from '../components/chip.js';
 import { openOfferSheet } from '../components/offer-sheet.js';
 import { esc } from '../utils.js';
 import { connectSSE } from '../sse.js';
+import { maybePromptNotificationPermission } from '../notify-permission.js';
 
 export async function render(root) {
   const { user } = getState();
@@ -160,6 +161,7 @@ export async function render(root) {
   }, { onStatus: setConnBanner });
 
   await loadFeed();
+  maybePromptNotificationPermission('driver_first_feed');
 
   return () => sse.close();
 }

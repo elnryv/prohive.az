@@ -15,6 +15,11 @@ $siteName = settings_get('site_name', 'Yük Birlikdə');
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#2563EB">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Yük">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/assets/icons/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
   <title><?= htmlspecialchars($siteName) ?></title>
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/components.css">
@@ -25,7 +30,10 @@ $siteName = settings_get('site_name', 'Yük Birlikdə');
   <link rel="stylesheet" href="/assets/css/screens/home.css">
 </head>
 <body>
-  <div id="app" style="position:relative;min-height:100vh;max-width:480px;margin:0 auto;"></div>
+  <div id="viewport" style="position:relative;min-height:100vh;max-width:480px;margin:0 auto;">
+    <div id="offline-banner"></div>
+    <div id="app" style="position:relative;min-height:100vh;"></div>
+  </div>
   <script type="module" src="/assets/js/app.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import { navigate } from '../router.js';
 import { connectSSE } from '../sse.js';
 import { showToast } from '../components/toast.js';
+import { maybePromptInstall } from '../install-prompt.js';
 
 const TABS = {
   customer: [
@@ -76,6 +77,7 @@ export async function mount(root) {
   });
 
   await showTab(0);
+  maybePromptInstall();
 
   return () => {
     currentViewCleanup?.();

@@ -81,15 +81,20 @@ html, body {
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overscroll-behavior-y: none;
+  overflow-x: hidden;
   height: 100%;
 }
 
+/* Hissə 2.6 qadağaları: pull-to-refresh, mətn seçimi, long-press context
+   menyu — input/textarea xaric (mesaj/qeyd mətnləri orada normal işləyir). */
 body {
   user-select: none;
+  -webkit-touch-callout: none;
 }
 
 input, textarea {
   user-select: text;
+  -webkit-touch-callout: default;
 }
 
 h1, .h1 { font-size: 32px; font-weight: 700; line-height: 1.2; margin: 0; }

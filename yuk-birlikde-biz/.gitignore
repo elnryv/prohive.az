@@ -6,3 +6,4 @@ storage/backups/*
 !storage/backups/.gitkeep
 .env
 *.log
+app/vapid_keys.php

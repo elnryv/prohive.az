@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../../app/validator.php';
 require_once __DIR__ . '/../../../app/texts.php';
 require_once __DIR__ . '/../../../app/orders.php';
 require_once __DIR__ . '/../../../app/sse_publish.php';
+require_once __DIR__ . '/../../../app/notify.php';
 
 require_method('POST');
 maintenance_guard();
@@ -86,5 +87,6 @@ $orderId = (int) $db->lastInsertId();
 
 $order = fetch_order_or_404($orderId);
 publish_event('feed', 'listing.new', order_feed_payload($order));
+notify_watching_drivers($order, $cargoTypeName);
 
 json_ok(['order' => ['id' => $orderId, 'number' => $number, 'slug' => $slug]], 201);
