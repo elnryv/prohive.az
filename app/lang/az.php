@@ -85,6 +85,8 @@ return [
         'vehicle_photo_required' => 'Ən azı 1 maşın fotosu yüklə',
         'vehicle_photo_max' => 'Maksimum 3 foto yükləyə bilərsən',
         'full_name_required' => 'Ad, soyadını yaz',
+        'terms_label' => 'İstifadə şərtlərini oxudum və qəbul edirəm',
+        'terms_required' => 'Davam etmək üçün istifadə şərtlərini qəbul et',
         'driver_pending_banner' => 'Profilin yoxlanılır. Təsdiqləndikdən sonra təklif verə biləcəksən.',
         'driver_rejected_banner' => 'Qeydiyyatın rədd olundu: {reason}',
     ],
@@ -156,6 +158,8 @@ return [
         'driver_approved_title' => 'Profilin təsdiqləndi!',
         'driver_approved_body' => 'İndi lentdə təklif verə bilərsən.',
         'admin_campaign_title' => 'Birlikdə Yük',
+        'driver_canceled_title' => 'Sürücü işi ləğv etdi',
+        'driver_canceled_body' => 'Elanın yenidən aktivdir, başqa sürücü seçə bilərsən.',
     ],
     'offer' => [
         'accept_confirm' => 'Bu təklifi qəbul etsən, elan bağlanacaq və digər təkliflər ləğv olunacaq. Davam edilsin?',
@@ -165,6 +169,7 @@ return [
         'status_lost' => 'Yük götürüldü',
         'status_withdrawn' => 'Geri çəkildi',
         'status_canceled_by_customer' => 'Ləğv edildi',
+        'status_canceled_by_driver' => 'Ləğv edildi',
         'withdraw' => 'Təklifi geri çək',
         'price_label' => 'Qiymətin (AZN)',
         'note_label' => 'Qeyd (könüllü)',
@@ -172,6 +177,8 @@ return [
         'update_submit' => 'Təklifi yenilə',
         'limit_reached' => 'Saatlıq təklif limitinə çatmısan (maks 20)',
         'invalid_price' => 'Düzgün qiymət yaz',
+        'cancel_accepted' => 'Bu işi görə bilmirəm',
+        'cancel_accepted_confirm' => 'Qəbul etdiyin bu işi ləğv etmək istədiyinə əminsən? Elan yenidən aktiv olacaq və bu, ləğv sayına yazılacaq.',
     ],
     'whatsapp' => [
         'template' => 'Salam! {route} yükü üzrə razılaşdıq — Birlikdə Yük',
@@ -180,12 +187,27 @@ return [
         'monthly_summary' => 'Platformadan bu ay: {count} iş · {total} AZN',
         'cancel_count' => '{n} ləğv qeydi',
     ],
+    'rating' => [
+        'title' => 'Reytinq ver',
+        'label' => 'Xal (1-5)',
+        'comment_label' => 'Şərh (könüllü)',
+        'submit' => 'Göndər',
+        'already_rated' => 'Sən bu işə {n}/5 xal vermisən',
+    ],
+    'report' => [
+        'title' => 'Şikayət et',
+        'reason_label' => 'Şikayətinin səbəbini yaz',
+        'submit' => 'Şikayəti göndər',
+        'confirm' => 'Şikayətini göndərmək istədiyinə əminsən?',
+        'sent' => 'Şikayətin qeydə alındı, admin nəzərdən keçirəcək.',
+    ],
     'routes' => [
         'title' => 'Marşrut abunəliyi',
         'description' => 'Seçdiyin xətlər üzrə yeni yük gələndə bildiriş alacaqsan (maks 5 abunə).',
         'scope' => 'Əhatə',
         'add' => 'Abunə ol',
         'limit_reached' => 'Maksimum 5 abunəyə çatmısan',
+        'match_badge' => 'Sənin marşrutuna uyğun',
     ],
     'billing' => [
         'title' => 'Abunə',
@@ -243,5 +265,9 @@ return [
         'support' => 'Dəstək və Yardım',
         'about' => 'Haqqımızda',
         'about_text' => 'Birlikdə Yük — yerli yük daşıma birjası. Versiya 1.0.',
+    ],
+
+    'legal' => [
+        'title' => 'Hüquqi sənədlər',
     ],
 ];

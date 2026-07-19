@@ -97,4 +97,28 @@ final class CustomerController
         AdminAuth::log($newVal === 1 ? 'customer_block' : 'customer_unblock', 'user', $id);
         header('Location: /musteriler/' . $id);
     }
+
+    /** Müştəri şifrəsini itirib admin-dən dəstək istəyəndə birbaşa sıfırlama. */
+    public function resetPassword(array $params): void
+    {
+        AdminAuth::requireLogin('/giris');
+        if (!Csrf::verifyRequest()) {
+            http_response_code(419);
+            echo 'CSRF token etibarsızdır.';
+            return;
+        }
+        $id = (int) $params['id'];
+        $new = (string) ($_POST['new_password'] ?? '');
+
+        if (strlen($new) < 6) {
+            header('Location: /musteriler/' . $id . '?sifre_xeta=qisa');
+            return;
+        }
+
+        $stmt = DB::conn()->prepare('UPDATE users SET password_hash = ? WHERE id = ? AND role = "customer"');
+        $stmt->execute([password_hash($new, PASSWORD_BCRYPT), $id]);
+
+        AdminAuth::log('customer_reset_password', 'user', $id);
+        header('Location: /musteriler/' . $id . '?sifre=ok');
+    }
 }

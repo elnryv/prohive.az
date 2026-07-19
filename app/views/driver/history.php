@@ -3,6 +3,7 @@
 /** @var int $monthlyCount */
 /** @var float $monthlyTotal */
 /** @var int $cancelCount */
+use App\Core\Csrf;
 use App\Core\Icon;
 use App\Core\Lang;
 ?>
@@ -30,6 +31,23 @@ use App\Core\Lang;
           <span class="chip"><?= icon(Icon::forCategorySlug($job['category_slug'] ?? null), 'icon', 14) ?> <?= e(Lang::field($job, 'cat')) ?></span>
           <span class="num"><?= number_format((float) $job['price'], 2) ?> AZN</span>
         </div>
+
+        <?php if ($job['my_rating'] !== null): ?>
+          <p class="text-soft" style="margin-top:6px"><?= e(t('rating.already_rated', ['n' => (int) $job['my_rating']])) ?></p>
+        <?php else: ?>
+          <form method="post" action="/surucu/tarixce/<?= (int) $job['id'] ?>/reytinq" style="margin-top:8px">
+            <?= Csrf::field() ?>
+            <label for="rating_<?= (int) $job['id'] ?>"><?= e(t('rating.label')) ?></label>
+            <select id="rating_<?= (int) $job['id'] ?>" name="rating">
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+            <button type="submit" class="btn btn-outline btn-block" style="margin-top:8px"><?= e(t('rating.submit')) ?></button>
+          </form>
+        <?php endif; ?>
       </div>
     <?php endforeach; ?>
   <?php endif; ?>

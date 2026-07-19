@@ -11,6 +11,7 @@
 /** @var array $banners */
 /** @var int $todayCount */
 /** @var int $activeCount */
+/** @var array $routeSubscriptions */
 use App\Core\Auth;
 use App\Core\Lang;
 use App\Core\View;
@@ -53,7 +54,7 @@ $firstName = explode(' ', trim((string) (Auth::user()['full_name'] ?? '')))[0] ?
     </select>
   </form>
 
-  <div id="feed-list" data-last-event-id="<?= (int) $lastEventId ?>">
+  <div id="feed-list" data-last-event-id="<?= (int) $lastEventId ?>" data-route-subscriptions="<?= e(json_encode($routeSubscriptions, JSON_UNESCAPED_UNICODE)) ?>">
   <?php if ($listings === []): ?>
     <div class="empty-state" data-empty-placeholder><span class="empty-state-icon"><?= icon('box', 'icon', 28) ?></span><p><?= e(t('common.empty_title')) ?></p></div>
   <?php else: ?>

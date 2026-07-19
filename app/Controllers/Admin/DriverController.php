@@ -195,6 +195,26 @@ final class DriverController
         header('Location: /surucular/' . $id);
     }
 
+    /** Sürücü şifrəsini itirib admin-dən dəstək istəyəndə birbaşa sıfırlama. */
+    public function resetPassword(array $params): void
+    {
+        AdminAuth::requireLogin('/giris');
+        $this->assertCsrf();
+        $id = (int) $params['id'];
+        $new = (string) ($_POST['new_password'] ?? '');
+
+        if (strlen($new) < 6) {
+            header('Location: /surucular/' . $id . '?sifre_xeta=qisa');
+            return;
+        }
+
+        $stmt = DB::conn()->prepare('UPDATE users SET password_hash = ? WHERE id = ? AND role = "driver"');
+        $stmt->execute([password_hash($new, PASSWORD_BCRYPT), $id]);
+
+        AdminAuth::log('driver_reset_password', 'user', $id);
+        header('Location: /surucular/' . $id . '?sifre=ok');
+    }
+
     private function assertCsrf(): void
     {
         if (!Csrf::verifyRequest()) {

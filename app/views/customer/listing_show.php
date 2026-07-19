@@ -60,7 +60,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
       </form>
       <?php endif; ?>
     </div>
-  <?php elseif ($listing['status'] === 'accepted'): ?>
+  <?php elseif (in_array($listing['status'], ['accepted', 'completed'], true)): ?>
     <?php
       $acceptedOffer = null;
       foreach ($offers as $o) {
@@ -72,7 +72,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
     ?>
     <?php if ($acceptedOffer !== null): ?>
       <div class="card" style="border-color:var(--ok)">
-        <p class="text-soft"><?= e(t('listing.status_accepted')) ?></p>
+        <p class="text-soft"><?= e(t($listing['status'] === 'completed' ? 'listing.status_completed' : 'listing.status_accepted')) ?></p>
         <p class="num" style="font-size:20px"><?= e($acceptedOffer['full_name']) ?></p>
         <p class="num" style="font-size:24px;color:var(--primary)"><?= e(Phone::display($acceptedOffer['phone'])) ?></p>
         <div style="display:flex;gap:8px;margin-top:8px">
@@ -82,6 +82,39 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
           </a>
           <a class="btn btn-outline" style="flex:1" href="tel:+<?= e($acceptedOffer['phone']) ?>"><?= e(t('common.call')) ?></a>
         </div>
+      </div>
+      <details style="margin-bottom:12px">
+        <summary class="text-soft" style="cursor:pointer"><?= e(t('report.title')) ?></summary>
+        <form method="post" action="/musteri/elan/<?= (int) $listing['id'] ?>/sikayet" style="margin-top:8px" onsubmit="return confirm('<?= e(t('report.confirm')) ?>')">
+          <?= Csrf::field() ?>
+          <label for="report_reason"><?= e(t('report.reason_label')) ?></label>
+          <textarea id="report_reason" name="reason" rows="2" required></textarea>
+          <button type="submit" class="btn btn-outline btn-block" style="margin-top:8px"><?= e(t('report.submit')) ?></button>
+        </form>
+      </details>
+    <?php endif; ?>
+
+    <?php if ($listing['status'] === 'completed'): ?>
+      <div class="card">
+        <?php if ($myRating !== null): ?>
+          <p class="text-soft"><?= e(t('rating.already_rated', ['n' => (int) $myRating['rating']])) ?></p>
+        <?php else: ?>
+          <p class="text-soft"><?= e(t('rating.title')) ?></p>
+          <form method="post" action="/musteri/elan/<?= (int) $listing['id'] ?>/reytinq">
+            <?= Csrf::field() ?>
+            <label for="rating"><?= e(t('rating.label')) ?></label>
+            <select id="rating" name="rating">
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+            <label for="comment"><?= e(t('rating.comment_label')) ?></label>
+            <textarea id="comment" name="comment" rows="2"></textarea>
+            <button type="submit" class="btn btn-block" style="margin-top:8px"><?= e(t('rating.submit')) ?></button>
+          </form>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
 
@@ -123,6 +156,7 @@ $publicUrl = rtrim((string) Config::get('app.base_url'), '/') . '/e/' . $listing
           <p class="text-soft" style="font-size:13px;margin:0">
             <?= e($offer['full_name']) ?> · <?= e(Lang::field(['name_az' => $offer['vt_name_az'], 'name_ru' => $offer['vt_name_ru'], 'name_en' => $offer['vt_name_en']], 'name')) ?>
             · <?= icon('check', 'icon', 12) ?> <?= (int) $offer['jobs_done'] ?> iş
+            <?php if ($offer['rating_avg'] !== null): ?> · <?= icon('star', 'icon', 12) ?> <?= number_format((float) $offer['rating_avg'], 1) ?> (<?= (int) $offer['rating_count'] ?>)<?php endif; ?>
             <?php if ((int) $offer['cancel_count'] > 0): ?> · <?= icon('alert-triangle', 'icon', 12) ?> <?= (int) $offer['cancel_count'] ?> ləğv<?php endif; ?>
           </p>
         </div>

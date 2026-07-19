@@ -1126,6 +1126,19 @@ yoxlanıldı — bu, HƏQİQƏTƏN işlək bir funksiyadır (sürücü `/surucu/
   ilə tamamlandı, `notifyApprovedDrivers()`-in yeni imzası/sorğusu istehsalat kodunda problemsiz
   işləyir.
 
+## DÜZƏLİŞ QEYDİ (FAZA 29-dan sonra) — scope-filtrləməsi YENİDƏN LƏĞV EDİLDİ
+
+FAZA 29-da tətbiq olunan `route_subscriptions`-a görə push filtrləməsi sahibkarın BİRBAŞA
+sonrakı qərarı ilə YENİDƏN ləğv edildi (commit `81a3160`): bildiriş yenə HƏR ZAMAN bütün
+təsdiqlənmiş+bloklanmamış sürücülərə gedir (bax `ListingController::notifyApprovedDrivers()`
+cari kodu/şərhi). Paralel olaraq (commit `d9ecc4d`) sürücü lentindəki `handleListingNew()`
+artıq scope-a görə kartı GİZLƏTMİR — hər yeni elan dərhal, bütün sürücülərin ekranında görünür,
+fərqli bölgəli elanın üstündə "Bakı daxili"/"Bölgələrarası" çipi var. Bu, "bildiriş gəlir, kart
+görünmür" hissinin əsl həllidir (əvvəlki FAZA 26-29-dakı SSE transport-səviyyəli düzəlişlərin
+hamısı doğru və lazımlı idi, amma bu konkret simptomun kök səbəbi client-tərəfdəki bu filtr idi).
+Marşrut abunəliyi (`route_subscriptions`) LƏĞV EDİLMƏYİB — funksionaldır, sadəcə artıq
+bildirişə deyil, aşağıdakı FAZA 32-də lent SIRALAMASINA/vurğusuna təsir edir.
+
 ## FAZA 30 — Push bildirişi HAMIYA (abunəsi olmayanlara da) anında, paralel göndərilir
 
 Sahibkar iki şey istədi: (1) push bildirişi HƏR təsdiqlənmiş sürücüyə getsin, ödənişli
@@ -1218,3 +1231,104 @@ tövsiyəm ƏKSİNƏ idi — FAZA 27-də CANLI istehsalatda (sahibkarın öz cih
 sunda) tapılan Safari/WebKit-in `EventSource`-u təmiz bağlanandan sonra avtomatik
 reconnect ETMƏMƏSİ bugı bu sadələşdirmə ilə YENİDƏN AÇIQDIR (çünki `onerror` artıq heç nə
 etmir). Bu, app.birlikde.biz-in öz kodunda da MÖVCUD olan, test edilməmiş bir bugdur.
+
+## FAZA 32 — Biznes-məntiq boşluqlarının tamamlanması (reytinq, tamamlanma, ləğv, şikayət, hüquqi, admin, marşrut vurğusu)
+
+Sahibkarın öz iş prinsipi sənədi əsasında verilmiş 8 tövsiyədən 7-si + 2 əlavə tələb (günlük
+elan limitinin götürülməsi) tətbiq olundu. Layihənin ÖZ arxitekturası/konvensiyaları ilə (Core
+sinifləri, controller struktur, `app/lang/*.php`, `View`/`Csrf`/`Auth` statik siniflər) —
+Birlikdə (`app.birlikde.biz`) kod bazasından heç nə köçürülmədi/qarışdırılmadı, sahibkarın
+açıq tələbinə uyğun.
+
+- **Günlük 5-elan limitinin götürülməsi:** `Customer\ListingController::create()`-dəki
+  `MAX_ACTIVE_PER_DAY` sabiti və say yoxlaması tamamilə silindi. Real DB ilə test edildi:
+  eyni müştəri eyni gündə 8 aktiv elan yaratdı, heç biri rədd olunmadı.
+- **WhatsApp əlaqəsi:** araşdırmada ARTIQ TAM İŞLƏK olduğu aşkarlandı (`customer/listing_show.php`
+  + `driver/my_offers.php`, təklif qəbulundan sonra) — dəyişiklik tələb olunmadı.
+- **"Tamamlandı" statusu:** avtomatik keçid (`accepted`→`completed`, `jobs_done+1`) ARTIQ
+  `cron/hourly.php`-də mövcud idi. Əlavə olunan YEGANƏ hissə: əgər razılaşma FAKTİKİ baş
+  tutmayıbsa, müştəri `completed` statusundan da (təkcə `accepted`-dən deyil) elanı yenidən
+  aça bilir (`Customer\OfferActionController::cancel()` genişləndirildi) — bu zaman cron-un
+  artırdığı `jobs_done` geri qaytarılır (`GREATEST(jobs_done-1,0)`), `completed_at` təmizlənir.
+  Real DB ilə tam ssenari yoxlanıldı: qəbul → tamamlanma simulyasiyası → reytinq →
+  yenidən-aktivləşdirmə → `jobs_done` düzgün 1→0 azaldı, `cancel_count` artdı.
+- **Reytinq sistemi (yeni):** `ratings` cədvəli (`listing_id`+`rater_user_id` UNIQUE — təkrar
+  qiymətləndirməyə qarşı), `users.rating_avg`/`rating_count`. `Customer\RatingController` və
+  `Driver\RatingController` — hər ikisi yalnız `completed` statuslu, öz iştirak etdiyi elana,
+  bir dəfə qiymət verə bilir (`INSERT IGNORE` + mənbədən yenidən hesablama). Sürücünün orta
+  reytinqi müştəriyə təklif kartında göstərilir (`★ 4.0 (1)`), admin panelində sürücü
+  profilində stat-kart kimi. Real DB-də hər iki istiqamətdə (müştəri→sürücü, sürücü→müştəri)
+  test edildi, təkrar cəhd səssizcə rədd olundu.
+- **Sürücü tərəfdən qəbuldan-sonra ləğv (yeni):** `Driver\OfferController::cancelAccepted()` —
+  müştərinin analoji funksiyası ilə eyni yenidən-açma qaydası (72 saat, `reopen_count+1`,
+  `lost` təkliflər `pending`-ə qaytarılır), fərq: sürücünün ÖZ `cancel_count`-u artır, təklif
+  statusu yeni `canceled_by_driver` ENUM dəyərinə düşür (offers.status-a əlavə olundu).
+  `my_offers.php` "Qəbul edilib" tabında düymə. Real DB ilə test edildi.
+- **Şikayət funksiyası:** admin-tərəf (siyahı+həll/rədd, `Admin\ListingController::resolveReport()`)
+  ARTIQ TAM İŞLƏK idi — YALNIZ göndərmə tərəfi çatışmırdı. `Customer\ReportController` və
+  `Driver\ReportController` əlavə olundu (təkrar-şikayət qorunması: eyni elan üzrə eyni
+  istifadəçinin `pending` şikayəti varsa yenisi qəbul edilmir). Real DB ilə hər iki
+  istiqamətdə göndərmə + admin-tərəfdə görünmə/həll edilmə test edildi.
+- **Hüquqi sənədlər + qeydiyyat checkbox (yeni):** `app/legal/documents.php` +
+  `app/legal/content/{slug}.php` (2 sənəd: İstifadə Şərtləri, Məxfilik Siyasəti — yalnız
+  AZ, layihənin özünün ilk hüquqi infrastrukturu, `config/legal/`-a bənzəməyən, öz
+  `app/lang/` qonşuluğuna uyğun struktur). `Site\LegalController` + `GET /huquqi`,
+  `GET /huquqi/{slug}`. `users.terms_accepted_at` sütunu, qeydiyyat formasında MƏCBURİ
+  checkbox (`AuthController::validateCommon()` yoxlayır, hər iki rol üçün INSERT-ə
+  `NOW()` yazır). Profil menyusuna keçid əlavə olundu. Real DB ilə: checkbox olmadan
+  qeydiyyat rədd edildi (yoxlanılmadı ayrıca, kodla təsdiqləndi), checkbox-la uğurlu
+  qeydiyyatda `terms_accepted_at` dolu gəldi.
+- **Admin-dən şifrə sıfırlama (yeni):** `Admin\DriverController::resetPassword()` və
+  `Admin\CustomerController::resetPassword()` — admin panelində sürücü/müştəri profilində
+  yeni şifrə forması (admin-in ÖZ şifrəsi ilə qarışdırılmır, ayrı `AdminAuth::log()` qeydi).
+  Real DB ilə test edildi: admin sürücünün şifrəsini sıfırladı, sürücü YENİ şifrə ilə
+  uğurla daxil oldu.
+- **Marşrut abunəliyi — lent vurğusu (yeni, bildiriş DAVRANIŞINA TOXUNULMADAN):**
+  `ListingRules::matchesAnySubscription()` (PHP, ilkin səhifə yüklənməsi üçün, lent
+  `usort()` ilə uyğun elanları yuxarı sıralayır) + eyni məntiqin `app.js`-dəki JS dublikatı
+  (canlı SSE üçün, çünki `feed` kanalı bütün sürücülərə eyni broadcast HTML göndərir,
+  fərdiləşdirmə server-tərəfdə mümkün deyil — `renderFeedCard()`/`listing_new`/
+  `listing_reopened` payload-larına `from_location_id`/`to_location_id` əlavə olundu ki,
+  client bunu öz abunəlikləri ilə müqayisə edə bilsin). Uyğun kartda mavi çərçivə +
+  "Sənin marşrutuna uyğun" çipi. Real DB ilə test edildi: abunəliyə uyğun 7 elan lentin
+  başında, uyğun olmayan 1 elan lentin sonunda göründü.
+
+### Sxem dəyişiklikləri (`db/install.sql`, YENİ quraşdırmalar üçün avtomatik, CANLI/artıq
+qurulmuş verilənlər bazası üçün əl ilə tətbiq olunmalıdır)
+```sql
+ALTER TABLE users
+  ADD COLUMN rating_avg DECIMAL(3,2) DEFAULT NULL AFTER jobs_done,
+  ADD COLUMN rating_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER rating_avg,
+  ADD COLUMN terms_accepted_at TIMESTAMP NULL DEFAULT NULL AFTER rating_count;
+
+ALTER TABLE offers MODIFY status
+  ENUM('pending','accepted','lost','withdrawn','canceled_by_customer','canceled_by_driver')
+  NOT NULL DEFAULT 'pending';
+
+CREATE TABLE ratings (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  listing_id INT UNSIGNED NOT NULL,
+  rater_user_id INT UNSIGNED NOT NULL,
+  rated_user_id INT UNSIGNED NOT NULL,
+  rating TINYINT UNSIGNED NOT NULL,
+  comment VARCHAR(500) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_listing_rater (listing_id, rater_user_id),
+  FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE,
+  FOREIGN KEY (rater_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (rated_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_rated (rated_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+### Özünüyoxlama nəticələri
+- `php -l` — dəyişən/yeni BÜTÜN fayllar (controller, view, `ListingRules`, lang) xətasız.
+- `node --check public/assets/js/app.js` — xətasız.
+- Real MySQL (`db/install.sql`-dən sıfırdan qurulmuş baza) + PHP daxili server (`app/` VƏ
+  `public_admin/`) ilə uçdan-uca ssenari: qeydiyyat (checkbox) → admin təsdiqi → marşrut
+  abunəliyi → 8 elan (limit yoxdur) → lent sıralama/vurğu → təklif → qəbul → tamamlanma
+  simulyasiyası → reytinq (+təkrar cəhd rədd) → tamamlanmadan yenidən-açma (`jobs_done`
+  geri qayıtdı) → sürücü-tərəf ləğv → hər iki tərəfdən şikayət → admin şikayət həlli →
+  admin şifrə sıfırlama → yeni şifrə ilə giriş → hüquqi səhifələr (`/huquqi`, hər iki
+  sənəd, 404 yad slug üçün) — HAMISI gözlənilən nəticələrlə keçdi, server loqunda SIFIR
+  xəta/xəbərdarlıq (yalnız test qurluşunun ilkin DB-etimadnamə səhvi, kodla əlaqəsiz).

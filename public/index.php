@@ -10,16 +10,21 @@ use App\Core\View;
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\PublicListingController;
+use App\Controllers\Site\LegalController;
 use App\Controllers\Customer\DashboardController as CustomerDashboard;
 use App\Controllers\Customer\ListingController as CustomerListing;
 use App\Controllers\Customer\HistoryController as CustomerHistory;
 use App\Controllers\Customer\OfferActionController as CustomerOfferAction;
+use App\Controllers\Customer\RatingController as CustomerRating;
+use App\Controllers\Customer\ReportController as CustomerReport;
 use App\Controllers\Driver\DashboardController as DriverDashboard;
 use App\Controllers\Driver\ListingController as DriverListing;
 use App\Controllers\Driver\OfferController as DriverOffer;
 use App\Controllers\Driver\MyOffersController as DriverMyOffers;
 use App\Controllers\Driver\HistoryController as DriverHistory;
 use App\Controllers\Driver\RouteSubscriptionController as DriverRoutes;
+use App\Controllers\Driver\RatingController as DriverRating;
+use App\Controllers\Driver\ReportController as DriverReport;
 use App\Controllers\Site\StreamController;
 use App\Controllers\Site\PushController;
 use App\Controllers\Site\ProfileController;
@@ -82,6 +87,12 @@ $router->post('/musteri/elan/{id}/teklif/{offerId}/qebul', function ($p) {
 $router->post('/musteri/elan/{id}/legv', function ($p) {
     (new CustomerOfferAction())->cancel($p);
 });
+$router->post('/musteri/elan/{id}/reytinq', function ($p) {
+    (new CustomerRating())->submit($p);
+});
+$router->post('/musteri/elan/{id}/sikayet', function ($p) {
+    (new CustomerReport())->submit($p);
+});
 $router->get('/musteri/profil', function () {
     Auth::requireRole('customer', '/giris');
     View::render('site/profile_stub', ['pageTitle' => t('nav.profile')]);
@@ -104,11 +115,20 @@ $router->post('/surucu/elan/{id}/teklif', function ($p) {
 $router->post('/surucu/elan/{id}/teklif/geri', function ($p) {
     (new DriverOffer())->withdraw($p);
 });
+$router->post('/surucu/elan/{id}/legv', function ($p) {
+    (new DriverOffer())->cancelAccepted($p);
+});
+$router->post('/surucu/elan/{id}/sikayet', function ($p) {
+    (new DriverReport())->submit($p);
+});
 $router->get('/surucu/tekliflerim', function () {
     (new DriverMyOffers())->index();
 });
 $router->get('/surucu/tarixce', function () {
     (new DriverHistory())->index();
+});
+$router->post('/surucu/tarixce/{id}/reytinq', function ($p) {
+    (new DriverRating())->submit($p);
 });
 $router->get('/surucu/marsrutlar', function () {
     (new DriverRoutes())->index();
@@ -132,6 +152,14 @@ $router->get('/surucu/odenis', function () {
 });
 $router->post('/surucu/odenis/ode', function () {
     (new DriverBilling())->pay();
+});
+
+// --- Hüquqi sənədlər ---
+$router->get('/huquqi', function () {
+    (new LegalController())->index();
+});
+$router->get('/huquqi/{slug}', function ($p) {
+    (new LegalController())->show($p);
 });
 
 // --- Public paylaşım kartı (Q-Y10) ---

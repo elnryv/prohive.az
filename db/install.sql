@@ -175,6 +175,9 @@ CREATE TABLE users (
   paid_until DATE DEFAULT NULL,
   cancel_count INT UNSIGNED NOT NULL DEFAULT 0,
   jobs_done INT UNSIGNED NOT NULL DEFAULT 0,
+  rating_avg DECIMAL(3,2) DEFAULT NULL,
+  rating_count INT UNSIGNED NOT NULL DEFAULT 0,
+  terms_accepted_at TIMESTAMP NULL DEFAULT NULL,
   failed_login_attempts INT UNSIGNED NOT NULL DEFAULT 0,
   locked_until TIMESTAMP NULL DEFAULT NULL,
   last_login_at TIMESTAMP NULL DEFAULT NULL,
@@ -238,7 +241,7 @@ CREATE TABLE offers (
   driver_id INT UNSIGNED NOT NULL,
   price DECIMAL(8,2) NOT NULL,
   note VARCHAR(300) DEFAULT NULL,
-  status ENUM('pending','accepted','lost','withdrawn','canceled_by_customer') NOT NULL DEFAULT 'pending',
+  status ENUM('pending','accepted','lost','withdrawn','canceled_by_customer','canceled_by_driver') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_listing_driver (listing_id, driver_id),
@@ -362,6 +365,24 @@ CREATE TABLE banners (
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_active_sort (is_active, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- ratings — tamamlanmış işdən sonra qarşılıqlı reytinq
+-- ---------------------------------------------------------------------
+CREATE TABLE ratings (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  listing_id INT UNSIGNED NOT NULL,
+  rater_user_id INT UNSIGNED NOT NULL,
+  rated_user_id INT UNSIGNED NOT NULL,
+  rating TINYINT UNSIGNED NOT NULL,
+  comment VARCHAR(500) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_listing_rater (listing_id, rater_user_id),
+  FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE,
+  FOREIGN KEY (rater_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (rated_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_rated (rated_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------------------

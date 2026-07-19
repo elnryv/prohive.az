@@ -142,7 +142,10 @@ final class OfferActionController
         $stmt->execute([$listingId, $customerId]);
         $listing = $stmt->fetch();
 
-        if ($listing === false || $listing['status'] !== 'accepted') {
+        // Q-Y5 genişlənməsi: razılaşma "tamamlandı" statusuna (cron/bölmə 6.7 ilə avtomatik
+        // keçmiş ola bilər) çatandan sonra da faktiki baş tutmayıbsa, müştəri elanı yenidən
+        // aça bilməlidir — bax OfferActionController::cancel() aşağıdakı jobs_done geri qaytarma.
+        if ($listing === false || !in_array($listing['status'], ['accepted', 'completed'], true)) {
             header('Location: /musteri/elan/' . $listingId);
             return;
         }
@@ -150,6 +153,8 @@ final class OfferActionController
             header('Location: /musteri/elan/' . $listingId . '?xeta=limit_yenidenachma');
             return;
         }
+
+        $wasCompleted = $listing['status'] === 'completed';
 
         $pdo = DB::conn();
         $pdo->beginTransaction();
@@ -162,11 +167,18 @@ final class OfferActionController
 
             $newExpiresAt = ListingRules::reopenExpiresAt();
             $u1 = $pdo->prepare(
-                "UPDATE listings SET status = 'active', accepted_offer_id = NULL, expires_at = ?, reopen_count = reopen_count + 1 WHERE id = ?"
+                "UPDATE listings SET status = 'active', accepted_offer_id = NULL, completed_at = NULL, expires_at = ?, reopen_count = reopen_count + 1 WHERE id = ?"
             );
             $u1->execute([$newExpiresAt, $listingId]);
 
             $pdo->prepare("UPDATE offers SET status = 'canceled_by_customer' WHERE id = ?")->execute([$acceptedOfferId]);
+
+            // Tamamlanmış iş faktiki baş tutmayıbsa, cron-un artırdığı jobs_done geri qaytarılır.
+            if ($wasCompleted && $acceptedDriverId !== null) {
+                $pdo->prepare(
+                    'UPDATE users SET jobs_done = GREATEST(jobs_done - 1, 0) WHERE id = ?'
+                )->execute([$acceptedDriverId]);
+            }
 
             // Q-Y5: yenidən açılmada lost olanlar pending-ə QAYTARILIR.
             $restoreStmt = $pdo->prepare("SELECT driver_id FROM offers WHERE listing_id = ? AND status = 'lost'");
@@ -200,7 +212,13 @@ final class OfferActionController
         }
 
         $card = ListingRules::renderFeedCard($listingId);
-        $reopenPayload = ['listing_id' => $listingId, 'scope' => $card['scope'] ?? null, 'html' => $card['html'] ?? null];
+        $reopenPayload = [
+            'listing_id' => $listingId,
+            'scope' => $card['scope'] ?? null,
+            'html' => $card['html'] ?? null,
+            'from_location_id' => $card['from_location_id'] ?? null,
+            'to_location_id' => $card['to_location_id'] ?? null,
+        ];
         Sse::publish('feed', 'listing_reopened', $reopenPayload);
         foreach ($notifyDriverIds as $did) {
             Sse::publish('driver_' . $did, 'listing_reopened', $reopenPayload);

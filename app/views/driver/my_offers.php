@@ -42,6 +42,19 @@ use App\Core\Phone;
               <a class="btn btn-outline" style="flex:1" href="tel:+<?= e($offer['customer_phone']) ?>"><?= e(t('common.call')) ?></a>
             </div>
           </div>
+          <form method="post" action="/surucu/elan/<?= (int) $offer['id'] ?>/legv" style="margin-top:8px" onsubmit="return confirm('<?= e(t('offer.cancel_accepted_confirm')) ?>')">
+            <?= Csrf::field() ?>
+            <button type="submit" class="btn btn-outline btn-block"><?= e(t('offer.cancel_accepted')) ?></button>
+          </form>
+          <details style="margin-top:8px">
+            <summary class="text-soft" style="cursor:pointer"><?= e(t('report.title')) ?></summary>
+            <form method="post" action="/surucu/elan/<?= (int) $offer['id'] ?>/sikayet" style="margin-top:8px" onsubmit="return confirm('<?= e(t('report.confirm')) ?>')">
+              <?= Csrf::field() ?>
+              <label for="report_reason_<?= (int) $offer['id'] ?>"><?= e(t('report.reason_label')) ?></label>
+              <textarea id="report_reason_<?= (int) $offer['id'] ?>" name="reason" rows="2" required></textarea>
+              <button type="submit" class="btn btn-outline btn-block" style="margin-top:8px"><?= e(t('report.submit')) ?></button>
+            </form>
+          </details>
         <?php elseif ($offer['offer_status'] === 'pending'): ?>
           <form method="post" action="/surucu/elan/<?= (int) $offer['id'] ?>/teklif/geri" style="margin-top:8px">
             <?= Csrf::field() ?>

@@ -88,6 +88,10 @@ final class AuthController
             }
         }
 
+        if (empty($_POST['terms_accepted'])) {
+            $errors['terms_accepted'] = 'auth.terms_required';
+        }
+
         return ['full_name' => $fullName, 'phone' => $phone, 'password' => $password];
     }
 
@@ -108,7 +112,7 @@ final class AuthController
         }
 
         $stmt = DB::conn()->prepare(
-            'INSERT INTO users (role, phone, password_hash, full_name, lang) VALUES (?, ?, ?, ?, ?)'
+            'INSERT INTO users (role, phone, password_hash, full_name, lang, terms_accepted_at) VALUES (?, ?, ?, ?, ?, NOW())'
         );
         $stmt->execute([
             'customer',
@@ -183,8 +187,8 @@ final class AuthController
         // adları kimi saxlanılır (sxem dəyişdirilmir, yalnız təqdimat qatında bölünür).
         $stmt = DB::conn()->prepare(
             'INSERT INTO users (role, phone, password_hash, full_name, lang, vehicle_type_id, vehicle_note,
-                vehicle_photo, driver_status, billing_status, trial_until)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, DATE_ADD(CURDATE(), INTERVAL ? DAY))'
+                vehicle_photo, driver_status, billing_status, trial_until, terms_accepted_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, DATE_ADD(CURDATE(), INTERVAL ? DAY), NOW())'
         );
         $stmt->execute([
             'driver',

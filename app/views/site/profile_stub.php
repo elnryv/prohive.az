@@ -101,6 +101,12 @@ $langNames = ['az' => 'Azərbaycan', 'ru' => 'Русский', 'en' => 'English'
       <span class="profile-row-chevron"><?= icon('chevron-right', 'icon', 18) ?></span>
     </a>
 
+    <a class="profile-row" href="/huquqi">
+      <span class="profile-row-icon"><?= icon('shield-check', 'icon', 18) ?></span>
+      <span><?= e(t('legal.title')) ?></span>
+      <span class="profile-row-chevron"><?= icon('chevron-right', 'icon', 18) ?></span>
+    </a>
+
     <details>
       <summary class="profile-row">
         <span class="profile-row-icon"><?= icon('info', 'icon', 18) ?></span>

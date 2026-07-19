@@ -142,6 +142,10 @@ a { color: inherit; text-decoration: none; }
 }
 @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
 .card:hover { background: var(--card-hi); }
+
+.legal-content h2 { font-size: 16px; margin: 20px 0 8px; }
+.legal-content h2:first-child { margin-top: 0; }
+.legal-content p { color: var(--txt-soft); font-size: 14px; line-height: 1.6; margin: 0 0 8px; }
 .card:active { transform: scale(.97); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -206,6 +210,7 @@ a { color: inherit; text-decoration: none; }
 .chip-warn { background: var(--warn-tint); color: var(--warn); border-color: transparent; }
 .chip-ok { background: var(--ok-tint); color: var(--ok); border-color: transparent; }
 .chip-urgent { background: var(--danger-tint); color: var(--danger); border-color: transparent; }
+.chip-match { background: var(--primary-tint); color: var(--primary); border-color: transparent; }
 .chip-muted { background: var(--card-hi); color: var(--txt-soft); border-color: transparent; }
 
 .route {

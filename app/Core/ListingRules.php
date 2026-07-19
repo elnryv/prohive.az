@@ -55,13 +55,38 @@ final class ListingRules
     }
 
     /**
+     * Q-Y12: elan sürücünün marşrut abunəliklərindən (`route_subscriptions`) birinə uyğundurmu?
+     * NULL from/to_location_id "istənilən" mənasınadır. Bax Driver\DashboardController::feed()
+     * (ilkin yükləmə) və public/assets/js/app.js-dəki eyni məntiqin JS dublikatı (canlı SSE üçün).
+     *
+     * @param array<string,mixed> $listing
+     * @param array<int,array{from_location_id:?int,to_location_id:?int,scope:string}> $subscriptions
+     */
+    public static function matchesAnySubscription(array $listing, array $subscriptions): bool
+    {
+        foreach ($subscriptions as $s) {
+            if ($s['scope'] !== 'all' && $s['scope'] !== $listing['scope']) {
+                continue;
+            }
+            if ($s['from_location_id'] !== null && (int) $s['from_location_id'] !== (int) $listing['from_location_id']) {
+                continue;
+            }
+            if ($s['to_location_id'] !== null && (int) $s['to_location_id'] !== (int) $listing['to_location_id']) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Sürücü lentinə canlı (SSE) düşəcək kartın hazır HTML-i — sorğu + render PUBLISH
      * ANINDA, bir yerdə edilir ki, client tərəfi ayrıca fetch()-ə ehtiyac duymasın.
      * Əvvəlki dizaynda bu əlavə round-trip (`/surucu/lent/kart/{id}`) özü müstəqil bir
      * uğursuzluq nöqtəsi idi (FAZA 20) — SSE hadisəsi çatsa belə, sonrakı fetch
      * uğursuz/gec olarsa kart heç görünmürdü.
      *
-     * @return array{html:string, scope:string}|null
+     * @return array{html:string, scope:string, from_location_id:int, to_location_id:int}|null
      */
     public static function renderFeedCard(int $listingId): ?array
     {
@@ -76,6 +101,8 @@ final class ListingRules
         return [
             'html' => View::capture('partials/listing_card', ['listing' => $listing, 'href' => '/surucu/elan/' . $listingId]),
             'scope' => $listing['scope'],
+            'from_location_id' => (int) $listing['from_location_id'],
+            'to_location_id' => (int) $listing['to_location_id'],
         ];
     }
 }

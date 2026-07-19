@@ -249,6 +249,29 @@
     // yaranırdı). İndi uyğunsuz scope-lu kart da dərhal görünür, üstündə hansı
     // bölgəyə aid olduğunu göstərən çip var ki, sürücü qarışdırmasın.
     const SCOPE_LABELS = { baku: 'Bakı daxili', intercity: 'Bölgələrarası' };
+    // Digər SSE-üzərindən yazılan mətnlər kimi (bax SCOPE_LABELS) tərcümə olunmur —
+    // client tərəfdə i18n mexanizmi yoxdur, server-render olunan versiya (bax
+    // partials/listing_card.php, routes.match_badge) düzgün dildə görünür.
+    const matchBadgeText = 'Sənin marşrutuna uyğun';
+
+    // Q-Y12: marşrut abunəliyinə uyğun elanı vurğulamaq üçün — eyni məntiq
+    // App\Core\ListingRules::matchesAnySubscription()-un JS dublikatıdır (SSE ilə
+    // canlı gələn kartlar üçün, çünki 'feed' kanalı bütün sürücülərə eyni HTML
+    // göndərir, server-tərəfdə fərdiləşdirilə bilmir).
+    let routeSubscriptions = [];
+    try {
+      routeSubscriptions = JSON.parse(feedList.dataset.routeSubscriptions || '[]');
+    } catch (err) {
+      routeSubscriptions = [];
+    }
+    const matchesAnySubscription = (payload) => {
+      return routeSubscriptions.some((s) => {
+        if (s.scope !== 'all' && s.scope !== payload.scope) return false;
+        if (s.from_location_id !== null && Number(s.from_location_id) !== Number(payload.from_location_id)) return false;
+        if (s.to_location_id !== null && Number(s.to_location_id) !== Number(payload.to_location_id)) return false;
+        return true;
+      });
+    };
 
     // FAZA 20: kartın HTML-i artıq SSE hadisəsinin İÇİNDƏ gəlir (bax
     // ListingRules::renderFeedCard()) — əvvəlki dizaynda bu funksiya ayrıca
@@ -275,6 +298,17 @@
           scopeChip.className = 'chip chip-warn';
           scopeChip.textContent = SCOPE_LABELS[data.payload.scope] || data.payload.scope;
           chipRow.prepend(scopeChip);
+        }
+      }
+
+      if (routeSubscriptions.length > 0 && matchesAnySubscription(data.payload)) {
+        el.style.borderColor = 'var(--primary)';
+        const chipRow = el.children[1];
+        if (chipRow) {
+          const matchChip = document.createElement('span');
+          matchChip.className = 'chip chip-match';
+          matchChip.textContent = matchBadgeText;
+          chipRow.prepend(matchChip);
         }
       }
 

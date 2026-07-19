@@ -17,16 +17,17 @@ final class HistoryController
         Auth::requireRole('driver', '/giris');
         $driverId = (int) Auth::id();
 
-        $sql = "SELECT o.price, " . ListingRules::SELECT_SQL . "
+        $sql = "SELECT o.price, r.rating as my_rating, " . ListingRules::SELECT_SQL . "
                 FROM offers o
                 JOIN listings l ON l.id = o.listing_id
                 JOIN categories c ON c.id = l.category_id
                 JOIN locations fl ON fl.id = l.from_location_id
                 JOIN locations tl ON tl.id = l.to_location_id
+                LEFT JOIN ratings r ON r.listing_id = l.id AND r.rater_user_id = ?
                 WHERE o.driver_id = ? AND o.status = 'accepted' AND l.status = 'completed'
                 ORDER BY l.completed_at DESC LIMIT 100";
         $stmt = DB::conn()->prepare($sql);
-        $stmt->execute([$driverId]);
+        $stmt->execute([$driverId, $driverId]);
         $jobs = $stmt->fetchAll();
 
         $monthStmt = DB::conn()->prepare(

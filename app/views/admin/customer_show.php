@@ -24,6 +24,18 @@ use App\Core\Phone;
   <button type="submit" class="btn btn-outline"><?= (int) $customer['is_blocked'] === 1 ? 'Blokdan çıxar' : 'Blokla' ?></button>
 </form>
 
+<div class="card" style="margin-bottom:16px">
+  <h2 style="margin-top:0;display:flex;align-items:center;gap:6px"><?= icon('lock', 'icon', 18) ?> Şifrə sıfırlama</h2>
+  <form method="post" action="/musteriler/<?= (int) $customer['id'] ?>/sifre" style="display:flex;gap:8px;align-items:flex-end" onsubmit="return confirm('Şifrəni sıfırlamaq istədiyinə əminsən?')">
+    <?= Csrf::field() ?>
+    <div class="field" style="margin:0;flex:1">
+      <label>Yeni şifrə (min. 6 simvol)</label>
+      <input type="text" name="new_password" minlength="6" required>
+    </div>
+    <button type="submit" class="btn btn-sm btn-outline">Şifrəni sıfırla</button>
+  </form>
+</div>
+
 <h2 style="display:flex;align-items:center;gap:6px"><?= icon('box', 'icon', 18) ?> Sifariş tarixçəsi</h2>
 <?php if ($listings === []): ?>
   <div class="empty-state"><p>Yoxdur</p></div>

@@ -18,7 +18,6 @@ use App\Core\WebPush;
 
 final class ListingController
 {
-    private const MAX_ACTIVE_PER_DAY = 5;
     private const MAX_PHOTOS = 6;
 
     public function createForm(): void
@@ -53,16 +52,6 @@ final class ListingController
 
         $customerId = Auth::id();
         $errors = [];
-
-        $countStmt = DB::conn()->prepare(
-            "SELECT COUNT(*) c FROM listings WHERE customer_id = ? AND status = 'active' AND created_at >= CURDATE()"
-        );
-        $countStmt->execute([$customerId]);
-        if ((int) $countStmt->fetch()['c'] >= self::MAX_ACTIVE_PER_DAY) {
-            $errors['limit'] = 'listing.daily_limit_reached';
-            $this->renderForm($errors, $_POST);
-            return;
-        }
 
         $categoryId = (int) ($_POST['category_id'] ?? 0);
         $fromLocationId = (int) ($_POST['from_location_id'] ?? 0);
@@ -165,6 +154,8 @@ final class ListingController
             'listing_id' => $listingId,
             'scope' => $scope,
             'html' => $card['html'] ?? null,
+            'from_location_id' => $card['from_location_id'] ?? $fromLocationId,
+            'to_location_id' => $card['to_location_id'] ?? $toLocationId,
         ]);
 
         // FAZA 30: müştəri sürücülərə push göndərişinin bitməsini GÖZLƏMƏMƏLİDİR —
@@ -200,7 +191,8 @@ final class ListingController
         // təsdiqləyib — view isə telefonu yalnız status==='accepted' olan
         // təklif üçün render edir (digərlərində sıra var, amma göstərilmir).
         $offers = DB::conn()->prepare(
-            "SELECT o.*, u.full_name, u.phone, u.jobs_done, u.cancel_count, u.vehicle_photo, u.profile_photo, u.created_at as driver_since,
+            "SELECT o.*, u.full_name, u.phone, u.jobs_done, u.cancel_count, u.rating_avg, u.rating_count,
+                    u.vehicle_photo, u.profile_photo, u.created_at as driver_since,
                     vt.name_az as vt_name_az, vt.name_ru as vt_name_ru, vt.name_en as vt_name_en
              FROM offers o
              JOIN users u ON u.id = o.driver_id
@@ -212,12 +204,22 @@ final class ListingController
 
         $lastEventId = (int) (DB::conn()->query('SELECT MAX(id) m FROM sse_events')->fetch()['m'] ?? 0);
 
+        $myRating = null;
+        if ($listing['status'] === 'completed') {
+            $ratingStmt = DB::conn()->prepare(
+                'SELECT rating, comment FROM ratings WHERE listing_id = ? AND rater_user_id = ? LIMIT 1'
+            );
+            $ratingStmt->execute([$id, (int) Auth::id()]);
+            $myRating = $ratingStmt->fetch() ?: null;
+        }
+
         View::render('customer/listing_show', [
             'pageTitle' => t('nav.my_listings'),
             'listing' => $listing,
             'photos' => $photos->fetchAll(),
             'offers' => $offers->fetchAll(),
             'lastEventId' => $lastEventId,
+            'myRating' => $myRating,
         ]);
     }
 

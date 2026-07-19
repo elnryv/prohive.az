@@ -62,6 +62,9 @@ $router->post('/surucular/{id}/qiymet', function ($p) {
 $router->post('/surucular/{id}/blokla', function ($p) {
     (new DriverController())->block($p);
 });
+$router->post('/surucular/{id}/sifre', function ($p) {
+    (new DriverController())->resetPassword($p);
+});
 
 // --- Müştərilər ---
 $router->get('/musteriler', function () {
@@ -72,6 +75,9 @@ $router->get('/musteriler/{id}', function ($p) {
 });
 $router->post('/musteriler/{id}/blokla', function ($p) {
     (new CustomerController())->block($p);
+});
+$router->post('/musteriler/{id}/sifre', function ($p) {
+    (new CustomerController())->resetPassword($p);
 });
 
 // --- Elanlar ---

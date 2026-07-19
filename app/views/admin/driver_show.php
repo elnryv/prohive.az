@@ -51,6 +51,7 @@ use App\Core\Phone;
 <div class="stat-grid">
   <div class="stat-card"><div class="num"><?= (int) $driver['jobs_done'] ?></div><div class="label">Bağlanmış iş</div></div>
   <div class="stat-card"><div class="num"><?= (int) $driver['cancel_count'] ?></div><div class="label">Ləğv sayı</div></div>
+  <div class="stat-card"><div class="num"><?= $driver['rating_avg'] !== null ? number_format((float) $driver['rating_avg'], 1) : '—' ?></div><div class="label">Reytinq (<?= (int) $driver['rating_count'] ?>)</div></div>
   <div class="stat-card"><div class="num" style="font-size:16px"><?= e($driver['billing_status'] ?? '—') ?></div><div class="label">Billing status</div></div>
   <div class="stat-card"><div class="num" style="font-size:16px"><?= e($driver['trial_until'] ?? $driver['paid_until'] ?? '—') ?></div><div class="label">Bitmə tarixi</div></div>
 </div>
@@ -76,6 +77,14 @@ use App\Core\Phone;
       <input type="number" step="0.01" name="custom_price" value="<?= e((string) ($driver['custom_price'] ?? '')) ?>">
     </div>
     <button type="submit" class="btn btn-sm">Yadda saxla</button>
+  </form>
+  <form method="post" action="/surucular/<?= (int) $driver['id'] ?>/sifre" style="display:flex;gap:8px;align-items:flex-end;margin-top:12px" onsubmit="return confirm('Şifrəni sıfırlamaq istədiyinə əminsən?')">
+    <?= Csrf::field() ?>
+    <div class="field" style="margin:0;flex:1">
+      <label>Yeni şifrə (min. 6 simvol)</label>
+      <input type="text" name="new_password" minlength="6" required>
+    </div>
+    <button type="submit" class="btn btn-sm btn-outline">Şifrəni sıfırla</button>
   </form>
 </div>
 

@@ -21,7 +21,7 @@ final class MyOffersController
             'pending' => ['pending'],
             'accepted' => ['accepted'],
             'lost' => ['lost'],
-            'withdrawn' => ['withdrawn', 'canceled_by_customer'],
+            'withdrawn' => ['withdrawn', 'canceled_by_customer', 'canceled_by_driver'],
         ];
         $statuses = $statusMap[$tab] ?? $statusMap['pending'];
 

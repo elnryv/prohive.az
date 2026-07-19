@@ -86,6 +86,14 @@ use App\Core\View;
     </div>
     <?php endif; ?>
 
+    <div class="field">
+      <label style="display:flex;align-items:flex-start;gap:8px;font-weight:normal">
+        <input type="checkbox" name="terms_accepted" value="1" style="margin-top:2px" <?= !empty($old['terms_accepted']) ? 'checked' : '' ?>>
+        <span><?= e(t('auth.terms_label')) ?> — <a href="/huquqi/istifade-sertleri" target="_blank" style="color:var(--primary)"><?= e(t('legal.title')) ?></a></span>
+      </label>
+      <?php if (isset($errors['terms_accepted'])): ?><p class="text-soft" style="color:var(--danger)"><?= e(t($errors['terms_accepted'])) ?></p><?php endif; ?>
+    </div>
+
     <button type="submit" class="btn btn-amber btn-block"><?= e(t('nav.register')) ?></button>
   </form>
 

@@ -85,6 +85,8 @@ return [
         'vehicle_photo_required' => 'Upload at least one vehicle photo',
         'vehicle_photo_max' => 'You can upload up to 3 photos',
         'full_name_required' => 'Enter your full name',
+        'terms_label' => 'I have read and accept the terms of use',
+        'terms_required' => 'Accept the terms of use to continue',
         'driver_pending_banner' => 'Your profile is being reviewed. You can offer prices once approved.',
         'driver_rejected_banner' => 'Your registration was rejected: {reason}',
     ],
@@ -156,6 +158,8 @@ return [
         'driver_approved_title' => 'Your profile was approved!',
         'driver_approved_body' => 'You can now offer prices in the feed.',
         'admin_campaign_title' => 'Birlikdə Yük',
+        'driver_canceled_title' => 'Driver canceled the job',
+        'driver_canceled_body' => 'The listing is active again, you can pick another driver.',
     ],
     'offer' => [
         'accept_confirm' => 'Accepting this offer will close the listing and cancel other offers. Continue?',
@@ -165,6 +169,7 @@ return [
         'status_lost' => 'Cargo taken',
         'status_withdrawn' => 'Withdrawn',
         'status_canceled_by_customer' => 'Canceled',
+        'status_canceled_by_driver' => 'Canceled',
         'withdraw' => 'Withdraw offer',
         'price_label' => 'Price (AZN)',
         'note_label' => 'Note (optional)',
@@ -172,6 +177,8 @@ return [
         'update_submit' => 'Update offer',
         'limit_reached' => 'Hourly offer limit reached (max 20)',
         'invalid_price' => 'Enter a valid price',
+        'cancel_accepted' => "I can't do this job",
+        'cancel_accepted_confirm' => 'Are you sure you want to cancel this accepted job? The listing will reopen and this will count toward your cancellations.',
     ],
     'whatsapp' => [
         'template' => 'Hi! We agreed on the {route} cargo — Birlikdə Yük',
@@ -180,12 +187,27 @@ return [
         'monthly_summary' => 'From the platform this month: {count} jobs · {total} AZN',
         'cancel_count' => '{n} cancellations',
     ],
+    'rating' => [
+        'title' => 'Rate',
+        'label' => 'Rating (1-5)',
+        'comment_label' => 'Comment (optional)',
+        'submit' => 'Submit',
+        'already_rated' => 'You rated this job {n}/5',
+    ],
+    'report' => [
+        'title' => 'Report',
+        'reason_label' => 'Describe the reason for your report',
+        'submit' => 'Send report',
+        'confirm' => 'Are you sure you want to send this report?',
+        'sent' => 'Your report was recorded, an admin will review it.',
+    ],
     'routes' => [
         'title' => 'Route subscriptions',
         'description' => "You'll be notified when new cargo appears on your selected routes (max 5 subscriptions).",
         'scope' => 'Scope',
         'add' => 'Subscribe',
         'limit_reached' => 'You have reached the 5-subscription limit',
+        'match_badge' => 'Matches your route',
     ],
     'billing' => [
         'title' => 'Subscription',
@@ -243,5 +265,9 @@ return [
         'support' => 'Support & Help',
         'about' => 'About us',
         'about_text' => 'Birlikdə Yük — local cargo transport exchange. Version 1.0.',
+    ],
+
+    'legal' => [
+        'title' => 'Legal documents',
     ],
 ];

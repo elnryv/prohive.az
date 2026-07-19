@@ -7,6 +7,7 @@ namespace App\Controllers\Driver;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\DB;
+use App\Core\ListingRules;
 use App\Core\Sse;
 use App\Core\WebPush;
 
@@ -115,5 +116,98 @@ final class OfferController
         $stmt->execute([$listingId, $driverId]);
 
         header('Location: /surucu/elan/' . $listingId);
+    }
+
+    /**
+     * Q-Y5 sürücü tərəfi: qəbul edilmiş iş sürücü tərəfindən baş tutmursa, elan
+     * yenidən aktivləşir (bax Customer\OfferActionController::cancel() — eyni
+     * yenidən-açma qaydası, fərq yalnız kimin başlatdığı və kimin cancel_count-unun
+     * artmasındadır).
+     */
+    public function cancelAccepted(array $params): void
+    {
+        Auth::requireRole('driver', '/giris');
+        if (!Csrf::verifyRequest()) {
+            http_response_code(419);
+            echo 'CSRF token etibarsızdır.';
+            return;
+        }
+
+        $listingId = (int) $params['id'];
+        $driverId = (int) Auth::id();
+
+        $pdo = DB::conn();
+        $customerId = null;
+        $restoredDriverIds = [];
+        $ok = false;
+
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare(
+                "SELECT l.customer_id, o.id as offer_id FROM listings l
+                 JOIN offers o ON o.id = l.accepted_offer_id
+                 WHERE l.id = ? AND l.status = 'accepted' AND o.driver_id = ? FOR UPDATE"
+            );
+            $stmt->execute([$listingId, $driverId]);
+            $row = $stmt->fetch();
+
+            if ($row !== false) {
+                $customerId = (int) $row['customer_id'];
+
+                $newExpiresAt = ListingRules::reopenExpiresAt();
+                $u1 = $pdo->prepare(
+                    "UPDATE listings SET status = 'active', accepted_offer_id = NULL, expires_at = ?, reopen_count = reopen_count + 1 WHERE id = ?"
+                );
+                $u1->execute([$newExpiresAt, $listingId]);
+
+                $pdo->prepare("UPDATE offers SET status = 'canceled_by_driver' WHERE id = ?")->execute([$row['offer_id']]);
+
+                $restoreStmt = $pdo->prepare("SELECT driver_id FROM offers WHERE listing_id = ? AND status = 'lost'");
+                $restoreStmt->execute([$listingId]);
+                $restoredDriverIds = array_map('intval', array_column($restoreStmt->fetchAll(), 'driver_id'));
+                $pdo->prepare("UPDATE offers SET status = 'pending' WHERE listing_id = ? AND status = 'lost'")->execute([$listingId]);
+
+                $pdo->prepare('UPDATE users SET cancel_count = cancel_count + 1 WHERE id = ?')->execute([$driverId]);
+
+                $ev = $pdo->prepare(
+                    'INSERT INTO listing_events (listing_id, event, actor_user_id) VALUES (?, "reopened", ?)'
+                );
+                $ev->execute([$listingId, $driverId]);
+
+                $ok = true;
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        if (!$ok) {
+            header('Location: /surucu/tekliflerim?tab=accepted');
+            return;
+        }
+
+        $card = ListingRules::renderFeedCard($listingId);
+        $reopenPayload = [
+            'listing_id' => $listingId,
+            'scope' => $card['scope'] ?? null,
+            'html' => $card['html'] ?? null,
+            'from_location_id' => $card['from_location_id'] ?? null,
+            'to_location_id' => $card['to_location_id'] ?? null,
+        ];
+        Sse::publish('feed', 'listing_reopened', $reopenPayload);
+        Sse::publish('customer_' . $customerId, 'listing_reopened', $reopenPayload);
+        foreach ($restoredDriverIds as $did) {
+            Sse::publish('driver_' . $did, 'listing_reopened', $reopenPayload);
+        }
+
+        WebPush::sendToUsersLocalized([$customerId], static fn () => [
+            'title' => t('push.driver_canceled_title'),
+            'body' => t('push.driver_canceled_body'),
+            'url' => '/musteri/elan/' . $listingId,
+        ], 'high');
+
+        header('Location: /surucu/tekliflerim?tab=accepted');
     }
 }
