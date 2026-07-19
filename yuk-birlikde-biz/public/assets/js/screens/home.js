@@ -2,6 +2,8 @@ import { getState } from '../store.js';
 import { createBottomNav } from '../components/bottomnav.js';
 import { api } from '../api.js';
 import { navigate } from '../router.js';
+import { connectSSE } from '../sse.js';
+import { showToast } from '../components/toast.js';
 
 const TABS = {
   customer: [
@@ -30,14 +32,16 @@ export async function mount(root) {
   root.innerHTML = `<div id="tab-content"></div>`;
   const contentEl = root.querySelector('#tab-content');
 
-  let activeIndex = 0;
+  let currentViewCleanup = null;
 
   async function showTab(index) {
-    activeIndex = index;
+    currentViewCleanup?.();
+    currentViewCleanup = null;
+
     bottomNav.setActive?.(index);
     contentEl.innerHTML = '';
     const mod = await tabs[index].view();
-    await mod.render(contentEl);
+    currentViewCleanup = (await mod.render(contentEl)) ?? null;
     refreshBadge();
   }
 
@@ -57,11 +61,26 @@ export async function mount(root) {
   );
   root.appendChild(bottomNav.el);
 
-  window.addEventListener('ybb:tab', (e) => showTab(e.detail));
+  function onTabEvent(e) {
+    showTab(e.detail);
+  }
+  window.addEventListener('ybb:tab', onTabEvent);
+
+  // İstifadəçiyə aid hadisələr (Hissə 7.2 user:{id} kanalı) — hansı tabda
+  // olmasından asılı olmayaraq toast göstərilir və badge yenilənir.
+  const sse = connectSSE([`user:${user.id}`], {
+    'offer.selected': () => { showToast('Siz seçildiniz!'); refreshBadge(); },
+    'selection.cancelled': () => { showToast('Seçim vəziyyəti dəyişdi.'); refreshBadge(); },
+    'order.closed': () => { showToast('Sifariş bağlandı.'); refreshBadge(); },
+    'reminder': () => { refreshBadge(); },
+  });
 
   await showTab(0);
 
   return () => {
+    currentViewCleanup?.();
+    window.removeEventListener('ybb:tab', onTabEvent);
+    sse.close();
     root.classList.remove('home-screen');
   };
 }

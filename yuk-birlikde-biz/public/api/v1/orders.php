@@ -10,6 +10,7 @@ require_once __DIR__ . '/../../../app/ratelimit.php';
 require_once __DIR__ . '/../../../app/validator.php';
 require_once __DIR__ . '/../../../app/texts.php';
 require_once __DIR__ . '/../../../app/orders.php';
+require_once __DIR__ . '/../../../app/sse_publish.php';
 
 require_method('POST');
 maintenance_guard();
@@ -40,9 +41,10 @@ if (strtotime($dateTime) === false || strtotime($dateTime) < time()) {
 }
 
 $db = db();
-$stmt = $db->prepare('SELECT id FROM cargo_types WHERE id = :id AND is_active = 1');
+$stmt = $db->prepare('SELECT name FROM cargo_types WHERE id = :id AND is_active = 1');
 $stmt->execute(['id' => (int) $body['cargo_type_id']]);
-if ($stmt->fetch() === false) {
+$cargoTypeName = $stmt->fetchColumn();
+if ($cargoTypeName === false) {
     json_error('INVALID_CARGO_TYPE', 'Yük növü yanlışdır.', 422);
 }
 
@@ -81,5 +83,8 @@ $stmt->execute([
 
 $orderId = (int) $db->lastInsertId();
 [$number, $slug] = assign_order_number_and_slug($orderId);
+
+$order = fetch_order_or_404($orderId);
+publish_event('feed', 'listing.new', order_feed_payload($order));
 
 json_ok(['order' => ['id' => $orderId, 'number' => $number, 'slug' => $slug]], 201);

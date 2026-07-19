@@ -376,3 +376,33 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   from { opacity: 1; transform: translateX(0); }
   to { opacity: 0; transform: translateX(-24px); }
 }
+
+/* Bağlantı statusu zolağı — Hissə 5.1 */
+.conn-banner {
+  text-align: center;
+  font-size: 12px;
+  padding: 6px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.conn-banner-warning { background: var(--warning-soft); color: var(--warning); }
+.conn-banner-success { background: var(--success-soft); color: var(--success); }
+
+/* "N yeni elan" üzən düymə — Hissə 5.1 */
+.new-listings-btn {
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+  margin: 0 auto 12px;
+  display: block;
+  width: fit-content;
+  border: none;
+  border-radius: var(--r-chip);
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}

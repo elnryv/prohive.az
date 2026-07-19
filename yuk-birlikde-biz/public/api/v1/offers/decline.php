@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../../../app/csrf.php';
 require_once __DIR__ . '/../../../../app/offers.php';
 require_once __DIR__ . '/../../../../app/orders.php';
 require_once __DIR__ . '/../../../../app/notify.php';
+require_once __DIR__ . '/../../../../app/sse_publish.php';
 
 require_method('POST');
 csrf_validate();
@@ -41,5 +42,9 @@ try {
 }
 
 notify_user((int) $order['customer_id'], 'driver_declined', 'Sürücü imtina etdi', text('notify_driver_declined'), "/elan/{$order['id']}");
+
+$order['status'] = 'active';
+publish_event('feed', 'listing.reopened', order_feed_payload($order));
+publish_event("user:{$order['customer_id']}", 'selection.cancelled', ['order_id' => $order['id']]);
 
 json_ok();

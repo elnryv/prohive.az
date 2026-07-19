@@ -8,6 +8,7 @@ import { openSheet } from '../components/sheet.js';
 import { showToast } from '../components/toast.js';
 import { openOfferSheet } from '../components/offer-sheet.js';
 import { esc } from '../utils.js';
+import { connectSSE } from '../sse.js';
 
 const STATUS_LABELS = {
   active: 'Aktiv',
@@ -83,6 +84,22 @@ export async function mount(root, params) {
   root.prepend(appbar);
   body.appendChild(createSkeletonList(3));
 
+  // Müştəri elan hələ təklif qəbul edirsə (active/waiting), listing:{id}
+  // kanalına qoşulub yeni/geri çəkilmiş təklifləri canlı görür — Hissə 7.2.
+  let sseController = null;
+  function syncRealtime(status) {
+    const shouldConnect = !isDriver && ['active', 'waiting'].includes(status);
+    if (shouldConnect && !sseController) {
+      sseController = connectSSE([`listing:${orderId}`], {
+        'offer.new': () => { showToast('Yeni təklif gəldi!'); load(); },
+        'offer.withdrawn': () => load(),
+      });
+    } else if (!shouldConnect && sseController) {
+      sseController.close();
+      sseController = null;
+    }
+  }
+
   async function load() {
     body.innerHTML = '';
     try {
@@ -107,6 +124,7 @@ export async function mount(root, params) {
 
   function renderCustomerView(order, offers) {
     appbar.querySelector('.appbar-title').textContent = `Elan #${order.number}`;
+    syncRealtime(order.status);
 
     body.innerHTML = `
       <div style="padding:16px;">
@@ -313,5 +331,5 @@ export async function mount(root, params) {
 
   await load();
 
-  return () => {};
+  return () => sseController?.close();
 }

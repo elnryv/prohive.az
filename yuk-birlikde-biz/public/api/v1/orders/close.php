@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../../../app/auth.php';
 require_once __DIR__ . '/../../../../app/csrf.php';
 require_once __DIR__ . '/../../../../app/orders.php';
 require_once __DIR__ . '/../../../../app/notify.php';
+require_once __DIR__ . '/../../../../app/sse_publish.php';
 
 require_method('POST');
 csrf_validate();
@@ -31,6 +32,7 @@ $driverId = $selectedOffer->fetchColumn();
 
 if ($driverId !== false) {
     notify_user((int) $driverId, 'order_closed', 'Sifariş bağlandı', text('notify_order_closed'), "/elan/{$orderId}");
+    publish_event("user:{$driverId}", 'order.closed', ['order_id' => $orderId]);
 }
 
 json_ok();

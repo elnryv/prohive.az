@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../../../app/auth.php';
 require_once __DIR__ . '/../../../../app/csrf.php';
 require_once __DIR__ . '/../../../../app/orders.php';
 require_once __DIR__ . '/../../../../app/notify.php';
+require_once __DIR__ . '/../../../../app/sse_publish.php';
 
 require_method('POST');
 csrf_validate();
@@ -44,6 +45,10 @@ try {
 
 if ($driverId !== false) {
     notify_user((int) $driverId, 'selection_cancelled', 'Seçim ləğv edildi', text('notify_selection_cancelled'), "/elan/{$orderId}");
+    publish_event("user:{$driverId}", 'selection.cancelled', ['order_id' => $orderId]);
 }
+
+$order['status'] = 'active';
+publish_event('feed', 'listing.reopened', order_feed_payload($order));
 
 json_ok();

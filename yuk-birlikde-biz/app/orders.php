@@ -34,6 +34,33 @@ function order_offer_count(int $orderId): int
     return (int) $stmt->fetchColumn();
 }
 
+// SSE 'feed' kanalı üçün listing.new/listing.reopened payload-u (Hissə 7.3
+// nümunəsinə uyğun) — order-ların yaradılması və yenidən açılması eyni formatı istifadə edir.
+function order_feed_payload(array $order): array
+{
+    $db = db();
+    $stmt = $db->prepare('SELECT name FROM cargo_types WHERE id = :id');
+    $stmt->execute(['id' => $order['cargo_type_id']]);
+    $cargoTypeName = $stmt->fetchColumn();
+
+    $stmt = $db->prepare('SELECT COUNT(*) FROM order_images WHERE order_id = :id');
+    $stmt->execute(['id' => $order['id']]);
+    $hasImages = ((int) $stmt->fetchColumn()) > 0;
+
+    return [
+        'id' => (int) $order['id'],
+        'number' => $order['number'],
+        'cargo_type' => $cargoTypeName,
+        'from' => $order['from_city'] . (!empty($order['from_district']) ? ', ' . $order['from_district'] : ''),
+        'to' => $order['to_city'],
+        'date_time' => $order['date_time'],
+        'has_images' => $hasImages,
+        'note_preview' => $order['note'] !== null ? mb_substr($order['note'], 0, 80) : '',
+        // Client-side scope (Bakı daxili/Bölgələrarası) filtrinin real-time hadisələrə də tətbiqi üçün.
+        'scope' => ($order['from_city'] === 'Bakı' && $order['to_city'] === 'Bakı') ? 'baku' : 'interregional',
+    ];
+}
+
 function assign_order_number_and_slug(int $orderId): array
 {
     $number = 'YK-' . date('Y') . '-' . str_pad((string) $orderId, 7, '0', STR_PAD_LEFT);

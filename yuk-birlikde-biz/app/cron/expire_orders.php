@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../notify.php';
 require_once __DIR__ . '/../texts.php';
+require_once __DIR__ . '/../sse_publish.php';
 
 $db = db();
 
@@ -35,6 +36,8 @@ foreach ($expired as $order) {
         text('notify_order_expired'),
         "/elan/{$order['id']}"
     );
+
+    publish_event('feed', 'listing.expired', ['id' => (int) $order['id']]);
 }
 
 echo count($expired) . " elan müddəti bitdi olaraq işarələndi.\n";

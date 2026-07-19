@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../../../app/csrf.php';
 require_once __DIR__ . '/../../../../app/offers.php';
 require_once __DIR__ . '/../../../../app/orders.php';
 require_once __DIR__ . '/../../../../app/notify.php';
+require_once __DIR__ . '/../../../../app/sse_publish.php';
 
 require_method('POST');
 csrf_validate();
@@ -33,8 +34,9 @@ try {
         json_error('INVALID_STATUS', text('offer_select_invalid_status'), 409);
     }
 
-    $db->prepare('UPDATE orders SET status = "negotiating", selected_offer_id = :offer_id WHERE id = :id')
-        ->execute(['offer_id' => $offerId, 'id' => $order['id']]);
+    $db->prepare(
+        'UPDATE orders SET status = "negotiating", selected_offer_id = :offer_id, reminder_tier_sent = 0 WHERE id = :id'
+    )->execute(['offer_id' => $offerId, 'id' => $order['id']]);
 
     $db->prepare('UPDATE offers SET status = "selected" WHERE id = :id')->execute(['id' => $offerId]);
 
@@ -57,5 +59,8 @@ notify_user(
     sprintf(text('notify_selected'), $route),
     "/elan/{$order['id']}"
 );
+
+publish_event('feed', 'listing.removed', ['id' => $order['id'], 'reason' => 'selected']);
+publish_event("user:{$offer['driver_id']}", 'offer.selected', ['order_id' => $order['id'], 'offer_id' => $offerId]);
 
 json_ok();

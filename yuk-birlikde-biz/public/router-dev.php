@@ -53,7 +53,7 @@ if ($uri !== '/' && is_file(__DIR__ . $uri) && !str_ends_with($uri, '.php')) {
 }
 
 if (str_starts_with($uri, '/api/') || str_starts_with($uri, '/sse/')) {
-    $script = __DIR__ . $uri . '.php';
+    $script = str_ends_with($uri, '.php') ? __DIR__ . $uri : __DIR__ . $uri . '.php';
     if (file_exists($script)) {
         require $script;
         return true;

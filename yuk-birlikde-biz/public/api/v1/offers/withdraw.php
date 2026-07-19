@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../../../app/auth.php';
 require_once __DIR__ . '/../../../../app/csrf.php';
 require_once __DIR__ . '/../../../../app/offers.php';
 require_once __DIR__ . '/../../../../app/orders.php';
+require_once __DIR__ . '/../../../../app/sse_publish.php';
 
 require_method('POST');
 csrf_validate();
@@ -30,5 +31,7 @@ if ($remaining === 0) {
     $db->prepare('UPDATE orders SET status = "active" WHERE id = :id AND status = "waiting"')
         ->execute(['id' => $offer['order_id']]);
 }
+
+publish_event("listing:{$offer['order_id']}", 'offer.withdrawn', ['offer_id' => $offerId]);
 
 json_ok();

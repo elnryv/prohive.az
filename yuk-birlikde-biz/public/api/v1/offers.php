@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../../app/validator.php';
 require_once __DIR__ . '/../../../app/texts.php';
 require_once __DIR__ . '/../../../app/orders.php';
 require_once __DIR__ . '/../../../app/notify.php';
+require_once __DIR__ . '/../../../app/sse_publish.php';
 
 require_method('POST');
 maintenance_guard();
@@ -85,5 +86,28 @@ notify_user(
     "/elan/{$orderId}",
     'offers'
 );
+
+$stmt = $db->prepare(
+    'SELECT v.name AS vehicle_name, vs.code AS vehicle_size_code, d.rating_avg
+     FROM drivers d
+     JOIN vehicles v ON v.id = d.vehicle_id
+     JOIN vehicle_sizes vs ON vs.id = d.vehicle_size_id
+     WHERE d.user_id = :driver_id'
+);
+$stmt->execute(['driver_id' => $user['id']]);
+$driverInfo = $stmt->fetch();
+
+publish_event("listing:{$orderId}", 'offer.new', [
+    'listing_id' => $orderId,
+    'offer' => [
+        'id' => $offerId,
+        'driver_name' => $driverName,
+        'vehicle' => "{$driverInfo['vehicle_name']} · {$driverInfo['vehicle_size_code']}",
+        'rating' => $driverInfo['rating_avg'],
+        'price' => $price,
+        'arrival' => substr((string) $body['arrival_time'], 0, 50),
+        'note' => isset($body['note']) ? substr((string) $body['note'], 0, 200) : '',
+    ],
+]);
 
 json_ok(['offer' => ['id' => $offerId]], 201);
