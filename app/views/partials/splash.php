@@ -3,17 +3,17 @@
   <div class="splash-mark-wrapper">
     <div class="splash-glow"></div>
     <div class="splash-mark">
-      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#2196f3"/>
             <stop offset="100%" stop-color="#0d47a1"/>
           </linearGradient>
         </defs>
-        <path class="b-letter" d="M70 40h100c44 0 74 28 74 68 0 26-12 46-34 58 28 10 46 34 46 66 0 44-34 72-80 72H70V40zm46 42v64h48c22 0 36-12 36-32s-14-32-36-32h-48zm0 102v74h54c24 0 40-14 40-37s-16-37-40-37h-54z" fill="url(#blueGradient)" />
-        <line class="speed-line" x1="40" y1="190" x2="75" y2="190" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
-        <line class="speed-line" x1="30" y1="205" x2="70" y2="205" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
-        <line class="speed-line" x1="45" y1="220" x2="80" y2="220" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
+        <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z" fill="url(#blueGradient)" />
+        <line class="speed-line" x1="30" y1="180" x2="65" y2="180" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
+        <line class="speed-line" x1="20" y1="196" x2="60" y2="196" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
+        <line class="speed-line" x1="34" y1="212" x2="68" y2="212" stroke="#2196f3" stroke-width="4" stroke-linecap="round" />
       </svg>
     </div>
   </div>

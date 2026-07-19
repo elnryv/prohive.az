@@ -40,7 +40,7 @@ $manifestFile = match ($user['role'] ?? null) {
 <title><?= e($title) ?></title>
 <meta name="description" content="<?= e(t('home.subtitle')) ?>">
 <?php if ($noindex): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>
-<meta name="theme-color" content="#2F6FED">
+<meta name="theme-color" content="<?= ($user['role'] ?? null) === 'driver' ? '#0B0D12' : '#2F6FED' ?>">
 <meta name="apple-mobile-web-app-title" content="<?= e($homeScreenName) ?>">
 <link rel="manifest" href="/<?= $manifestFile ?>?v=<?= $iconVer ?>">
 <link rel="icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
@@ -71,7 +71,7 @@ if ($showSplash) {
 \App\Core\View::partial('partials/splash', ['forceShow' => $showSplash]); ?>
 <?php \App\Core\View::partial('partials/bg_blobs'); ?>
 <header class="top-bar">
-  <a href="<?= e($brandHref) ?>" class="brand">Birlikdə <span class="amber">Yük</span></a>
+  <a href="<?= e($brandHref) ?>" class="brand"><span class="brand-mark"><?= icon('map-pin') ?></span>Birlikdə <span class="amber">Yük</span></a>
   <?php if (!Auth::check()): ?>
   <nav class="lang-switch">
     <a href="?lang=az" class="<?= $lang === 'az' ? 'active' : '' ?>">AZ</a>

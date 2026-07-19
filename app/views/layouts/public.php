@@ -37,7 +37,7 @@ $publicJsVer = @filemtime($docRoot . '/assets/js/public.js') ?: time();
 </head>
 <body>
 <header class="top-bar">
-  <a href="/" class="brand">Birlikdə <span class="amber">Yük</span></a>
+  <a href="/" class="brand"><span class="brand-mark"><?= icon('map-pin') ?></span>Birlikdə <span class="amber">Yük</span></a>
 </header>
 <main><?= $content ?></main>
 <?php \App\Core\View::partial('partials/photo_lightbox'); ?>

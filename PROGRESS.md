@@ -1332,3 +1332,58 @@ CREATE TABLE ratings (
   admin şifrə sıfırlama → yeni şifrə ilə giriş → hüquqi səhifələr (`/huquqi`, hər iki
   sənəd, 404 yad slug üçün) — HAMISI gözlənilən nəticələrlə keçdi, server loqunda SIFIR
   xəta/xəbərdarlıq (yalnız test qurluşunun ilkin DB-etimadnamə səhvi, kodla əlaqəsiz).
+
+## FAZA 33 — Tünd mövzu (sürücü + admin) + yeni marka nişanı + splash-ın markası yeniləndi
+
+Sahibkarın göndərdiyi mockup-a uyğun: müştəri AÇIQ qalır, sürücü panel VƏ admin
+idarəetmə mərkəzi TÜND mövzuya keçdi; "B" hərfi/yazı əsaslı marka əvəzinə yeni
+map-pin (yer nişanı) işarəsi tətbiq olundu. Splash ekranının animasiya MEXANİZMİ
+(mark pop+pulse, radar-halqa, glow-pulse, söz-bounce, loadbar — bax FAZA 21)
+TOXUNULMADAN saxlanıldı, sahibkarın seçiminə uyğun YALNIZ marka işarəsi "B"
+hərfindən map-pin-ə dəyişdirildi (rəng sxemi Yük-ün öz mavisi olaraq qaldı,
+Birlikdə-nin indiqo rəngi köçürülmədi — bu da sahibkarın seçimi idi).
+
+- **Tünd mövzu (`public/assets/css/app.css`):** bütün komponentlər artıq CSS
+  dəyişənləri üzərindən qurulduğu üçün (`--bg`, `--card`, `--txt` və s.) YALNIZ
+  `body[data-role="driver"], body.theme-dark` selektoru altında dəyər dəsti
+  üstələnir — heç bir `.card`/`.chip`/`.btn`/`.bottom-nav` qaydasına TOXUNULMADI.
+  `.top-bar`-ın əvvəllər hardcode edilmiş `rgba(255,255,255,.88)` fonu `--topbar-bg`
+  dəyişəninə çıxarıldı ki, tünd mövzuda da düzgün üstələnsin. Tint rənglər
+  (`--ok-tint` və s.) tünd fonda "işıq pilləsi" effekti üçün aşağı-opasiyalı
+  overlay-lərə çevrildi (əvvəlki açıq-pastel tintlər tünd kartda uyğun
+  görünməzdi). `body.theme-dark` `layouts/admin.php`-nin `<body>`-inə əlavə
+  olundu (admin HƏMİŞƏ tünddür, rol-a bağlı deyil) — `admin.css` özü heç bir
+  hardcode rəng saxlamadığı üçün (yoxlanıldı) heç bir əlavə override tələb
+  olunmadı, avtomatik tünd oldu.
+- **Yeni marka nişanı:** `.brand-mark`/`.brand-mark-lg` komponenti (map-pin
+  ikonu, indiqo-mavi qradient dairə/kvadrat) `layouts/app.php` (top-bar),
+  `layouts/public.php` (paylaşım kartı səhifəsi), `layouts/admin.php` (drawer
+  başlığı) və `admin/login.php`-ə (böyük versiya) əlavə olundu — "B"
+  hərfi/sadə mətn markası tamamilə çıxarıldı.
+- **Splash markası:** `partials/splash.php`-dəki xüsusi "B" hərfi SVG path-i
+  map-pin path-i ilə əvəz olundu (eyni `Icon::PATHS['map-pin']` həndəsəsi,
+  gradient fill saxlanıldı), sürət-xətləri (speed-lines) yeni koordinatlara
+  uyğunlaşdırıldı — animasiya keyframe-ləri/vaxtlaması DƏYİŞMƏDİ.
+- **PWA manifest/tema rəngi:** `manifest-driver.webmanifest`-in
+  `background_color`/`theme_color`-u tünd (`#0B0D12`) edildi ki, Android-in
+  native açılış ekranı ilə JS splash arasında işıq "flaşı" olmasın (müştəri
+  manifesti açıq qalır). `layouts/app.php`-dəki `<meta name="theme-color">`
+  rola görə dinamikləşdirildi, `layouts/admin.php`-ə də tünd `theme-color`
+  əlavə olundu (əvvəllər heç yox idi).
+- **`public_admin/assets/css/app.css` sinxronizasiyası:** bu layihədə
+  `public_admin/` `public/`-dan TAM AYRI, git-də ayrıca izlənən bir kopyadır
+  (bax `layouts/admin.php`-dəki köhnə şərh — aaPanel-də iki subdomen ayrı
+  document root istifadə edir). Bunu unudub YALNIZ `public/assets/css/app.css`-i
+  yeniləsəm, admin panel köhnə (açıq mövzu) CSS-i göstərməyə davam edərdi —
+  test zamanı məhz bu şəkildə tapıldı (admin dashboard screenshot əvvəlcə
+  hələ açıq idi) və `cp public/assets/css/app.css public_admin/assets/css/app.css`
+  ilə düzəldildi. Bundan sonra bu iki fayl arasında `diff` YOXDUR.
+
+### Özünüyoxlama nəticələri
+- `php -l` — dəyişən bütün fayllar xətasız.
+- Real MySQL + PHP daxili server (`app/` və `public_admin/`) + Playwright
+  (Chromium) skrinşotları ilə vizual yoxlama: müştəri (açıq — lövhə, elan
+  detalı), sürücü (tünd — lövhə, profil, marşrutlar), admin (tünd —
+  dashboard, sürücülər, elanlar, giriş səhifəsi), splash (map-pin marka,
+  radar-halqa animasiyası) — HAMISI gözlənilən görünüşdə, server loqunda
+  sıfır xəta/xəbərdarlıq.

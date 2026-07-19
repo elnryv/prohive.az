@@ -36,11 +36,12 @@ $iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?= e($title) ?></title>
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B0D12">
 <link rel="icon" href="/assets/icons/icon-192.png?v=<?= $iconVer ?>">
 <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssVer ?>">
 <link rel="stylesheet" href="/assets/css/admin.css?v=<?= $adminCssVer ?>">
 </head>
-<body data-auth="0">
+<body data-auth="0" class="theme-dark">
 <?php if ($admin !== null): ?>
 <div class="admin-shell">
   <input type="checkbox" id="admin-drawer-toggle" class="admin-drawer-toggle">
@@ -54,7 +55,7 @@ $iconVer = @filemtime($docRoot . '/assets/icons/icon-192.png') ?: time();
 
   <aside class="admin-drawer">
     <div class="admin-drawer-header">
-      <span class="brand">Birlikdə <span class="amber">Yük</span></span>
+      <span class="brand"><span class="brand-mark"><?= icon('map-pin') ?></span>Birlikdə <span class="amber">Yük</span></span>
       <label for="admin-drawer-toggle" class="admin-drawer-close" aria-label="Bağla"><?= icon('close', 'icon', 18) ?></label>
     </div>
     <p class="text-soft" style="padding:0 16px 12px;font-size:12px">İdarəetmə mərkəzi</p>
