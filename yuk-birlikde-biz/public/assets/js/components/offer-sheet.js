@@ -2,6 +2,7 @@ import { api, ApiError } from '../api.js';
 import { openSheet } from './sheet.js';
 import { showToast } from './toast.js';
 import { esc } from '../utils.js';
+import { navigate } from '../router.js';
 
 const ARRIVAL_OPTIONS = ['1 saat ərzində', '2–3 saat', 'Bu gün', 'Sabah'];
 
@@ -68,6 +69,16 @@ export function openOfferSheet(orderId, { onSubmitted, existingOffer } = {}) {
       close();
       onSubmitted?.();
     } catch (e) {
+      if (e instanceof ApiError && e.code === 'SUBSCRIPTION_REQUIRED') {
+        showToast(e.message);
+        // close() bağlanmaq üçün history.back() çağırır (sheet.js) — bu asinxron
+        // geri-naviqasiya tamamlanana qədər gözləyib SONRA /abune-ə keçirik,
+        // əks halda gecikmiş "back" naviqasiyası bizim push etdiyimiz marşrutu
+        // üstələyib əvəz edə bilər.
+        window.addEventListener('popstate', () => navigate('/abune'), { once: true });
+        close();
+        return;
+      }
       showToast(e instanceof ApiError ? e.message : 'Xəta baş verdi.');
       submitBtn.disabled = false;
       submitBtn.classList.remove('btn-loading');

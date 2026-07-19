@@ -43,6 +43,7 @@ function texts(): array
         'rating_invalid_status' => 'Yalnız bağlanmış sifarişlər qiymətləndirilə bilər.',
         'images_limit' => 'Maksimum 5 şəkil yükləyə bilərsiniz.',
         'past_date' => 'Keçmiş tarix seçilə bilməz.',
+        'subscription_required' => 'Təklif göndərmək üçün abunə lazımdır.',
     ];
 }
 

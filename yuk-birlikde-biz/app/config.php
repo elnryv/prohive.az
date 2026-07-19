@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 return [
     'env' => getenv('APP_ENV') ?: 'production',
+    'app_url' => getenv('APP_URL') ?: 'https://yuk.birlikde.biz',
+    'payriff' => [
+        'base_url' => getenv('PAYRIFF_BASE_URL') ?: 'https://api.payriff.com',
+        'secret_key' => getenv('PAYRIFF_SECRET_KEY') ?: '',
+    ],
     'db' => [
         'host' => getenv('DB_HOST') ?: '127.0.0.1',
         'port' => getenv('DB_PORT') ?: '3306',

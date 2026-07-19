@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../../app/texts.php';
 require_once __DIR__ . '/../../../app/orders.php';
 require_once __DIR__ . '/../../../app/notify.php';
 require_once __DIR__ . '/../../../app/sse_publish.php';
+require_once __DIR__ . '/../../../app/subscription.php';
 
 require_method('POST');
 maintenance_guard();
@@ -20,6 +21,10 @@ $user = require_auth();
 
 if ($user['role'] !== 'driver') {
     json_error('FORBIDDEN', text('forbidden'), 403);
+}
+
+if (subscription_mode_paid() && !subscription_is_active((int) $user['id'])) {
+    json_error('SUBSCRIPTION_REQUIRED', text('subscription_required'), 402);
 }
 
 rate_limit_guard('offer_create_' . $user['id'], 30, 3600);

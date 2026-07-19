@@ -29,6 +29,7 @@ Cron (production crontab):
 */5 * * * * php /var/www/yuk-birlikde-biz/app/cron/expire_orders.php
 * * * * *   php /var/www/yuk-birlikde-biz/app/cron/reminders.php
 0 3 * * *   php /var/www/yuk-birlikde-biz/app/cron/cleanup_events.php
+0 9 * * *   php /var/www/yuk-birlikde-biz/app/cron/subscription_notices.php
 ```
 
 ## Fayl strukturu
@@ -51,7 +52,9 @@ storage/        uploads/, logs/, backups/ (git-ə düşmür)
 - [x] **Faza 4 — PWA + Push**: manifest + ikonlar + splash rəngləri · Service Worker (app-shell precache, API network-only + offline fallback, versiya yeniləmə toast-ı) · Hissə 2.6 qadağaları (pull-to-refresh, long-press, tap-highlight) · gecikmiş bildiriş icazəsi axını (izah sheet-i, 7 gün təkrar) · install prompt (Android beforeinstallprompt + iOS təlimat, 3 gün/maks 3 dəfə) · native Web Push (VAPID + aes128gcm şifrələmə, kənar asılılıqsız) + `/api/v1/push` + bütün mövcud bildiriş hadisələri üçün avtomatik göndəriş · marşrut izləmə (`/api/v1/routes`, Profil ekranı) + uyğun yeni elanda push.
 
   > **Qeyd:** Inter woff2 fontları hələ mənbələndirilməyib (tokens.css sistem fontlarına fallback edir) — brend dizayn aktivləri Faza 7 cilalamasında əlavə olunacaq.
-- [ ] Faza 5 — Abunə
+- [x] **Faza 5 — Abunə**: rejim toggle məntiqi (`subscription_mode` free/paid, `/api/v1/offers` bu şərtlə kilidlənir) · Abunə səhifəsi (`/abune`) — status/qiymət canlı, ödəniş tarixçəsi · native Payriff V3 inteqrasiyası (`app/payriff.php` — createOrder + getOrderInformation, kənar kitabxanasız) · `/api/v1/subscription/{status,checkout,payriff-callback}` · webhook idempotent və body-yə etibar etmir — Payriff-in öz serverindən (gizli açarımızla) real statusu təsdiqləyir · ödəniş uğurlu olduqda dərhal aktivləşmə + SSE `subscription.activated` + push · abunə bitmə cron-u (3 gün/1 gün əvvəl xəbərdarlıq + bitmə keçidi, `subscription.expired`) · admin əl ilə abunə vermə üçün backend hazır (`subscription_grant()`, Faza 6-da UI-a bağlanacaq).
+
+  > **Qeyd:** Real Payriff mərçant açarı sandbox-da mövcud deyil — inteqrasiya `docs.payriff.com`/rəsmi nümunələr əsasında yazılıb və yerli mock Payriff serveri ilə tam axın (checkout → webhook → aktivləşmə → idempotentlik) end-to-end doğrulanıb. Production-da yalnız `.env`-də `PAYRIFF_SECRET_KEY` təyin olunmalıdır.
 - [ ] Faza 6 — Admin panel
 - [ ] Faza 7 — Paylaşım + Cilalama
 

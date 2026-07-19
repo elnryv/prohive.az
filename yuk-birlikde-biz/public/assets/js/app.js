@@ -10,6 +10,7 @@ registerRoute('/qeydiyyat', () => import('./screens/register.js'));
 registerRoute('/ana-sehife', () => import('./screens/home.js'));
 registerRoute('/elan/yeni', () => import('./screens/order-create.js'));
 registerRoute('/elan/:id', () => import('./screens/order-detail.js'));
+registerRoute('/abune', () => import('./screens/subscription.js'));
 
 function setupOfflineBanner() {
   const banner = document.getElementById('offline-banner');

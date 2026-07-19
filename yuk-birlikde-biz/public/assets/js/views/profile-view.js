@@ -203,6 +203,24 @@ async function renderRouteWatches(container) {
   }
 }
 
+async function renderSubscriptionChip(chipEl) {
+  try {
+    const data = await api.get('/subscription/status');
+    if (data.mode === 'free') {
+      chipEl.textContent = 'Pulsuz rejim';
+      chipEl.classList.add('active');
+    } else if (data.active) {
+      chipEl.textContent = 'Aktiv';
+      chipEl.classList.add('active');
+    } else {
+      chipEl.textContent = 'Bitib';
+      chipEl.style.color = 'var(--error)';
+    }
+  } catch {
+    chipEl.textContent = '—';
+  }
+}
+
 export async function render(root) {
   const { user } = getState();
   const config = await api.get('/config').catch(() => ({}));
@@ -225,6 +243,9 @@ export async function render(root) {
     ${p.role === 'driver' ? `<div class="sheet-row" id="edit-vehicle">Avtomobil məlumatları</div>` : ''}
 
     ${p.role === 'driver' ? `
+      <h3 class="h3" style="margin-top:24px;">Abunə</h3>
+      <div class="sheet-row" id="subscription-link"><span>Abunə statusu</span><span id="subscription-chip" class="chip">Yüklənir…</span></div>
+
       <h3 class="h3" style="margin-top:24px;">İzlədiyim marşrutlar</h3>
       <div id="route-watches"></div>
     ` : ''}
@@ -319,6 +340,8 @@ export async function render(root) {
       });
     });
 
+    root.querySelector('#subscription-link').addEventListener('click', () => navigate('/abune'));
+    renderSubscriptionChip(root.querySelector('#subscription-chip'));
     renderRouteWatches(root.querySelector('#route-watches'));
   }
 }

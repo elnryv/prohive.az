@@ -74,6 +74,8 @@ export async function mount(root) {
     'selection.cancelled': () => { showToast('Seçim vəziyyəti dəyişdi.'); refreshBadge(); },
     'order.closed': () => { showToast('Sifariş bağlandı.'); refreshBadge(); },
     'reminder': () => { refreshBadge(); },
+    'subscription.activated': () => { showToast('Abunəniz aktivləşdi!'); refreshBadge(); },
+    'subscription.expired': () => { showToast('Abunəniz bitdi.'); refreshBadge(); },
   });
 
   await showTab(0);
