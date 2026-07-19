@@ -1387,3 +1387,64 @@ Birlikdə-nin indiqo rəngi köçürülmədi — bu da sahibkarın seçimi idi).
   dashboard, sürücülər, elanlar, giriş səhifəsi), splash (map-pin marka,
   radar-halqa animasiyası) — HAMISI gözlənilən görünüşdə, server loqunda
   sıfır xəta/xəbərdarlıq.
+
+## FAZA 34 — Real-time YENİDƏN qırıldı (FAZA 31-in gözlənilən nəticəsi) — hədəflənmiş düzəliş
+
+Sahibkar CANLI istifadədə bildirdi: bildiriş gəlir, AMMA sürücü lentdə ekran
+YENİLƏNMİR — YALNIZ başqa səhifəyə keçib qayıdanda (tam səhifə yenidən yüklənəndə)
+görünür. Bu, FAZA 27-də tapılmış və FAZA 31-də sahibkarın öz açıq, təkrarlanan
+göstərişi ilə BİLƏRƏKDƏN silinmiş Safari/WebKit bugının məhz gözlənilən təkrar
+üzə çıxmasıdır (FAZA 31-in özündə "bu bug YENİDƏN AÇIQDIR" deyə qeyd edilmişdi).
+Bu dəfə app.birlikde.biz-in kodunu TƏKRAR köçürmək əvəzinə (bu, elə indicə
+sınanıb uğursuz olan yanaşmadır), problemi HƏDƏFLƏNMİŞ şəkildə düzəltdim.
+
+### Kök səbəb
+Server hər saat bağlantını qəsdən bağlayır (bax `Sse::stream`, 1 saatlıq dövr)
+VƏ/YA arxa fonda olan/ekranı kilidlənmiş tab-da brauzer EventSource-un daxili
+bağlantısını sükutla dondurur — hər iki halda brauzerin ÖZ avtomatik-reconnect
+məntiqi (`connectResilientSSE`-nin FAZA 31-dəki minimal versiyasında YEGANƏ
+etibar edilən mexanizm) WebKit-də HƏMİŞƏ işə düşmür. Nəticə: bağlantı "ölü"
+qalır, `onerror` bir daha çağırılmır, tab TAM yenidən yüklənənədək (yeni
+`EventSource` yaradılanadək) heç nə gəlmir.
+
+### Düzəliş (`public/assets/js/app.js`, `connectResilientSSE()`)
+FAZA 23/27-dəki tam "90 saniyəlik sağlamlıq gözətçisi + hər `visibilitychange`/
+`online`-da QEYD-SİZ məcburi reconnect" kompleksinin ƏKSİNƏ — YALNIZ bu bir
+konkret defekt üçün, iki minimal, məqsədyönlü qat əlavə olundu:
+1. `onerror`-da: `readyState === EventSource.CLOSED`-dursa (brauzer HƏQİQƏTƏN
+   təslim olub, reconnect cəhdi belə yoxdur) 1 saniyə sonra özümüz yeni
+   `EventSource` açırıq.
+2. `visibilitychange`-də: tab yenidən görünən olanda bağlantı `OPEN` DEYİLSƏ
+   (CONNECTING-də əbədi donmuş və ya CLOSED — `onerror` heç vaxt işə
+   düşməyibsə belə) məcburi bağlanıb yenidən açılır. Bu, sahibkarın təsvir
+   etdiyi "yalnız başqa səhifəyə keçib-qayıdanda görünür" simptomunun MƏHZ
+   həll etdiyi haldır — İNDİ eyni bərpa, tab-ı arxa fondan önə gətirməklə,
+   TAM səhifə yenidənyüklənməsi OLMADAN baş verir.
+Sağlam (`OPEN`) bağlantıda `visibilitychange` heç nəyə TOXUNMUR (lazımsız
+reconnect-storm yoxdur) — bu, aşağıdakı test #3 ilə açıq şəkildə təsdiqləndi.
+
+### Özünüyoxlama nəticələri (bu dəfə İDDİA yox, FAKTİKİ yoxlama)
+- **Məntiq testi (mock `EventSource`, Playwright/Chromium):** real şəbəkə
+  səviyyəsində WebKit-in bu spesifik bugunu Chromium-da təkrarlamaq mümkün
+  olmadığı üçün (Chrome-un öz reconnect-i bu bugdan azaddır) `EventSource`-u
+  tam idarə oluna bilən mock ilə əvəz edib DÖRD ssenari birbaşa yoxlandı:
+  (1) ilkin qoşulma → 1 instansiya; (2) `onerror` + `readyState=CLOSED` → 1
+  saniyə sonra 2-ci instansiya yaranır (bərpa işləyir); (3) `visibilitychange`
+  "visible" + `readyState=CONNECTING` (əbədi donmuş, `onerror` HEÇ İŞƏ
+  DÜŞMƏDƏN) → DƏRHAL 3-cü instansiya yaranır (məhz sahibkarın bildirdiyi
+  halın həlli); (4) `visibilitychange` "visible" + `readyState=OPEN`
+  (sağlam) → YENİ instansiya YARANMIR (lazımsız reconnect yoxdur). Bütün 4-ü
+  gözlənilən nəticə ilə keçdi.
+- **Uçdan-uca real test (real MySQL + PHP `PHP_CLI_SERVER_WORKERS=4` çox-
+  workerli server, real `EventSource`, real şəbəkə):** sürücü lenti brauzerdə
+  açıq saxlanıldı (heç bir naviqasiya/yeniləmə YOXDUR), fərqli prosesdən
+  (curl) müştəri kimi yeni elan yaradıldı — kart ~4 saniyə ərzində DƏRHAL
+  lentdə göründü, düzgün məzmunla. Bu, normal (xoşbəxt yol) real-time axınının
+  düzəlişdən sonra da POZULMADIĞINI təsdiqləyir.
+- Test zamanı aşkarlandı: PHP-nin daxili dev-serveri (`php -S`) DEFOLT olaraq
+  TƏK-AXINLIDIR (bir anda 1 sorğu) — açıq SSE bağlantısı olan tab TƏK BAŞINA
+  serveri "tutur", eyni vaxtda başqa heç bir sorğu (elan yaratma) cavab
+  ala bilmir. Bu, YALNIZ dev-server məhdudiyyətidir (canlı mühitdə Nginx+
+  PHP-FPM çoxlu worker-lə paralel işləyir, problem deyil) — test üçün
+  `PHP_CLI_SERVER_WORKERS=4` ilə düzəldildi, kodun özündə heç nə dəyişmədi.
+- `php -l`, `node --check` — xətasız.

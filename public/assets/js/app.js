@@ -205,20 +205,45 @@
   }
 
   // ---------------------------------------------------------------
-  // SSE (bölmə 11.5, FAZA 31): app.birlikde.biz-in `kurye/lovhe.php`-dəki
-  // `connectSse()`-i ilə EYNİ, minimal yanaşma — sadə EventSource, `onerror`
-  // brauzerin öz avtomatik reconnect-inə etibar edir, əlavə heç nə yoxdur.
+  // SSE (bölmə 11.5, FAZA 34): FAZA 31-də app.birlikde.biz-in minimal
+  // `connectSse()`-inə uyğunlaşdırılmışdı (yalnız EventSource, `onerror` boş) —
+  // CANLI olaraq sahibkar bildirdi ki, bu kifayət etmir: bildiriş gəlir, amma
+  // lent yenilənmir, YALNIZ başqa səhifəyə keçib qayıdanda (yəni səhifə TAM
+  // yenidən yüklənəndə) görünür. Bu, məhz FAZA 27-də tapılmış (və FAZA 31-də
+  // sahibkarın öz açıq göstərişi ilə silinmiş) Safari/WebKit bugının simptomudur:
+  // arxa fonda olan/ekranı kilidlənmiş tab-da EventSource-un daxili bağlantısı
+  // sükutla ölür (`onerror` işə düşmədən CONNECTING-də donur, ya da CLOSED-a
+  // keçir amma brauzerin öz avtomatik-reconnect-i heç vaxt tətikeşmir) — tab
+  // yenidən görünən olanda BUNU YOXLAYIB özümüz bərpa etməliyik, çünki brauzerə
+  // etibar bu ssenaridə iflasa uğrayır. Bu dəfə YALNIZ bu bir konkret defekt üçün,
+  // minimal şəkildə (əvvəlki 90s watchdog/polling-fallback kimi əlavə qatlar
+  // YOXDUR) — `visibilitychange`-də vəziyyət YENİDƏN yoxlanılır, "OPEN" deyilsə
+  // məcburi bağlanıb təzədən açılır.
   // ---------------------------------------------------------------
   function connectResilientSSE(url, initialLastId, handlers) {
     let es = null;
     let lastId = initialLastId;
+    let reconnectTimer = null;
+
+    function scheduleReconnect(delayMs) {
+      if (reconnectTimer) return;
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        open();
+      }, delayMs);
+    }
 
     function open() {
       const sep = url.includes('?') ? '&' : '?';
       const fullUrl = url + sep + 'lastId=' + encodeURIComponent(lastId);
       es = new EventSource(fullUrl);
       es.onerror = () => {
-        // Bağlantı kəsilərsə brauzer avtomatik yenidən qoşulmağa cəhd edir.
+        // Brauzer adətən özü yenidən qoşulmağa cəhd edir, AMMA əgər bağlantı
+        // artıq HƏQİQƏTƏN bağlıdırsa (CLOSED) və brauzer öz reconnect-ini
+        // başlatmayıbsa, bir saniyə sonra özümüz təzələyirik.
+        if (es && es.readyState === EventSource.CLOSED) {
+          scheduleReconnect(1000);
+        }
       };
       Object.keys(handlers).forEach((name) => {
         es.addEventListener(name, (e) => {
@@ -227,6 +252,13 @@
         });
       });
     }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && es && es.readyState !== EventSource.OPEN) {
+        es.close();
+        open();
+      }
+    });
 
     open();
   }
