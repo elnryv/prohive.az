@@ -41,16 +41,19 @@ if ($payment['status'] === 'success') {
 // həqiqi statusu təsdiqləyirik — saxta callback sorğusu heç vaxt abunəni
 // aktivləşdirə bilməz (Hissə 6.3 "imza yoxlanır" tələbi belə həyata keçirilir).
 try {
-    $status = payriff_get_order_status($orderId);
+    $orderInfo = payriff_get_order_info($orderId);
 } catch (Throwable $e) {
     log_error('payriff_callback', $e->getMessage(), ['order_id' => $orderId]);
     json_error('PAYRIFF_STATUS_CHECK_FAILED', 'Status yoxlanıla bilmədi.', 502);
 }
 
+$status = payriff_status_from_payload($orderInfo);
+$rawJson = json_encode($orderInfo, JSON_UNESCAPED_UNICODE);
+
 if (!payriff_status_is_success($status)) {
     if (payriff_status_is_failed($status)) {
         $db->prepare("UPDATE payments SET status = 'failed', raw = :raw WHERE id = :id")
-            ->execute(['raw' => json_encode(['status' => $status], JSON_UNESCAPED_UNICODE), 'id' => $payment['id']]);
+            ->execute(['raw' => $rawJson, 'id' => $payment['id']]);
     }
     json_ok(['status' => 'not_paid']);
 }
@@ -64,7 +67,7 @@ try {
     $db->prepare("UPDATE payments SET status = 'success', subscription_id = :sub_id, raw = :raw WHERE id = :id")
         ->execute([
             'sub_id' => $subscription['id'],
-            'raw' => json_encode(['status' => $status], JSON_UNESCAPED_UNICODE),
+            'raw' => $rawJson,
             'id' => $payment['id'],
         ]);
     $db->commit();

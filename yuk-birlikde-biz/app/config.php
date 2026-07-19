@@ -7,6 +7,7 @@ return [
     'payriff' => [
         'base_url' => getenv('PAYRIFF_BASE_URL') ?: 'https://api.payriff.com',
         'secret_key' => getenv('PAYRIFF_SECRET_KEY') ?: '',
+        'merchant_id' => getenv('PAYRIFF_MERCHANT_ID') ?: '',
     ],
     'db' => [
         'host' => getenv('DB_HOST') ?: '127.0.0.1',
