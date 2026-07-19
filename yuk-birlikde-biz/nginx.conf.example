@@ -42,6 +42,9 @@ server {
     location ~ ^/api/v1/offers/(\d+)$ {
         rewrite ^ /api/v1/offers/update.php?id=$1 last;
     }
+    location ~ ^/api/v1/banners/(\d+)/click$ {
+        rewrite ^ /api/v1/banners/click.php?id=$1 last;
+    }
 
     location /sse/ {
         proxy_read_timeout 3600s;

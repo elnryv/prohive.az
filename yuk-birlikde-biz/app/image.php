@@ -56,6 +56,40 @@ function save_uploaded_avatar(array $file, string $storageDir): string
     return $filename;
 }
 
+// Banner şəkli (admin panel, Hissə 10.9): uzun kənarı maks 1200px, aspekt qorunur.
+function save_uploaded_banner(array $file, string $storageDir): string
+{
+    $image = load_uploaded_image($file);
+
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0755, true);
+    }
+
+    $resized = resize_to_fit($image, 1200);
+    $filename = bin2hex(random_bytes(16)) . '.jpg';
+    imagejpeg($resized, $storageDir . '/' . $filename, 85);
+    imagedestroy($resized);
+
+    return $filename;
+}
+
+// Sayt aktivləri (loqo/splash/favicon, Hissə 10.15): şəffaflıq qorunur, həmişə PNG.
+function save_uploaded_site_asset(array $file, string $storageDir): string
+{
+    $image = load_uploaded_image($file);
+
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0755, true);
+    }
+
+    imagesavealpha($image, true);
+    $filename = bin2hex(random_bytes(16)) . '.png';
+    imagepng($image, $storageDir . '/' . $filename);
+    imagedestroy($image);
+
+    return $filename;
+}
+
 function resize_to_fit(GdImage $image, int $maxSide): GdImage
 {
     $width = imagesx($image);

@@ -64,3 +64,30 @@ function subscription_grant(int $driverId, string $source, int $days, ?int $admi
 
     return ['id' => (int) $db->lastInsertId(), 'ends_at' => $endsAt];
 }
+
+// Admin panelindən müddəti uzatmaq/azaltmaq (Hissə 10.4/10.7) — mənbəyindən
+// asılı olmayaraq mövcud abunə sətrinin bitmə tarixini birbaşa dəyişir.
+function subscription_adjust_days(int $subscriptionId, int $deltaDays): string
+{
+    $db = db();
+    $endsAt = subscription_scalar_helper($db, 'SELECT ends_at FROM subscriptions WHERE id = :id', ['id' => $subscriptionId]);
+    if ($endsAt === false || $endsAt === null) {
+        throw new InvalidArgumentException('Subscription not found');
+    }
+    $newEndsAt = date('Y-m-d H:i:s', strtotime((string) $endsAt) + $deltaDays * 86400);
+    $db->prepare('UPDATE subscriptions SET ends_at = :ends_at WHERE id = :id')
+        ->execute(['ends_at' => $newEndsAt, 'id' => $subscriptionId]);
+    return $newEndsAt;
+}
+
+function subscription_cancel(int $subscriptionId): void
+{
+    db()->prepare("UPDATE subscriptions SET status = 'cancelled' WHERE id = :id")->execute(['id' => $subscriptionId]);
+}
+
+function subscription_scalar_helper(PDO $db, string $sql, array $params = []): mixed
+{
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchColumn();
+}

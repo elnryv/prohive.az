@@ -5,6 +5,7 @@ import { showToast } from '../components/toast.js';
 import { getState, setState } from '../store.js';
 import { navigate } from '../router.js';
 import { esc } from '../utils.js';
+import { mountBanners } from '../banner-loader.js';
 
 const ROUTE_CITIES = ['Bakı', 'Sumqayıt', 'Gəncə', 'Mingəçevir', 'Naxçıvan', 'Şəki', 'Lənkəran', 'Şirvan'];
 
@@ -238,6 +239,8 @@ export async function render(root) {
       </div>
     </div>
 
+    <div id="banner-slot"></div>
+
     <div class="sheet-row" id="edit-name">Ad və soyadı dəyiş</div>
     <div class="sheet-row" id="edit-pin">PIN dəyişdir</div>
     ${p.role === 'driver' ? `<div class="sheet-row" id="edit-vehicle">Avtomobil məlumatları</div>` : ''}
@@ -293,6 +296,8 @@ export async function render(root) {
     });
   });
 
+  const cleanupBanners = mountBanners(root.querySelector('#banner-slot'), 'profile');
+
   root.querySelector('#edit-pin').addEventListener('click', openPinChangeSheet);
   root.querySelector('#complaint-link').addEventListener('click', openComplaintSheet);
   root.querySelector('#about-link').addEventListener('click', () => openCmsSheet('about', 'Haqqımızda'));
@@ -344,4 +349,6 @@ export async function render(root) {
     renderSubscriptionChip(root.querySelector('#subscription-chip'));
     renderRouteWatches(root.querySelector('#route-watches'));
   }
+
+  return cleanupBanners;
 }

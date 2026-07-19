@@ -5,6 +5,7 @@ import { createSkeletonList } from '../components/skeleton.js';
 import { createEmptyState } from '../components/empty.js';
 import { createListingCard } from '../components/card.js';
 import { esc } from '../utils.js';
+import { mountBanners } from '../banner-loader.js';
 
 export async function render(root) {
   const { user } = getState();
@@ -13,6 +14,7 @@ export async function render(root) {
     <div class="home-top-row">
       <h3 class="h3">Salam, ${esc(user?.first_name)}</h3>
     </div>
+    <div id="banner-slot"></div>
     <button type="button" class="btn btn-primary" id="create-btn">+ Yeni Elan Yarat</button>
     <div id="negotiating-section" style="margin-top:24px;"></div>
     <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;">
@@ -24,6 +26,8 @@ export async function render(root) {
 
   root.querySelector('#create-btn').addEventListener('click', () => navigate('/elan/yeni'));
   root.querySelector('#see-all-btn').addEventListener('click', () => window.dispatchEvent(new CustomEvent('ybb:tab', { detail: 1 })));
+
+  const cleanupBanners = mountBanners(root.querySelector('#banner-slot'), 'home_top');
 
   const activeList = root.querySelector('#active-list');
   activeList.appendChild(createSkeletonList(3));
@@ -65,7 +69,7 @@ export async function render(root) {
         ctaLabel: 'Elan yarat',
         onCta: () => navigate('/elan/yeni'),
       }));
-      return;
+      return cleanupBanners;
     }
 
     active.forEach((order) => {
@@ -85,4 +89,6 @@ export async function render(root) {
     activeList.innerHTML = '';
     activeList.appendChild(createEmptyState({ title: 'Xəta baş verdi', description: 'Yenidən cəhd edin.' }));
   }
+
+  return cleanupBanners;
 }

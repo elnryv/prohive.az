@@ -6,6 +6,7 @@ import { createSkeletonList } from '../components/skeleton.js';
 import { showToast } from '../components/toast.js';
 import { connectSSE } from '../sse.js';
 import { esc } from '../utils.js';
+import { mountBanners } from '../banner-loader.js';
 
 const PAYMENT_STATUS_LABELS = {
   pending: 'Gözləyir',
@@ -24,11 +25,13 @@ export async function mount(root) {
     return () => {};
   }
 
-  root.innerHTML = `<div id="sub-body" style="padding-bottom:96px;"></div>`;
+  root.innerHTML = `<div id="banner-slot" style="padding:0 16px;"></div><div id="sub-body" style="padding-bottom:96px;"></div>`;
   const body = root.querySelector('#sub-body');
   const appbar = createAppBar({ title: 'Abunə', onBack: () => navigate('/ana-sehife') });
   root.prepend(appbar);
   body.appendChild(createSkeletonList(3));
+
+  const cleanupBanners = mountBanners(root.querySelector('#banner-slot'), 'subscription');
 
   const paymentParam = new URLSearchParams(location.search).get('payment');
   if (paymentParam === 'success') {
@@ -126,5 +129,6 @@ export async function mount(root) {
 
   return () => {
     sse.close();
+    cleanupBanners();
   };
 }

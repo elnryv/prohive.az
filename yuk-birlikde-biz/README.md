@@ -23,6 +23,16 @@ PHP_CLI_SERVER_WORKERS=16 php -S 0.0.0.0:8000 router-dev.php
 
 Production-da `nginx.conf.example` faylındakı rewrite qaydaları istifadə olunur (pretty API URL-ləri, `/uploads/` statik xidməti, SPA fallback).
 
+### Admin paneli (yukadmin.birlikde.biz)
+
+Ayrı server-render PHP tətbiqdir, eyni DB-ni istifadə edir (bax "Fayl strukturu").
+
+```bash
+php admin/app/create_admin.php <username> <email> <parol>   # ilk admin hesabı
+cd admin/public
+php -S 0.0.0.0:8001
+```
+
 Cron (production crontab):
 
 ```
@@ -30,6 +40,7 @@ Cron (production crontab):
 * * * * *   php /var/www/yuk-birlikde-biz/app/cron/reminders.php
 0 3 * * *   php /var/www/yuk-birlikde-biz/app/cron/cleanup_events.php
 0 9 * * *   php /var/www/yuk-birlikde-biz/app/cron/subscription_notices.php
+* * * * *   php /var/www/yuk-birlikde-biz/app/cron/broadcasts.php
 ```
 
 ## Fayl strukturu
@@ -41,6 +52,9 @@ public/
   index.php     SPA-shell giriş nöqtəsi
   api/v1/       Endpoint faylları
   assets/       CSS token/komponentlər, JS router/api/sse/store, ekranlar
+admin/          Admin paneli — ayrı server-render PHP tətbiq, eyni DB (Hissə 10)
+  app/          admin_auth.php, admin_layout.php, create_admin.php
+  public/       Giriş + bütün admin səhifələri (dashboard, customers, orders, ...)
 storage/        uploads/, logs/, backups/ (git-ə düşmür)
 ```
 
@@ -55,7 +69,9 @@ storage/        uploads/, logs/, backups/ (git-ə düşmür)
 - [x] **Faza 5 — Abunə**: rejim toggle məntiqi (`subscription_mode` free/paid, `/api/v1/offers` bu şərtlə kilidlənir) · Abunə səhifəsi (`/abune`) — status/qiymət canlı, ödəniş tarixçəsi · native Payriff V3 inteqrasiyası (`app/payriff.php` — createOrder + getOrderInformation, kənar kitabxanasız) · `/api/v1/subscription/{status,checkout,payriff-callback}` · webhook idempotent və body-yə etibar etmir — Payriff-in öz serverindən (gizli açarımızla) real statusu təsdiqləyir · ödəniş uğurlu olduqda dərhal aktivləşmə + SSE `subscription.activated` + push · abunə bitmə cron-u (3 gün/1 gün əvvəl xəbərdarlıq + bitmə keçidi, `subscription.expired`) · admin əl ilə abunə vermə üçün backend hazır (`subscription_grant()`, Faza 6-da UI-a bağlanacaq).
 
   > **Qeyd:** Real Payriff mərçant açarı sandbox-da mövcud deyil — inteqrasiya `docs.payriff.com`/rəsmi nümunələr əsasında yazılıb və yerli mock Payriff serveri ilə tam axın (checkout → webhook → aktivləşmə → idempotentlik) end-to-end doğrulanıb. Production-da yalnız `.env`-də `PAYRIFF_SECRET_KEY` təyin olunmalıdır.
-- [ ] Faza 6 — Admin panel
+- [x] **Faza 6 — Admin panel** (`admin/` — ayrı server-render tətbiq, eyni DB, `admin_sessions`/`admin_users` üzərindən müstəqil giriş): giriş + uğursuz cəhd bloklaması · canlı Dashboard (5s polling) · Müştəri/Sürücü idarəetməsi (axtarış/filtr, blok/tam blok/sil, sürücüdə avtomobil redaktəsi + əl ilə abunə ver/uzat/azalt/ləğv et + tarixçə) · Elan idarəetməsi (bağla/yenidən aktiv et/sil, real-time lentdən silinmə) · Təklif idarəetməsi (sil, real-time geri çəkilmə) · Abunə parametrləri (rejim/qiymət/müddət/aktivləşmə qaydası, dəyişəndə SSE `subscription.mode_changed`) · Payriff ödəniş tarixçəsi (raw JSON baxışı) · Banner CRUD (şəkil yükləmə, 4 yerdə render — `home_top`/`feed`/`profile`/`subscription`, klik sayğacı, SSE `banner.updated`) · Bildiriş göndərmə (auditoriya seçimi, dərhal/planlaşdırılmış, `cron/broadcasts.php`) · Şikayət idarəetməsi (cavab → istifadəçiyə bildiriş, status axını) · CMS redaktoru (`pages` cədvəli) · Analitika (tarix aralığı, canvas qrafiklər, kənar kitabxanasız) · Sistem parametrləri (qeydiyyat/PIN/TTL/xatırlatma/sessiya/bildiriş/PWA/baxım + operator/avtomobil/ölçü/yük növü arayış cədvəlləri) · Sayt konfiqurasiyası (ad/loqo/favicon/əlaqə/sosial/copyright) · Backup (mysqldump + uploads arxivi, yüklə, ikiqat təsdiqlə bərpa) · Xəta/Audit jurnalları · Qlobal axtarış.
+
+  > **Qeyd:** İlk admin hesabı `php admin/app/create_admin.php <username> <email> <password>` ilə yaradılır. Bütün mutasiya əməliyyatları `audit_logs`-a yazılır.
 - [ ] Faza 7 — Paylaşım + Cilalama
 
 ## Qızıl Qayda

@@ -34,8 +34,10 @@ export async function mount(root) {
   const contentEl = root.querySelector('#tab-content');
 
   let currentViewCleanup = null;
+  let activeIndex = 0;
 
   async function showTab(index) {
+    activeIndex = index;
     currentViewCleanup?.();
     currentViewCleanup = null;
 
@@ -68,14 +70,19 @@ export async function mount(root) {
   window.addEventListener('ybb:tab', onTabEvent);
 
   // İstifadəçiyə aid hadisələr (Hissə 7.2 user:{id} kanalı) — hansı tabda
-  // olmasından asılı olmayaraq toast göstərilir və badge yenilənir.
-  const sse = connectSSE([`user:${user.id}`], {
+  // olmasından asılı olmayaraq toast göstərilir və badge yenilənir. `system`
+  // kanalı isə hamıya aid qlobal hadisələr üçündür (banner/abunə rejimi/baxım).
+  const sse = connectSSE([`user:${user.id}`, 'system'], {
     'offer.selected': () => { showToast('Siz seçildiniz!'); refreshBadge(); },
     'selection.cancelled': () => { showToast('Seçim vəziyyəti dəyişdi.'); refreshBadge(); },
     'order.closed': () => { showToast('Sifariş bağlandı.'); refreshBadge(); },
     'reminder': () => { refreshBadge(); },
     'subscription.activated': () => { showToast('Abunəniz aktivləşdi!'); refreshBadge(); },
     'subscription.expired': () => { showToast('Abunəniz bitdi.'); refreshBadge(); },
+    'admin.broadcast': (data) => { showToast(data.title ?? 'Yeni bildiriş'); refreshBadge(); },
+    'subscription.mode_changed': () => { showToast('Abunə rejimi dəyişdi.'); showTab(activeIndex); },
+    'banner.updated': () => { window.dispatchEvent(new CustomEvent('ybb:bannersUpdated')); },
+    'maintenance': () => { showToast('Sistem texniki baxıma keçir.'); },
   });
 
   await showTab(0);

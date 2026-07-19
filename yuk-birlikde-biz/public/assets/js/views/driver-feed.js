@@ -9,6 +9,7 @@ import { openOfferSheet } from '../components/offer-sheet.js';
 import { esc } from '../utils.js';
 import { connectSSE } from '../sse.js';
 import { maybePromptNotificationPermission } from '../notify-permission.js';
+import { createBannerSlot } from '../components/banner.js';
 
 export async function render(root) {
   const { user } = getState();
@@ -31,6 +32,41 @@ export async function render(root) {
   const screenEl = root.closest('.screen');
 
   let newCount = 0;
+  let feedBanners = [];
+
+  async function loadFeedBanners() {
+    try {
+      const { banners } = await api.get('/banners?placement=feed');
+      feedBanners = banners;
+    } catch {
+      feedBanners = [];
+    }
+  }
+
+  // Hər 6 kartdan bir banner (Hissə 10.9 qaydası: "lentdə hər 6 kartdan sıx yox").
+  function insertBannersIntoFeed() {
+    listEl.querySelectorAll('.banner-slot').forEach((el) => el.remove());
+    if (feedBanners.length === 0) return;
+
+    const cards = [...listEl.children].filter((el) => !el.classList.contains('empty-state'));
+    let bannerIndex = 0;
+    for (let i = 6; i <= cards.length; i += 6) {
+      const banner = feedBanners[bannerIndex % feedBanners.length];
+      bannerIndex++;
+      const el = createBannerSlot(banner, {
+        onClick: (b) => {
+          api.post(`/banners/${b.id}/click`).catch(() => {});
+          if (b.link) window.open(b.link, '_blank', 'noopener');
+        },
+      });
+      cards[i - 1].after(el);
+    }
+  }
+
+  function onBannersUpdated() {
+    loadFeedBanners().then(insertBannersIntoFeed);
+  }
+  window.addEventListener('ybb:bannersUpdated', onBannersUpdated);
 
   const scopeTabs = createSegmentedTabs(['Bakı daxili', 'Bölgələrarası'], {
     onChange: (index) => {
@@ -86,6 +122,7 @@ export async function render(root) {
       }
 
       listings.forEach((listing) => listEl.appendChild(buildCard(listing)));
+      insertBannersIntoFeed();
     } catch {
       listEl.innerHTML = '';
       listEl.appendChild(createEmptyState({ title: 'Xəta baş verdi', description: 'Yenidən cəhd edin.' }));
@@ -160,8 +197,12 @@ export async function render(root) {
     'listing.expired': (payload) => removeListing(payload.id),
   }, { onStatus: setConnBanner });
 
+  await loadFeedBanners();
   await loadFeed();
   maybePromptNotificationPermission('driver_first_feed');
 
-  return () => sse.close();
+  return () => {
+    sse.close();
+    window.removeEventListener('ybb:bannersUpdated', onBannersUpdated);
+  };
 }
