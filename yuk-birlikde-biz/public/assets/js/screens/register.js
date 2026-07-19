@@ -4,6 +4,7 @@ import { createStepper } from '../components/stepper.js';
 import { openSheet } from '../components/sheet.js';
 import { getState, setState } from '../store.js';
 import { navigate } from '../router.js';
+import { esc } from '../utils.js';
 
 function readCookie(name) {
   const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
@@ -191,7 +192,7 @@ export async function mount(root) {
     contentEl.innerHTML = `
       <h2 class="h2">${label}</h2>
       <div class="input-group" style="margin-top:16px;">
-        <input class="input" id="text-input" placeholder="${label}" value="${data[field]}">
+        <input class="input" id="text-input" placeholder="${label}" value="${esc(data[field])}">
         <div class="input-error-text" id="text-error" style="display:none;">${errorMsg}</div>
       </div>
       <button type="button" class="btn btn-primary" id="continue-btn">Davam et</button>

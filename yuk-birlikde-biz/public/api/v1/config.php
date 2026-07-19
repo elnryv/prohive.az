@@ -30,6 +30,7 @@ json_ok([
     ],
     'whatsapp_number' => settings_get('whatsapp_number', ''),
     'contact_phone' => settings_get('contact_phone', ''),
+    'copyright' => settings_get('copyright', ''),
     'operators' => $operators,
     'vehicles' => $vehicles,
     'vehicle_sizes' => $vehicleSizes,

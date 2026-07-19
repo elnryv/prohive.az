@@ -12,6 +12,36 @@ server {
     location ~ ^/api/v1/pages/([a-zA-Z0-9-]+)$ {
         rewrite ^ /api/v1/pages.php?slug=$1 last;
     }
+    location ~ ^/api/v1/orders/(\d+)/images$ {
+        rewrite ^ /api/v1/orders/images.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/close$ {
+        rewrite ^ /api/v1/orders/close.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/cancel-selection$ {
+        rewrite ^ /api/v1/orders/cancel-selection.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/republish$ {
+        rewrite ^ /api/v1/orders/republish.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)$ {
+        rewrite ^ /api/v1/orders/detail.php?id=$1 last;
+    }
+    location ~ ^/api/v1/feed/(\d+)$ {
+        rewrite ^ /api/v1/feed/detail.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)/withdraw$ {
+        rewrite ^ /api/v1/offers/withdraw.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)/select$ {
+        rewrite ^ /api/v1/offers/select.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)/decline$ {
+        rewrite ^ /api/v1/offers/decline.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)$ {
+        rewrite ^ /api/v1/offers/update.php?id=$1 last;
+    }
 
     location /sse/ {
         proxy_read_timeout 3600s;

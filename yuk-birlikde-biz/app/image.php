@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // Hissə 11.1: MIME + real məzmun yoxlanışı, GD ilə yenidən enkodlama (metadata
 // təmizlənir), təsadüfi fayl adları, maks 5MB.
-function save_uploaded_avatar(array $file, string $storageDir): string
+function load_uploaded_image(array $file): GdImage
 {
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
         throw new RuntimeException('UPLOAD_FAILED');
@@ -27,6 +27,13 @@ function save_uploaded_avatar(array $file, string $storageDir): string
         throw new RuntimeException('UNSUPPORTED_FORMAT');
     }
 
+    return $image;
+}
+
+function save_uploaded_avatar(array $file, string $storageDir): string
+{
+    $image = load_uploaded_image($file);
+
     $width = imagesx($image);
     $height = imagesy($image);
     $side = min($width, $height);
@@ -47,4 +54,49 @@ function save_uploaded_avatar(array $file, string $storageDir): string
     imagedestroy($square);
 
     return $filename;
+}
+
+function resize_to_fit(GdImage $image, int $maxSide): GdImage
+{
+    $width = imagesx($image);
+    $height = imagesy($image);
+    $scale = min(1, $maxSide / max($width, $height));
+    if ($scale >= 1) {
+        return $image;
+    }
+
+    $newWidth = (int) round($width * $scale);
+    $newHeight = (int) round($height * $scale);
+    $resized = imagecreatetruecolor($newWidth, $newHeight);
+    imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+    imagedestroy($image);
+
+    return $resized;
+}
+
+// Elan şəkli: əsas fayl uzun kənarı maks 1600px, thumb 400px — Hissə 4.2/11.2.
+function save_uploaded_order_image(array $file, string $storageDir): array
+{
+    $image = load_uploaded_image($file);
+
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0755, true);
+    }
+
+    $base = bin2hex(random_bytes(16));
+
+    $main = resize_to_fit($image, 1600);
+    $mainFilename = $base . '.jpg';
+    imagejpeg($main, $storageDir . '/' . $mainFilename, 80);
+
+    $thumb = resize_to_fit($main, 400);
+    $thumbFilename = $base . '_thumb.jpg';
+    imagejpeg($thumb, $storageDir . '/' . $thumbFilename, 80);
+
+    if ($thumb !== $main) {
+        imagedestroy($thumb);
+    }
+    imagedestroy($main);
+
+    return ['path' => $mainFilename, 'thumb_path' => $thumbFilename];
 }

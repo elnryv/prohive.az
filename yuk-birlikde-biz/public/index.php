@@ -4,6 +4,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/../app/db.php';
 require_once __DIR__ . '/../app/settings.php';
 
+header('Content-Type: text/html; charset=utf-8');
+header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'");
+
 $siteName = settings_get('site_name', 'Yük Birlikdə');
 ?><!doctype html>
 <html lang="az">

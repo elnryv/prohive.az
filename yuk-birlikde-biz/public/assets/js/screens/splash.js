@@ -1,5 +1,4 @@
-import { api } from '../api.js';
-import { setState } from '../store.js';
+import { getState } from '../store.js';
 import { navigate } from '../router.js';
 
 export async function mount(root) {
@@ -10,16 +9,11 @@ export async function mount(root) {
     <div class="splash-tagline">Yükünüzü etibarlı əllərə buraxın</div>
   `;
 
-  const start = Date.now();
-  const data = await api.get('/auth/me').catch(() => ({ authenticated: false }));
-  setState({ authenticated: data.authenticated, user: data.user ?? null });
-
-  const elapsed = Date.now() - start;
-  const wait = Math.max(0, 1200 - elapsed);
-
+  // Sessiya vəziyyəti app.js boot() tərəfindən artıq hidratasiya olunub;
+  // bura yalnız 1.2s brendli keçid üçün minimum gözləmə tətbiq edir.
   setTimeout(() => {
-    navigate(data.authenticated ? '/ana-sehife' : '/telefon', { replace: true });
-  }, wait);
+    navigate(getState().authenticated ? '/ana-sehife' : '/telefon', { replace: true });
+  }, 1200);
 
   return () => root.classList.remove('splash-screen');
 }

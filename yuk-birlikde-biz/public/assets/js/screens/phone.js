@@ -69,7 +69,9 @@ export async function mount(root) {
       return;
     }
 
-    const phone = '994' + operator + digits;
+    // Operator prefix "050" kimi lokal formatda göstərilir, amma +994 ölkə kodu ilə
+    // birləşəndə aparıcı sıfır düşür: +994 50 123-45-67 → 99450 1234567 (12 rəqəm).
+    const phone = '994' + operator.replace(/^0/, '') + digits;
     continueBtn.disabled = true;
     continueBtn.classList.add('btn-loading');
     continueBtn.textContent = 'Yoxlanılır…';

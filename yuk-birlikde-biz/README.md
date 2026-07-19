@@ -19,6 +19,12 @@ php -S 0.0.0.0:8000 router-dev.php
 
 Production-da `nginx.conf.example` faylındakı rewrite qaydaları istifadə olunur (pretty API URL-ləri, `/uploads/` statik xidməti, SPA fallback).
 
+Cron (production crontab):
+
+```
+*/5 * * * * php /var/www/yuk-birlikde-biz/app/cron/expire_orders.php
+```
+
 ## Fayl strukturu
 
 ```
@@ -34,7 +40,7 @@ storage/        uploads/, logs/, backups/ (git-ə düşmür)
 ## Faza vəziyyəti (Hissə 13 — İcra Planı)
 
 - [x] **Faza 1 — Təməl**: bütün DB miqrasiyaları · settings modulu · SPA shell + router + API/SSE client skeletləri · dizayn tokenləri · komponent kitabxanası (Hissə 2.5) · Splash → Telefon → check-phone → PIN/Qeydiyyat vahid axını (operator sheet, PinPad, rol seçimi, bütün addımlar) · sessiya sistemi · CMS səhifələri + razılıq.
-- [ ] Faza 2 — Elan dövriyyəsi
+- [x] **Faza 2 — Elan dövriyyəsi**: 6 addımlıq elan yaratma + şəkil yükləmə + icmal · YK nömrələmə + slug · statuslar + expire cron · sürücü lenti (adi yüklənmə, scope/filtr) · elan detalları (hər iki baxış) · təklif sheet-i + dəyiş/geri çək · Təkliflərim ekranı · seçim (atomik) → nömrə açılışı → Danışıq Gedir → Bağla/Ləğv et → yenidən açılma → imtina · qiymətləndirmə · Elanlarım tabları · Bildirişlər ekranı · Profil (hər iki rol, bildiriş ayarları, şikayət, hesab silmə).
 - [ ] Faza 3 — Real-time (SSE)
 - [ ] Faza 4 — PWA + Push
 - [ ] Faza 5 — Abunə
