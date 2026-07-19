@@ -1,0 +1,26 @@
+.phone-screen { padding: var(--space-2); padding-top: calc(env(safe-area-inset-top) + var(--space-4)); }
+.phone-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  background: var(--card);
+  padding: 0 12px;
+  margin: var(--space-2) 0;
+}
+.phone-prefix { color: var(--text-muted); }
+.phone-operator-btn {
+  border: none; background: none;
+  font-size: 16px; font-weight: 500;
+  display: flex; align-items: center; gap: 4px;
+  cursor: pointer;
+  color: var(--text);
+}
+.phone-divider { width: 1px; height: 24px; background: var(--border); }
+.phone-number-input {
+  flex: 1; border: none; outline: none;
+  font-size: 16px; font-variant-numeric: tabular-nums;
+  background: transparent;
+}

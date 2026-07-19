@@ -1,0 +1,46 @@
+# Yük.Birlikdə.biz
+
+Müştəriləri və yükdaşıma sürücülərini birləşdirən rəqəmsal elan və təklif platforması (PWA). Platforma yük daşımır, qiymət müəyyən etmir, komissiya hesablamır və tərəflər arasındakı razılaşmanın iştirakçısı deyil — bax "Qızıl Qayda", tam layihə sənədi.
+
+**Stek:** Native PHP 8.3 · MySQL 8.0 · Nginx · Vanilla JavaScript (SPA-shell, build addımı yoxdur) · SSE · Web Push · Payriff. Framework, Composer və build tool yoxdur.
+
+## Quraşdırma (lokal inkişaf)
+
+```bash
+cp .env.example .env   # DB məlumatlarını doldurun
+mysql -u root -p -e "CREATE DATABASE yuk_birlikde CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+# --default-character-set=utf8mb4 vacibdir — olmasa Azərbaycan hərfləri mysql
+# client-in defolt latin1 kodlaşdırması ilə import zamanı korlanır.
+for f in migrations/*.sql; do mysql --default-character-set=utf8mb4 -u root -p yuk_birlikde < "$f"; done
+
+cd public
+php -S 0.0.0.0:8000 router-dev.php
+```
+
+Production-da `nginx.conf.example` faylındakı rewrite qaydaları istifadə olunur (pretty API URL-ləri, `/uploads/` statik xidməti, SPA fallback).
+
+## Fayl strukturu
+
+```
+app/            Backend nüvə modulları (config, db, auth, csrf, settings, ratelimit, texts, image)
+migrations/     Nömrələnmiş SQL miqrasiya faylları (bütün cədvəllər + seed data)
+public/
+  index.php     SPA-shell giriş nöqtəsi
+  api/v1/       Endpoint faylları
+  assets/       CSS token/komponentlər, JS router/api/sse/store, ekranlar
+storage/        uploads/, logs/, backups/ (git-ə düşmür)
+```
+
+## Faza vəziyyəti (Hissə 13 — İcra Planı)
+
+- [x] **Faza 1 — Təməl**: bütün DB miqrasiyaları · settings modulu · SPA shell + router + API/SSE client skeletləri · dizayn tokenləri · komponent kitabxanası (Hissə 2.5) · Splash → Telefon → check-phone → PIN/Qeydiyyat vahid axını (operator sheet, PinPad, rol seçimi, bütün addımlar) · sessiya sistemi · CMS səhifələri + razılıq.
+- [ ] Faza 2 — Elan dövriyyəsi
+- [ ] Faza 3 — Real-time (SSE)
+- [ ] Faza 4 — PWA + Push
+- [ ] Faza 5 — Abunə
+- [ ] Faza 6 — Admin panel
+- [ ] Faza 7 — Paylaşım + Cilalama
+
+## Qızıl Qayda
+
+Platforma yalnız müştərilər və yükdaşıma sürücüləri arasında əlaqə yaradan rəqəmsal vasitəçidir. Qiymət hesablama, təklif sıralama və "tövsiyə" tipli funksiyalar qəti qadağandır — seçim hüququ tamamilə müştəriyə məxsusdur.
