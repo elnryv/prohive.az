@@ -59,6 +59,12 @@ while (ob_get_level() > 0) {
 set_time_limit(0);
 ignore_user_abort(true);
 
+// Başlıqlar heç bir output olmadan müştəriyə çatmır — ilk hadisə/heartbeat-ə
+// qədər (25s-ə qədər) EventSource "open" hadisəsini görməzdi. Dərhal boş bir
+// SSE şərhi göndərib bağlantının açıldığını təsdiqləyirik.
+echo ": connected\n\n";
+flush();
+
 $db = db();
 $placeholders = implode(',', array_fill(0, count($channels), '?'));
 

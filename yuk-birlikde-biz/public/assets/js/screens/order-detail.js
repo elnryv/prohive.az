@@ -31,6 +31,29 @@ function confirmSheet(message, onConfirm) {
   content.querySelector('#cancel-btn').addEventListener('click', close);
 }
 
+// Paylaş ikonu → Web Share API → /e/{slug} (Hissə 4.5). Dəstəklənmirsə
+// keçid mübadilə buferinə kopyalanır.
+async function shareOrder(order) {
+  const url = `${location.origin}/e/${order.slug}`;
+  const shareData = {
+    title: `Yük.Birlikdə.biz — ${order.cargo_type_name}`,
+    text: `${order.from_city} → ${order.to_city}`,
+    url,
+  };
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch {
+      // istifadəçi ləğv edib — sakitcə keç
+    }
+  } else if (navigator.clipboard) {
+    await navigator.clipboard.writeText(url);
+    showToast('Keçid kopyalandı!');
+  } else {
+    showToast(url);
+  }
+}
+
 function ratingSheet(orderId, onDone) {
   const content = document.createElement('div');
   content.innerHTML = `
@@ -80,7 +103,19 @@ export async function mount(root, params) {
   root.innerHTML = `<div id="detail-body" style="padding-bottom:96px;"></div>`;
   const body = root.querySelector('#detail-body');
 
-  const appbar = createAppBar({ title: 'Elan', onBack: () => navigate('/ana-sehife') });
+  let currentOrder = null;
+  const shareBtn = document.createElement('button');
+  shareBtn.type = 'button';
+  shareBtn.className = 'appbar-back';
+  shareBtn.innerHTML = '↗';
+  shareBtn.setAttribute('aria-label', 'Paylaş');
+  shareBtn.addEventListener('click', () => currentOrder && shareOrder(currentOrder));
+
+  const appbar = createAppBar({
+    title: 'Elan',
+    onBack: () => navigate('/ana-sehife'),
+    action: isDriver ? undefined : shareBtn,
+  });
   root.prepend(appbar);
   body.appendChild(createSkeletonList(3));
 
@@ -124,6 +159,7 @@ export async function mount(root, params) {
 
   function renderCustomerView(order, offers) {
     appbar.querySelector('.appbar-title').textContent = `Elan #${order.number}`;
+    currentOrder = order;
     syncRealtime(order.status);
 
     body.innerHTML = `

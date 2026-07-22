@@ -20,6 +20,8 @@ $paramRoutes = [
     '#^/api/v1/offers/(\d+)/decline$#' => ['api/v1/offers/decline.php', 'id'],
     '#^/api/v1/offers/(\d+)$#' => ['api/v1/offers/update.php', 'id'],
     '#^/api/v1/banners/(\d+)/click$#' => ['api/v1/banners/click.php', 'id'],
+    '#^/og/([a-f0-9]+)\.png$#' => ['og/generate.php', 'slug'],
+    '#^/e/([a-f0-9]+)$#' => ['e/index.php', 'slug'],
 ];
 
 foreach ($paramRoutes as $pattern => [$file, $param]) {

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /$
+Allow: /e/
+Disallow: /api/
+Disallow: /sse/
+Disallow: /og/
+Disallow: /ana-sehife
+Disallow: /elan/
+Disallow: /profil
+Disallow: /bildirisler
+Disallow: /abune

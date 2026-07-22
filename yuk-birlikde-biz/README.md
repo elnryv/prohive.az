@@ -52,10 +52,12 @@ public/
   index.php     SPA-shell giriş nöqtəsi
   api/v1/       Endpoint faylları
   assets/       CSS token/komponentlər, JS router/api/sse/store, ekranlar
+  e/            Public paylaşım səhifəsi (/e/{slug}, OG meta teqləri)
+  og/           OG kart generator endpoint-i (/og/{slug}.png)
 admin/          Admin paneli — ayrı server-render PHP tətbiq, eyni DB (Hissə 10)
   app/          admin_auth.php, admin_layout.php, create_admin.php
   public/       Giriş + bütün admin səhifələri (dashboard, customers, orders, ...)
-storage/        uploads/, logs/, backups/ (git-ə düşmür)
+storage/        uploads/, logs/, backups/, og/ (git-ə düşmür)
 ```
 
 ## Faza vəziyyəti (Hissə 13 — İcra Planı)
@@ -72,7 +74,11 @@ storage/        uploads/, logs/, backups/ (git-ə düşmür)
 - [x] **Faza 6 — Admin panel** (`admin/` — ayrı server-render tətbiq, eyni DB, `admin_sessions`/`admin_users` üzərindən müstəqil giriş): giriş + uğursuz cəhd bloklaması · canlı Dashboard (5s polling) · Müştəri/Sürücü idarəetməsi (axtarış/filtr, blok/tam blok/sil, sürücüdə avtomobil redaktəsi + əl ilə abunə ver/uzat/azalt/ləğv et + tarixçə) · Elan idarəetməsi (bağla/yenidən aktiv et/sil, real-time lentdən silinmə) · Təklif idarəetməsi (sil, real-time geri çəkilmə) · Abunə parametrləri (rejim/qiymət/müddət/aktivləşmə qaydası, dəyişəndə SSE `subscription.mode_changed`) · Payriff ödəniş tarixçəsi (raw JSON baxışı) · Banner CRUD (şəkil yükləmə, 4 yerdə render — `home_top`/`feed`/`profile`/`subscription`, klik sayğacı, SSE `banner.updated`) · Bildiriş göndərmə (auditoriya seçimi, dərhal/planlaşdırılmış, `cron/broadcasts.php`) · Şikayət idarəetməsi (cavab → istifadəçiyə bildiriş, status axını) · CMS redaktoru (`pages` cədvəli) · Analitika (tarix aralığı, canvas qrafiklər, kənar kitabxanasız) · Sistem parametrləri (qeydiyyat/PIN/TTL/xatırlatma/sessiya/bildiriş/PWA/baxım + operator/avtomobil/ölçü/yük növü arayış cədvəlləri) · Sayt konfiqurasiyası (ad/loqo/favicon/əlaqə/sosial/copyright) · Backup (mysqldump + uploads arxivi, yüklə, ikiqat təsdiqlə bərpa) · Xəta/Audit jurnalları · Qlobal axtarış.
 
   > **Qeyd:** İlk admin hesabı `php admin/app/create_admin.php <username> <email> <password>` ilə yaradılır. Bütün mutasiya əməliyyatları `audit_logs`-a yazılır.
-- [ ] Faza 7 — Paylaşım + Cilalama
+- [x] **Faza 7 — Paylaşım + Cilalama**: OG kart generatoru (`app/og_generator.php`, GD ilə brend qradiyent + marşrut + yük növü + tarix, bundled DejaVu Sans ilə Azərbaycan hərfləri düzgün render olunur) + `GET /og/{slug}.png` (bir dəfə generasiya, sonra statik fayl kimi keşlənir) · public `/e/{slug}` paylaşım səhifəsi (OG meta teqləri, qeydiyyatsız istifadəçiyə elan önizləməsi — nömrəsiz, daxil olmuş istifadəçi birbaşa SPA-ya yönləndirilir) · Elan detalında paylaş ikonu (Web Share API, dəstəklənmirsə keçid kopyalanır) · `robots.txt` + meta description (Lighthouse SEO 100) · Hissə 14 test planının kritik bəndlərinin yenidən doğrulanması: təklif seçimi atomikliyi (paralel sorğu ilə təsdiqləndi), nömrə gizliliyi, CSRF, rate limit, fayl yükləmə hücum ssenarisi (saxta PHP faylı rədd edildi), 220+ paralel SSE bağlantısı yük testi.
+
+  > **Tapılan və düzəldilmiş bug:** `/sse/stream.php` başlıqlardan sonra heç bir output göndərmirdi — bu, ilk hadisə və ya 25 saniyəlik heartbeat-ə qədər `EventSource`-un "open" hadisəsini görməməsinə səbəb olurdu (yük testi zamanı aşkarlanıb: 220 paralel bağlantıdan heç biri 8 saniyə ərzində qoşulma təsdiqi almadı). Bağlantı açılan kimi boş SSE şərhi göndərilməsi ilə düzəldilib — indi bağlantı demək olar ki, dərhal qurulur.
+
+  > **Qeyd:** Real cihaz testləri (iOS Safari, Android Chrome) və Lighthouse-un ayrıca "PWA" kateqoriyası (v10+ alətdən çıxarılıb, avtomatlaşdırılmış audit əvəzinə əl ilə PWA yoxlama siyahısına keçirilib) mühit məhdudiyyətinə görə icra edilə bilməyib — Faza 4-də PWA/SW/push funksionallığı ayrıca yoxlanılıb. Inter woff2 fontları hələ mənbələndirilməyib (şəbəkə mənbələri əlçatan olmadı); OG generator server tərəfdə bundled DejaVu Sans istifadə edir (tam Azərbaycan dəstəyi ilə).
 
 ## Qızıl Qayda
 

@@ -1,0 +1,4 @@
+DejaVu Sans / DejaVu Sans Bold — bundled for server-side OG image generation
+(app/og_generator.php). DejaVu fonts are derived from Bitstream Vera and
+distributed under a permissive license allowing redistribution and
+modification. Full license: https://dejavu-fonts.github.io/License.html
