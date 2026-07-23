@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
-const OG_FONT_REGULAR = __DIR__ . '/fonts/DejaVuSans.ttf';
-const OG_FONT_BOLD = __DIR__ . '/fonts/DejaVuSans-Bold.ttf';
+const OG_FONT_REGULAR = __DIR__ . '/fonts/Inter-Regular.ttf';
+const OG_FONT_BOLD = __DIR__ . '/fonts/Inter-Bold.ttf';
 
 function og_hex_color($im, string $hex): int
 {
@@ -71,21 +71,40 @@ function generate_og_image(array $order, string $cargoTypeName, string $outputPa
     // Yük növü çipi
     imagettftext($im, 20, 0, 64, 220, $whiteSoft, OG_FONT_REGULAR, mb_strtoupper($cargoTypeName));
 
-    // Marşrut (əsas başlıq) — sözlərə görə wrap
+    // Marşrut — "haradan" və "haraya" ayrı sətirlərdə, aralarında əl ilə
+    // çəkilmiş ox (font şəklindən asılı olmayaraq — "→" işarəsi Inter-in heç
+    // bir subset-ində mövcud deyil, GD-nin öz tofu qutusunu göstərməsinin
+    // qarşısı belə alınır).
     $fromLabel = $order['from_city'] . (!empty($order['from_district']) ? ', ' . $order['from_district'] : '');
     $toLabel = $order['to_city'] . (!empty($order['to_district']) ? ', ' . $order['to_district'] : '');
-    $routeText = "{$fromLabel} → {$toLabel}";
 
-    $lines = og_wrap_text($routeText, OG_FONT_BOLD, 52, OG_WIDTH - 128);
-    $lineHeight = 68;
-    $startY = 320 - (count($lines) - 1) * $lineHeight / 2;
-    foreach ($lines as $i => $line) {
-        imagettftext($im, 52, 0, 64, (int) ($startY + $i * $lineHeight), $white, OG_FONT_BOLD, $line);
+    $fromLines = og_wrap_text($fromLabel, OG_FONT_BOLD, 46, OG_WIDTH - 128);
+    $toLines = og_wrap_text($toLabel, OG_FONT_BOLD, 46, OG_WIDTH - 128);
+    $lineHeight = 58;
+
+    $cursorY = 300;
+    foreach ($fromLines as $line) {
+        imagettftext($im, 46, 0, 64, $cursorY, $white, OG_FONT_BOLD, $line);
+        $cursorY += $lineHeight;
+    }
+
+    $arrowX = 64 + 14;
+    $arrowTopY = $cursorY + 6;
+    imagefilledpolygon($im, [
+        $arrowX - 14, $arrowTopY,
+        $arrowX + 14, $arrowTopY,
+        $arrowX, $arrowTopY + 24,
+    ], $whiteSoft);
+    $cursorY += 74;
+
+    foreach ($toLines as $line) {
+        imagettftext($im, 46, 0, 64, $cursorY, $white, OG_FONT_BOLD, $line);
+        $cursorY += $lineHeight;
     }
 
     // Tarix/saat
     $whenLabel = date('d.m.Y, H:i', strtotime($order['date_time']));
-    imagettftext($im, 26, 0, 64, 460, $white, OG_FONT_REGULAR, $whenLabel);
+    imagettftext($im, 26, 0, 64, $cursorY + 30, $white, OG_FONT_REGULAR, $whenLabel);
 
     // Elan nömrəsi (alt sağ küncdə)
     $numberText = $order['number'] ?? '';
