@@ -11,8 +11,9 @@ export async function render(root) {
   const { user } = getState();
 
   root.innerHTML = `
-    <div class="home-top-row">
-      <h3 class="h3">Salam, ${esc(user?.first_name)}</h3>
+    <div class="home-hero">
+      <h3 class="h3 home-hero-greeting">Salam, ${esc(user?.first_name)}</h3>
+      <div class="small-text home-hero-sub">Yükünüzü indi elan edin, sürücülər dəqiqələr içində təklif göndərsin.</div>
     </div>
     <div id="banner-slot"></div>
     <button type="button" class="btn btn-primary" id="create-btn">+ Yeni Elan Yarat</button>
@@ -51,6 +52,7 @@ export async function render(root) {
           from: order.from_city,
           to: order.to_city,
           date_time: order.date_time,
+          thumb_url: order.thumb_url,
           note_preview: 'Sürücü seçilib — əlaqə saxlayın',
         });
         card.style.cursor = 'pointer';
@@ -79,6 +81,7 @@ export async function render(root) {
         from: order.from_city,
         to: order.to_city,
         date_time: order.date_time,
+        thumb_url: order.thumb_url,
         note_preview: order.offer_count > 0 ? `${order.offer_count} təklif` : 'Hələ təklif yoxdur',
       });
       card.style.cursor = 'pointer';

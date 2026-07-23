@@ -18,7 +18,8 @@ $allowedStatuses = ['active', 'waiting', 'negotiating', 'closed', 'cancelled', '
 $statuses = array_values(array_intersect($allowedStatuses, explode(',', (string) ($_GET['status'] ?? ''))));
 
 $sql = 'SELECT o.*, c.name AS cargo_type_name,
-        (SELECT COUNT(*) FROM offers WHERE order_id = o.id AND status IN ("pending", "selected")) AS offer_count
+        (SELECT COUNT(*) FROM offers WHERE order_id = o.id AND status IN ("pending", "selected")) AS offer_count,
+        (SELECT thumb_path FROM order_images WHERE order_id = o.id ORDER BY sort LIMIT 1) AS thumb_path
         FROM orders o
         JOIN cargo_types c ON c.id = o.cargo_type_id
         WHERE o.customer_id = :customer_id';
@@ -38,5 +39,12 @@ $sql .= ' ORDER BY o.created_at DESC';
 
 $stmt = db()->prepare($sql);
 $stmt->execute($params);
+$orders = $stmt->fetchAll();
 
-json_ok(['orders' => $stmt->fetchAll()]);
+foreach ($orders as &$order) {
+    $order['thumb_url'] = $order['thumb_path'] !== null ? '/uploads/' . $order['thumb_path'] : null;
+    unset($order['thumb_path']);
+}
+unset($order);
+
+json_ok(['orders' => $orders]);

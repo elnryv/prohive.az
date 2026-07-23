@@ -15,7 +15,7 @@
 }
 .btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.4; pointer-events: none; }
-.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: var(--shadow-glow); }
 .btn-secondary { background: var(--primary-soft); color: var(--primary); }
 .btn-danger { background: var(--error-soft); color: var(--error); }
 .btn-loading::after {
@@ -126,13 +126,16 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
 .listing-card, .offer-card {
   background: var(--card);
   border-radius: var(--r-card);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(15, 23, 42, 0.04);
   padding: 16px;
   margin-bottom: 12px;
   position: relative;
   overflow: hidden;
   animation: fade-up var(--dur-card) ease-out both;
+  transition: transform var(--dur-press) ease-out, box-shadow var(--dur-press) ease-out;
 }
+.listing-card[style*="cursor:pointer"]:active, .listing-card.tappable:active { transform: scale(0.985); }
 .listing-card::before {
   content: '';
   position: absolute;
@@ -140,14 +143,33 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   width: 3px;
   background: var(--primary);
 }
-.listing-card.status-negotiating::before { background: var(--warning); }
+.listing-card.status-waiting::before { background: var(--warning-light); }
+.listing-card.status-negotiating::before { background: var(--accent); }
 .listing-card.status-closed::before { background: var(--success); }
 .listing-card.status-cancelled::before { background: var(--error); }
-.card-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.card-route { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+.listing-card.status-expired::before { background: var(--slate); }
+.card-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+.card-route { font-size: 16px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.005em; }
 .card-note-preview { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-thumb { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
-.offer-card-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.card-body-row { display: flex; gap: 12px; align-items: flex-start; }
+.card-body-row > .card-body-content { flex: 1; min-width: 0; }
+.card-thumb {
+  width: 72px; height: 72px; border-radius: 14px; object-fit: cover; flex-shrink: 0;
+  background: var(--slate-soft);
+}
+.card-thumb-fallback {
+  width: 72px; height: 72px; border-radius: 14px; flex-shrink: 0;
+  background: var(--gradient-primary);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255, 255, 255, 0.9);
+}
+.card-thumb-fallback svg { width: 30px; height: 30px; }
+.offer-card-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--gradient-primary); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 700;
+  box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.5);
+}
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(16px); }
@@ -183,6 +205,15 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   white-space: nowrap;
 }
 .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* Chip status variantları — order.status ilə uyğun semantik rəng (.chip-dən sonra gəlməlidir ki, üstünlük təşkil etsin) */
+.chip.chip-status-active { background: var(--primary-soft); border-color: transparent; color: var(--primary); }
+.chip.chip-status-waiting { background: var(--warning-soft); border-color: transparent; color: var(--warning); }
+.chip.chip-status-negotiating { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.chip.chip-status-closed { background: var(--success-soft); border-color: transparent; color: var(--success); }
+.chip.chip-status-cancelled { background: var(--error-soft); border-color: transparent; color: var(--error); }
+.chip.chip-status-expired { background: var(--slate-soft); border-color: transparent; color: var(--slate); }
+
 .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 .chip-row::-webkit-scrollbar { display: none; }
 
@@ -433,6 +464,31 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   font-weight: 600;
   flex-shrink: 0;
 }
+
+/* Elan detalı — foto qalereya + marşrut vizuallaşdırması */
+.detail-gallery {
+  display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+  scroll-snap-type: x mandatory; margin-bottom: 16px;
+}
+.detail-gallery::-webkit-scrollbar { display: none; }
+.detail-gallery img {
+  width: 78%; max-width: 320px; height: 190px; object-fit: cover;
+  border-radius: var(--r-card); flex-shrink: 0; scroll-snap-align: start;
+  box-shadow: var(--shadow-soft);
+}
+.detail-card {
+  background: var(--card); border-radius: var(--r-card);
+  box-shadow: var(--shadow-card); border: 1px solid rgba(15, 23, 42, 0.04);
+  padding: 18px; margin-bottom: 12px;
+}
+.route-visual { display: flex; gap: 14px; }
+.route-visual-rail { display: flex; flex-direction: column; align-items: center; width: 14px; padding-top: 5px; flex-shrink: 0; }
+.route-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.route-dot-end { background: var(--accent); }
+.route-connector { width: 2px; flex: 1; min-height: 28px; background: linear-gradient(var(--primary), var(--accent)); opacity: 0.35; margin: 4px 0; }
+.route-labels { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+.route-label-city { font-size: 16px; font-weight: 600; letter-spacing: -0.005em; }
+.route-label-tag { font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 2px; }
 
 /* "N yeni elan" üzən düymə — Hissə 5.1 */
 .new-listings-btn {

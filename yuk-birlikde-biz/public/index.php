@@ -5,7 +5,7 @@ require_once __DIR__ . '/../app/db.php';
 require_once __DIR__ . '/../app/settings.php';
 
 header('Content-Type: text/html; charset=utf-8');
-header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'");
+header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob:");
 
 $siteName = settings_get('site_name', 'Yük Birlikdə');
 ?><!doctype html>

@@ -8,7 +8,7 @@ import { openSheet } from '../components/sheet.js';
 import { showToast } from '../components/toast.js';
 import { openOfferSheet } from '../components/offer-sheet.js';
 import { ICONS } from '../components/icons.js';
-import { esc } from '../utils.js';
+import { esc, formatDateTime } from '../utils.js';
 import { connectSSE } from '../sse.js';
 
 const STATUS_LABELS = {
@@ -19,6 +19,28 @@ const STATUS_LABELS = {
   cancelled: 'Ləğv Edildi',
   expired: 'Müddəti Bitdi',
 };
+
+function routeVisual(fromLabel, toLabel) {
+  return `
+    <div class="route-visual">
+      <div class="route-visual-rail">
+        <span class="route-dot"></span>
+        <span class="route-connector"></span>
+        <span class="route-dot route-dot-end"></span>
+      </div>
+      <div class="route-labels">
+        <div>
+          <div class="route-label-tag">Haradan</div>
+          <div class="route-label-city">${esc(fromLabel)}</div>
+        </div>
+        <div>
+          <div class="route-label-tag">Haraya</div>
+          <div class="route-label-city">${esc(toLabel)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 function confirmSheet(message, onConfirm) {
   const content = document.createElement('div');
@@ -153,8 +175,8 @@ export async function mount(root, params) {
 
   function renderGallery(images) {
     if (!images || images.length === 0) return '';
-    return `<div style="display:flex;gap:8px;overflow-x:auto;margin:12px 0;">
-      ${images.map((img) => `<img src="/uploads/${esc(img.path)}" style="width:96px;height:96px;object-fit:cover;border-radius:12px;flex-shrink:0;">`).join('')}
+    return `<div class="detail-gallery">
+      ${images.map((img) => `<img src="/uploads/${esc(img.path)}" alt="">`).join('')}
     </div>`;
   }
 
@@ -165,12 +187,14 @@ export async function mount(root, params) {
 
     body.innerHTML = `
       <div style="padding:16px;">
-        <span class="chip active">${esc(STATUS_LABELS[order.status] ?? order.status)}</span>
-        <div class="listing-card" style="margin-top:12px;">
-          <div class="card-top-row"><span class="chip active">${esc(order.cargo_type_name)}</span><span class="caption-text">${esc(order.date_time)}</span></div>
-          <div class="card-route">${esc(order.from_city)}${order.from_district ? ', ' + esc(order.from_district) : ''} → ${esc(order.to_city)}</div>
-          ${order.note ? `<div class="small-text" style="margin-top:8px;">${esc(order.note)}</div>` : ''}
-          ${renderGallery(order.images)}
+        ${renderGallery(order.images)}
+        <div class="detail-card">
+          <div class="card-top-row">
+            <span class="chip chip-status-${esc(order.status)}">${esc(STATUS_LABELS[order.status] ?? order.status)}</span>
+            <span class="caption-text">${esc(order.cargo_type_name)} · ${esc(formatDateTime(order.date_time))}</span>
+          </div>
+          ${routeVisual(order.from_city + (order.from_district ? ', ' + order.from_district : ''), order.to_city)}
+          ${order.note ? `<div class="small-text" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);color:var(--text-muted);">${esc(order.note)}</div>` : ''}
         </div>
 
         <div id="negotiation-section"></div>
@@ -183,16 +207,22 @@ export async function mount(root, params) {
 
     if (order.status === 'negotiating') {
       const selected = offers.find((o) => o.status === 'selected');
+      const initials = (selected?.driver_name ?? '').split(' ').map((p) => p[0]).join('').slice(0, 2);
       negotiationSection.innerHTML = `
-        <div class="listing-card" style="background:var(--success-soft);border:none;margin-top:16px;">
-          <div class="body-text" style="font-weight:600;">Sürücü seçildi — əlaqə saxlayın.</div>
+        <div class="detail-card" style="background:var(--success-soft);border:none;margin-top:16px;">
+          <div class="body-text" style="font-weight:600;color:var(--success);">Sürücü seçildi — əlaqə saxlayın.</div>
         </div>
-        <div class="listing-card">
-          <div class="body-text" style="font-weight:600;">${esc(selected?.driver_name)}</div>
-          <div class="small-text" style="color:var(--text-muted);">${esc(selected?.vehicle_name)}</div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <a class="btn btn-secondary" style="height:40px;text-decoration:none;" href="tel:${encodeURIComponent(selected?.driver_phone ?? '')}">Zəng</a>
-            <a class="btn btn-secondary" style="height:40px;text-decoration:none;" target="_blank"
+        <div class="detail-card">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="offer-card-avatar">${esc(initials)}</div>
+            <div>
+              <div class="body-text" style="font-weight:600;">${esc(selected?.driver_name)}</div>
+              <div class="small-text" style="color:var(--text-muted);">${esc(selected?.vehicle_name)}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <a class="btn btn-secondary" style="height:44px;text-decoration:none;" href="tel:${encodeURIComponent(selected?.driver_phone ?? '')}">Zəng</a>
+            <a class="btn btn-secondary" style="height:44px;text-decoration:none;" target="_blank"
                href="https://wa.me/${encodeURIComponent((selected?.driver_phone ?? '').replace(/\D/g, ''))}">WhatsApp</a>
           </div>
         </div>
@@ -294,15 +324,20 @@ export async function mount(root, params) {
   function renderDriverView(order, myOffer) {
     appbar.querySelector('.appbar-title').textContent = `Elan #${order.number}`;
 
+    const fromLabel = order.from_city + (order.from_district ? ', ' + order.from_district : '') + (order.from_street ? ', ' + order.from_street : '');
+    const toLabel = order.to_city + (order.to_district ? ', ' + order.to_district : '') + (order.to_street ? ', ' + order.to_street : '');
+
     body.innerHTML = `
       <div style="padding:16px;">
-        <div class="listing-card">
-          <div class="card-top-row"><span class="chip active">${esc(order.cargo_type)}</span><span class="caption-text">${esc(order.date_time)}</span></div>
-          <div class="card-route">${esc(order.from_city)}${order.from_district ? ', ' + esc(order.from_district) : ''}${order.from_street ? ', ' + esc(order.from_street) : ''}
-            → ${esc(order.to_city)}${order.to_district ? ', ' + esc(order.to_district) : ''}${order.to_street ? ', ' + esc(order.to_street) : ''}</div>
-          ${order.note ? `<div class="small-text" style="margin-top:8px;">${esc(order.note)}</div>` : ''}
-          ${renderGallery(order.images)}
-          <div class="small-text" style="margin-top:8px;color:var(--text-muted);">${esc(order.offer_count)} təklif verilib</div>
+        ${renderGallery(order.images)}
+        <div class="detail-card">
+          <div class="card-top-row">
+            <span class="chip chip-status-active">${esc(order.cargo_type)}</span>
+            <span class="caption-text">${esc(formatDateTime(order.date_time))}</span>
+          </div>
+          ${routeVisual(fromLabel, toLabel)}
+          ${order.note ? `<div class="small-text" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);color:var(--text-muted);">${esc(order.note)}</div>` : ''}
+          <div class="small-text" style="margin-top:14px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">${esc(order.offer_count)} təklif verilib</div>
         </div>
         <div id="action-section" style="margin-top:16px;"></div>
       </div>
@@ -312,14 +347,14 @@ export async function mount(root, params) {
 
     if (myOffer?.status === 'selected' && ['negotiating', 'closed'].includes(order.status)) {
       actionSection.innerHTML = `
-        <div class="listing-card" style="background:var(--success-soft);border:none;">
-          <div class="body-text" style="font-weight:600;">Siz seçildiniz — əlaqə saxlayın.</div>
-        </div>
-        <div class="small-text">${esc(order.customer_first_name)} · ${esc(order.customer_phone)}</div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <a class="btn btn-secondary" style="height:40px;text-decoration:none;" href="tel:${encodeURIComponent(order.customer_phone ?? '')}">Zəng</a>
-          <a class="btn btn-secondary" style="height:40px;text-decoration:none;" target="_blank"
-             href="https://wa.me/${encodeURIComponent((order.customer_phone ?? '').replace(/\D/g, ''))}">WhatsApp</a>
+        <div class="detail-card" style="background:var(--success-soft);border:none;">
+          <div class="body-text" style="font-weight:600;color:var(--success);">Siz seçildiniz — əlaqə saxlayın.</div>
+          <div class="small-text" style="margin-top:4px;">${esc(order.customer_first_name)} · ${esc(order.customer_phone)}</div>
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <a class="btn btn-secondary" style="height:44px;text-decoration:none;" href="tel:${encodeURIComponent(order.customer_phone ?? '')}">Zəng</a>
+            <a class="btn btn-secondary" style="height:44px;text-decoration:none;" target="_blank"
+               href="https://wa.me/${encodeURIComponent((order.customer_phone ?? '').replace(/\D/g, ''))}">WhatsApp</a>
+          </div>
         </div>
         ${order.status === 'negotiating' ? '<button type="button" class="btn btn-danger" id="decline-btn" style="margin-top:8px;">İmtina et</button>' : ''}
       `;

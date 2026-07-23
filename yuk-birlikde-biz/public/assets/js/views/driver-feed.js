@@ -15,8 +15,9 @@ export async function render(root) {
   const { user } = getState();
 
   root.innerHTML = `
-    <div class="home-top-row">
-      <h3 class="h3">Salam, ${esc(user?.first_name)}</h3>
+    <div class="home-hero">
+      <h3 class="h3 home-hero-greeting">Salam, ${esc(user?.first_name)}</h3>
+      <div class="small-text home-hero-sub">Sizə uyğun yeni yüklər aşağıdadır.</div>
     </div>
     <div id="conn-banner"></div>
     <div id="scope-tabs" style="margin:12px 0;"></div>

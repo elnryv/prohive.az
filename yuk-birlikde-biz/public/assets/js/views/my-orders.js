@@ -58,6 +58,7 @@ export async function render(root) {
           from: order.from_city,
           to: order.to_city,
           date_time: order.date_time,
+          thumb_url: order.thumb_url,
           note_preview: order.offer_count > 0 ? `${order.offer_count} təklif` : 'Hələ təklif yoxdur',
         });
         card.style.cursor = 'pointer';

@@ -15,4 +15,5 @@ export const ICONS = {
   share: svg('<path d="M12 4v11"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>'),
   close: svg('<path d="M6 6l12 12M18 6 6 18"/>'),
   closeSmall: svg('<path d="M6 6l12 12M18 6 6 18"/>', 12),
+  box: svg('<path d="M3.5 8 12 3.5 20.5 8 12 12.5 3.5 8Z"/><path d="M3.5 8v8l8.5 4.5 8.5-4.5V8"/><path d="M12 12.5V21"/>'),
 };

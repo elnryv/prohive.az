@@ -1,2 +1,30 @@
 .home-screen { padding: var(--space-2); padding-top: calc(env(safe-area-inset-top) + var(--space-2)); padding-bottom: 96px; }
 .home-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+
+.home-hero {
+  position: relative;
+  background: var(--gradient-hero);
+  border-radius: var(--r-card);
+  padding: 22px 20px;
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  box-shadow: var(--shadow-glow);
+}
+.home-hero::before {
+  content: '';
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 70%);
+  top: -90px; right: -60px;
+}
+.home-hero::after {
+  content: '';
+  position: absolute;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%);
+  bottom: -80px; left: -40px;
+}
+.home-hero-greeting { color: #fff; position: relative; z-index: 1; }
+.home-hero-sub { color: rgba(255, 255, 255, 0.78); margin-top: 4px; position: relative; z-index: 1; }

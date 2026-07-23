@@ -15,7 +15,8 @@ if ($user['role'] !== 'driver') {
 
 $sql = 'SELECT o.id, o.number, o.from_city, o.from_district, o.to_city, o.date_time, o.note,
         c.name AS cargo_type,
-        (SELECT COUNT(*) FROM order_images WHERE order_id = o.id) AS image_count
+        (SELECT COUNT(*) FROM order_images WHERE order_id = o.id) AS image_count,
+        (SELECT thumb_path FROM order_images WHERE order_id = o.id ORDER BY sort LIMIT 1) AS thumb_path
         FROM orders o
         JOIN cargo_types c ON c.id = o.cargo_type_id
         WHERE o.status IN ("active", "waiting")';
@@ -60,6 +61,7 @@ $listings = array_map(static function (array $row): array {
         'to' => $row['to_city'],
         'date_time' => $row['date_time'],
         'has_images' => ((int) $row['image_count']) > 0,
+        'thumb_url' => $row['thumb_path'] !== null ? '/uploads/' . $row['thumb_path'] : null,
         'note_preview' => $row['note'] !== null ? mb_substr($row['note'], 0, 80) : '',
     ];
 }, $rows);
