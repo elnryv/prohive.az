@@ -255,6 +255,7 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
 }
 .sheet-row:last-child { border-bottom: none; }
 .sheet-row.selected { color: var(--primary); font-weight: 600; }
+.sheet-row svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--primary); }
 
 /* PinPad */
 .pinpad-dots { display: flex; justify-content: center; gap: 16px; margin: 24px 0; }

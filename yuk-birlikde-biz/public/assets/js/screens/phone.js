@@ -11,9 +11,23 @@ export async function mount(root) {
       Hesabınız varsa daxil olacaqsınız, yoxdursa yeni hesab yaradılacaq.
     </p>
     <div class="phone-row">
+      <span class="phone-flag" aria-hidden="true">
+        <svg viewBox="0 0 900 600" width="28" height="20">
+          <rect width="900" height="200" y="0" fill="#0AADE3"/>
+          <rect width="900" height="200" y="200" fill="#EF3340"/>
+          <rect width="900" height="200" y="400" fill="#3EA72D"/>
+          <circle cx="430" cy="300" r="90" fill="#FFFFFF"/>
+          <circle cx="460" cy="300" r="76" fill="#EF3340"/>
+          <rect x="526" y="266" width="68" height="68" fill="#FFFFFF"/>
+          <rect x="526" y="266" width="68" height="68" fill="#FFFFFF" transform="rotate(45 560 300)"/>
+        </svg>
+      </span>
       <span class="phone-prefix">+994</span>
       <div class="phone-divider"></div>
-      <button type="button" class="phone-operator-btn" id="operator-btn">050 ▾</button>
+      <button type="button" class="phone-operator-btn" id="operator-btn">
+        <span id="operator-label">050</span>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
       <div class="phone-divider"></div>
       <input class="phone-number-input" id="number-input" inputmode="numeric" placeholder="___-__-__" maxlength="9">
     </div>
@@ -22,6 +36,7 @@ export async function mount(root) {
   `;
 
   const operatorBtn = root.querySelector('#operator-btn');
+  const operatorLabel = root.querySelector('#operator-label');
   const numberInput = root.querySelector('#number-input');
   const continueBtn = root.querySelector('#continue-btn');
   const errorEl = root.querySelector('#phone-error');
@@ -33,21 +48,24 @@ export async function mount(root) {
     config = data;
   }).catch(() => {});
 
+  const checkIcon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
   operatorBtn.addEventListener('click', () => {
+    operatorBtn.classList.add('open');
     const list = document.createElement('div');
     (config?.operators ?? ['010', '050', '051', '055', '060', '070', '077', '099']).forEach((prefix) => {
       const row = document.createElement('div');
       row.className = 'sheet-row' + (prefix === operator ? ' selected' : '');
-      row.textContent = prefix;
+      row.innerHTML = `<span>${prefix}</span>` + (prefix === operator ? checkIcon : '');
       row.addEventListener('click', () => {
         operator = prefix;
-        operatorBtn.textContent = `${prefix} ▾`;
+        operatorLabel.textContent = prefix;
         sheet.close();
         numberInput.focus();
       });
       list.appendChild(row);
     });
-    const sheet = openSheet(list);
+    const sheet = openSheet(list, { onClose: () => operatorBtn.classList.remove('open') });
   });
 
   function formatDigits(digits) {

@@ -2,25 +2,59 @@
 .phone-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 56px;
-  border: 1px solid var(--border);
+  height: 60px;
+  border: 1.5px solid var(--border);
   border-radius: var(--r-input);
   background: var(--card);
-  padding: 0 12px;
+  padding: 0 14px 0 10px;
   margin: var(--space-2) 0;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
-.phone-prefix { color: var(--text-muted); }
+.phone-row:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+.phone-flag {
+  width: 28px; height: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.08);
+}
+.phone-flag svg { display: block; width: 100%; height: 100%; }
+.phone-prefix {
+  color: var(--text);
+  font-weight: 650;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  margin-left: 10px;
+}
+.phone-divider { width: 1px; height: 26px; background: var(--border); margin: 0 10px; }
 .phone-operator-btn {
-  border: none; background: none;
-  font-size: 16px; font-weight: 500;
-  display: flex; align-items: center; gap: 4px;
+  border: none;
+  background: var(--bg);
+  border-radius: 999px;
+  height: 38px;
+  padding: 0 10px 0 14px;
+  font-size: 15px; font-weight: 650;
+  display: flex; align-items: center; gap: 6px;
   cursor: pointer;
   color: var(--text);
+  transition: background 120ms ease;
 }
-.phone-divider { width: 1px; height: 24px; background: var(--border); }
+.phone-operator-btn:active { background: var(--primary-soft); }
+.phone-operator-btn svg {
+  width: 15px; height: 15px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 200ms var(--ease-sheet-open);
+}
+.phone-operator-btn.open svg { transform: rotate(180deg); }
 .phone-number-input {
   flex: 1; border: none; outline: none;
-  font-size: 16px; font-variant-numeric: tabular-nums;
+  font-size: 17px; font-weight: 550; font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
   background: transparent;
 }
+.phone-number-input::placeholder { color: var(--text-muted); opacity: 0.55; }

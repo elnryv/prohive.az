@@ -1,0 +1,14 @@
+Brend işarəsi (izometrik kub, mavi qradiyent fon) `mark.svg`-də vektor
+mənbə kimi saxlanılır. icon-192.png, icon-512.png, apple-touch-icon.png və
+favicon-32.png hər biri həmin SVG-nin Chromium (headless) ilə birbaşa hədəf
+ölçüdə render olunmasıdır (yenidən miqyaslama yoxdur, ona görə kənarlar
+itisdir). apple-touch-icon.png və maskable ikonlar tam qapalı (şəffaflıqsız)
+kvadratdır və künc dəyirmiləşdirməsi yoxdur — iOS/Android bunu özü tətbiq
+edir; əvvəlcədən dəyirmiləşdirmə ikiqat maskalanmaya səbəb olardı.
+
+splash.js-dəki brend işarəsi eyni SVG-nin daxili (inline) təkrarıdır — ayrı
+şəbəkə sorğusu olmadan hər ölçüdə itilik üçün.
+
+Yenidən generasiya lazım olsa: mark.svg-ni redaktə edin, sonra Chromium/
+Playwright ilə hər ölçü üçün tam ekranlı SVG-ni dəqiq piksel ölçüsündə
+skrinşot edin (bax: git tarixçəsində bu NOTICE-i əlavə edən commit).
