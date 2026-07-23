@@ -2,6 +2,7 @@ import { api, ApiError } from '../api.js';
 import { createStepper } from '../components/stepper.js';
 import { openSheet } from '../components/sheet.js';
 import { showToast } from '../components/toast.js';
+import { ICONS } from '../components/icons.js';
 import { navigate } from '../router.js';
 import { esc } from '../utils.js';
 import { getState } from '../store.js';
@@ -51,7 +52,7 @@ export async function mount(root) {
   root.classList.add('register-screen');
   root.innerHTML = `
     <div style="display:flex;align-items:center;">
-      <button type="button" id="back-btn" class="appbar-back">←</button>
+      <button type="button" id="back-btn" class="appbar-back" aria-label="Geri">${ICONS.chevronLeft}</button>
       <div id="stepper-slot" style="flex:1"></div>
     </div>
     <div id="step-content"></div>
@@ -263,7 +264,7 @@ export async function mount(root) {
         wrap.innerHTML = `
           <img src="${img.url}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
           <button type="button" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;
-            border:none;background:var(--error);color:#fff;font-size:12px;line-height:1;">×</button>
+            border:none;background:var(--error);color:#fff;display:flex;align-items:center;justify-content:center;padding:0;">${ICONS.closeSmall}</button>
         `;
         wrap.querySelector('button').addEventListener('click', () => {
           data.images.splice(i, 1);

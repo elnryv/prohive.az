@@ -1,3 +1,5 @@
+import { ICONS } from './icons.js';
+
 export function createAppBar({ title, onBack, action } = {}) {
   const el = document.createElement('div');
   el.className = 'appbar';
@@ -5,7 +7,8 @@ export function createAppBar({ title, onBack, action } = {}) {
   if (onBack) {
     const backBtn = document.createElement('button');
     backBtn.className = 'appbar-back';
-    backBtn.innerHTML = '←';
+    backBtn.innerHTML = ICONS.chevronLeft;
+    backBtn.setAttribute('aria-label', 'Geri');
     backBtn.addEventListener('click', onBack);
     el.appendChild(backBtn);
   } else {

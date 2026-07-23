@@ -7,6 +7,7 @@ import { createSkeletonList } from '../components/skeleton.js';
 import { openSheet } from '../components/sheet.js';
 import { showToast } from '../components/toast.js';
 import { openOfferSheet } from '../components/offer-sheet.js';
+import { ICONS } from '../components/icons.js';
 import { esc } from '../utils.js';
 import { connectSSE } from '../sse.js';
 
@@ -107,7 +108,7 @@ export async function mount(root, params) {
   const shareBtn = document.createElement('button');
   shareBtn.type = 'button';
   shareBtn.className = 'appbar-back';
-  shareBtn.innerHTML = '↗';
+  shareBtn.innerHTML = ICONS.share;
   shareBtn.setAttribute('aria-label', 'Paylaş');
   shareBtn.addEventListener('click', () => currentOrder && shareOrder(currentOrder));
 

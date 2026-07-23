@@ -2,6 +2,7 @@ import { api, ApiError } from '../api.js';
 import { openSheet } from '../components/sheet.js';
 import { createPinPad } from '../components/pinpad.js';
 import { showToast } from '../components/toast.js';
+import { ICONS } from '../components/icons.js';
 import { getState, setState } from '../store.js';
 import { navigate } from '../router.js';
 import { esc } from '../utils.js';
@@ -178,7 +179,7 @@ async function renderRouteWatches(container) {
     routes.forEach((route) => {
       const row = document.createElement('div');
       row.className = 'sheet-row';
-      row.innerHTML = `<span>${esc(route.from_city)} → ${esc(route.to_city)}</span><button type="button" style="border:none;background:none;color:var(--error);font-size:16px;">×</button>`;
+      row.innerHTML = `<span>${esc(route.from_city)} → ${esc(route.to_city)}</span><button type="button" class="route-remove-btn" style="border:none;background:none;">${ICONS.closeSmall}</button>`;
       row.querySelector('button').addEventListener('click', async () => {
         try {
           await api.del('/routes', { id: route.id });

@@ -2,6 +2,7 @@ import { api, ApiError } from '../api.js';
 import { createPinPad } from '../components/pinpad.js';
 import { createStepper } from '../components/stepper.js';
 import { openSheet } from '../components/sheet.js';
+import { ICONS } from '../components/icons.js';
 import { getState, setState } from '../store.js';
 import { navigate } from '../router.js';
 import { esc } from '../utils.js';
@@ -62,7 +63,7 @@ export async function mount(root) {
   root.classList.add('register-screen');
   root.innerHTML = `
     <div style="display:flex;align-items:center;">
-      <button type="button" id="back-btn" class="appbar-back">←</button>
+      <button type="button" id="back-btn" class="appbar-back" aria-label="Geri">${ICONS.chevronLeft}</button>
       <div id="stepper-slot" style="flex:1"></div>
     </div>
     <div id="step-content"></div>

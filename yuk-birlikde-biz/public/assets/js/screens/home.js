@@ -1,5 +1,6 @@
 import { getState } from '../store.js';
 import { createBottomNav } from '../components/bottomnav.js';
+import { ICONS } from '../components/icons.js';
 import { api } from '../api.js';
 import { navigate } from '../router.js';
 import { connectSSE } from '../sse.js';
@@ -8,16 +9,16 @@ import { maybePromptInstall } from '../install-prompt.js';
 
 const TABS = {
   customer: [
-    { label: 'Ana səhifə', view: () => import('../views/customer-home.js') },
-    { label: 'Elanlarım', view: () => import('../views/my-orders.js') },
-    { label: 'Bildirişlər', view: () => import('../views/notifications-view.js') },
-    { label: 'Profil', view: () => import('../views/profile-view.js') },
+    { label: 'Ana səhifə', icon: ICONS.home, view: () => import('../views/customer-home.js') },
+    { label: 'Elanlarım', icon: ICONS.list, view: () => import('../views/my-orders.js') },
+    { label: 'Bildirişlər', icon: ICONS.bell, view: () => import('../views/notifications-view.js') },
+    { label: 'Profil', icon: ICONS.person, view: () => import('../views/profile-view.js') },
   ],
   driver: [
-    { label: 'Lent', view: () => import('../views/driver-feed.js') },
-    { label: 'Təkliflərim', view: () => import('../views/my-offers.js') },
-    { label: 'Bildirişlər', view: () => import('../views/notifications-view.js') },
-    { label: 'Profil', view: () => import('../views/profile-view.js') },
+    { label: 'Lent', icon: ICONS.layers, view: () => import('../views/driver-feed.js') },
+    { label: 'Təkliflərim', icon: ICONS.tag, view: () => import('../views/my-offers.js') },
+    { label: 'Bildirişlər', icon: ICONS.bell, view: () => import('../views/notifications-view.js') },
+    { label: 'Profil', icon: ICONS.person, view: () => import('../views/profile-view.js') },
   ],
 };
 
@@ -59,7 +60,7 @@ export async function mount(root) {
   }
 
   const bottomNav = createBottomNav(
-    tabs.map((t) => ({ label: t.label })),
+    tabs.map((t) => ({ label: t.label, icon: t.icon })),
     { active: 0, onChange: (index) => showTab(index) }
   );
   root.appendChild(bottomNav.el);
