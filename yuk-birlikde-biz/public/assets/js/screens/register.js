@@ -136,10 +136,12 @@ export async function mount(root) {
       <h2 class="h2">Platformadan necə istifadə edəcəksiniz?</h2>
       <div class="role-cards">
         <div class="role-card" data-role="customer">
+          <span class="role-card-icon">${ICONS.box}</span>
           <div class="role-card-title">Yük göndərirəm</div>
           <div class="role-card-desc">Elan yaradın, sürücülərdən təklif alın</div>
         </div>
         <div class="role-card" data-role="driver">
+          <span class="role-card-icon">${ICONS.truck}</span>
           <div class="role-card-title">Yük daşıyıram</div>
           <div class="role-card-desc">Elanlara baxın, qiymət təklif edin</div>
         </div>

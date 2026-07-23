@@ -20,7 +20,7 @@ export async function render(root) {
     <div id="negotiating-section" style="margin-top:24px;"></div>
     <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;">
       <h3 class="h3">Aktiv elanlarım</h3>
-      <button type="button" class="chip" id="see-all-btn" style="border:none;color:var(--primary);background:none;">Hamısına bax</button>
+      <button type="button" class="chip" id="see-all-btn" style="border:none;color:var(--primary-ink);background:none;">Hamısına bax</button>
     </div>
     <div id="active-list" style="margin-top:12px;"></div>
   `;

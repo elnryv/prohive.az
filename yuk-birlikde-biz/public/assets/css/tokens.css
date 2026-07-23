@@ -1,14 +1,17 @@
 :root {
-  /* Rəng palitrası — Hissə 2.1 (brend qradiyenti ilə zənginləşdirilib) */
-  --primary:        #2563EB;
-  --primary-light:  #3B82F6;
-  --primary-dark:   #1D3FAE;
-  --primary-soft:   #EFF6FF;
+  /* Rəng palitrası — Bolt-vari: canlı yaşıl brend rəngi, tünd/qara vurğular */
+  --primary:        #17B871;
+  --primary-light:  #4ADE94;
+  --primary-dark:   #0C7A49;
+  --primary-soft:   #E4FAF0;
+  --primary-ink:    #0B7A48;
+  --on-primary:     #06251A;
+  --ink:            #0B0E0C;
   --accent:         #7C3AED;
   --accent-soft:    #F4EEFF;
-  --success:        #16A34A;
-  --success-light:  #22C55E;
-  --success-soft:   #ECFDF3;
+  --success:        #0D9488;
+  --success-light:  #14B8A6;
+  --success-soft:   #E7FBF8;
   --warning:        #D97706;
   --warning-light:  #F59E0B;
   --warning-soft:   #FFF7E6;
@@ -17,17 +20,17 @@
   --error-soft:     #FEF2F2;
   --slate:          #64748B;
   --slate-soft:     #F1F5F9;
-  --bg:             #F3F5FA;
+  --bg:             #F2F5F3;
   --card:           #FFFFFF;
-  --border:         #E4E8F0;
+  --border:         #E2E8E4;
   --text:           #0F172A;
   --text-muted:     #64748B;
 
-  /* Qradiyentlər — brend fonu/splash-la üst-üstə düşür */
-  --gradient-primary: linear-gradient(135deg, #4C8DFB 0%, #2563EB 55%, #1D3FAE 100%);
-  --gradient-hero: linear-gradient(160deg, #2A6DF4 0%, #1D3FAE 100%);
-  --gradient-page: radial-gradient(1100px 480px at 15% -12%, rgba(37, 99, 235, 0.07), transparent 60%),
-                    radial-gradient(900px 420px at 110% 8%, rgba(124, 58, 237, 0.05), transparent 55%);
+  /* Qradiyentlər — brend fonu/splash-la üst-üstə düşür (Bolt-vari: tünd/qara zəminə yaşıl vurğu) */
+  --gradient-primary: linear-gradient(135deg, #4ADE94 0%, #17B871 55%, #0C7A49 100%);
+  --gradient-hero: linear-gradient(160deg, #101613 0%, #0A2A1C 100%);
+  --gradient-page: radial-gradient(1100px 480px at 15% -12%, rgba(23, 184, 113, 0.08), transparent 60%),
+                    radial-gradient(900px 420px at 110% 8%, rgba(124, 58, 237, 0.04), transparent 55%);
 
   /* Forma, radius, shadow — Hissə 2.3 */
   --r-button: 18px;
@@ -37,9 +40,9 @@
   --r-input: 16px;
   --r-chip: 999px;
   --shadow-soft:  0 2px 8px rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.07);
-  --shadow-card:  0 1px 3px rgba(15, 23, 42, 0.04), 0 12px 32px -8px rgba(37, 99, 235, 0.14);
+  --shadow-card:  0 1px 3px rgba(15, 23, 42, 0.04), 0 12px 32px -8px rgba(23, 184, 113, 0.16);
   --shadow-sheet: 0 -8px 40px rgba(15, 23, 42, 0.14);
-  --shadow-glow:  0 10px 28px -8px rgba(37, 99, 235, 0.45);
+  --shadow-glow:  0 10px 28px -8px rgba(23, 184, 113, 0.5);
 
   /* 8pt grid */
   --space-1: 8px;
@@ -115,6 +118,8 @@ input, textarea {
   -webkit-touch-callout: default;
 }
 
+input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); }
+
 .display, .h-display { font-size: 40px; font-weight: 700; line-height: 1.08; letter-spacing: -0.03em; margin: 0; }
 h1, .h1 { font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
 h2, .h2 { font-size: 25px; font-weight: 700; line-height: 1.18; letter-spacing: -0.015em; margin: 0; }
@@ -124,7 +129,7 @@ h3, .h3 { font-size: 20px; font-weight: 600; line-height: 1.25; letter-spacing: 
 .caption-text { font-size: 12px; font-weight: 500; line-height: 1.5; letter-spacing: 0.01em; color: var(--text-muted); }
 .eyebrow-text {
   font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--primary);
+  color: var(--primary-ink);
 }
 
 .tabular-nums { font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: -0.01em; }

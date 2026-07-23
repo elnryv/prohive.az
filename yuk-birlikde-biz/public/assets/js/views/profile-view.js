@@ -223,54 +223,91 @@ async function renderSubscriptionChip(chipEl) {
   }
 }
 
+function settingsRow(id, icon, label, { value = '', danger = false, noChevron = false } = {}) {
+  return `
+    <div class="settings-row" id="${id}">
+      <span class="settings-icon${danger ? ' danger' : ''}">${icon}</span>
+      <span class="settings-label">${label}</span>
+      ${value ? `<span class="settings-value">${value}</span>` : ''}
+      ${noChevron ? '' : `<span class="settings-chevron">${ICONS.chevronRight}</span>`}
+    </div>
+  `;
+}
+
+function toggleRow(id, icon, label, checked) {
+  return `
+    <div class="settings-row">
+      <span class="settings-icon">${icon}</span>
+      <span class="settings-label">${label}</span>
+      <label class="toggle">
+        <input type="checkbox" id="${id}" ${checked ? 'checked' : ''}>
+        <span class="toggle-track"></span>
+        <span class="toggle-thumb"></span>
+      </label>
+    </div>
+  `;
+}
+
 export async function render(root) {
   const { user } = getState();
   const config = await api.get('/config').catch(() => ({}));
   const profile = await api.get('/profile').catch(() => ({ profile: null }));
   const p = profile.profile ?? {};
+  const initials = `${(p.first_name ?? '')[0] ?? ''}${(p.last_name ?? '')[0] ?? ''}`;
 
   root.innerHTML = `
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
-      <div class="avatar-circle" style="width:64px;height:64px;">
-        ${p.avatar_path ? `<img src="/uploads/${p.avatar_path}">` : ''}
+    <div class="profile-hero">
+      <div class="profile-hero-avatar">
+        ${p.avatar_path ? `<img src="/uploads/${esc(p.avatar_path)}" alt="">` : esc(initials)}
       </div>
-      <div>
-        <div class="h3">${esc(p.first_name)} ${esc(p.last_name)}</div>
-        <div class="small-text" style="color:var(--text-muted);">+${esc(p.phone)}</div>
+      <div style="min-width:0;">
+        <div class="h3 profile-hero-name">${esc(p.first_name)} ${esc(p.last_name)}</div>
+        <div class="small-text profile-hero-phone">+${esc(p.phone)}</div>
+        <span class="profile-hero-role">${p.role === 'driver' ? 'Sürücü' : 'Müştəri'}</span>
       </div>
     </div>
 
     <div id="banner-slot"></div>
 
-    <div class="sheet-row" id="edit-name">Ad və soyadı dəyiş</div>
-    <div class="sheet-row" id="edit-pin">PIN dəyişdir</div>
-    ${p.role === 'driver' ? `<div class="sheet-row" id="edit-vehicle">Avtomobil məlumatları</div>` : ''}
+    <div class="detail-card settings-card">
+      ${settingsRow('edit-name', ICONS.person, 'Ad və soyadı dəyiş')}
+      ${settingsRow('edit-pin', ICONS.lock, 'PIN dəyişdir')}
+      ${p.role === 'driver' ? settingsRow('edit-vehicle', ICONS.truck, 'Avtomobil məlumatları') : ''}
+    </div>
 
     ${p.role === 'driver' ? `
-      <h3 class="h3" style="margin-top:24px;">Abunə</h3>
-      <div class="sheet-row" id="subscription-link"><span>Abunə statusu</span><span id="subscription-chip" class="chip">Yüklənir…</span></div>
+      <h3 class="h3" style="margin:20px 4px 8px;">Abunə</h3>
+      <div class="detail-card settings-card">
+        ${settingsRow('subscription-link', ICONS.bank, 'Abunə statusu', { value: '<span id="subscription-chip" class="chip" style="height:auto;padding:3px 12px;font-size:12px;">Yüklənir…</span>' })}
+      </div>
 
-      <h3 class="h3" style="margin-top:24px;">İzlədiyim marşrutlar</h3>
-      <div id="route-watches"></div>
+      <h3 class="h3" style="margin:20px 4px 8px;">İzlədiyim marşrutlar</h3>
+      <div class="detail-card" id="route-watches"></div>
     ` : ''}
 
-    <h3 class="h3" style="margin-top:24px;">Bildiriş ayarları</h3>
-    <div class="sheet-row"><span>Təklif bildirişləri</span><input type="checkbox" id="notify-offers" ${p.notify_offers ? 'checked' : ''}></div>
-    <div class="sheet-row"><span>Status bildirişləri</span><input type="checkbox" id="notify-status" ${p.notify_status ? 'checked' : ''}></div>
-    <div class="sheet-row"><span>Sistem xəbərləri</span><input type="checkbox" id="notify-system" ${p.notify_system ? 'checked' : ''}></div>
+    <h3 class="h3" style="margin:20px 4px 8px;">Bildiriş ayarları</h3>
+    <div class="detail-card settings-card">
+      ${toggleRow('notify-offers', ICONS.tag, 'Təklif bildirişləri', p.notify_offers)}
+      ${toggleRow('notify-status', ICONS.bell, 'Status bildirişləri', p.notify_status)}
+      ${toggleRow('notify-system', ICONS.info, 'Sistem xəbərləri', p.notify_system)}
+    </div>
 
-    <h3 class="h3" style="margin-top:24px;">Dəstək</h3>
-    <div class="sheet-row" id="complaint-link">Şikayət göndər</div>
-    <div class="sheet-row" id="about-link">Haqqımızda</div>
-    <div class="sheet-row" id="terms-link">İstifadə Şərtləri</div>
-    <div class="sheet-row" id="privacy-link">Məxfilik Siyasəti</div>
-    <div class="sheet-row" id="faq-link">FAQ</div>
-    <div class="sheet-row" id="contact-link">Əlaqə</div>
+    <h3 class="h3" style="margin:20px 4px 8px;">Dəstək</h3>
+    <div class="detail-card settings-card">
+      ${settingsRow('complaint-link', ICONS.flag, 'Şikayət göndər')}
+      ${settingsRow('about-link', ICONS.info, 'Haqqımızda')}
+      ${settingsRow('terms-link', ICONS.doc, 'İstifadə Şərtləri')}
+      ${settingsRow('privacy-link', ICONS.doc, 'Məxfilik Siyasəti')}
+      ${settingsRow('faq-link', ICONS.help, 'FAQ')}
+      ${settingsRow('contact-link', ICONS.phone, 'Əlaqə')}
+    </div>
 
-    <button type="button" class="btn btn-danger" id="delete-btn" style="margin-top:24px;">Hesabı sil</button>
-    <button type="button" class="btn btn-secondary" id="logout-btn" style="margin-top:12px;">Çıxış</button>
+    <div class="detail-card settings-card">
+      ${settingsRow('delete-btn', ICONS.trash, 'Hesabı sil', { danger: true, noChevron: true })}
+      ${settingsRow('logout-btn', ICONS.logout, 'Çıxış', { noChevron: true })}
+    </div>
 
-    <div class="caption-text" style="text-align:center;margin-top:24px;">${config.copyright ?? ''}</div>
+    <div class="caption-text" style="text-align:center;margin-top:8px;">${config.copyright ?? ''}</div>
   `;
 
   root.querySelector('#edit-name').addEventListener('click', () => {

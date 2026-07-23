@@ -15,14 +15,14 @@
 }
 .btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.4; pointer-events: none; }
-.btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: var(--shadow-glow); }
-.btn-secondary { background: var(--primary-soft); color: var(--primary); }
+.btn-primary { background: var(--gradient-primary); color: var(--on-primary); box-shadow: var(--shadow-glow); }
+.btn-secondary { background: var(--primary-soft); color: var(--primary-ink); }
 .btn-danger { background: var(--error-soft); color: var(--error); }
 .btn-loading::after {
   content: '';
   width: 18px; height: 18px;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: #fff;
+  border: 2px solid rgba(6, 37, 26, 0.3);
+  border-top-color: var(--on-primary);
   border-radius: 50%;
   animation: spin 700ms linear infinite;
 }
@@ -109,7 +109,7 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   cursor: pointer;
   position: relative;
 }
-.bottomnav-tab.active { color: var(--primary); }
+.bottomnav-tab.active { color: var(--primary-ink); }
 .bottomnav-badge {
   position: absolute;
   top: 2px; right: 22%;
@@ -168,7 +168,7 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   width: 48px; height: 48px; border-radius: 50%;
   background: var(--gradient-primary); color: #fff;
   display: flex; align-items: center; justify-content: center; font-weight: 700;
-  box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 4px 12px -4px rgba(23, 184, 113, 0.5);
 }
 
 @keyframes fade-up {
@@ -204,10 +204,10 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   cursor: pointer;
   white-space: nowrap;
 }
-.chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 
 /* Chip status variantları — order.status ilə uyğun semantik rəng (.chip-dən sonra gəlməlidir ki, üstünlük təşkil etsin) */
-.chip.chip-status-active { background: var(--primary-soft); border-color: transparent; color: var(--primary); }
+.chip.chip-status-active { background: var(--primary-soft); border-color: transparent; color: var(--primary-ink); }
 .chip.chip-status-waiting { background: var(--warning-soft); border-color: transparent; color: var(--warning); }
 .chip.chip-status-negotiating { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
 .chip.chip-status-closed { background: var(--success-soft); border-color: transparent; color: var(--success); }
@@ -285,8 +285,8 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   cursor: pointer;
 }
 .sheet-row:last-child { border-bottom: none; }
-.sheet-row.selected { color: var(--primary); font-weight: 600; }
-.sheet-row svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--primary); }
+.sheet-row.selected { color: var(--primary-ink); font-weight: 600; }
+.sheet-row svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--primary-ink); }
 .sheet-row .route-remove-btn { display: flex; align-items: center; }
 .sheet-row .route-remove-btn svg { width: 16px; height: 16px; color: var(--error); }
 
@@ -464,6 +464,79 @@ button, a, .touchable { min-width: 48px; min-height: 48px; }
   font-weight: 600;
   flex-shrink: 0;
 }
+
+/* Profil — hero + settings siyahısı */
+.profile-hero {
+  position: relative;
+  background: var(--gradient-hero);
+  border-radius: var(--r-card);
+  padding: 22px 20px;
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  box-shadow: var(--shadow-glow);
+  display: flex; align-items: center; gap: 16px;
+}
+.profile-hero::before {
+  content: '';
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(23, 184, 113, 0.35), transparent 70%);
+  top: -100px; right: -70px;
+}
+.profile-hero-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--gradient-primary);
+  color: var(--on-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  position: relative; z-index: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.profile-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-hero-name { color: #fff; position: relative; z-index: 1; }
+.profile-hero-phone { color: rgba(255, 255, 255, 0.72); position: relative; z-index: 1; margin-top: 2px; }
+.profile-hero-role {
+  display: inline-flex; margin-top: 8px;
+  background: rgba(255, 255, 255, 0.14); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: var(--r-chip);
+  position: relative; z-index: 1;
+}
+
+.settings-card { padding: 6px 4px; }
+.settings-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 10px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 120ms ease;
+}
+.settings-row:active { background: var(--bg); }
+.settings-row + .settings-row { border-top: 1px solid var(--border); }
+.settings-icon {
+  width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0;
+  background: var(--primary-soft); color: var(--primary-ink);
+  display: flex; align-items: center; justify-content: center;
+}
+.settings-icon svg { width: 19px; height: 19px; }
+.settings-icon.danger { background: var(--error-soft); color: var(--error); }
+.settings-label { flex: 1; min-width: 0; font-size: 15px; font-weight: 500; }
+.settings-value { color: var(--text-muted); font-size: 14px; flex-shrink: 0; }
+.settings-chevron { color: var(--text-muted); flex-shrink: 0; display: flex; }
+
+.toggle { position: relative; width: 46px; height: 27px; flex-shrink: 0; display: inline-block; }
+.toggle input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 999px; transition: background 160ms ease; pointer-events: none; }
+.toggle input:checked + .toggle-track { background: var(--primary); }
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 160ms ease; pointer-events: none;
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(19px); }
 
 /* Elan detalı — foto qalereya + marşrut vizuallaşdırması */
 .detail-gallery {

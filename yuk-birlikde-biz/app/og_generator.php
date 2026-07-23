@@ -51,8 +51,8 @@ function generate_og_image(array $order, string $cargoTypeName, string $outputPa
     $im = imagecreatetruecolor(OG_WIDTH, OG_HEIGHT);
 
     // Brend fon: primary rənginin şaquli qradienti (Hissə 2.1 --primary → --primary-light).
-    $topR = 37; $topG = 99; $topB = 235;
-    $botR = 59; $botG = 130; $botB = 246;
+    $topR = 23; $topG = 184; $topB = 113;
+    $botR = 74; $botG = 222; $botB = 148;
     for ($y = 0; $y < OG_HEIGHT; $y++) {
         $ratio = $y / OG_HEIGHT;
         $r = (int) ($topR + ($botR - $topR) * $ratio);

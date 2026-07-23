@@ -1,13 +1,23 @@
 .register-screen { padding: var(--space-2); padding-top: calc(env(safe-area-inset-top) + var(--space-2)); }
 .role-cards { display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-3) 0; }
 .role-card {
-  border: 2px solid var(--border);
+  border: 2px solid transparent;
   border-radius: var(--r-card);
   padding: var(--space-2);
   cursor: pointer;
   background: var(--card);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-press) ease-out, border-color 160ms ease, background 160ms ease;
 }
+.role-card:active { transform: scale(0.985); }
 .role-card.selected { border-color: var(--primary); background: var(--primary-soft); }
+.role-card-icon {
+  width: 46px; height: 46px; border-radius: 13px;
+  background: var(--gradient-primary); color: var(--on-primary);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.role-card-icon svg { width: 24px; height: 24px; }
 .role-card-title { font-weight: 600; margin-bottom: 4px; }
 .role-card-desc { color: var(--text-muted); font-size: 14px; }
 
@@ -37,4 +47,4 @@
 .vehicle-size-dims { color: var(--text-muted); font-size: 12px; }
 
 .consent-row { display: flex; align-items: flex-start; gap: 12px; margin: var(--space-3) 0; }
-.consent-row a { color: var(--primary); }
+.consent-row a { color: var(--primary-ink); }

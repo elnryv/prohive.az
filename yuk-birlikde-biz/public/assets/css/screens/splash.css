@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background-image: radial-gradient(circle at 50% 40%, rgba(37, 99, 235, 0.35), transparent 60%);
+  background-image: radial-gradient(circle at 50% 40%, rgba(23, 184, 113, 0.35), transparent 60%);
 }
 .splash-logo {
   width: 96px; height: 96px;
