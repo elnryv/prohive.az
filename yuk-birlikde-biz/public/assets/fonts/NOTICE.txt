@@ -1,0 +1,10 @@
+Inter (Regular/Medium/SemiBold/Bold), SIL Open Font License 1.1 — see
+OFL-LICENSE.txt. Source: https://github.com/rsms/inter via the
+@fontsource/inter npm distribution.
+
+Each woff2 file here is a merge of the upstream "latin" + "latin-ext"
+subsets (fonttools merge, recompressed with fonttools ttLib.woff2) so a
+single file request has complete Azerbaijani glyph coverage — the
+"latin" subset alone is missing ə/ş/ğ/Ə/İ/Ş/Ğ, and "latin-ext" alone is
+missing ı/ç/ö/ü/Ç/Ö/Ü. Confirmed via fontTools cmap inspection before
+bundling.

@@ -1,0 +1,92 @@
+server {
+    listen 443 ssl http2;
+    server_name yuk.birlikde.biz;
+
+    root /var/www/yuk-birlikde-biz/public;
+    index index.php;
+
+    # ssl_certificate / ssl_certificate_key idarə olunur (Let's Encrypt və s.)
+    add_header Strict-Transport-Security "max-age=31536000" always;
+
+    # Nömrəli path parametrləri olan endpointlər üçün pretty-URL → query string
+    location ~ ^/api/v1/pages/([a-zA-Z0-9-]+)$ {
+        rewrite ^ /api/v1/pages.php?slug=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/images$ {
+        rewrite ^ /api/v1/orders/images.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/close$ {
+        rewrite ^ /api/v1/orders/close.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/cancel-selection$ {
+        rewrite ^ /api/v1/orders/cancel-selection.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)/republish$ {
+        rewrite ^ /api/v1/orders/republish.php?id=$1 last;
+    }
+    location ~ ^/api/v1/orders/(\d+)$ {
+        rewrite ^ /api/v1/orders/detail.php?id=$1 last;
+    }
+    location ~ ^/api/v1/feed/(\d+)$ {
+        rewrite ^ /api/v1/feed/detail.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)/withdraw$ {
+        rewrite ^ /api/v1/offers/withdraw.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)/select$ {
+        rewrite ^ /api/v1/offers/select.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)/decline$ {
+        rewrite ^ /api/v1/offers/decline.php?id=$1 last;
+    }
+    location ~ ^/api/v1/offers/(\d+)$ {
+        rewrite ^ /api/v1/offers/update.php?id=$1 last;
+    }
+    location ~ ^/api/v1/banners/(\d+)/click$ {
+        rewrite ^ /api/v1/banners/click.php?id=$1 last;
+    }
+    location ~ ^/e/([a-f0-9]+)$ {
+        rewrite ^ /e/index.php?slug=$1 last;
+    }
+
+    # OG kart keşi (Hissə 12): bir dəfə generasiya olunur, sonra birbaşa statik
+    # fayl kimi xidmət olunur — PHP-yə yalnız keş yoxdursa çatır.
+    location /og/ {
+        alias /var/www/yuk-birlikde-biz/storage/og/;
+        try_files $uri @og_generate;
+    }
+    location @og_generate {
+        rewrite ^/og/([a-f0-9]+)\.png$ /og/generate.php?slug=$1 last;
+    }
+
+    location /sse/ {
+        proxy_read_timeout 3600s;
+        try_files $uri $uri.php =404;
+    }
+
+    location /api/ {
+        try_files $uri $uri.php =404;
+    }
+
+    # Yüklənmiş fayllar statik xidmət olunur — PHP icrası qadağandır (Hissə 11.1)
+    location /uploads/ {
+        alias /var/www/yuk-birlikde-biz/storage/uploads/;
+        location ~ \.php$ { deny all; }
+    }
+
+    # SPA-shell: bütün digər marşrutlar index.php-yə düşür, client-side router idarə edir
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+}

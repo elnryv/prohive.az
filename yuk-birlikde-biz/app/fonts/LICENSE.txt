@@ -1,0 +1,8 @@
+Inter (Regular/Bold) — bundled for server-side OG image generation
+(app/og_generator.php), same files used by the frontend
+(public/assets/fonts/). SIL Open Font License 1.1 — full text and FAQ:
+http://scripts.sil.org/OFL
+
+Each file is a merge of the upstream "latin" + "latin-ext" subsets so a
+single font resolves the full Azerbaijani alphabet — see
+public/assets/fonts/NOTICE.txt for how they were built.
